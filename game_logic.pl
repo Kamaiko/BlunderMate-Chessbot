@@ -2,7 +2,7 @@
 % Author: Student IA1
 % This file contains the basic game rules and move generation
 
-:- [board].
+:- [board_smart].
 
 % Game state representation
 % game_state(Board, CurrentPlayer, MoveCount, GameOver)
