@@ -40,7 +40,9 @@ main_menu :-
     write('4 - Show help'), nl,
     write('5 - Exit'), nl, nl,
     write('Enter your choice (1-5): '),
-    read(Choice),
+    get_single_char(CharCode),
+    char_code(Choice, CharCode),
+    nl,
     process_choice(Choice).
 
 process_choice(1) :-

@@ -3,7 +3,8 @@
     "allow": [
       "Bash(swipl:*)",
       "Bash(.run_clean_tests.ps1)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(move test_path_blocking.pl teststest_path_blocking.pl)"
     ],
     "deny": [],
     "ask": []
