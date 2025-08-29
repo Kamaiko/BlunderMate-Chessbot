@@ -1,26 +1,76 @@
 # 🏆 Prolog Chess Game
 
-Jeu d'echecs complet implemente en Prolog avec architecture moderne, code securise et tests exhaustifs.
+Jeu d'echecs complet implemente en Prolog avec architecture educative moderne, code securise et tests exhaustifs.
 
 **🎮 Pour jouer immediatement :** `swipl go.pl`
 
-## ✨ **Nouvelles Ameliorations v5.1**
+## ✨ **Nouvelles Ameliorations v5.1 - Structure Consolidee**
+- 🏗️ **Architecture simplifiee** : 4 fichiers avec noms intuitifs pour l'enseignement
+- 🎓 **Optimise pour etudiants** : Code lisible et bien divise selon les responsabilites
 - 🔒 **Securite renforcee** : Validation d'entree robuste et protection contre boucles infinies
-- 🧹 **Code optimise** : Suppression des doublons et fonctions inutilisees  
-- 🌍 **Uniformisation** : Interface entierement en francais sans accents
-- ✅ **Tests complets** : 100% des tests passent apres refactoring
+- 🧹 **Code unifie** : Suppression complete des doublons et fonctions inutilisees  
+- 🌍 **Interface francaise** : Messages centralises sans accents
+- ✅ **Tests complets** : 100% des tests passent apres consolidation
 
-## 🏗️ **Architecture Moderne**
+## 🏗️ **Architecture Educative - 4 Modules Intuitifs**
 
 ```
-src/                    # Code de production securise
-├── play_chess.pl      # Interface utilisateur (francais)
-├── game_logic.pl      # Logique metier avec validation robuste
-└── board_smart.pl     # Affichage ASCII optimise
-tests/                 # Suite de tests complete
-├── chess_tests.pl     # Tests complets (6 sections, 100% couverture)
-└── quick_tests.pl     # Tests rapides (validation essentielle)
-go.pl                  # Lanceur rapide
+src/                      # Code consolide et organise
+├── pieces.pl            # 🎯 Logique complete des pieces d'echecs
+│                        #    - Definitions et identification des pieces
+│                        #    - Regles de mouvement par type de piece
+│                        #    - Validation des chemins et captures
+├── board.pl             # ⚡ Echiquier, coordonnees et affichage
+│                        #    - Representation 8x8 de l'echiquier
+│                        #    - Conversion notation algebrique ↔ coordonnees
+│                        #    - Affichage ASCII colore des pieces
+├── game.pl              # 🎮 Etat du jeu et logique de mouvement
+│                        #    - Gestion de l'etat du jeu (initialisation, maj)
+│                        #    - Execution des mouvements avec validation
+│                        #    - Gestion des captures et alternance joueurs
+└── interface.pl         # 🖥️ Interface utilisateur et messages francais
+                         #    - Menu principal et navigation
+                         #    - Boucle de jeu humain vs humain
+                         #    - Messages francais centralises
+
+tests/                   # Suite de tests complete
+├── chess_tests.pl       # Tests complets (6 sections, 100% couverture)
+└── quick_tests.pl       # Tests rapides (validation essentielle)
+go.pl                    # Lanceur rapide
+```
+
+## 🎓 **Design Educatif - Separation des Responsabilites**
+
+### **🎯 `src/pieces.pl` - Logique des Pieces**
+```prolog
+% Exemples de predicats cles:
+piece_definition('P', pion, white).     % Definition des pieces
+can_piece_move(Board, 2, 5, 4, 5, 'P'). % Validation mouvement
+is_path_clear(Board, 1, 1, 8, 8).      % Verification chemin libre
+```
+
+### **⚡ `src/board.pl` - Echiquier et Coordonnees**  
+```prolog
+% Exemples de predicats cles:
+parse_algebraic_move("e2e4", 2, 5, 4, 5). % Notation algebrique
+initialize_board(Board).                   % Echiquier standard
+display_board(Board).                     % Affichage colore
+```
+
+### **🎮 `src/game.pl` - Logique de Jeu**
+```prolog
+% Exemples de predicats cles:
+init_game_state(GameState).              % Initialisation partie
+make_move(GameState, 2, 5, 4, 5, NewGS). % Execution mouvement
+valid_move(Board, white, 2, 5, 4, 5).    % Validation complete
+```
+
+### **🖥️ `src/interface.pl` - Interface Utilisateur**
+```prolog
+% Exemples de predicats cles:
+start.                    % Point d'entree principal
+main_menu.               % Menu principal francais
+game_loop(GameState).    % Boucle de jeu interactive
 ```
 
 ## 🧪 **Tests et Qualite**
@@ -29,18 +79,34 @@ go.pl                  # Lanceur rapide
 
 ### **📋 Validation Complete**
 
-- **Tests rapides** (~1-2 sec) : Validation des fonctionnalites de base
-- **Suite complete** (~3-5 sec) : Tests exhaustifs en 6 sections
+- **Tests rapides** (~1-2 sec) : `swipl -g "consult('tests/quick_tests'), quick_test, halt."`
+- **Suite complete** (~3-5 sec) : `swipl -g "consult('tests/chess_tests'), run_all_tests, halt."`
 - **Securite** : Validation d'entree, protection recursion, gestion d'erreurs
-- **Qualite** : Code sans doublons, commentaires uniformes, bonnes pratiques
+- **Architecture** : Code sans doublons, separation claire des responsabilites
+
+### **🎯 Sections de Tests Validees**
+1. **Tests de base** - Echiquier et notation
+2. **Tests de logique** - Validation mouvements et chemins
+3. **Tests par piece** - Regles specifiques (pion, tour, cavalier, etc.)
+4. **Tests de scenarios** - Sequences d'ouverture et tactiques  
+5. **Tests de robustesse** - Gestion d'erreurs et cas limites
+6. **Tests d'integration** - Blocage de chemins et interactions
 
 ## 🎮 **Guide de Jeu**
 
 ### **Commandes**
-- **Mouvements** : `e2e4` 
-- **help** : Aide
-- **quit** : Quitter la partie
-- **exit** : Quitter le programme
+- **Mouvements** : `e2e4` (notation algebrique)
+- **help** : Aide pendant le jeu
+- **board** : Afficher l'echiquier actuel
+- **quit** : Retour au menu principal
+- **exit** : Quitter le programme completement
+
+### **Format des Mouvements**
+```
+e2e4  ->  Pion de e2 vers e4
+g1f3  ->  Cavalier de g1 vers f3  
+d1h5  ->  Dame de d1 vers h5
+```
 
 ---
 
@@ -48,7 +114,7 @@ go.pl                  # Lanceur rapide
 
 ### **🎯 Vision : Vers un Moteur d'Echecs Complet**
 
-Ce projet a atteint une **base solide et securisee**. Voici les prochaines etapes recommandees pour evoluer vers un moteur d'echecs de niveau professionnel :
+Ce projet a atteint une **base solide et securisee** avec une architecture educative optimale. Voici les prochaines etapes recommandees pour evoluer vers un moteur d'echecs de niveau professionnel :
 
 ### **📋 PHASE 1 : Regles Avancees (Priorite Haute)**
 - **🏰 Roque** : Implemer le grand et petit roque avec toutes les conditions
@@ -166,4 +232,4 @@ Avec ces ajouts, le projet deviendrait :
 
 ---
 
-**Version** : 5.1 (Securise et Optimise) | **Auteur** : Patrick Patenaude | **Date** : Aout 2025
+**Version** : 5.1 (Structure Consolidee Educative) | **Auteur** : Patrick Patenaude | **Date** : Aout 2025
