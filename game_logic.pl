@@ -63,13 +63,15 @@ execute_move(Board, FromRow, FromCol, ToRow, ToCol, NewBoard) :-
     place_single_piece(Board, FromRow, FromCol, ' ', Board1),
     place_single_piece(Board1, ToRow, ToCol, Piece, NewBoard).
 
-% Check if piece is white (Unicode chess symbols)
+% --- VERIFICATION DES PIECES BLANCHES ---
+% Détermine si une pièce appartient au joueur blanc (caractères ASCII)
 is_white_piece(Piece) :-
-    member(Piece, ['♙', '♖', '♘', '♗', '♕', '♔']).
+    member(Piece, ['P', 'R', 'N', 'B', 'Q', 'K']).
 
-% Check if piece is black (Unicode chess symbols)
+% --- VERIFICATION DES PIECES NOIRES ---
+% Détermine si une pièce appartient au joueur noir (caractères ASCII)
 is_black_piece(Piece) :-
-    member(Piece, ['♟', '♜', '♞', '♝', '♛', '♚']).
+    member(Piece, ['p', 'r', 'n', 'b', 'q', 'k']).
 
 % Check if square is empty
 is_empty_square(Board, Row, Col) :-
@@ -90,15 +92,23 @@ is_ally_square(Board, Row, Col, Player) :-
 is_free_square(Board, Row, Col, Player) :-
     is_empty_square(Board, Row, Col) ; is_enemy_square(Board, Row, Col, Player).
 
-% Basic checkmate detection (simplified)
-is_checkmate(Board, Player, false) :-
-    % For now, just check if king is present
-    find_king(Board, Player, _, _).
-is_checkmate(_, _, true).
+% =============================================================================
+% SECTION 7 : DETECTION D'ECHEC ET MAT
+% =============================================================================
 
-% Find king position
+% --- DETECTION SIMPLIFIEE D'ECHEC ET MAT ---
+% Pour l'instant, vérifie seulement si le roi est présent
+is_checkmate(Board, Player, false) :-
+    % Le jeu continue si le roi est trouvé
+    find_king(Board, Player, _, _).
+is_checkmate(Board, Player, true) :-
+    % Le jeu est terminé si aucun roi n'est trouvé
+    \+ find_king(Board, Player, _, _).
+
+% --- RECHERCHE DE LA POSITION DU ROI ---
+% Trouve la position du roi d'un joueur donné
 find_king(Board, Player, Row, Col) :-
-    (Player = white -> King = '♔' ; King = '♚'),
+    (Player = white -> King = 'K' ; King = 'k'),  % Caractères ASCII pour K et k
     find_piece(Board, King, Row, Col).
 
 % Find piece position
@@ -130,9 +140,9 @@ generate_moves(Board, Player, Moves) :-
 % Count pieces for evaluation (Unicode chess symbols)
 count_pieces(Board, Player, Count) :-
     (Player = white -> 
-        Pieces = ['♙', '♖', '♘', '♗', '♕', '♔'] 
+        Pieces = ['P', 'R', 'N', 'B', 'Q', 'K'] 
     ; 
-        Pieces = ['♟', '♜', '♞', '♝', '♛', '♚']
+        Pieces = ['p', 'r', 'n', 'b', 'q', 'k']
     ),
     count_pieces_list(Board, Pieces, Count).
 

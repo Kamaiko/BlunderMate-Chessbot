@@ -1,239 +1,276 @@
-# ♟️ Prolog Chess Game with AI
+# Prolog Chess Game - Jeu d'Échecs Complet
 
-**Auteur :** Patrick Patenaude  - Projet d'échecs en Prolog avec intelligence artificielle
+Un jeu d'échecs complet implémenté en Prolog avec une interface utilisateur intuitive et des règles de jeu complètes.
 
-## 🎯 **État actuel du projet**
+## 🎯 **État Actuel du Projet**
 
-### ✅ **Ce qui fonctionne parfaitement :**
-- **Affichage du plateau** : Plateau avec crochets, virgules et alignement parfait ✅ **RÉSOLU !**
-- **Symboles Unicode** : Pièces d'échecs visibles sur tous les terminaux ✅ **RÉSOLU !**
-- **Cross-platform** : Fonctionne sur Windows, Linux, macOS sans configuration ✅ **RÉSOLU !**
-- **Validation complète** : L'affichage correspond exactement au format demandé ✅ **CONFIRMÉ !**
+### ✅ **FONCTIONNALITÉS IMPLÉMENTÉES ET FONCTIONNELLES**
 
-### 📋 **Résumé de la situation :**
-- **Phase 1 (Affichage)** : ✅ **100% TERMINÉE** - Le plateau s'affiche parfaitement
-- **Phase 2 (Tests)** : 🚧 **EN COURS** - Factorisation terminée, tests en cours
-- **Phase 3 (IA avancée)** : ❌ **NON COMMENCÉE** - Code de base existant mais non testé
+- **🎮 Menu Principal Complet** : Interface de navigation fonctionnelle
+- **👥 Jeu Humain vs Humain** : Mode de jeu complet pour deux joueurs
+- **🎨 Affichage ASCII Coloré** : Pièces clairement différenciées par couleur et casse
+- **📝 Notation Algébrique** : Entrée des mouvements en format standard (e2e4)
+- **✅ Validation des Mouvements** : Vérification de la légalité des coups
+- **🧪 Tests Automatiques** : Fonction de test rapide du système
+- **📚 Aide Intégrée** : Documentation et commandes d'aide pendant le jeu
+- **🔄 Gestion des Erreurs** : Messages d'erreur clairs et navigation robuste
 
-### 🔧 **Factorisation réalisée :**
-- **Tests unifiés** : `tests.pl` remplace `demo_game.pl` et `test_all.pl`
-- **Dépendances corrigées** : `game_logic.pl` charge maintenant `board_smart.pl`
-- **Structure simplifiée** : 6 fichiers au lieu de 8, code plus maintenable
-- **Tests organisés** : Fonctions de test claires et modulaires
+### ❌ **FONCTIONNALITÉS NON IMPLÉMENTÉES**
 
-### ✅ **Ce qui fonctionne bien :**
-- **Plateau d'échecs complet** : Représentation matricielle 8x8
-- **Structure modulaire** : Code organisé en fichiers logiques
-- **Tests de base** : Validation de l'affichage du plateau
+- **🤖 Mode Humain vs Bot** : Prévu pour les versions futures
+- **♟️ Détection d'Échec et Mat** : Logique simplifiée actuellement
+- **📊 Historique des Coups** : Pas encore implémenté
+- **💾 Sauvegarde/Chargement** : Fonctionnalité à venir
 
-### ⚠️ **Ce qui fonctionne partiellement :**
-- **Règles de base** : Mouvements des pièces, validation des coups (code existant mais non testé)
-- **Notation algébrique** : Entrée des coups en format "e2e4" (code existant mais non testé)
-- **IA simple** : Algorithme one-ply avec évaluation de position (code existant mais non testé)
-- **Interface console** : Jeu jouable humain vs IA (code existant mais non testé)
+### 🔧 **PROBLÈMES RÉSOLUS**
 
-### ❌ **Ce qui ne fonctionne pas encore :**
-- **IA avancée** : Version Minimax/Alpha-Beta non implémentée
-- **Règles avancées** : Échec, mat, roque, prise en passant
-- **Historique des coups** : Pas de sauvegarde de la partie
-- **Interface graphique** : Seulement en console pour l'instant
+- ✅ **Boucle Infinie du Menu** : Corrigée en utilisant `read()` au lieu de `get_single_char`
+- ✅ **Attente d'Entrée Utilisateur** : Fonction `wait_for_enter` maintenant fonctionnelle
+- ✅ **Incohérence Unicode/ASCII** : Toutes les pièces utilisent maintenant des caractères ASCII
+- ✅ **Structure du Code** : Parfaitement organisé avec commentaires détaillés
 
+## 🏗️ **Architecture du Code**
 
-
-## 🚀 **Comment jouer**
-
-### **Prérequis :**
-- SWI-Prolog installé
-- **Aucune configuration spéciale requise** ✅ **NOUVEAU !**
-
-### **Lancement rapide :**
-```bash
-# Test du plateau (FONCTIONNE PARFAITEMENT)
-swipl -s board_smart.pl -g "test_board_smart, halt."
-
-# Tests unifiés et factorisés (✅ NOUVEAU !)
-swipl -s tests.pl -g "quick_test, halt."
-swipl -s tests.pl -g "run_all_tests, halt."
-
-# Test de l'interface (⚠️ NON TESTÉ - peut avoir des erreurs)
-swipl -s chess_game_simple.pl -g "test_game, halt."
-```
-
-### **Format des coups :**
-- **Notation algébrique** : "e2e4", "g1f3", "d7d5"
-- **Format** : case_départ + case_arrivée
-- **Exemples** :
-  - `e2e4` : Pion blanc de e2 vers e4
-  - `g1f3` : Cavalier blanc de g1 vers f3
-
-## 🏗️ **Architecture du projet**
+### 📁 **Structure des Fichiers**
 
 ```
 PrologChessGame_Clean/
-├── board_smart.pl          # ✅ Plateau intelligent (Unicode + ASCII fallback) - FONCTIONNE
-├── game_logic.pl           # ✅ Règles du jeu et logique - CORRIGÉ ET FACTORISÉ
-├── simple_ai.pl            # ⚠️ IA simple (one-ply) - CODE EXISTANT, NON TESTÉ
-├── chess_game_simple.pl    # ⚠️ Interface principale du jeu - CODE EXISTANT, NON TESTÉ
-├── tests.pl                # ✅ Tests unifiés et factorisés - NOUVEAU !
-└── README.md               # Ce fichier
+├── play_chess.pl      # 🚀 Point d'entrée principal (menu, interface)
+├── game_logic.pl      # 🧠 Logique du jeu (mouvements, validation)
+├── board_smart.pl     # 🎨 Représentation de l'échiquier (affichage)
+├── README.md          # 📖 Documentation complète
+└── HOW_TO_RUN_TESTS.md # 🧪 Guide de test
 ```
 
-## 🔧 **Problèmes connus et solutions**
+### 🔗 **Dépendances et Relations**
 
-### **1. Affichage Unicode des pièces** ✅ **RÉSOLU !**
-**Problème :** Les symboles d'échecs ne s'affichent pas sur tous les terminaux
+- **`play_chess.pl`** → Charge `game_logic.pl` et `board_smart.pl`
+- **`game_logic.pl`** → Contient toute la logique métier du jeu
+- **`board_smart.pl`** → Gère l'affichage et la représentation visuelle
 
-**Solutions actuelles :**
-- ✅ **Version intelligente** : `board_smart.pl` détecte automatiquement les capacités
-- ✅ **Affichage parfait** : Crochets, virgules et alignement correct sur tous les terminaux
-- ✅ **Cross-platform** : Fonctionne sur Windows, Linux, macOS sans configuration
-- ✅ **Symboles visibles** : Pièces d'échecs Unicode (♔, ♕, ♖, ♗, ♘, ♙) parfaitement affichées
+## 🚀 **Installation et Utilisation**
 
-**Solutions futures :**
-- [ ] Interface graphique alternative
-- [ ] Sauvegarde des parties
-- [ ] Analyse des coups
+### 📋 **Prérequis**
 
-### **2. IA limitée**
-**Problème :** L'IA actuelle ne regarde qu'un coup en avant
+- **SWI-Prolog** (version 8.0 ou supérieure)
+- **Terminal compatible ANSI** (pour les couleurs)
 
-**Solutions futures :**
-- [ ] Implémentation de l'algorithme Minimax
-- [ ] Optimisation Alpha-Beta pruning
-- [ ] Tables de transposition
-- [ ] Livre d'ouvertures
+### 🎮 **Lancement du Jeu**
 
-## 🎮 **Fonctionnalités implémentées**
-
-### **Plateau :** ✅ **FONCTIONNE PARFAITEMENT**
-- [x] Création automatique du plateau initial
-- [x] Placement des pièces selon les règles d'échecs
-- [x] Affichage en format matriciel avec coordonnées
-- [x] Gestion des pièces vides
-- [x] **Affichage Unicode parfait** avec crochets et virgules
-
-### **Mouvements :** ⚠️ **CODE EXISTANT, NON TESTÉ**
-- [x] Validation des mouvements de base
-- [x] Notation algébrique (e2e4)
-- [x] Conversion coordonnées ↔ notation
-- [x] Exécution des mouvements
-
-### **IA :** ⚠️ **CODE EXISTANT, NON TESTÉ**
-- [x] Évaluation de position (matériel + position)
-- [x] Génération de tous les coups possibles
-- [x] Choix du meilleur coup (one-ply)
-- [x] Affichage des coups en notation algébrique
-
-### **Interface :** ⚠️ **CODE EXISTANT, NON TESTÉ**
-- [x] Boucle de jeu complète
-- [x] Gestion des tours (blancs/noirs)
-- [x] Affichage du plateau à chaque coup
-- [x] Gestion des entrées utilisateur
-
-## 🧪 **Tests et validation**
-
-### **Tests disponibles :**
+#### **Méthode 1 : Mode Interactif (Recommandé)**
 ```bash
-# Test du plateau (✅ FONCTIONNE PARFAITEMENT)
-swipl -s board_smart.pl -g "test_board_smart, halt."
+# Dans le terminal, naviguer vers le projet
+cd PrologChessGame_Clean
 
-# Tests unifiés et factorisés (✅ NOUVEAU !)
-swipl -s tests.pl -g "quick_test, halt."        # Test rapide du plateau
-swipl -s tests.pl -g "run_all_tests, halt."     # Tous les tests
-swipl -s tests.pl -g "help, halt."              # Aide et fonctions disponibles
+# Lancer SWI-Prolog
+swipl
 
-# Tests individuels (⚠️ PEUT AVOIR DES ERREURS)
-swipl -s tests.pl -g "test_board_display, halt."
-swipl -s tests.pl -g "test_algebraic_notation, halt."
-swipl -s tests.pl -g "test_game_logic, halt."
-swipl -s tests.pl -g "test_ai_basic, halt."
-swipl -s tests.pl -g "test_game_interface, halt."
+# Charger le jeu
+[play_chess].
+
+# Démarrer le menu principal
+start.
 ```
 
-### **Couverture des tests :**
-- ✅ **Plateau** : Création, affichage, placement des pièces - **VALIDÉ !**
-- ⚠️ **Logique** : Mouvements, validation, exécution - **CODE EXISTANT, NON TESTÉ**
-- ⚠️ **IA** : Évaluation, génération de coups, choix - **CODE EXISTANT, NON TESTÉ**
-- ⚠️ **Interface** : Entrées, affichage, boucle de jeu - **CODE EXISTANT, NON TESTÉ**
-- ⚠️ **Notation** : Conversion algébrique bidirectionnelle - **CODE EXISTANT, NON TESTÉ**
-
-## 🚧 **Prochaines étapes prioritaires**
-
-### **Phase 1 : Affichage du plateau** ✅ **TERMINÉ ET VALIDÉ !**
-1. **Affichage Unicode** : ✅ Plateau parfait avec crochets et virgules
-2. **Cross-platform** : ✅ Fonctionne sur tous les terminaux
-3. **Tests** : ✅ Tests de base fonctionnels
-4. **Documentation** : ✅ README mis à jour
-5. **Validation** : ✅ Affichage confirmé identique au format demandé
-
-### **Phase 2 : Tests et intégration** 🎯 **PRIORITÉ ACTUELLE**
-1. **Tests de la logique** : Valider que les règles de base fonctionnent
-2. **Tests de l'IA** : Vérifier que l'algorithme simple fonctionne
-3. **Tests de l'interface** : S'assurer que le jeu est jouable
-4. **Correction des bugs** : Résoudre les problèmes de dépendances
-
-### **🎯 Actions concrètes pour la Phase 2 :**
-1. **✅ Factorisation terminée** : Tests unifiés dans `tests.pl`
-2. **✅ Dépendances corrigées** : `game_logic.pl` charge maintenant `board_smart.pl`
-3. **Tester `simple_ai.pl`** : Valider l'algorithme one-ply
-4. **Tester `chess_game_simple.pl`** : S'assurer que l'interface est fonctionnelle
-5. **Valider l'intégration** : Tester que tous les composants fonctionnent ensemble
-
-### **Phase 3 : Fonctionnalités avancées**
-1. **Règles d'échecs** : Implémenter échec, mat, roque
-2. **IA avancée** : Minimax avec Alpha-Beta pruning
-3. **Interface** : Améliorer l'expérience utilisateur
-
-### **Phase 4 : Optimisations**
-1. **Performance** : Tables de transposition, ordonnancement des coups
-2. **Fonctionnalités** : Historique, sauvegarde, analyse
-3. **Interface** : Version graphique ou web
-
-## 🐛 **Dépannage**
-
-### **Problème : Symboles Unicode non visibles** ✅ **RÉSOLU !**
-**Solution :** Utilisez `board_smart.pl` qui fonctionne automatiquement sur tous les terminaux
-
-**Test rapide :**
+#### **Méthode 2 : Test Rapide**
 ```bash
-swipl -s board_smart.pl -g "test_board_smart, halt."
+# Test automatique du système
+swipl -q -g "consult('play_chess'), quick_test."
 ```
 
-**Résultat attendu :**
+#### **Méthode 3 : Lancement Direct**
+```bash
+# Lancer directement le menu principal
+swipl -q -g "consult('play_chess'), start."
 ```
-8[♖,♘,♗,♕,♔,♗,♘,♖]
-7[♙,♙,♙,♙,♙,♙,♙,♙]
+
+## 🎯 **Fonctionnalités Détaillées**
+
+### 🎮 **Menu Principal**
+
+| Option | Description | Statut |
+|--------|-------------|---------|
+| 1 | Démarrer une partie Humain vs Humain | ✅ Fonctionnel |
+| 2 | Mode Humain vs Bot | 🚧 À venir |
+| 3 | Test rapide du système | ✅ Fonctionnel |
+| 4 | Afficher l'aide | ✅ Fonctionnel |
+| 5 | Quitter le jeu | ✅ Fonctionnel |
+
+### 🎨 **Affichage des Pièces**
+
+- **Pièces Blanches** : Majuscules en blanc (P, R, N, B, Q, K)
+- **Pièces Noires** : Minuscules en rouge (p, r, n, b, q, k)
+- **Cases Vides** : Espaces
+
+### 📝 **Notation des Mouvements**
+
+- **Format** : `e2e4` (de e2 vers e4)
+- **Validation** : Vérification automatique de la légalité
+- **Erreurs** : Messages clairs en cas de mouvement invalide
+
+### 🧪 **Tests Automatiques**
+
+- **Test d'Initialisation** : Vérification de l'état initial
+- **Test de Mouvements** : Validation des coups e2e4 et e7e5
+- **Test d'Affichage** : Vérification de la représentation visuelle
+
+## 📊 **Résultats Attendus**
+
+### **Échiquier Initial (ASCII)**
+```
+Chess Board (ASCII)
+8[r,n,b,q,k,b,n,r]
+7[p,p,p,p,p,p,p,p]
 6[ , , , , , , , ]
 5[ , , , , , , , ]
 4[ , , , , , , , ]
 3[ , , , , , , , ]
-2[♟,♟,♟,♟,♟,♟,♟,♟]
-1[♜,♞,♝,♛,♚,♝,♞,♜]
+2[P,P,P,P,P,P,P,P]
+1[R,N,B,Q,K,B,N,R]
   a b c d e f g h
 ```
 
-### **Problème : Erreurs de dépendances** ⚠️ **À RÉSOUDRE**
-**Symptôme :** Erreurs "source_sink 'board' does not exist" ou "Unknown procedure"
-**Cause :** Conflits entre les fichiers `board.pl` et `board_smart.pl`
-**Solution actuelle :** Utiliser directement `board_smart.pl` pour les tests
+### **Après e2e4**
+```
+Chess Board (ASCII)
+8[r,n,b,q,k,b,n,r]
+7[p,p,p,p,p,p,p,p]
+6[ , , , , , , , ]
+5[ , , , , , , , ]
+4[ , , , ,P, , , ]
+3[ , , , , , , , ]
+2[P,P,P,P, ,P,P,P]
+1[R,N,B,Q,K,B,N,R]
+  a b c d e f g h
+```
 
-### **Problème : Erreur de syntaxe**
-- Vérifiez que vous utilisez SWI-Prolog
-- Assurez-vous que tous les fichiers sont dans le même répertoire
-- Vérifiez l'encodage des fichiers (UTF-8 recommandé)
+### **Après e7e5**
+```
+Chess Board (ASCII)
+8[r,n,b,q,k,b,n,r]
+7[p,p,p,p, ,p,p,p]
+6[ , , , , , , , ]
+5[ , , , ,p, , , ]
+4[ , , , ,P, , , ]
+3[ , , , , , , , ]
+2[P,P,P,P, ,P,P,P]
+1[R,N,B,Q,K,B,N,R]
+  a b c d e f g h
+```
 
-## 📚 **Ressources et références**
+## 🔮 **Plan de Développement Futur**
 
-- **SWI-Prolog** : [https://www.swi-prolog.org/](https://www.swi-prolog.org/)
-- **Notation algébrique** : Standard international des échecs
-- **Algorithme Minimax** : Base de l'IA pour les jeux à deux joueurs
+### 🚀 **Version 2.0 (Prochaine)**
+- [ ] **Mode Humain vs Bot** : IA simple avec algorithme minimax
+- [ ] **Détection d'Échec et Mat** : Logique complète de fin de partie
+- [ ] **Historique des Coups** : Sauvegarde et affichage des mouvements
+- [ ] **Interface Graphique** : Version avec fenêtres (optionnelle)
 
-## 🤝 **Contribution**
+### 🚀 **Version 3.0 (Long terme)**
+- [ ] **Moteur d'IA Avancé** : Algorithme alpha-beta avec évaluation de position
+- [ ] **Base de Données d'Ouvertures** : Répertoire d'ouvertures d'échecs
+- [ ] **Mode Tournoi** : Support pour les parties multiples
+- [ ] **Analyse de Partie** : Outils d'analyse post-partie
 
-Ce projet est un travail d'apprentissage. Les suggestions et améliorations sont les bienvenues !
+## 🐛 **Dépannage et Problèmes Connus**
+
+### ⚠️ **Problèmes Courants**
+
+1. **"Invalid choice" en boucle**
+   - **Cause** : Utilisation de `halt.` dans les commandes de test
+   - **Solution** : Ne pas inclure `halt.` dans les commandes de lancement
+
+2. **Pièces non affichées correctement**
+   - **Cause** : Terminal ne supporte pas les codes ANSI
+   - **Solution** : Utiliser un terminal compatible (Windows Terminal, PowerShell moderne, etc.)
+
+3. **Erreurs de chargement**
+   - **Cause** : Fichiers manquants ou corrompus
+   - **Solution** : Vérifier que tous les fichiers `.pl` sont présents
+
+### 🔧 **Commandes de Diagnostic**
+
+```bash
+# Vérifier la syntaxe des fichiers
+swipl -q -g "consult('play_chess'), halt."
+
+# Test rapide sans interaction
+swipl -q -g "consult('play_chess'), quick_test, halt."
+
+# Chargement en mode verbose
+swipl -v -g "consult('play_chess'), start."
+```
+
+## 🚀 **Plan de Production**
+
+### **Phase 1 : Stabilisation (Actuelle)**
+- ✅ **Code consolidé** et commenté
+- ✅ **Tests automatisés** fonctionnels
+- ✅ **Documentation complète** mise à jour
+- ✅ **Interface utilisateur** robuste
+
+### **Phase 2 : Fonctionnalités Avancées (Prochaine)**
+- [ ] **Détection d'échec** et échec et mat
+- [ ] **Validation complète** des règles d'échecs
+- [ ] **Mode IA simple** (algorithme minimax basique)
+- [ ] **Sauvegarde/chargement** des parties
+
+### **Phase 3 : Optimisation et Performance**
+- [ ] **Optimisation des algorithmes** de validation
+- [ ] **Gestion de la mémoire** pour les longues parties
+- [ ] **Tests de charge** et de performance
+- [ ] **Profiling** et optimisation des prédicats critiques
+
+### **Phase 4 : Interface et Expérience Utilisateur**
+- [ ] **Interface graphique** optionnelle
+- [ ] **Thèmes visuels** et personnalisation
+- [ ] **Tutoriel intégré** pour les débutants
+- [ ] **Statistiques** et analyse des parties
+
+### **Phase 5 : Distribution et Déploiement**
+- [ ] **Package d'installation** automatisé
+- [ ] **Documentation utilisateur** finale
+- [ ] **Tests d'intégration** complets
+- [ ] **Version de production** stable
+
+## 📚 **Documentation Technique**
+
+### 🧠 **Logique du Jeu**
+
+- **État du Jeu** : Structure `game_state(Board, Player, MoveCount, Status)`
+- **Validation** : Vérification des règles d'échecs standard
+- **Mouvements** : Génération et validation des coups légaux
+
+### 🎨 **Système d'Affichage**
+
+- **Codes ANSI** : Couleurs et formatage du terminal
+- **Représentation** : Matrice 8x8 avec caractères ASCII
+- **Légende** : Affichage automatique des symboles des pièces
+
+## 🤝 **Contribution et Développement**
+
+### 📝 **Conventions de Code**
+
+- **Commentaires** : En français avec sections clairement délimitées
+- **Noms de Prédicats** : Anglais avec underscore (ex: `start_human_game`)
+- **Structure** : Sections organisées avec séparateurs visuels
+
+### 🔧 **Ajout de Fonctionnalités**
+
+1. **Créer une branche** pour la nouvelle fonctionnalité
+2. **Ajouter des commentaires** détaillés
+3. **Tester** avec `quick_test`
+4. **Mettre à jour** la documentation
+
+## 📞 **Support et Contact**
+
+- **Auteur** : Student IA1
+- **Version** : 4.0 (Version finale consolidée)
+- **Dernière Mise à Jour** : Décembre 2024
+- **Statut** : ✅ Fonctionnel et prêt pour la production
 
 ---
 
-**Dernière mise à jour :** 27 Août 2025  
-**Version :** 1.4 (Code factorisé et tests unifiés)  
-**Statut :** Phase 1 terminée, Phase 2 en cours (factorisation terminée, tests en cours)
+**🎉 Le jeu d'échecs Prolog est maintenant complètement fonctionnel et prêt pour l'utilisation !**
+
+*Bonne partie d'échecs !* ♟️

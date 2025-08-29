@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(swipl:*)",
+      "Bash(.run_clean_tests.ps1)",
+      "Bash(powershell:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
