@@ -60,6 +60,18 @@ Ce projet a atteint une **base solide et securisee**. Voici les prochaines etape
   - Detection des pieces "epinglees" (pinned) par l'adversaire
   - Validation que chaque coup ne met pas son propre roi en echec
   - Gestion des pieces bloquees qui protegent le roi d'une attaque
+- **⚖️ Logiques de Validation Avancees** : Regles complexes d'interactions
+  - **Echec Decouvert** : Mouvement qui revele une attaque cachee sur le roi adverse
+  - **Double Echec** : Situations ou le roi est attaque par deux pieces simultanement
+  - **Blocage d'Echec** : Seuls les coups qui bloquent/capturent l'attaquant sont legaux
+  - **Fuite du Roi** : En echec, le roi doit bouger si aucun blocage possible
+  - **Capture Forcee** : Certaines pieces doivent capturer pour defendre le roi
+- **🏁 Logiques de Fin de Partie** : Detection automatique des fins de jeu
+  - **Mat Imparable** : Aucun coup legal ne peut eviter l'echec et mat
+  - **Pat Technique** : Roi pas en echec mais aucun coup legal disponible
+  - **Repetition Triple** : Meme position repetee 3 fois = nullite
+  - **Regle des 50 Coups** : 50 coups sans prise ni mouvement de pion = nulle
+  - **Material Insuffisant** : Pas assez de pieces pour faire mat (ex: roi+fou vs roi)
 
 ### **📋 PHASE 2 : Intelligence Artificielle (Priorite Haute)**  
 - **🤖 Bot Basique** : Algorithme minimax avec evaluation simple
@@ -102,6 +114,19 @@ is_piece_pinned(Board, Row, Col, Player) :-
     % Trouver les lignes d'attaque vers le roi
     % Verifier si cette piece bloque une attaque
     % Interdire son mouvement si elle protege le roi
+
+% Gestion des situations d'echec complexes
+handle_check_situation(GameState, Player, LegalMoves) :-
+    (is_king_in_check(GameState, Player) ->
+        find_check_responses(GameState, Player, LegalMoves)  % Blocage/capture/fuite
+    ;   find_all_legal_moves(GameState, Player, LegalMoves)  % Jeu normal
+    ).
+
+% Double echec : seule la fuite du roi est permise
+is_double_check(GameState, Player) :-
+    find_attacking_pieces(GameState, Player, Attackers),
+    length(Attackers, Count),
+    Count >= 2.
 ```
 
 #### **Commencer par le Roque (Impact Maximum, Effort Minimum)**
