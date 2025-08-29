@@ -1,9 +1,9 @@
 % =============================================================================
-% CHESS GAME LOGIC - LOGIQUE DU JEU D'ECHECS
+% CHESS GAME LOGIC - MOTEUR DES RÈGLES DU JEU
 % =============================================================================
 %
 % Ce fichier contient la logique métier pure du jeu d'échecs.
-% Version nettoyée - Production Ready
+% Version nettoyée - Prêt pour la production
 %
 % Auteur : Patrick Patenaude
 % Version : 5.0 (Version nettoyée et fonctionnelle)
@@ -15,6 +15,12 @@
 % ✅ Exécution des mouvements
 % ✅ Notation algébrique
 % ✅ Identification des pièces
+%
+% RESPONSABILITÉS :
+% - Gestion de l'état du jeu (initialisation, mise à jour, statut)
+% - Validation et exécution des mouvements
+% - Implémentation des règles d'échecs
+% - Conversion coordonnées ↔ notation algébrique
 % =============================================================================
 
 :- [board_smart].
@@ -30,15 +36,23 @@
 % - MoveCount: Nombre de coups joués
 % - GameStatus: 'active', 'checkmate', 'stalemate', 'draw'
 
-% Initialiser un nouvel état de jeu
+% =============================================================================
+% PRÉDICATS PUBLICS - GESTION DE L'ÉTAT DU JEU
+% =============================================================================
+
+% init_game_state(-GameState)
+% Initialise un nouvel état de jeu avec l'échiquier standard et les blancs
+% qui commencent. GameState est un terme game_state/4.
 init_game_state(GameState) :-
     initialize_board(Board),
     GameState = game_state(Board, white, 0, active).
 
-% Obtenir le joueur actuel
+% current_player(+GameState, -Player)
+% Extrait le joueur actuel depuis l'état du jeu.
 current_player(game_state(_, Player, _, _), Player).
 
-% Changer de joueur
+% switch_player(+CurrentPlayer, -NewPlayer)
+% Change le joueur actuel (blanc ↔ noir).
 switch_player(white, black).
 switch_player(black, white).
 
@@ -46,12 +60,22 @@ switch_player(black, white).
 % SECTION 2 : EXÉCUTION DES MOUVEMENTS
 % =============================================================================
 
-% Effectuer un mouvement en notation algébrique (ex: "e2e4")
+% =============================================================================
+% PRÉDICATS PUBLICS - EXÉCUTION DES MOUVEMENTS
+% =============================================================================
+
+% make_move_algebraic(+GameState, +MoveString, -NewGameState)
+% Effectue un mouvement en notation algébrique (ex: "e2e4").
+% MoveString doit être une chaîne de 4 caractères.
+% Échoue si le mouvement est invalide.
 make_move_algebraic(GameState, MoveString, NewGameState) :-
     parse_algebraic_move(MoveString, FromRow, FromCol, ToRow, ToCol),
     make_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState).
 
-% Effectuer un mouvement avec coordonnées
+% make_move(+GameState, +FromRow, +FromCol, +ToRow, +ToCol, -NewGameState)
+% Effectue un mouvement avec coordonnées numériques (1-8).
+% Échoue si le mouvement est invalide ou si le jeu n'est pas actif.
+% Met à jour l'état du jeu et change le joueur actuel.
 make_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState) :-
     GameState = game_state(Board, Player, MoveCount, active),
     valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
@@ -71,8 +95,20 @@ execute_move(Board, FromRow, FromCol, ToRow, ToCol, NewBoard) :-
 % =============================================================================
 % SECTION 3 : VALIDATION DES MOUVEMENTS
 % =============================================================================
+%
+% Cette section implémente la validation complète des mouvements selon les règles
+% d'échecs standard, incluant la vérification des limites, de la propriété des
+% pièces et de la légalité des mouvements.
+% =============================================================================
 
-% Validation principale des mouvements
+% =============================================================================
+% PRÉDICATS PUBLICS - VALIDATION DES MOUVEMENTS
+% =============================================================================
+
+% valid_move(+Board, +Player, +FromRow, +FromCol, +ToRow, +ToCol)
+% Valide un mouvement selon toutes les règles d'échecs standard.
+% Vérifie : limites, propriété des pièces, légalité du mouvement.
+% Échoue si le mouvement est invalide.
 valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol) :-
     % Vérifier les limites de l'échiquier
     FromRow >= 1, FromRow =< 8,
@@ -97,6 +133,10 @@ valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol) :-
 
 % =============================================================================
 % SECTION 4 : RÈGLES DE MOUVEMENT PAR PIÈCE
+% =============================================================================
+%
+% Cette section implémente les règles spécifiques de mouvement pour chaque type
+% de pièce d'échecs, incluant les mouvements spéciaux et les captures.
 % =============================================================================
 
 % Dispatcher principal pour les règles de mouvement
@@ -205,7 +245,11 @@ can_king_move(FromRow, FromCol, ToRow, ToCol) :-
     (RowDiff \= 0 ; ColDiff \= 0).
 
 % =============================================================================
-% SECTION 5 : UTILITAIRES
+% SECTION 5 : UTILITAIRES ET FONCTIONS D'AIDE
+% =============================================================================
+%
+% Cette section contient les fonctions utilitaires pour la vérification des
+% chemins, l'identification des pièces et l'affichage de l'état du jeu.
 % =============================================================================
 
 % Vérification que le chemin est libre entre deux positions

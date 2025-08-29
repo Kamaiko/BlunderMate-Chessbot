@@ -8,13 +8,20 @@
 % Auteur : Patrick Patenaude
 % Version : 5.0 (Version nettoyée)
 % Dépendances : game_logic.pl, board_smart.pl
+% 
+% RESPONSABILITÉS :
+% - Menu principal et navigation
+% - Boucle de jeu Humain vs Humain
+% - Traitement des entrées utilisateur
+% - Affichage de l'état du jeu
+% - Interface avec les modules de test externes
 % =============================================================================
 
 :- [game_logic].
 :- [board_smart].
 
 % =============================================================================
-% SECTION 1 : MENU PRINCIPAL
+% SECTION 1 : MENU PRINCIPAL ET NAVIGATION
 % =============================================================================
 
 % Point d'entrée principal
@@ -29,10 +36,11 @@ main_menu :-
     write('Choose an option:'), nl,
     write('1 - Start Human vs Human game'), nl,
     write('2 - Start Human vs Bot game (Coming soon)'), nl,
-    write('3 - Quick system test'), nl,
-    write('4 - Show help'), nl,
-    write('5 - Exit'), nl, nl,
-    write('Enter your choice (1-5): '),
+    write('3 - Run quick tests (external)'), nl,
+    write('4 - Run complete test suite (external)'), nl,
+    write('5 - Show help'), nl,
+    write('6 - Exit'), nl, nl,
+    write('Enter your choice (1-6): '),
     get_single_char(CharCode),
     char_code(Choice, CharCode),
     nl,
@@ -50,22 +58,40 @@ process_choice('2') :-
     main_menu.
 
 process_choice('3') :-
-    write('Running system tests...'), nl,
-    write('Please run: consult(''tests/test_all'').'), nl,
-    write('Then: run_all_tests.'), nl, nl,
+    write('Running external quick tests...'), nl,
+    write('Loading tests/quick_tests.pl...'), nl,
+    (consult('tests/quick_tests') ->
+        write('Tests loaded successfully. Running quick_test...'), nl, nl,
+        quick_test
+    ;   write('Error: Could not load tests/quick_tests.pl'), nl,
+        write('Please ensure the file exists and is accessible.'), nl),
     write('Press any key to continue...'), nl,
     get_single_char(_),
     main_menu.
 
 process_choice('4') :-
-    show_help,
+    write('Running external complete test suite...'), nl,
+    write('Loading tests/chess_tests.pl...'), nl,
+    (consult('tests/chess_tests') ->
+        write('Tests loaded successfully. Running run_all_tests...'), nl, nl,
+        run_all_tests
+    ;   write('Error: Could not load tests/chess_tests.pl'), nl,
+        write('Please ensure the file exists and is accessible.'), nl),
+    write('Press any key to continue...'), nl,
+    get_single_char(_),
     main_menu.
 
 process_choice('5') :-
-    write('Goodbye!'), nl.
+    show_help,
+    main_menu.
+
+process_choice('6') :-
+    write('Goodbye!'), nl,
+    write('Thanks for playing Prolog Chess!'), nl,
+    halt.
 
 process_choice(_) :-
-    write('Invalid choice. Please enter 1, 2, 3, 4, or 5.'), nl,
+    write('Invalid choice. Please enter 1, 2, 3, 4, 5, or 6.'), nl,
     main_menu.
 
 % =============================================================================
@@ -132,7 +158,15 @@ remove_trailing_dot(String, Output) :-
 
 % Traitement des commandes de jeu
 process_game_input(quit, _, _) :-
-    write('Thanks for playing!'), nl, !.
+    write('Thanks for playing!'), nl,
+    write('Press any key to return to main menu...'), nl,
+    get_single_char(_),
+    main_menu, !.
+
+process_game_input(exit, _, _) :-
+    write('Thanks for playing Prolog Chess!'), nl,
+    write('Goodbye!'), nl,
+    halt.
 
 process_game_input(help, GameState, GameState) :-
     show_game_help, !.
@@ -195,38 +229,23 @@ show_help :-
     write('During game, you can also type:'), nl,
     write('- help: Show commands'), nl,
     write('- board: Show current position'), nl,
-    write('- quit: Exit game'), nl,
+    write('- quit: Exit to main menu'), nl,
+    write('- exit: Quit program completely'), nl,
     write('Don''t forget the dot (.) after each command!'), nl, nl.
 
 % Afficher l'aide de jeu
 show_game_help :-
     write('GAME COMMANDS:'), nl,
     write('- Move: Enter in format "e2e4." (from e2 to e4)'), nl,
-    write('- quit.: Exit the game'), nl,
+    write('- quit.: Exit to main menu'), nl,
+    write('- exit.: Quit program completely'), nl,
     write('- help.: Show this help'), nl,
     write('- board.: Show current board'), nl,
     write('Remember: Always end commands with a dot (.)'), nl, nl.
 
-% =============================================================================
-% SECTION 4 : TEST RAPIDE
-% =============================================================================
-
-% Test rapide du système
-quick_test :-
-    write('=== QUICK SYSTEM TEST ==='), nl,
-    init_game_state(GameState),
-    display_game_state(GameState),
-    
-    % Test quelques mouvements
-    write('Testing move e2e4...'), nl,
-    make_move(GameState, 2, 5, 4, 5, GameState2),
-    display_game_state(GameState2),
-    
-    write('Testing move e7e5...'), nl,
-    make_move(GameState2, 7, 5, 5, 5, GameState3),
-    display_game_state(GameState3),
-    
-    write('System test completed!'), nl.
+% Note : La section "Test rapide" a été déplacée vers tests/quick_tests.pl
+% pour respecter la séparation des responsabilités.
+% Utilisez : ?- consult('tests/quick_tests'), quick_test.
 
 % =============================================================================
 % FIN DU FICHIER - VERSION NETTOYÉE

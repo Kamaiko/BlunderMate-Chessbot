@@ -1,5 +1,5 @@
 % =============================================================================
-% SMART CHESS BOARD - REPRESENTATION ET AFFICHAGE ASCII SIMPLIFIE
+% SMART CHESS BOARD - REPRÉSENTATION ET AFFICHAGE ASCII SIMPLIFIÉ
 % =============================================================================
 % 
 % Ce fichier gère la représentation de l'échiquier avec des caractères ASCII simples.
@@ -7,10 +7,17 @@
 %
 % Auteur : Patrick Patenaude
 % Version : 3.0 (ASCII uniquement - simplifié)
+% 
+% RESPONSABILITÉS :
+% - Représentation de l'échiquier 8x8
+% - Définition des pièces en ASCII
+% - Affichage coloré des pièces
+% - Conversion notation algébrique ↔ coordonnées
+% - Initialisation de l'échiquier standard
 % =============================================================================
 
 % =============================================================================
-% SECTION 1 : DEFINITION DES PIECES D'ECHECS (ASCII)
+% SECTION 1 : DÉFINITION DES PIÈCES D'ÉCHECS (ASCII)
 % =============================================================================
 
 % --- PIECES BLANCHES (majuscules) ---
@@ -35,7 +42,7 @@ black_king('k').      % Roi noir
 empty_square(' ').    % Case vide
 
 % =============================================================================
-% SECTION 2 : CREATION ET INITIALISATION DE L'ECHIQUIER
+% SECTION 2 : CRÉATION ET INITIALISATION DE L'ÉCHIQUIER
 % =============================================================================
 
 % --- CREATION D'UN ECHIQUIER VIDE ---
@@ -69,7 +76,7 @@ create_row_cells(Row, Col, Acc, RowList) :-
     create_row_cells(Row, NextCol, NewAcc, RowList).
 
 % =============================================================================
-% SECTION 3 : PLACEMENT DES PIECES SUR L'ECHIQUIER
+% SECTION 3 : PLACEMENT DES PIÈCES SUR L'ÉCHIQUIER
 % =============================================================================
 
 % --- PLACEMENT PRINCIPAL DES PIECES ---
@@ -128,7 +135,7 @@ place_single_piece(Board, Row, Col, Piece, NewBoard) :-
     replace_element(Board, BoardRow, NewRowList, NewBoard).
 
 % =============================================================================
-% SECTION 4 : UTILITAIRES POUR LA MANIPULATION DE L'ECHIQUIER
+% SECTION 4 : UTILITAIRES POUR LA MANIPULATION DE L'ÉCHIQUIER
 % =============================================================================
 
 % --- REMPLACEMENT D'ELEMENTS DANS UNE LISTE ---
@@ -147,7 +154,7 @@ get_piece(Board, Row, Col, Piece) :-
     nth1(Col, RowList, Piece).
 
 % =============================================================================
-% SECTION 5 : AFFICHAGE DES PIECES (ASCII SIMPLE)
+% SECTION 5 : AFFICHAGE DES PIÈCES (ASCII SIMPLE)
 % =============================================================================
 
 % --- AFFICHAGE PRINCIPAL ---
@@ -190,7 +197,7 @@ display_black_piece('q') :- write('\e[1;31mq\e[0m').  % Dame noire
 display_black_piece('k') :- write('\e[1;31mk\e[0m').  % Roi noir
 
 % =============================================================================
-% SECTION 6 : NOTATION ALGEBRIQUE (CONVERSION COORDONNEES ↔ NOTATION)
+% SECTION 6 : NOTATION ALGÉBRIQUE (CONVERSION COORDONNÉES ↔ NOTATION)
 % =============================================================================
 
 % --- PARSING D'UN MOUVEMENT EN NOTATION ALGEBRIQUE ---
@@ -232,7 +239,7 @@ row_to_char(1, '1'). row_to_char(2, '2'). row_to_char(3, '3'). row_to_char(4, '4
 row_to_char(5, '5'). row_to_char(6, '6'). row_to_char(7, '7'). row_to_char(8, '8').
 
 % =============================================================================
-% SECTION 7 : AFFICHAGE COMPLET DE L'ECHIQUIER
+% SECTION 7 : AFFICHAGE COMPLET DE L'ÉCHIQUIER
 % =============================================================================
 
 % --- AFFICHAGE PRINCIPAL ---
