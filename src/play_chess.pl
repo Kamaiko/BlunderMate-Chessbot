@@ -82,6 +82,8 @@ process_choice('4') :-
 
 process_choice('5') :-
     show_help,
+    write('Appuyez sur une touche pour continuer...'), nl,
+    get_single_char(_),
     main_menu.
 
 process_choice('6') :-
@@ -250,45 +252,16 @@ translate_player(black, 'noir').
 % Afficher l'aide générale
 show_help :-
     nl,
-    write('=== CHESS GAME HELP ==='), nl,
-    write('This is a Human vs Human chess game.'), nl,
-    write('Enter moves in algebraic notation: e2e4'), nl,
-    write('During game, you can also type:'), nl,
-    write('- help: Show commands'), nl,
-    write('- board: Show current position'), nl,
-    write('- quit: Exit to main menu'), nl,
-    write('- exit: Quit program completely'), nl,
-    write('Don''t forget the dot (.) after each command!'), nl, nl.
+    write('=== AIDE JEU D\'ECHECS ==='), nl,
+    write('Ceci est un jeu d\'echecs Humain vs Humain.'), nl,
+    write('Entrez les mouvements en notation algebrique: e2e4'), nl,
+    write('Pendant le jeu, vous pouvez aussi taper:'), nl,
+    write('- help: Afficher les commandes'), nl,
+    write('- board: Afficher la position actuelle'), nl,
+    write('- quit: Retour au menu principal'), nl,
+    write('- exit: Quitter le programme completement'), nl,
+    write('N\'oubliez pas le point (.) apres chaque commande!'), nl, nl.
 
-% Afficher l'aide de jeu
-show_game_help :-
-    write('=== CHESS GAME HELP ==='), nl, nl,
-    write('COMMANDS:'), nl,
-    write('- Move: Enter "e2e4." (from e2 to e4)'), nl,
-    write('- help.: Show this help'), nl,
-    write('- board.: Show current board'), nl,
-    write('- quit.: Exit to main menu'), nl,
-    write('- exit.: Quit program completely'), nl, nl,
-    
-    write('MOVE FORMAT:'), nl,
-    write('- Use 4 characters: [from][to] like "e2e4"'), nl,
-    write('- Columns: a,b,c,d,e,f,g,h (left to right)'), nl,
-    write('- Rows: 1,2,3,4,5,6,7,8 (bottom to top)'), nl,
-    write('- Examples: e2e4, d7d5, b1c3, g1f3'), nl, nl,
-    
-    write('PIECE MOVEMENTS:'), nl,
-    write('- Pawn: 1 square forward, 2 on first move, diagonal to capture'), nl,
-    write('- Rook: Horizontal/vertical lines'), nl,
-    write('- Knight: L-shape (2+1 squares)'), nl,
-    write('- Bishop: Diagonal lines'), nl,
-    write('- Queen: Rook + Bishop combined'), nl,
-    write('- King: 1 square in any direction'), nl, nl,
-    
-    write('TIPS:'), nl,
-    write('- Always end commands with a dot (.)'), nl,
-    write('- Check that you own the piece at start position'), nl,
-    write('- Watch for blocked paths (except knights)'), nl,
-    write('- You can only capture opponent pieces'), nl, nl.
 
 % Note : La section "Test rapide" a été déplacée vers tests/quick_tests.pl
 % pour respecter la séparation des responsabilités.

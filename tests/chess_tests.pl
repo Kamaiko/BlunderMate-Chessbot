@@ -1,4 +1,4 @@
-swipl% =============================================================================
+% =============================================================================
 % SUITE DE TESTS CONSOLIDEE - PROLOG CHESS GAME
 % =============================================================================
 % Version : 2.0 - Consolidée avec tests de blocage de chemins
@@ -19,7 +19,7 @@ test_board_basics :-
     % Test 1: Initialisation
     write('1. Initialisation de l\'echiquier...'), nl,
     init_game_state(GS),
-    GS = game_state(Board, white, 0, active),
+    GS = game_state(Board, white, 0, active, _),
     write('   + Echiquier initialise correctement'), nl,
     
     % Test 2: Affichage
@@ -48,7 +48,7 @@ test_move_validation :-
     % Test 1: Mouvements valides
     write('1. Mouvements valides...'), nl,
     init_game_state(GS),
-    GS = game_state(Board, white, 0, active),
+    GS = game_state(Board, white, 0, active, _),
     
     (valid_move(Board, white, 2, 5, 4, 5) ->
         write('   + e2-e4 valide pour les blancs'), nl
@@ -75,16 +75,16 @@ test_game_state_management :-
     write('1. Alternance des joueurs...'), nl,
     init_game_state(GS1),
     make_move_algebraic(GS1, "e2e4", GS2),
-    GS2 = game_state(_, black, 1, _),
+    GS2 = game_state(_, black, 1, _, _),
     write('   + Joueur change vers noir apres coup blanc'), nl,
     
     make_move_algebraic(GS2, "e7e5", GS3),
-    GS3 = game_state(_, white, 2, _),
+    GS3 = game_state(_, white, 2, _, _),
     write('   + Joueur change vers blanc apres coup noir'), nl,
     
     % Test 2: Compteur de coups
     write('2. Compteur de coups...'), nl,
-    GS3 = game_state(_, _, MoveCount, _),
+    GS3 = game_state(_, _, MoveCount, _, _),
     write('   + Compteur de coups correct: '), write(MoveCount), nl.
 
 % =============================================================================
@@ -97,7 +97,7 @@ test_pawn_rules :-
     % Test 1: Mouvement simple
     write('1. Mouvement simple...'), nl,
     init_game_state(GS),
-    GS = game_state(Board, white, 0, active),
+    GS = game_state(Board, white, 0, active, _),
     (valid_move(Board, white, 2, 5, 3, 5) ->
         write('   + Pion blanc peut avancer d\'une case'), nl
     ;   write('   - Pion blanc devrait pouvoir avancer d\'une case'), nl),
@@ -120,7 +120,7 @@ test_knight_rules :-
     % Test 1: Mouvements en L valides
     write('1. Mouvements en L valides...'), nl,
     init_game_state(GS),
-    GS = game_state(Board, white, 0, active),
+    GS = game_state(Board, white, 0, active, _),
     
     findall(_, (
         between(1, 8, ToRow),
@@ -146,7 +146,7 @@ test_sliding_pieces :-
     % Test 1: Tour - ligne claire
     write('1. Tour - ligne claire...'), nl,
     init_game_state(GS),
-    GS = game_state(Board, white, 0, active),
+    GS = game_state(Board, white, 0, active, _),
     
     (valid_move(Board, white, 1, 1, 1, 2) ->
         write('   + Tour peut se deplacer horizontalement'), nl
@@ -174,7 +174,7 @@ test_king_rules :-
     % Test 1: Mouvements d'une case
     write('1. Mouvements d\'une case...'), nl,
     init_game_state(GS),
-    GS = game_state(Board, white, 0, active),
+    GS = game_state(Board, white, 0, active, _),
     
     findall(_, (
         between(1, 8, ToRow),
@@ -253,7 +253,7 @@ test_error_handling :-
     % Test 1: Mouvements invalides
     write('1. Mouvements invalides...'), nl,
     init_game_state(GS),
-    GS = game_state(Board, white, 0, active),
+    GS = game_state(Board, white, 0, active, _),
     
     (\+ valid_move(Board, white, 2, 5, 2, 6) ->
         write('   + Mouvement de pion invalide refuse'), nl
@@ -282,7 +282,7 @@ test_boundary_conditions :-
     % Test 1: Limites de l'echiquier
     write('1. Limites de l\'echiquier...'), nl,
     init_game_state(GS),
-    GS = game_state(Board, white, 0, active),
+    GS = game_state(Board, white, 0, active, _),
     
     (\+ valid_move(Board, white, 2, 5, 2, 9) ->
         write('   + Mouvement vers colonne 9 refuse'), nl
@@ -312,7 +312,7 @@ test_path_blocking :-
     % Test 1: Chemin bloque par piece existante (position initiale)
     write('1. Chemin bloque par piece existante...'), nl,
     init_game_state(GS),
-    GS = game_state(Board, _, _, _),
+    GS = game_state(Board, _, _, _, _),
     (is_path_clear(Board, 1, 1, 1, 8) ->
         write('   - Chemin devrait etre bloque par pieces'), nl
     ;   write('   + Chemin correctement bloque'), nl),
@@ -349,7 +349,7 @@ test_game_integration_path_blocking :-
     
     % Essayer de bouger la tour a travers l'espace occupe
     write('2. Essai de mouvement tour a1-a3 (devrait etre bloque par pion)...'), nl,
-    GS2 = game_state(Board2, _, _, _),
+    GS2 = game_state(Board2, _, _, _, _),
     (can_rook_move(Board2, 1, 1, 3, 1) ->
         write('   - Tour devrait etre bloquee par pion'), nl
     ;   write('   + Tour correctement bloquee'), nl),
@@ -361,7 +361,7 @@ test_game_integration_path_blocking :-
     
     % Maintenant la tour devrait pouvoir bouger vers a3
     write('4. Essai tour a1-a3 (devrait fonctionner)...'), nl,
-    GS4 = game_state(Board4, _, _, _),
+    GS4 = game_state(Board4, _, _, _, _),
     (can_rook_move(Board4, 1, 1, 3, 1) ->
         write('   + Tour peut bouger sur chemin libre'), nl
     ;   write('   - Tour devrait pouvoir bouger'), nl),

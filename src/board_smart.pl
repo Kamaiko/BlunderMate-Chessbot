@@ -1,27 +1,27 @@
 % =============================================================================
-% SMART CHESS BOARD - REPRÉSENTATION ET AFFICHAGE ASCII SIMPLIFIÉ
+% SMART CHESS BOARD - REPRESENTATION ET AFFICHAGE ASCII SIMPLIFIE
 % =============================================================================
 % 
-% Ce fichier gère la représentation de l'échiquier avec des caractères ASCII simples.
-% Version simplifiée sans Unicode pour une meilleure compatibilité.
+% Ce fichier gere la representation de l'echiquier avec des caracteres ASCII simples.
+% Version simplifiee sans Unicode pour une meilleure compatibilite.
 %
 % Auteur : Patrick Patenaude
 % Version : 3.0 (ASCII uniquement - simplifié)
 % 
-% RESPONSABILITÉS :
-% - Représentation de l'échiquier 8x8
-% - Définition des pièces en ASCII
-% - Affichage coloré des pièces
-% - Conversion notation algébrique ↔ coordonnées
-% - Initialisation de l'échiquier standard
+% RESPONSABILITES :
+% - Representation de l'echiquier 8x8
+% - Definition des pieces en ASCII
+% - Affichage colore des pieces
+% - Conversion notation algebrique <-> coordonnees
+% - Initialisation de l'echiquier standard
 % =============================================================================
 
 % =============================================================================
-% SECTION 1 : DÉFINITION DES PIÈCES D'ÉCHECS (ASCII)
+% SECTION 1 : DEFINITION DES PIECES D'ECHECS (ASCII)
 % =============================================================================
 
 % --- PIECES BLANCHES (majuscules) ---
-% Chaque pièce est définie par un caractère ASCII majuscule
+% Chaque piece est definie par un caractere ASCII majuscule
 white_pawn('P').      % Pion blanc
 white_rook('R').      % Tour blanche  
 white_knight('N').    % Cavalier blanc
@@ -30,7 +30,7 @@ white_queen('Q').     % Dame blanche
 white_king('K').      % Roi blanc
 
 % --- PIECES NOIRES (minuscules) ---
-% Chaque pièce est définie par un caractère ASCII minuscule
+% Chaque piece est definie par un caractere ASCII minuscule
 black_pawn('p').      % Pion noir
 black_rook('r').      % Tour noire
 black_knight('n').    % Cavalier noir
@@ -42,7 +42,7 @@ black_king('k').      % Roi noir
 empty_square(' ').    % Case vide
 
 % =============================================================================
-% SECTION 2 : CRÉATION ET INITIALISATION DE L'ÉCHIQUIER
+% SECTION 2 : CREATION ET INITIALISATION DE L'ECHIQUIER
 % =============================================================================
 
 % --- CREATION D'UN ECHIQUIER VIDE ---
@@ -147,9 +147,14 @@ replace_element([H|T], Index, Element, [H|NewT]) :-
     replace_element(T, NextIndex, Element, NewT).
 
 % --- OBTENTION D'UNE PIECE ---
-% Récupère la pièce à une position donnée
+% Recupere la piece a une position donnee
+% Echoue si les coordonnees sont invalides
 get_piece(Board, Row, Col, Piece) :-
-    BoardRow is 9 - Row,  % Conversion des coordonnées d'échecs vers l'index du tableau
+    % Validation des parametres d'entree
+    nonvar(Board), nonvar(Row), nonvar(Col),
+    Row >= 1, Row =< 8, Col >= 1, Col =< 8,
+    
+    BoardRow is 9 - Row,  % Conversion des coordonnees d'echecs vers l'index du tableau
     nth1(BoardRow, Board, RowList),
     nth1(Col, RowList, Piece).
 
@@ -201,9 +206,15 @@ display_black_piece('k') :- write('\e[1;31mk\e[0m').  % Roi noir
 % =============================================================================
 
 % --- PARSING D'UN MOUVEMENT EN NOTATION ALGEBRIQUE ---
-% Convertit "e2e4" en coordonnées (2,5,4,5)
+% Convertit "e2e4" en coordonnees (2,5,4,5)
+% Echoue si MoveString n'est pas valide (doit etre exactement 4 caracteres)
 parse_algebraic_move(MoveString, FromRow, FromCol, ToRow, ToCol) :-
+    % Validation: MoveString doit exister et avoir 4 caracteres
+    nonvar(MoveString),
+    string_length(MoveString, 4),
     string_chars(MoveString, [FromColChar, FromRowChar, ToColChar, ToRowChar]),
+    
+    % Validation: tous les caracteres doivent etre valides
     char_to_col(FromColChar, FromCol),      % Convertir 'e' en 5
     char_to_row(FromRowChar, FromRow),      % Convertir '2' en 2
     char_to_col(ToColChar, ToCol),          % Convertir 'e' en 5
@@ -246,7 +257,7 @@ row_to_char(5, '5'). row_to_char(6, '6'). row_to_char(7, '7'). row_to_char(8, '8
 % Affiche l'échiquier complet avec les pièces ASCII colorées
 display_board(Board) :-
     nl,
-    write('   ECHIQUIER DE JEU'), nl, nl,
+    write(' ECHIQUIER DE JEU'), nl, nl,
     display_board_rows(Board, 8),
     write('  a b c d e f g h'), nl, nl.
 
@@ -268,38 +279,14 @@ display_row([Piece|Pieces]) :-
     (Pieces = [] -> true ; write(','), display_row(Pieces)).
 
 % =============================================================================
-% SECTION 8 : INITIALISATION ET TESTS
+% SECTION 8 : INITIALISATION
 % =============================================================================
 
 % --- INITIALISATION COMPLETE DE L'ECHIQUIER ---
-% Crée et place toutes les pièces sur l'échiquier
+% Cree et place toutes les pieces sur l'echiquier
 initialize_board(Board) :-
     create_empty_board(EmptyBoard),
     place_pieces(EmptyBoard, Board).
-
-% --- TEST COMPLET DU SYSTEME ---
-% Teste toutes les fonctionnalités de l'échiquier
-test_board_smart :-
-    write('Testing ASCII Chess Board...'), nl,
-    initialize_board(Board),
-    display_board(Board),
-    write('ASCII chess board test completed!'), nl.
-
-% --- TEST DE LA NOTATION ALGEBRIQUE ---
-% Teste la conversion bidirectionnelle des mouvements
-test_algebraic :-
-    write('Testing algebraic notation...'), nl,
-    
-    % Test parsing : "e2e4" → coordonnées
-    parse_algebraic_move("e2e4", FromRow, FromCol, ToRow, ToCol),
-    write('e2e4 -> From: ('), write(FromRow), write(','), write(FromCol), 
-    write('), To: ('), write(ToRow), write(','), write(ToCol), write(')'), nl,
-    
-    % Test conversion inverse : coordonnées → "e2e4"
-    coordinates_to_algebraic(2, 5, 4, 5, MoveString),
-    write('Coordinates (2,5) to (4,5) -> '), write(MoveString), nl,
-    
-    write('Algebraic notation test completed!'), nl.
 
 % =============================================================================
 % FIN DU FICHIER BOARD_SMART.PL

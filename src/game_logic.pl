@@ -271,51 +271,60 @@ can_king_move(FromRow, FromCol, ToRow, ToCol) :-
 % chemins, l'identification des pièces et l'affichage de l'état du jeu.
 % =============================================================================
 
-% Vérification que le chemin est libre entre deux positions
+% Verification que le chemin est libre entre deux positions
 is_path_clear(Board, FromRow, FromCol, ToRow, ToCol) :-
+    % Validation des parametres
+    nonvar(Board), nonvar(FromRow), nonvar(FromCol), nonvar(ToRow), nonvar(ToCol),
+    FromRow >= 1, FromRow =< 8, FromCol >= 1, FromCol =< 8,
+    ToRow >= 1, ToRow =< 8, ToCol >= 1, ToCol =< 8,
+    
     % Calculer la direction du mouvement
     RowDir is sign(ToRow - FromRow),
     ColDir is sign(ToCol - FromCol),
     
-    % Vérifier chaque case intermédiaire
+    % Verifier chaque case intermediaire avec limite de profondeur
     NextRow is FromRow + RowDir,
     NextCol is FromCol + ColDir,
-    check_path_recursive(Board, NextRow, NextCol, ToRow, ToCol, RowDir, ColDir).
+    check_path_recursive(Board, NextRow, NextCol, ToRow, ToCol, RowDir, ColDir, 0).
 
-% Vérification récursive du chemin
-check_path_recursive(_, Row, Col, Row, Col, _, _) :-
-    % Arrivé à la destination - chemin libre
+% Verification recursive du chemin avec limite de profondeur (max 8 cases)
+check_path_recursive(_, Row, Col, Row, Col, _, _, _) :-
+    % Arrive a la destination - chemin libre
     !.
 
-check_path_recursive(Board, Row, Col, ToRow, ToCol, RowDir, ColDir) :-
-    % Vérifier si la case courante est libre
+check_path_recursive(Board, Row, Col, ToRow, ToCol, RowDir, ColDir, Depth) :-
+    % Protection contre boucle infinie
+    Depth < 8,
+    
+    % Verifier si la case courante est libre
     get_piece(Board, Row, Col, Piece),
     Piece = ' ',  % Case vide
     
     % Continuer vers la case suivante
     NextRow is Row + RowDir,
     NextCol is Col + ColDir,
-    check_path_recursive(Board, NextRow, NextCol, ToRow, ToCol, RowDir, ColDir).
+    NextDepth is Depth + 1,
+    check_path_recursive(Board, NextRow, NextCol, ToRow, ToCol, RowDir, ColDir, NextDepth).
 
-% Vérifier si une pièce appartient aux blancs
+% Verification des types de pieces (necessaire pour la logique du jeu)
 is_white_piece(Piece) :-
     member(Piece, ['P', 'R', 'N', 'B', 'Q', 'K']).
 
-% Vérifier si une pièce appartient aux noirs
 is_black_piece(Piece) :-
     member(Piece, ['p', 'r', 'n', 'b', 'q', 'k']).
 
-% Afficher l'état du jeu
+% Afficher l'etat du jeu
 display_game_state(GameState) :-
     GameState = game_state(Board, Player, MoveCount, _, CapturedPieces),
     display_board(Board),
     display_captured_pieces(CapturedPieces),
-    write('Joueur actuel: '), translate_player(Player, PlayerFR), write(PlayerFR), nl,
+    write('Joueur actuel: '), 
+    % Traduction locale pour eviter duplication
+    (Player = white -> write('blanc') ; write('noir')), nl,
     write('Nombre de coups: '), write(MoveCount), nl, nl.
 
-% Traduire les joueurs en français
-translate_player(white, 'blanc').
-translate_player(black, 'noir').
+% Note: translate_player/2 est defini dans play_chess.pl
+% pour eviter la duplication de code
 
 % Afficher les pièces capturées (simple)
 display_captured_pieces([WhiteCaptured, BlackCaptured]) :-

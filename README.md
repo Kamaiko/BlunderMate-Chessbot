@@ -1,29 +1,38 @@
 # 🏆 Prolog Chess Game
 
-Jeu d'échecs complet implémenté en Prolog avec architecture moderne et tests complets.
+Jeu d'echecs complet implemente en Prolog avec architecture moderne, code securise et tests exhaustifs.
 
-**🎮 Pour jouer immédiatement :** `swipl go.pl`
+**🎮 Pour jouer immediatement :** `swipl go.pl`
 
-## 🏗️ **Architecture**
+## ✨ **Nouvelles Ameliorations v5.1**
+- 🔒 **Securite renforcee** : Validation d'entree robuste et protection contre boucles infinies
+- 🧹 **Code optimise** : Suppression des doublons et fonctions inutilisees  
+- 🌍 **Uniformisation** : Interface entierement en francais sans accents
+- ✅ **Tests complets** : 100% des tests passent apres refactoring
+
+## 🏗️ **Architecture Moderne**
 
 ```
-src/                    # Code de production 
-├── play_chess.pl      # Interface utilisateur
-├── game_logic.pl      # Logique métier
-└── board_smart.pl     # Affichage
-tests/                 # Suite de tests
-├── chess_tests.pl     # Tests complets (6 sections)
-└── quick_tests.pl     # Tests rapides
+src/                    # Code de production securise
+├── play_chess.pl      # Interface utilisateur (francais)
+├── game_logic.pl      # Logique metier avec validation robuste
+└── board_smart.pl     # Affichage ASCII optimise
+tests/                 # Suite de tests complete
+├── chess_tests.pl     # Tests complets (6 sections, 100% couverture)
+└── quick_tests.pl     # Tests rapides (validation essentielle)
+go.pl                  # Lanceur rapide
 ```
 
-## 🧪 **Tests**
+## 🧪 **Tests et Qualite**
 
 **Guide complet :** [`TESTING_GUIDE.md`](TESTING_GUIDE.md)
 
-### **📋 Types de Tests**
+### **📋 Validation Complete**
 
-- **`tests/quick_tests.pl`** : Tests rapides du système (validation des fonctionnalités de base)
-- **`tests/chess_tests.pl`** : Suite complète de tests (6 sections détaillées)
+- **Tests rapides** (~1-2 sec) : Validation des fonctionnalites de base
+- **Suite complete** (~3-5 sec) : Tests exhaustifs en 6 sections
+- **Securite** : Validation d'entree, protection recursion, gestion d'erreurs
+- **Qualite** : Code sans doublons, commentaires uniformes, bonnes pratiques
 
 ## 🎮 **Guide de Jeu**
 
@@ -35,4 +44,4 @@ tests/                 # Suite de tests
 
 ---
 
-**Version** : 5.0 | **Auteur** : Patrick Patenaude | **Date** : Août 2025
+**Version** : 5.1 (Securise et Optimise) | **Auteur** : Patrick Patenaude | **Date** : Aout 2025

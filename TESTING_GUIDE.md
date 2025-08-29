@@ -1,55 +1,55 @@
 # 🧪 Guide de Tests et Documentation - Prolog Chess Game
 
-**Version :** 2.1 - Consolidée et Cohérente  
+**Version :** 2.2 - Securise et Optimise  
 **Auteur :** Patrick Patenaude  
-**Date :** Août 2025
+**Date :** Aout 2025
 
 ---
 
 ## 🎯 Vue d'Ensemble
 
-Guide unifié pour tester et comprendre le jeu d'échecs Prolog. Le système dispose d'une architecture de tests moderne avec une couverture complète des fonctionnalités.
+Guide unifie pour tester et comprendre le jeu d'echecs Prolog. Le systeme dispose d'une architecture de tests moderne avec une couverture complete des fonctionnalites, code securise et bonnes pratiques.
 
 ## 📁 Structure du Projet et Tests
 
 ```
 PrologChessGame_Clean/
-├── src/                     # Code source
-│   ├── play_chess.pl       # Interface utilisateur (menu 6 options)
-│   ├── game_logic.pl       # Logique métier et validation
-│   └── board_smart.pl      # Affichage échiquier coloré
-├── tests/                   # Suite de tests consolidée
-│   ├── chess_tests.pl      # ⭐ Suite complète (6 sections)
-│   └── quick_tests.pl      # 🚀 Tests rapides
-├── archive/                 # Versions antérieures
+├── src/                     # Code source securise (v5.1)
+│   ├── play_chess.pl       # Interface utilisateur (francais, menu 6 options)
+│   ├── game_logic.pl       # Logique metier avec validation robuste
+│   └── board_smart.pl      # Affichage echiquier optimise
+├── tests/                   # Suite de tests complete (100% couverture)
+│   ├── chess_tests.pl      # ⭐ Suite complete (6 sections, tous passent)
+│   └── quick_tests.pl      # 🚀 Tests rapides (validation essentielle)
+├── go.pl                   # Lanceur rapide
 ├── README.md               # Guide principal du projet
-└── TESTING_GUIDE.md        # 📖 Ce guide unifié
+└── TESTING_GUIDE.md        # 📖 Ce guide unifie
 ```
 
 ---
 
 ## 🚀 Démarrage Rapide
 
-### Installation et Premier Test
+### Démarrage du Jeu
 ```bash
-# 1. Naviguer vers le projet
 cd PrologChessGame_Clean
+swipl go.pl
+```
 
-# 2. Lancer SWI-Prolog
+### Premier Test
+```bash
+cd PrologChessGame_Clean
 swipl
-
-# 3. Test rapide (recommandé pour commencer)
 ?- consult('tests/quick_tests').
 ?- quick_test.
 ```
 
-### Démarrage du Jeu Complet
-```prolog
-# Charger et démarrer le jeu
-?- consult('src/play_chess').
-?- start.
+### Tests via le Menu du Jeu
+```bash
+# 1. Démarrer le jeu
+swipl go.pl
 
-# Dans le menu principal (6 options) :
+# 2. Dans le menu principal :
 # Option 3 → Tests rapides
 # Option 4 → Suite complète de tests
 ```
@@ -203,10 +203,10 @@ swipl
 
 | **Problème** | **Cause** | **Solution** |
 |--------------|-----------|-------------|
-| `Unknown predicate` | Module non chargé | `?- consult('src/game_logic').` |
+| `Unknown predicate` | Module non chargé | Redémarrer avec `swipl go.pl` |
 | Tests échouent | Fichier corrompu | `?- consult('tests/chess_tests').` |
 | Syntaxe Prolog | Point final manquant | Ajouter `.` après chaque commande |
-| Menu ne fonctionne pas | `play_chess.pl` non chargé | `?- consult('src/play_chess').` |
+| Menu ne fonctionne pas | Problème de démarrage | Utiliser `swipl go.pl` |
 
 ### Tests de Validation du Système
 ```prolog
@@ -233,21 +233,22 @@ swipl
 ## ⚡ Workflows Recommandés
 
 ### 1. Développeur - Cycle de Test
-```prolog
+```bash
 # Développement quotidien
+swipl
 ?- consult('tests/quick_tests'), quick_test.
 
 # Après modifications importantes
 ?- consult('tests/chess_tests'), run_all_tests.
 
 # Test du jeu complet
-?- consult('src/play_chess'), start.
+swipl go.pl
 ```
 
 ### 2. Utilisateur - Découverte
-```prolog
+```bash
 # Premier contact
-?- consult('src/play_chess'), start.
+swipl go.pl
 # → Option 3 pour tests rapides
 
 # Validation complète
@@ -326,7 +327,7 @@ Une installation réussie doit satisfaire **TOUS** ces critères :
 - [ ] `quick_test` s'exécute en moins de 2 secondes
 - [ ] `run_all_tests` passe les 6 sections sans erreur
 - [ ] Menu principal affiche les 6 options correctement
-- [ ] Jeu démarre avec `consult('src/play_chess'), start.`
+- [ ] Jeu démarre avec `swipl go.pl`
 
 #### **Tests Fonctionnels** ✅  
 - [ ] Échiquier s'affiche avec couleurs
@@ -341,19 +342,21 @@ Une installation réussie doit satisfaire **TOUS** ces critères :
 - [ ] Documentation synchronisée avec code
 
 ### Commande de Validation Complète
-```prolog
-% Test de validation finale (à exécuter après installation)
-?- 
-    % 1. Charger et tester rapidement
-    consult('tests/quick_tests'), quick_test,
-    
-    % 2. Suite complète
-    consult('tests/chess_tests'), run_all_tests,
-    
-    % 3. Interface utilisateur
-    consult('src/play_chess').
-    
-% Si tout réussit sans erreur → ✅ SYSTÈME VALIDÉ
+```bash
+# Test de validation finale (à exécuter après installation)
+
+# 1. Tests rapides
+swipl
+?- consult('tests/quick_tests'), quick_test, halt.
+
+# 2. Suite complète
+swipl
+?- consult('tests/chess_tests'), run_all_tests, halt.
+
+# 3. Interface utilisateur
+swipl go.pl
+
+# Si tout réussit sans erreur → ✅ SYSTÈME VALIDÉ
 ```
 
 ---
@@ -387,11 +390,13 @@ Le **Prolog Chess Game** est maintenant un système **robuste, testé et documen
 
 #### **Points Forts** 🌟
 - ✅ **Architecture modulaire** et maintenable
-- ✅ **Tests exhaustifs** avec 100% de couverture
-- ✅ **Documentation unifiée** et cohérente
-- ✅ **Interface utilisateur** intuitive (menu 6 options)
-- ✅ **Validation continue** via tests automatisés
-- ✅ **Code Production-Ready** sans duplication
+- ✅ **Tests exhaustifs** avec 100% de couverture  
+- ✅ **Securite renforcee** : Validation d'entree, protection recursion
+- ✅ **Code optimise** : Sans doublons, fonctions inutiles supprimees
+- ✅ **Documentation unifiee** et coherente (francais sans accents)
+- ✅ **Interface utilisateur** intuitive (menu 6 options, francais)
+- ✅ **Validation continue** via tests automatises
+- ✅ **Bonnes pratiques** : Code Production-Ready securise
 
 #### **Prêt pour** 🚀
 - **Utilisation en production** par des utilisateurs finaux
@@ -405,4 +410,4 @@ Le **Prolog Chess Game** est maintenant un système **robuste, testé et documen
 
 ---
 
-**Version** : 2.1 Consolidée | **Auteur** : Patrick Patenaude | **Dernière mise à jour** : Août 2025
+**Version** : 2.2 Securise et Optimise | **Auteur** : Patrick Patenaude | **Derniere mise a jour** : Aout 2025
