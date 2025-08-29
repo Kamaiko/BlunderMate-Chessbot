@@ -246,7 +246,7 @@ row_to_char(5, '5'). row_to_char(6, '6'). row_to_char(7, '7'). row_to_char(8, '8
 % Affiche l'échiquier complet avec les pièces ASCII colorées
 display_board(Board) :-
     nl,
-    write('Chess Board (ASCII)'), nl,
+    write('   ECHIQUIER DE JEU'), nl, nl,
     display_board_rows(Board, 8),
     write('  a b c d e f g h'), nl, nl.
 

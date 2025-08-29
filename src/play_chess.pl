@@ -25,22 +25,21 @@
 % =============================================================================
 
 % Point d'entrée principal
-start :-
-    main_menu.
+start :- main_menu.
 
 % Affichage et gestion du menu principal
 main_menu :-
     write('======================'), nl,
-    write('  PROLOG CHESS GAME'), nl,
+    write('   JEU D''ECHECS PROLOG'), nl,
     write('======================'), nl, nl,
-    write('Choose an option:'), nl,
-    write('1 - Start Human vs Human game'), nl,
-    write('2 - Start Human vs Bot game (Coming soon)'), nl,
-    write('3 - Run quick tests (external)'), nl,
-    write('4 - Run complete test suite (external)'), nl,
-    write('5 - Show help'), nl,
-    write('6 - Exit'), nl, nl,
-    write('Enter your choice (1-6): '),
+    write('Choisissez une option:'), nl,
+    write('1 - Commencer une partie Humain vs Humain'), nl,
+    write('2 - Commencer une partie Humain vs Bot (Bientot disponible)'), nl,
+    write('3 - Executer les tests rapides (externes)'), nl,
+    write('4 - Executer la suite complete de tests (externe)'), nl,
+    write('5 - Afficher l''aide'), nl,
+    write('6 - Quitter'), nl, nl,
+    write('Entrez votre choix (1-6): '),
     get_single_char(CharCode),
     char_code(Choice, CharCode),
     nl,
@@ -51,33 +50,33 @@ process_choice('1') :-
     start_human_game.
 
 process_choice('2') :-
-    write('Human vs Bot mode is not yet implemented.'), nl,
-    write('Coming in future version!'), nl, nl,
-    write('Press any key to continue...'), nl,
+    write('Le mode Humain vs Bot n''est pas encore implemente.'), nl,
+    write('Disponible dans une version future!'), nl, nl,
+    write('Appuyez sur une touche pour continuer...'), nl,
     get_single_char(_),
     main_menu.
 
 process_choice('3') :-
-    write('Running external quick tests...'), nl,
-    write('Loading tests/quick_tests.pl...'), nl,
+    write('Execution des tests rapides externes...'), nl,
+    write('Chargement de tests/quick_tests.pl...'), nl,
     (consult('tests/quick_tests') ->
-        write('Tests loaded successfully. Running quick_test...'), nl, nl,
+        write('Tests charges avec succes. Execution de quick_test...'), nl, nl,
         quick_test
-    ;   write('Error: Could not load tests/quick_tests.pl'), nl,
-        write('Please ensure the file exists and is accessible.'), nl),
-    write('Press any key to continue...'), nl,
+    ;   write('Erreur: Impossible de charger tests/quick_tests.pl'), nl,
+        write('Veuillez vous assurer que le fichier existe et est accessible.'), nl),
+    write('Appuyez sur une touche pour continuer...'), nl,
     get_single_char(_),
     main_menu.
 
 process_choice('4') :-
-    write('Running external complete test suite...'), nl,
-    write('Loading tests/chess_tests.pl...'), nl,
+    write('Execution de la suite complete de tests externe...'), nl,
+    write('Chargement de tests/chess_tests.pl...'), nl,
     (consult('tests/chess_tests') ->
-        write('Tests loaded successfully. Running run_all_tests...'), nl, nl,
+        write('Tests charges avec succes. Execution de run_all_tests...'), nl, nl,
         run_all_tests
-    ;   write('Error: Could not load tests/chess_tests.pl'), nl,
-        write('Please ensure the file exists and is accessible.'), nl),
-    write('Press any key to continue...'), nl,
+    ;   write('Erreur: Impossible de charger tests/chess_tests.pl'), nl,
+        write('Veuillez vous assurer que le fichier existe et est accessible.'), nl),
+    write('Appuyez sur une touche pour continuer...'), nl,
     get_single_char(_),
     main_menu.
 
@@ -86,12 +85,12 @@ process_choice('5') :-
     main_menu.
 
 process_choice('6') :-
-    write('Goodbye!'), nl,
-    write('Thanks for playing Prolog Chess!'), nl,
+    write('Au revoir!'), nl,
+    write('Merci d''avoir joue aux Echecs Prolog!'), nl,
     halt.
 
 process_choice(_) :-
-    write('Invalid choice. Please enter 1, 2, 3, 4, 5, or 6.'), nl,
+    write('Choix invalide. Veuillez entrer 1, 2, 3, 4, 5, ou 6.'), nl,
     main_menu.
 
 % =============================================================================
@@ -100,31 +99,31 @@ process_choice(_) :-
 
 % Démarrer une partie humain vs humain
 start_human_game :-
-    write('=== HUMAN VS HUMAN CHESS GAME ==='), nl,
+    write('=== PARTIE D''ECHECS HUMAIN VS HUMAIN ==='), nl,
     display_legend,
     init_game_state(GameState),
     display_game_state(GameState),
-    write('Enter moves in algebraic notation (e.g., e2e4.)'), nl,
-    write('Type "quit." to exit, "help." for commands'), nl, nl,
+    write('Entrez les mouvements en notation algebrique (ex: e2e4)'), nl,
+    write('Commandes: quit (menu), exit (quitter), help (aide)'), nl, nl,
     game_loop(GameState).
 
 % Afficher la légende des pièces
 display_legend :-
     nl,
-    write('=== PIECE LEGEND ==='), nl,
-    write('White pieces (uppercase): P=Pawn, R=Rook, N=Knight, B=Bishop, Q=Queen, K=King'), nl,
-    write('Black pieces (lowercase): p=pawn, r=rook, n=knight, b=bishop, q=queen, k=king'), nl,
-    write('Move format: e2e4. (from e2 to e4, don''t forget the dot!)'), nl, nl.
+    write('=== LEGENDE DES PIECES ==='), nl,
+    write('Pieces blanches (majuscules): P=Pion, R=Tour, N=Cavalier, B=Fou, Q=Dame, K=Roi'), nl,
+    write('Pieces noires (minuscules): p=pion, r=tour, n=cavalier, b=fou, q=dame, k=roi'), nl,
+    write('Format des mouvements: e2e4. (de e2 vers e4, n''oubliez pas le point!)'), nl, nl.
 
 % Boucle principale du jeu
 game_loop(GameState) :-
-    GameState = game_state(_, Player, _, Status),
+    GameState = game_state(_, Player, _, Status, _),
     (Status = active ->
-        (write('Player '), write(Player), write('> '),
+        (write('Joueur '), translate_player(Player, PlayerFR), write(PlayerFR), write('> '),
          read_player_input(Input),
          process_game_input(Input, GameState, NewGameState),
          game_loop(NewGameState))
-    ;   write('Game Over!'), nl).
+    ;   write('Partie terminee!'), nl).
 
 % Lire l'entrée du joueur avec gestion robuste
 read_player_input(Input) :-
@@ -135,7 +134,7 @@ read_player_input(Input) :-
         (read_line_to_string(user_input, String),
          process_input_string(String, Input)),
         _Error,
-        (write('Invalid input. Please try again.'), nl, fail)
+        (write('Entree invalide. Veuillez reessayer.'), nl, fail)
     ),
     !.
 
@@ -158,30 +157,47 @@ remove_trailing_dot(String, Output) :-
 
 % Traitement des commandes de jeu
 process_game_input(quit, _, _) :-
-    write('Thanks for playing!'), nl,
-    write('Press any key to return to main menu...'), nl,
+    write('Merci d''avoir joue!'), nl,
+    write('Appuyez sur une touche pour retourner au menu principal...'), nl,
     get_single_char(_),
     main_menu, !.
 
 process_game_input(exit, _, _) :-
-    write('Thanks for playing Prolog Chess!'), nl,
-    write('Goodbye!'), nl,
+    write('Merci d''avoir joue aux Echecs Prolog!'), nl,
+    write('Au revoir!'), nl,
     halt.
 
 process_game_input(help, GameState, GameState) :-
     show_game_help, !.
 
 process_game_input(board, GameState, GameState) :-
-    GameState = game_state(Board, _, _, _),
+    GameState = game_state(Board, _, _, _, _),
     display_board(Board), !.
 
 process_game_input(Input, GameState, NewGameState) :-
     atom(Input),
     atom_string(Input, InputStr),
-    (parse_move_input(InputStr, FromRow, FromCol, ToRow, ToCol) ->
-        attempt_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState)
-    ;   write('Invalid move format. Use algebraic notation like e2e4'), nl,
-        NewGameState = GameState).
+    % Vérifier les commandes spéciales sans point
+    (InputStr = "exit" ->
+        (write('Merci d''avoir joue aux Echecs Prolog!'), nl,
+         write('Au revoir!'), nl,
+         halt)
+    ; InputStr = "quit" ->
+        (write('Merci d''avoir joue!'), nl,
+         write('Appuyez sur une touche pour retourner au menu principal...'), nl,
+         get_single_char(_),
+         main_menu, !)
+    ; InputStr = "help" ->
+        (show_game_help, NewGameState = GameState)
+    ; % Sinon, c'est un mouvement
+        (parse_move_input(InputStr, FromRow, FromCol, ToRow, ToCol) ->
+            attempt_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState)
+        ;   write('Format de mouvement invalide!'), nl,
+            write('  Attendu: 4 caracteres comme "e2e4" (de e2 vers e4)'), nl,
+            write('  Ou: exit, quit, help'), nl,
+            write('  Votre entree: '), write(InputStr), nl,
+            NewGameState = GameState)
+    ).
 
 % Parser l'entrée du mouvement
 parse_move_input(InputStr, FromRow, FromCol, ToRow, ToCol) :-
@@ -190,20 +206,27 @@ parse_move_input(InputStr, FromRow, FromCol, ToRow, ToCol) :-
 
 % Tenter d'effectuer un mouvement
 attempt_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState) :-
-    GameState = game_state(Board, Player, _, _),
+    GameState = game_state(Board, Player, _, _, _),
     (valid_position(FromRow, FromCol), valid_position(ToRow, ToCol) ->
         (get_piece(Board, FromRow, FromCol, Piece),
          piece_belongs_to_player(Piece, Player) ->
             (make_move(GameState, FromRow, FromCol, ToRow, ToCol, TempGameState) ->
                 (coordinates_to_algebraic(FromRow, FromCol, ToRow, ToCol, MoveStr),
-                 write('Move played: '), write(MoveStr), nl, nl,
+                 write('Mouvement joue: '), write(MoveStr), nl, nl,
                  display_game_state(TempGameState),
+                 write('Entrez les mouvements en notation algebrique (ex: e2e4)'), nl,
+                 write('Commandes: quit (menu), exit (quitter), help (aide)'), nl, nl,
                  NewGameState = TempGameState)
-            ;   write('Illegal move. Try again.'), nl,
+            ;   write('Mouvement illegal!'), nl,
+                write('  Raison: Cette piece ne peut pas aller a cette position'), nl,
+                write('  Verifiez: Regles de mouvement, blocage du chemin, ou regles du jeu'), nl,
                 NewGameState = GameState)
-        ;   write('No piece of your color at that position.'), nl,
+        ;   write('Aucune piece de votre couleur a cette position!'), nl,
+            write('  Verifiez: Assurez-vous d''avoir une piece '), translate_player(Player, PlayerFR), write(PlayerFR), write(' a la position de depart'), nl,
             NewGameState = GameState)
-    ;   write('Invalid coordinates.'), nl,
+    ;   write('Coordonnees invalides!'), nl,
+        write('  Plage valide: rangees 1-8, colonnes a-h'), nl,
+        write('  Exemple: e2e4 (e=colonne 5, 2=rangee 2 vers e=colonne 5, 4=rangee 4)'), nl,
         NewGameState = GameState).
 
 % =============================================================================
@@ -220,6 +243,10 @@ piece_belongs_to_player(Piece, white) :-
 piece_belongs_to_player(Piece, black) :-
     is_black_piece(Piece).
 
+% Traduire les joueurs en français
+translate_player(white, 'blanc').
+translate_player(black, 'noir').
+
 % Afficher l'aide générale
 show_help :-
     nl,
@@ -235,13 +262,33 @@ show_help :-
 
 % Afficher l'aide de jeu
 show_game_help :-
-    write('GAME COMMANDS:'), nl,
-    write('- Move: Enter in format "e2e4." (from e2 to e4)'), nl,
-    write('- quit.: Exit to main menu'), nl,
-    write('- exit.: Quit program completely'), nl,
+    write('=== CHESS GAME HELP ==='), nl, nl,
+    write('COMMANDS:'), nl,
+    write('- Move: Enter "e2e4." (from e2 to e4)'), nl,
     write('- help.: Show this help'), nl,
     write('- board.: Show current board'), nl,
-    write('Remember: Always end commands with a dot (.)'), nl, nl.
+    write('- quit.: Exit to main menu'), nl,
+    write('- exit.: Quit program completely'), nl, nl,
+    
+    write('MOVE FORMAT:'), nl,
+    write('- Use 4 characters: [from][to] like "e2e4"'), nl,
+    write('- Columns: a,b,c,d,e,f,g,h (left to right)'), nl,
+    write('- Rows: 1,2,3,4,5,6,7,8 (bottom to top)'), nl,
+    write('- Examples: e2e4, d7d5, b1c3, g1f3'), nl, nl,
+    
+    write('PIECE MOVEMENTS:'), nl,
+    write('- Pawn: 1 square forward, 2 on first move, diagonal to capture'), nl,
+    write('- Rook: Horizontal/vertical lines'), nl,
+    write('- Knight: L-shape (2+1 squares)'), nl,
+    write('- Bishop: Diagonal lines'), nl,
+    write('- Queen: Rook + Bishop combined'), nl,
+    write('- King: 1 square in any direction'), nl, nl,
+    
+    write('TIPS:'), nl,
+    write('- Always end commands with a dot (.)'), nl,
+    write('- Check that you own the piece at start position'), nl,
+    write('- Watch for blocked paths (except knights)'), nl,
+    write('- You can only capture opponent pieces'), nl, nl.
 
 % Note : La section "Test rapide" a été déplacée vers tests/quick_tests.pl
 % pour respecter la séparation des responsabilités.

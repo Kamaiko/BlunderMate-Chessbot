@@ -30,11 +30,12 @@
 % =============================================================================
 
 % Structure de l'état du jeu
-% game_state(Board, CurrentPlayer, MoveCount, GameStatus)
+% game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces)
 % - Board: État de l'échiquier 8x8
 % - CurrentPlayer: 'white' ou 'black'  
 % - MoveCount: Nombre de coups joués
 % - GameStatus: 'active', 'checkmate', 'stalemate', 'draw'
+% - CapturedPieces: Liste des pièces capturées [WhiteCaptured, BlackCaptured]
 
 % =============================================================================
 % PRÉDICATS PUBLICS - GESTION DE L'ÉTAT DU JEU
@@ -42,14 +43,14 @@
 
 % init_game_state(-GameState)
 % Initialise un nouvel état de jeu avec l'échiquier standard et les blancs
-% qui commencent. GameState est un terme game_state/4.
+% qui commencent. GameState est un terme game_state/5.
 init_game_state(GameState) :-
     initialize_board(Board),
-    GameState = game_state(Board, white, 0, active).
+    GameState = game_state(Board, white, 0, active, [[], []]).
 
 % current_player(+GameState, -Player)
 % Extrait le joueur actuel depuis l'état du jeu.
-current_player(game_state(_, Player, _, _), Player).
+current_player(game_state(_, Player, _, _, _), Player).
 
 % switch_player(+CurrentPlayer, -NewPlayer)
 % Change le joueur actuel (blanc ↔ noir).
@@ -77,20 +78,38 @@ make_move_algebraic(GameState, MoveString, NewGameState) :-
 % Échoue si le mouvement est invalide ou si le jeu n'est pas actif.
 % Met à jour l'état du jeu et change le joueur actuel.
 make_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState) :-
-    GameState = game_state(Board, Player, MoveCount, active),
+    GameState = game_state(Board, Player, MoveCount, active, CapturedPieces),
     valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
-    execute_move(Board, FromRow, FromCol, ToRow, ToCol, NewBoard),
+    execute_move(Board, FromRow, FromCol, ToRow, ToCol, NewBoard, CapturedPieces, NewCapturedPieces),
     switch_player(Player, NewPlayer),
     NewMoveCount is MoveCount + 1,
     
     % Pour l'instant, le jeu continue toujours (pas de détection d'échec et mat)
-    NewGameState = game_state(NewBoard, NewPlayer, NewMoveCount, active).
+    NewGameState = game_state(NewBoard, NewPlayer, NewMoveCount, active, NewCapturedPieces).
 
-% Exécuter un mouvement sur l'échiquier
-execute_move(Board, FromRow, FromCol, ToRow, ToCol, NewBoard) :-
+% Exécuter un mouvement sur l'échiquier avec gestion des captures
+execute_move(Board, FromRow, FromCol, ToRow, ToCol, NewBoard, CapturedPieces, NewCapturedPieces) :-
     get_piece(Board, FromRow, FromCol, Piece),
+    get_piece(Board, ToRow, ToCol, TargetPiece),
+    
+    % Mettre à jour les pièces capturées si capture
+    (TargetPiece \= ' ' ->
+        update_captured_pieces(TargetPiece, CapturedPieces, NewCapturedPieces)
+    ;   NewCapturedPieces = CapturedPieces
+    ),
+    
+    % Exécuter le mouvement
     place_single_piece(Board, FromRow, FromCol, ' ', Board1),
     place_single_piece(Board1, ToRow, ToCol, Piece, NewBoard).
+
+% Mettre à jour la liste des pièces capturées
+update_captured_pieces(Piece, [WhiteCaptured, BlackCaptured], [NewWhiteCaptured, NewBlackCaptured]) :-
+    (is_white_piece(Piece) ->
+        append(WhiteCaptured, [Piece], NewWhiteCaptured),
+        NewBlackCaptured = BlackCaptured
+    ;   append(BlackCaptured, [Piece], NewBlackCaptured),
+        NewWhiteCaptured = WhiteCaptured
+    ).
 
 % =============================================================================
 % SECTION 3 : VALIDATION DES MOUVEMENTS
@@ -288,11 +307,28 @@ is_black_piece(Piece) :-
 
 % Afficher l'état du jeu
 display_game_state(GameState) :-
-    GameState = game_state(Board, Player, MoveCount, Status),
+    GameState = game_state(Board, Player, MoveCount, _, CapturedPieces),
     display_board(Board),
-    write('Current Player: '), write(Player), nl,
-    write('Move Count: '), write(MoveCount), nl,
-    write('Game Status: '), write(Status), nl, nl.
+    display_captured_pieces(CapturedPieces),
+    write('Joueur actuel: '), translate_player(Player, PlayerFR), write(PlayerFR), nl,
+    write('Nombre de coups: '), write(MoveCount), nl, nl.
+
+% Traduire les joueurs en français
+translate_player(white, 'blanc').
+translate_player(black, 'noir').
+
+% Afficher les pièces capturées (simple)
+display_captured_pieces([WhiteCaptured, BlackCaptured]) :-
+    (WhiteCaptured \= [] ; BlackCaptured \= []) ->
+        (write('Pieces capturees: '),
+         (WhiteCaptured \= [] -> 
+            (write('Blanches: '), write(WhiteCaptured), write(' '))
+         ; true),
+         (BlackCaptured \= [] -> 
+            (write('Noires: '), write(BlackCaptured))
+         ; true),
+         nl)
+    ; true.
 
 % =============================================================================
 % FIN DU FICHIER - VERSION NETTOYÉE
