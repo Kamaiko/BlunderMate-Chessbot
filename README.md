@@ -56,6 +56,10 @@ Ce projet a atteint une **base solide et securisee**. Voici les prochaines etape
 - **♛ Promotion** : Transformation des pions en fin de plateau
 - **⚔️ Echec et Mat** : Detection automatique de fin de partie
 - **🔄 Pat** : Detection des situations de nullite
+- **🛡️ Pieces Clouees** : Logique interdisant les mouvements qui exposent le roi
+  - Detection des pieces "epinglees" (pinned) par l'adversaire
+  - Validation que chaque coup ne met pas son propre roi en echec
+  - Gestion des pieces bloquees qui protegent le roi d'une attaque
 
 ### **📋 PHASE 2 : Intelligence Artificielle (Priorite Haute)**  
 - **🤖 Bot Basique** : Algorithme minimax avec evaluation simple
@@ -79,6 +83,26 @@ Ce projet a atteint une **base solide et securisee**. Voici les prochaines etape
 - **🏆 Tournois** : Systeme de competition automatise
 
 ### **🛠️ Suggestions d'Implementation**
+
+#### **Priorite #1 : Pieces Clouees (Logique Critique)**
+```prolog
+% Validation essentielle : empecher les coups qui exposent le roi
+valid_move_with_king_safety(GameState, FromRow, FromCol, ToRow, ToCol) :-
+    % 1. Verifier le mouvement de base
+    valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
+    
+    % 2. Simuler le mouvement
+    simulate_move(GameState, FromRow, FromCol, ToRow, ToCol, TempGameState),
+    
+    % 3. CRITIQUE : Verifier que le roi n'est pas en echec apres le coup
+    \+ is_king_in_check(TempGameState, Player).
+
+% Detection des pieces epinglees qui protegent le roi
+is_piece_pinned(Board, Row, Col, Player) :-
+    % Trouver les lignes d'attaque vers le roi
+    % Verifier si cette piece bloque une attaque
+    % Interdire son mouvement si elle protege le roi
+```
 
 #### **Commencer par le Roque (Impact Maximum, Effort Minimum)**
 ```prolog
