@@ -15,8 +15,9 @@
 % - Validation des composants principaux
 % =============================================================================
 
-:- [src/game_logic].
-:- [src/board_smart].
+:- [src/pieces].
+:- [src/board].
+:- [src/game].
 
 % =============================================================================
 % SECTION 1 : TESTS RAPIDES DU SYSTÈME
