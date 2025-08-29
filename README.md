@@ -7,18 +7,22 @@ Un jeu d'échecs complet implémenté en Prolog avec une interface utilisateur i
 ### ✅ **FONCTIONNALITÉS IMPLÉMENTÉES ET FONCTIONNELLES**
 
 - **🎮 Menu Principal Complet** : Interface de navigation fonctionnelle
-- **👥 Jeu Humain vs Humain** : Mode de jeu complet pour deux joueurs
 - **🎨 Affichage ASCII Coloré** : Pièces clairement différenciées par couleur et casse
 - **📝 Notation Algébrique** : Entrée des mouvements en format standard (e2e4)
-- **✅ Validation des Mouvements** : Vérification de la légalité des coups
 - **🧪 Tests Automatiques** : Fonction de test rapide du système
 - **📚 Aide Intégrée** : Documentation et commandes d'aide pendant le jeu
 - **🔄 Gestion des Erreurs** : Messages d'erreur clairs et navigation robuste
+- **🏗️ Structure du Code** : Parfaitement organisé avec commentaires détaillés
+
+### ⚠️ **FONCTIONNALITÉS PARTIELLEMENT IMPLÉMENTÉES**
+
+- **👥 Jeu Humain vs Humain** : Interface fonctionnelle mais logique de jeu bloquée
+- **✅ Validation des Mouvements** : Structure en place mais logique non fonctionnelle
 
 ### ❌ **FONCTIONNALITÉS NON IMPLÉMENTÉES**
 
 - **🤖 Mode Humain vs Bot** : Prévu pour les versions futures
-- **♟️ Détection d'Échec et Mat** : Logique simplifiée actuellement
+- **♟️ Détection d'Échec et Mat** : **CRITIQUE** - Bloque tout le jeu
 - **📊 Historique des Coups** : Pas encore implémenté
 - **💾 Sauvegarde/Chargement** : Fonctionnalité à venir
 
@@ -28,6 +32,14 @@ Un jeu d'échecs complet implémenté en Prolog avec une interface utilisateur i
 - ✅ **Attente d'Entrée Utilisateur** : Fonction `wait_for_enter` maintenant fonctionnelle
 - ✅ **Incohérence Unicode/ASCII** : Toutes les pièces utilisent maintenant des caractères ASCII
 - ✅ **Structure du Code** : Parfaitement organisé avec commentaires détaillés
+
+### 🚨 **PROBLÈMES ACTUELS CRITIQUES**
+
+- ❌ **Détection d'Échec Non Fonctionnelle** : `is_check` retourne toujours `true`
+- ❌ **Validation des Mouvements Bloquée** : Impossible de jouer une partie complète
+- ❌ **Logique de Jeu Incomplète** : Les mouvements de base ne sont pas entièrement validés
+
+**Impact** : Le jeu ne peut pas être utilisé pour jouer des parties réelles. Seule l'interface et les tests fonctionnent.
 
 ## 🏗️ **Architecture du Code**
 
@@ -203,35 +215,68 @@ swipl -v -g "consult('play_chess'), start."
 
 ## 🚀 **Plan de Production**
 
-### **Phase 1 : Stabilisation (Actuelle)**
+### **Phase 1 : Stabilisation ✅ (ACTUELLE)**
 - ✅ **Code consolidé** et commenté
 - ✅ **Tests automatisés** fonctionnels
 - ✅ **Documentation complète** mise à jour
 - ✅ **Interface utilisateur** robuste
+- ✅ **Menu principal** fonctionnel
+- ✅ **Affichage ASCII** coloré
+- ✅ **Mouvements de base** des pièces
+- ✅ **Validation des mouvements** simples
+- ✅ **Interface utilisateur** de base
 
-### **Phase 2 : Fonctionnalités Avancées (Prochaine)**
-- [ ] **Détection d'échec** et échec et mat
-- [ ] **Validation complète** des règles d'échecs
-- [ ] **Mode IA simple** (algorithme minimax basique)
-- [ ] **Sauvegarde/chargement** des parties
+### **Phase 2 : Fonctionnalités Essentielles 🔧 (PROCHAINES ÉTAPES)**
+- [ ] **2.1 Détection des États de Fin de Partie**
+  - [ ] Détection d'échec (actuellement non fonctionnelle)
+  - [ ] Détection de mat
+  - [ ] Détection de pat
+- [ ] **2.2 Validation des Mouvements Avancés**
+  - [ ] Logique complète des mouvements de base
+  - [ ] Vérification des chemins bloqués
+  - [ ] Empêcher les mouvements illégaux
+- [ ] **2.3 Gestion des Droits de Roque**
+- [ ] **2.4 Prise en Passant**
 
 ### **Phase 3 : Optimisation et Performance**
-- [ ] **Optimisation des algorithmes** de validation
-- [ ] **Gestion de la mémoire** pour les longues parties
-- [ ] **Tests de charge** et de performance
-- [ ] **Profiling** et optimisation des prédicats critiques
+- [ ] **3.1 Génération de Mouvements Légaux**
+- [ ] **3.2 Évaluation de Position**
 
 ### **Phase 4 : Interface et Expérience Utilisateur**
-- [ ] **Interface graphique** optionnelle
-- [ ] **Thèmes visuels** et personnalisation
-- [ ] **Tutoriel intégré** pour les débutants
-- [ ] **Statistiques** et analyse des parties
+- [ ] **4.1 Commandes de Jeu Avancées**
+- [ ] **4.2 Sauvegarde et Chargement**
 
 ### **Phase 5 : Distribution et Déploiement**
-- [ ] **Package d'installation** automatisé
-- [ ] **Documentation utilisateur** finale
-- [ ] **Tests d'intégration** complets
-- [ ] **Version de production** stable
+- [ ] **5.1 Tests Complets**
+- [ ] **5.2 Documentation et Guide Utilisateur**
+  - [ ] Manuel complet des règles
+  - [ ] Guide des commandes
+  - [ ] Exemples de parties
+
+## 🚨 **Priorités Immédiates (Phase 2)**
+
+### **🚨 HAUTE PRIORITÉ**
+- **Détection d'échec** - Fondamental pour la validation des mouvements
+- **Validation des mouvements** - Empêcher les mouvements illégaux
+- **Fin de partie** - Détecter mat, pat et nulle
+
+### **⚡ PRIORITÉ MOYENNE**
+- **Roque** - Règle importante du jeu
+- **Prise en passant** - Règle spéciale des pions
+- **Génération de mouvements légaux** - Pour l'IA et la validation
+
+### **📊 PRIORITÉ BASSE**
+- **Évaluation de position** - Pour l'IA
+- **Sauvegarde/chargement** - Fonctionnalité avancée
+- **Interface graphique** - Amélioration de l'UX
+
+## ⚠️ **État Actuel Critique**
+
+**IMPORTANT** : La logique derrière les mouvements de base n'est pas encore complète. Nous devons nous attaquer à cela en premier. Le menu doit fonctionner et nous devons être capables de bouger des pièces lors d'une partie human vs human.
+
+**Problème principal** : La détection d'échec est non fonctionnelle (`is_check` retourne toujours `true`), ce qui bloque la validation des mouvements et empêche le jeu de fonctionner correctement.
+
+**Fichier problématique** : `game_logic.pl` - Voir `GAME_LOGIC_STATUS.md` pour les détails complets du problème et le plan de correction.
 
 ## 📚 **Documentation Technique**
 
@@ -265,12 +310,30 @@ swipl -v -g "consult('play_chess'), start."
 ## 📞 **Support et Contact**
 
 - **Auteur** : Student IA1
-- **Version** : 4.0 (Version finale consolidée)
+- **Version** : 4.0 (Version finale consolidée avec problèmes documentés)
 - **Dernière Mise à Jour** : Décembre 2024
-- **Statut** : ✅ Fonctionnel et prêt pour la production
+- **Statut** : ⚠️ Interface fonctionnelle mais logique de jeu bloquée
 
 ---
 
-**🎉 Le jeu d'échecs Prolog est maintenant complètement fonctionnel et prêt pour l'utilisation !**
+**📋 RÉSUMÉ DE LA SITUATION ACTUELLE**
 
-*Bonne partie d'échecs !* ♟️
+Le projet a atteint un état de **consolidation complète** avec :
+- ✅ **Interface utilisateur** entièrement fonctionnelle
+- ✅ **Structure du code** parfaitement organisée
+- ✅ **Documentation** complète et détaillée
+- ❌ **Logique de jeu** non fonctionnelle (détection d'échec buguée)
+
+**🎯 PROCHAINES ÉTAPES PRIORITAIRES**
+
+1. **Corriger la détection d'échec** dans `game_logic.pl`
+2. **Rendre le jeu jouable** (human vs human)
+3. **Implémenter la validation complète** des mouvements
+
+**📚 DOCUMENTATION DISPONIBLE**
+
+- `README.md` : Vue d'ensemble du projet
+- `GAME_LOGIC_STATUS.md` : Analyse détaillée des problèmes de `game_logic.pl`
+- `HOW_TO_RUN_TESTS.md` : Guide de test du système
+
+*Le projet est prêt pour la reprise du développement !* 🚀
