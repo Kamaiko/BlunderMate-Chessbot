@@ -4,7 +4,17 @@
       "Bash(swipl:*)",
       "Bash(.run_clean_tests.ps1)",
       "Bash(powershell:*)",
-      "Bash(move test_path_blocking.pl teststest_path_blocking.pl)"
+      "Bash(move test_path_blocking.pl teststest_path_blocking.pl)",
+      "Read(C:\\DevTools\\nvm\\v22.18.0\\node_modules\\@anthropic-ai\\claude-code/**)",
+      "Read(C:\\Users\\Patrick Patenaude/**)",
+      "Read(C:\\DevTools\\nvm\\v22.18.0\\node_modules\\@anthropic-ai\\claude-code/**)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(\"C:\\Users\\Patrick Patenaude\\.local\\bin\\uvx.exe\" --version)",
+      "Bash(git --version)",
+      "Bash(docker:*)",
+      "mcp__sequential-thinking__sequentialthinking",
+      "mcp__context7__*"
     ],
     "deny": [],
     "ask": []
