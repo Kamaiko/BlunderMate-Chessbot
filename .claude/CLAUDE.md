@@ -16,7 +16,7 @@
 ## Commandes Développement
 - Tests complets : `swipl -t run_tests -s tests/chess_tests.pl`
 - Tests rapides : `swipl -s tests/quick_tests.pl`
-- Jeu : `swipl go.pl` puis `start.`
+- Jeu : `swipl go.pl`
 - Debug spécifique : `trace.` puis appel prédicat
 - Test section : `swipl -g "consult('tests/chess_tests'), run_test(section1), halt."`
 
