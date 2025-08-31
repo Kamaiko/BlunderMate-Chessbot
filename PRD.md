@@ -36,28 +36,28 @@ Créer un joueur intelligent d'échecs en Prolog utilisant des techniques de rec
 
 ## 4. Roadmap Produit
 
-### Phase 1 : Règles Avancées (Prérequis IA)
-- **Roque, en passant, promotion** : Mouvements spéciaux
-- **Échec, mat, pat** : États terminaux
-- **Validation complète** : Base solide pour l'IA
+### Phase 1 : Fondations Jeu ✅
+- [x] Interface de base : Menu principal, boucle de jeu, messages français
+- [x] Logique mouvements : Tous types de pièces (pion, tour, fou, cavalier, dame, roi)
+- [x] Système coordonnées : Notation algébrique, validation 8x8
+- [x] Tests exhaustifs : 6 sections, 100% couverture validée
 
-### Phase 2 : Intelligence Artificielle ⭐ (FOCUS PRINCIPAL)
+### Phase 2 : Règles Avancées
+- [ ] Roque, en passant, promotion : Mouvements spéciaux
+- [ ] Échec, mat, pat : États terminaux  
+- [ ] Validation complète : Base solide pour l'IA
 
-#### Algorithmes IA
-- **Minimax** avec élagage alpha-beta
-- **Évaluation de position** : matériel, mobilité, sécurité roi
-- **Optimisations** : tri des coups, table de transposition
-- **Bibliothèques** : ouvertures et finales de base
+### Phase 3 : Intelligence Artificielle ⭐ (FOCUS PRINCIPAL)
+- [ ] Minimax avec élagage alpha-beta
+- [ ] Évaluation de position : matériel, mobilité, sécurité roi
+- [ ] Optimisations : tri des coups, table de transposition
+- [ ] Bibliothèques : ouvertures et finales de base
+- [ ] Niveaux IA : Débutant, Intermédiaire, Expert (profondeurs variables)
 
-#### Niveaux IA
-- **Débutant** : Profondeur 2-3, évaluation simple
-- **Intermédiaire** : Profondeur 4-5, évaluation avancée  
-- **Expert** : Profondeur 6+, optimisations complètes
-
-### Phase 3 : Extensions Possibles (Post-Universitaire)
-- **Interface graphique** : GUI avec plateau visuel interactif
-- **Analyse de positions** : Évaluation temps réel, suggestions coups
-- **Métriques IA** : Comparaison algorithmes, performance profiling
+### Phase 4 : Extensions Post-Universitaire
+- [ ] Interface graphique : GUI avec plateau visuel interactif
+- [ ] Analyse de positions : Évaluation temps réel, suggestions coups
+- [ ] Métriques IA : Comparaison algorithmes, performance profiling
 
 ## 5. Critères d'Acceptation
 
