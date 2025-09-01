@@ -1,21 +1,20 @@
 % =============================================================================
-% CHESS BOARD - ECHIQUIER, COORDONNEES ET AFFICHAGE
+% CHESS BOARD - ECHIQUIER OPTIMISE (VERSION REFACTORISEE)
 % =============================================================================
 % 
-% Ce module centralise TOUTE la logique liee a l'echiquier :
-% - Representation et manipulation de l'echiquier 8x8
-% - Systeme de coordonnees et notation algebrique  
+% Module optimise pour l'echiquier et coordonnees :
+% - Representation 8x8 avec operations optimisees
+% - Notation algebrique avec validation renforcee
+% - Initialisation optimisee par listes
 % - Affichage ASCII avec pieces colorees
-% - Initialisation de l'echiquier standard
 %
-% Auteur : Patrick Patenaude
-% Version : 5.1 (Consolidation intuitive)
+% Auteur : Patrick Patenaude  
+% Version : 6.0 (Refactorisation complete - Sept 2025)
 %
-% RESPONSABILITES :
-% - Creation et initialisation de l'echiquier
-% - Placement et manipulation des pieces
-% - Conversion coordonnees ↔ notation algebrique
-% - Affichage console avec couleurs
+% AMELIORATIONS v6.0 :
+% - Placement pieces par listes (moins de duplication)
+% - Validation coordonnees optimisee avec between/3
+% - Code plus maintenable et extensible
 % =============================================================================
 
 :- [pieces].
@@ -44,18 +43,17 @@ valid_chess_move(FromRow, FromCol, ToRow, ToCol) :-
 
 % char_to_col(+ColumnChar, -ColumnNumber)
 % Convertit une lettre de colonne (a-h) en numero de colonne (1-8).
-% Version computationnelle pour reduire la repetition.
 char_to_col(ColChar, ColNum) :-
-    member(ColChar, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']),
-    char_code(ColChar, Code),
-    ColNum is Code - 96.  % 'a' = 97, donc 97-96 = 1
+    atom_codes(ColChar, [Code]),
+    between(97, 104, Code),  % 'a' = 97, 'h' = 104
+    ColNum is Code - 96.
 
 % char_to_row(+RowChar, -RowNumber)
 % Convertit un chiffre de rangee ('1'-'8') en numero de rangee (1-8).
 char_to_row(RowChar, RowNum) :-
-    member(RowChar, ['1', '2', '3', '4', '5', '6', '7', '8']),
-    char_code(RowChar, Code),
-    RowNum is Code - 48.  % '1' = 49, donc 49-48 = 1
+    atom_codes(RowChar, [Code]),
+    between(49, 56, Code),  % '1' = 49, '8' = 56
+    RowNum is Code - 48.
 
 % col_to_char(+ColumnNumber, -ColumnChar)
 % Conversion inverse : numero de colonne vers lettre.
@@ -215,32 +213,29 @@ place_all_pieces(Board, NewBoard) :-
 % place_white_pieces(+Board, -NewBoard)
 % Place les pieces blanches selon la position standard d'echecs.
 place_white_pieces(Board, NewBoard) :-
-    % Pions blancs en rangee 2
     place_piece_row(Board, 2, 'P', Board1),
-    % Pieces lourdes en rangee 1
-    place_single_piece(Board1, 1, 1, 'R', Board2), % Tour a1
-    place_single_piece(Board2, 1, 8, 'R', Board3), % Tour h1
-    place_single_piece(Board3, 1, 2, 'N', Board4), % Cavalier b1
-    place_single_piece(Board4, 1, 7, 'N', Board5), % Cavalier g1
-    place_single_piece(Board5, 1, 3, 'B', Board6), % Fou c1
-    place_single_piece(Board6, 1, 6, 'B', Board7), % Fou f1
-    place_single_piece(Board7, 1, 4, 'Q', Board8), % Dame d1
-    place_single_piece(Board8, 1, 5, 'K', NewBoard). % Roi e1
+    place_back_rank_pieces(Board1, 1, white, NewBoard).
+
+% place_back_rank_pieces(+Board, +Row, +Color, -NewBoard)
+% Place les pieces lourdes sur une rangee (optimise pour eviter duplication).
+place_back_rank_pieces(Board, Row, Color, NewBoard) :-
+    (Color = white -> PieceSet = ['R','N','B','Q','K','B','N','R']
+    ; PieceSet = ['r','n','b','q','k','b','n','r']),
+    place_pieces_from_list(Board, Row, 1, PieceSet, NewBoard).
+
+% place_pieces_from_list(+Board, +Row, +Col, +PieceList, -NewBoard)
+% Place une liste de pieces sur une rangee.
+place_pieces_from_list(Board, _, _, [], Board) :- !.
+place_pieces_from_list(Board, Row, Col, [Piece|Rest], NewBoard) :-
+    place_single_piece(Board, Row, Col, Piece, TempBoard),
+    NextCol is Col + 1,
+    place_pieces_from_list(TempBoard, Row, NextCol, Rest, NewBoard).
 
 % place_black_pieces(+Board, -NewBoard)
 % Place les pieces noires selon la position standard d'echecs.
 place_black_pieces(Board, NewBoard) :-
-    % Pions noirs en rangee 7
     place_piece_row(Board, 7, 'p', Board1),
-    % Pieces lourdes en rangee 8
-    place_single_piece(Board1, 8, 1, 'r', Board2), % Tour a8
-    place_single_piece(Board2, 8, 8, 'r', Board3), % Tour h8
-    place_single_piece(Board3, 8, 2, 'n', Board4), % Cavalier b8
-    place_single_piece(Board4, 8, 7, 'n', Board5), % Cavalier g8
-    place_single_piece(Board5, 8, 3, 'b', Board6), % Fou c8
-    place_single_piece(Board6, 8, 6, 'b', Board7), % Fou f8
-    place_single_piece(Board7, 8, 4, 'q', Board8), % Dame d8
-    place_single_piece(Board8, 8, 5, 'k', NewBoard). % Roi e8
+    place_back_rank_pieces(Board1, 8, black, NewBoard).
 
 % place_piece_row(+Board, +Row, +Piece, -NewBoard)
 % Place une piece sur toute une rangee (utilise pour les pions).
@@ -398,6 +393,7 @@ validate_all_positions :-
     ).
 
 % =============================================================================
-% FIN DU FICHIER BOARD.PL
-% Derniere mise a jour : Aout 2025
+% FIN DU FICHIER BOARD.PL - VERSION REFACTORISEE
+% Derniere mise a jour : Septembre 2025
+% Optimisations : Reduction duplication, performance, lisibilite
 % =============================================================================

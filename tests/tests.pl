@@ -1,16 +1,22 @@
 % =============================================================================
-% REGRESSION TESTS - SUITE COMPLETE PROLOG CHESS GAME
+% REGRESSION TESTS - SUITE REFACTORISEE PROLOG CHESS GAME
 % =============================================================================
-% Version : 3.0
+% Version : 4.0 (Refactorisation complete)
 % Auteur : Patrick Patenaude  
 % Date : Septembre 2025
 %
-% STRUCTURE :
-% - Section 1 : Tests Fondamentaux (Board, Parsing, Etat de jeu)
-% - Section 2 : Tests des Pieces (Mouvements et Regles)
-% - Section 3 : Tests d'Echec et Mat
-% - Section 4 : Tests de Robustesse (Erreurs et Cas Limites) 
-% - Section 5 : Tests d'Integration (Sequences completes)
+% AMELIORATIONS v4.0 :
+% - Affichage tests uniforme avec utilitaires
+% - Execution tests modulaire avec run_test_group/1
+% - Structure plus maintenable et extensible
+% - Messages d'erreur plus clairs
+%
+% STRUCTURE OPTIMISEE :
+% - Tests Fondamentaux (Board, Parsing, Etat)
+% - Tests Pieces (Mouvements avec nouvelles regles)
+% - Tests Echec/Mat (Detection optimisee)
+% - Tests Robustesse (Validation renforcee)
+% - Tests Integration (Sequences game flow)
 % =============================================================================
 
 % Chargement des modules source
@@ -24,16 +30,13 @@
 % =============================================================================
 
 run_foundation_tests :-
-    write('+-- SECTION 1: TESTS FONDAMENTAUX ---------------+'), nl,
-    write('[FOUNDATION] Initialisation et Base'), nl,
-    write('==========================================='), nl,
-    
-    test_system_initialization,
-    test_algebraic_notation,
-    test_game_state_basics,
-    
-    write('[OK] Section Fondamentaux terminee'), nl,
-    write('+-----------------------------------------------+'), nl, nl.
+    display_test_section_header('TESTS FONDAMENTAUX', 'Initialisation et Base'),
+    run_test_group([
+        test_system_initialization,
+        test_algebraic_notation,
+        test_game_state_basics
+    ]),
+    display_test_section_footer('Section Fondamentaux terminee').
 
 test_system_initialization :-
     write('[TEST] INITIALISATION SYSTEME'), nl,
@@ -91,17 +94,14 @@ test_game_state_basics :-
 % =============================================================================
 
 run_pieces_tests :-
-    write('+-- SECTION 2: TESTS DES PIECES -----------------+'), nl,
-    write('[PIECES] Mouvements et Regles'), nl,
-    write('=================================='), nl,
-    
-    test_pawn_rules,
-    test_knight_rules,
-    test_sliding_pieces,
-    test_king_rules,
-    
-    write('[OK] Section Pieces terminee'), nl,
-    write('+-----------------------------------------------+'), nl, nl.
+    display_test_section_header('TESTS DES PIECES', 'Mouvements et Regles'),
+    run_test_group([
+        test_pawn_rules,
+        test_knight_rules,
+        test_sliding_pieces,
+        test_king_rules
+    ]),
+    display_test_section_footer('Section Pieces terminee').
 
 test_pawn_rules :-
     write('[TEST] REGLES DES PIONS'), nl,
@@ -190,16 +190,13 @@ test_king_rules :-
 % =============================================================================
 
 run_checkmate_tests :-
-    write('+-- SECTION 3: TESTS ECHEC ET MAT ---------------+'), nl,
-    write('[CHECKMATE] Detection et Validation'), nl,
-    write('===================================='), nl,
-    
-    test_check_detection,
-    test_checkmate_detection,
-    test_complex_scenarios,
-    
-    write('[OK] Section Echec et Mat terminee'), nl,
-    write('+-----------------------------------------------+'), nl, nl.
+    display_test_section_header('TESTS ECHEC ET MAT', 'Detection et Validation'),
+    run_test_group([
+        test_check_detection,
+        test_checkmate_detection,
+        test_complex_scenarios
+    ]),
+    display_test_section_footer('Section Echec et Mat terminee').
 
 test_check_detection :-
     write('[TEST] DETECTION D\'ECHEC'), nl,
@@ -298,15 +295,12 @@ test_complex_scenarios :-
 % =============================================================================
 
 run_robustness_tests :-
-    write('+-- SECTION 4: TESTS DE ROBUSTESSE --------------+'), nl,
-    write('[ROBUST] Erreurs et Cas Limites'), nl,
-    write('=================================='), nl,
-    
-    test_error_handling,
-    test_boundary_conditions,
-    
-    write('[OK] Section Robustesse terminee'), nl,
-    write('+-----------------------------------------------+'), nl, nl.
+    display_test_section_header('TESTS DE ROBUSTESSE', 'Erreurs et Cas Limites'),
+    run_test_group([
+        test_error_handling,
+        test_boundary_conditions
+    ]),
+    display_test_section_footer('Section Robustesse terminee').
 
 test_error_handling :-
     write('[TEST] GESTION D\'ERREURS'), nl,
@@ -349,15 +343,32 @@ test_boundary_conditions :-
 % =============================================================================
 
 run_integration_tests :-
-    write('+-- SECTION 5: TESTS D\'INTEGRATION -------------+'), nl,
-    write('[INTEGRATION] Sequences Completes'), nl,
-    write('===================================='), nl,
-    
-    test_opening_sequence,
-    test_tactical_sequence,
-    
-    write('[OK] Section Integration terminee'), nl,
+    display_test_section_header('TESTS D\'INTEGRATION', 'Sequences Completes'),
+    run_test_group([
+        test_opening_sequence,
+        test_tactical_sequence
+    ]),
+    display_test_section_footer('Section Integration terminee').
+
+% Utilitaires d'affichage des tests - reduit la duplication
+display_test_section_header(Title, Subtitle) :-
+    atom_length(Title, TitleLen),
+    PadLen is 50 - TitleLen,
+    format('+-- SECTION: ~w ', [Title]),
+    forall(between(1, PadLen, _), write('-')),
+    write('+'), nl,
+    format('[~w]~n', [Subtitle]),
+    write('==========================================='), nl.
+
+display_test_section_footer(Message) :-
+    format('[OK] ~w~n', [Message]),
     write('+-----------------------------------------------+'), nl, nl.
+
+% run_test_group - Execute une liste de tests
+run_test_group([]).
+run_test_group([Test|Rest]) :-
+    call(Test),
+    run_test_group(Rest).
 
 test_opening_sequence :-
     write('[TEST] SEQUENCE D\'OUVERTURE'), nl,
@@ -438,6 +449,9 @@ length_8(Row) :- length(Row, 8).
 % =============================================================================
 
 % Executeur principal
+% Alias pour compatibilite
+run_tests :- run_all_tests.
+
 run_all_tests :-
     get_time(StartTime),
     
@@ -479,5 +493,7 @@ test_help :-
     write('* test_help.              - Cette aide'), nl.
 
 % =============================================================================
-% FIN DES TESTS DE REGRESSION
+% FIN DES TESTS DE REGRESSION - VERSION REFACTORISEE
+% Derniere mise a jour : Septembre 2025
+% Optimisations : Modularite, lisibilite, maintenabilite
 % =============================================================================

@@ -7,7 +7,7 @@ Roadmap développement - Travail universitaire TP1 (10% note finale)
 **Phase** : 2/3 - Règles Avancées (80% complète)  
 **Tests** : 33 tests ✅ - Architecture `tests.pl` unifiée  
 **Interface** : ✅ Menu français stable  
-**À faire** : En Passant, Promotion, puis IA minimax
+**À faire** : Promotion, puis IA minimax
 
 ## Phase 1 : Fondations ✅ COMPLÈTE
 
@@ -30,9 +30,7 @@ Roadmap développement - Travail universitaire TP1 (10% note finale)
 - [x] **Tests exhaustifs** : Tous cas de fin de partie
 
 ### Mouvements Spéciaux (À FAIRE)
-- [ ] **En Passant** : Capture spéciale pion adjacente
 - [ ] **Promotion** : Choix pièce (Dame/Tour/Fou/Cavalier) 
-- [ ] **Roque** : Validation roi/tour non bougés
 - [ ] **Tests** : Coverage nouveaux mouvements
 
 ## Phase 3 : Intelligence Artificielle (TP1 Objectif)
@@ -57,6 +55,8 @@ Roadmap développement - Travail universitaire TP1 (10% note finale)
 
 ## Extensions Futures
 
+- [ ] **En Passant** : Capture spéciale pion adjacente
+- [ ] **Roque** : Validation roi/tour non bougés  
 - [ ] **GUI** : Interface graphique  
 - [ ] **Analyse** : Évaluation temps réel
 - [ ] **Performance** : Profiling et métriques
@@ -65,19 +65,19 @@ Roadmap développement - Travail universitaire TP1 (10% note finale)
 
 ## 🎯 Roadmap TP1
 
-**ÉTAPE ACTUELLE** : Mouvements spéciaux (En Passant, Promotion)  
+**ÉTAPE ACTUELLE** : Promotion (Phase 2 finale)  
 **OBJECTIF TP1** : IA minimax fonctionnelle  
 **ÉVALUATION** : 10% note finale IFT-2003
 
 ### Priorités Immédiates
-1. **En Passant** + **Promotion** → Tests  
+1. **Promotion** → Tests  
 2. **IA minimax** → Alpha-Beta → Évaluation position  
 3. **Demo** → Documentation finale
 
 ### Status Validation
 - ✅ **Base solide** : 33 tests, interface stable  
 - ✅ **Échec/mat** : Algorithmes complets  
-- 🚧 **Mouvements spéciaux** : En cours  
+- 🚧 **Promotion** : À implémenter  
 - ⚠️ **IA** : Réécriture requise
 
 **Documentation** : [CLAUDE.md](../.claude/CLAUDE.md) • [PRD.md](PRD.md) • [README.md](../README.md)

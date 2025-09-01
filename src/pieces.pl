@@ -1,20 +1,20 @@
 % =============================================================================
-% CHESS PIECES - LOGIQUE COMPLETE DES PIECES D'ECHECS
+% CHESS PIECES - LOGIQUE DES PIECES D'ECHECS (VERSION REFACTORISEE)
 % =============================================================================
 % 
-% Ce module centralise TOUTE la logique liee aux pieces d'echecs :
-% - Identification et validation des pieces
-% - Regles de mouvement pour chaque type de piece  
-% - Utilitaires pour les couleurs et les joueurs
+% Module optimise pour la logique des pieces d'echecs :
+% - Identification et validation des pieces (performance amelioree)
+% - Regles de mouvement avec dispatch unifie
+% - Utilitaires pour couleurs et joueurs
 %
 % Auteur : Patrick Patenaude
-% Version : 5.1 (Consolidation intuitive)
+% Version : 6.0 (Refactorisation complete - Sept 2025)
 %
-% RESPONSABILITES :
-% - Definition et identification des pieces
-% - Regles de mouvement specifiques (pion, tour, cavalier, etc.)
-% - Validation des mouvements selon les regles d'echecs
-% - Gestion des couleurs et appartenance aux joueurs
+% AMELIORATIONS v6.0 :
+% - Dispatch unifie des mouvements par type
+% - Validation optimisee des chemins
+% - Reduction duplication de code
+% - Performance amelioree pour IA future
 % =============================================================================
 
 % =============================================================================
@@ -39,6 +39,7 @@ piece_definition('k', roi, black).       % Roi noir
 
 % --- CASE VIDE ---
 piece_definition(' ', vide, none).       % Case vide
+piece_definition('.', vide, none).       % Case vide alternative
 
 % =============================================================================
 % SECTION 2 : IDENTIFICATION DES PIECES
@@ -62,7 +63,7 @@ is_black_piece(Piece) :-
 % is_empty_square(+Piece)
 % Verifie si une case est vide.
 is_empty_square(Piece) :-
-    piece_definition(Piece, vide, none).
+    member(Piece, [' ', '.']).
 
 % piece_belongs_to_player(+Piece, +Player)
 % Verifie si une piece appartient a un joueur specifique.
@@ -88,30 +89,24 @@ get_piece_color(Piece, Color) :-
 % can_piece_move(+Board, +FromRow, +FromCol, +ToRow, +ToCol, +Piece)
 % Valide le mouvement d'une piece selon ses regles specifiques.
 % Utilise le pattern matching de Prolog pour une logique plus claire.
-can_piece_move(Board, FromRow, FromCol, ToRow, ToCol, 'P') :-
+can_piece_move(Board, FromRow, FromCol, ToRow, ToCol, Piece) :-
+    get_piece_type(Piece, PieceType),
+    can_piece_move_by_type(Board, FromRow, FromCol, ToRow, ToCol, Piece, PieceType).
+
+% can_piece_move_by_type - Dispatch vers les regles specifiques
+can_piece_move_by_type(Board, FromRow, FromCol, ToRow, ToCol, 'P', pion) :-
     can_white_pawn_move(Board, FromRow, FromCol, ToRow, ToCol).
-
-can_piece_move(Board, FromRow, FromCol, ToRow, ToCol, 'p') :-
+can_piece_move_by_type(Board, FromRow, FromCol, ToRow, ToCol, 'p', pion) :-
     can_black_pawn_move(Board, FromRow, FromCol, ToRow, ToCol).
-
-can_piece_move(Board, FromRow, FromCol, ToRow, ToCol, Piece) :-
-    member(Piece, ['R', 'r']),
+can_piece_move_by_type(Board, FromRow, FromCol, ToRow, ToCol, _, tour) :-
     can_rook_move(Board, FromRow, FromCol, ToRow, ToCol).
-
-can_piece_move(_, FromRow, FromCol, ToRow, ToCol, Piece) :-
-    member(Piece, ['N', 'n']),
+can_piece_move_by_type(_, FromRow, FromCol, ToRow, ToCol, _, cavalier) :-
     can_knight_move(FromRow, FromCol, ToRow, ToCol).
-
-can_piece_move(Board, FromRow, FromCol, ToRow, ToCol, Piece) :-
-    member(Piece, ['B', 'b']),
+can_piece_move_by_type(Board, FromRow, FromCol, ToRow, ToCol, _, fou) :-
     can_bishop_move(Board, FromRow, FromCol, ToRow, ToCol).
-
-can_piece_move(Board, FromRow, FromCol, ToRow, ToCol, Piece) :-
-    member(Piece, ['Q', 'q']),
+can_piece_move_by_type(Board, FromRow, FromCol, ToRow, ToCol, _, dame) :-
     can_queen_move(Board, FromRow, FromCol, ToRow, ToCol).
-
-can_piece_move(_, FromRow, FromCol, ToRow, ToCol, Piece) :-
-    member(Piece, ['K', 'k']),
+can_piece_move_by_type(_, FromRow, FromCol, ToRow, ToCol, _, roi) :-
     can_king_move(FromRow, FromCol, ToRow, ToCol).
 
 % =============================================================================
@@ -220,16 +215,18 @@ can_king_move(FromRow, FromCol, ToRow, ToCol) :-
 
 % is_path_clear(+Board, +FromRow, +FromCol, +ToRow, +ToCol)
 % Verifie que le chemin entre deux positions est libre (pieces glissantes).
-% Version simplifiee sans compteur de profondeur explicite.
 is_path_clear(Board, FromRow, FromCol, ToRow, ToCol) :-
-    % Validation des parametres
     validate_path_parameters(FromRow, FromCol, ToRow, ToCol),
-    
-    % Calculer la direction du mouvement
+    calculate_movement_direction(FromRow, FromCol, ToRow, ToCol, RowDir, ColDir),
+    check_path_recursively(Board, FromRow, FromCol, ToRow, ToCol, RowDir, ColDir).
+
+% calculate_movement_direction - Calcul des directions de mouvement
+calculate_movement_direction(FromRow, FromCol, ToRow, ToCol, RowDir, ColDir) :-
     RowDir is sign(ToRow - FromRow),
-    ColDir is sign(ToCol - FromCol),
-    
-    % Verifier chaque case intermediaire
+    ColDir is sign(ToCol - FromCol).
+
+% check_path_recursively - Point d'entree pour verification recursive
+check_path_recursively(Board, FromRow, FromCol, ToRow, ToCol, RowDir, ColDir) :-
     NextRow is FromRow + RowDir,
     NextCol is FromCol + ColDir,
     check_path_clear(Board, NextRow, NextCol, ToRow, ToCol, RowDir, ColDir).
@@ -301,11 +298,8 @@ all_white_pieces(['P', 'R', 'N', 'B', 'Q', 'K']).
 all_black_pieces(['p', 'r', 'n', 'b', 'q', 'k']).
 
 % all_pieces(-Pieces)
-% Retourne la liste de toutes les pieces valides.
-all_pieces(AllPieces) :-
-    all_white_pieces(White),
-    all_black_pieces(Black),
-    append(White, Black, AllPieces).
+% Retourne la liste de toutes les pieces valides - version optimisee
+all_pieces(['P','R','N','B','Q','K','p','r','n','b','q','k']).
 
 % is_valid_piece(+Piece)
 % Verifie si un caractere represente une piece d'echecs valide.
@@ -318,14 +312,19 @@ is_valid_piece(Piece) :-
 % =============================================================================
 
 % piece_value(+Piece, -Value)
-% Retourne la valeur traditionnelle d'une piece aux echecs.
-piece_value(Piece, 1) :- get_piece_type(Piece, pion).
-piece_value(Piece, 3) :- get_piece_type(Piece, cavalier).
-piece_value(Piece, 3) :- get_piece_type(Piece, fou).
-piece_value(Piece, 5) :- get_piece_type(Piece, tour).
-piece_value(Piece, 9) :- get_piece_type(Piece, dame).
-piece_value(Piece, 1000) :- get_piece_type(Piece, roi).  % Valeur symbolique
-piece_value(' ', 0).  % Case vide
+% Retourne la valeur traditionnelle d'une piece aux echecs - version optimisee
+piece_value(Piece, Value) :-
+    piece_base_value(Piece, Value), !.
+piece_value(' ', 0).
+piece_value('.', 0).
+
+% piece_base_value - Table de valeurs directe pour performance
+piece_base_value('P', 1). piece_base_value('p', 1).  % Pions
+piece_base_value('N', 3). piece_base_value('n', 3).  % Cavaliers
+piece_base_value('B', 3). piece_base_value('b', 3).  % Fous
+piece_base_value('R', 5). piece_base_value('r', 5).  % Tours
+piece_base_value('Q', 9). piece_base_value('q', 9).  % Dames
+piece_base_value('K', 1000). piece_base_value('k', 1000).  % Rois
 
 % opposite_color(+Color, -OppositeColor)
 % Retourne la couleur opposee.
@@ -337,18 +336,25 @@ opposite_color(black, white).
 % =============================================================================
 
 % validate_piece_consistency
-% Teste la coherence de toutes les definitions de pieces.
+% Teste la coherence de toutes les definitions de pieces - version optimisee
 validate_piece_consistency :-
-    % Tester que toutes les pieces blanches sont bien identifiees
+    validate_white_pieces_consistency,
+    validate_black_pieces_consistency,
+    validate_no_piece_color_conflict.
+
+validate_white_pieces_consistency :-
     all_white_pieces(Whites),
-    forall(member(P, Whites), is_white_piece(P)),
-    % Tester que toutes les pieces noires sont bien identifiees  
+    forall(member(P, Whites), is_white_piece(P)).
+
+validate_black_pieces_consistency :-
     all_black_pieces(Blacks),
-    forall(member(P, Blacks), is_black_piece(P)),
-    % Tester qu'aucune piece n'est a la fois blanche et noire
+    forall(member(P, Blacks), is_black_piece(P)).
+
+validate_no_piece_color_conflict :-
     \+ (is_white_piece(P), is_black_piece(P)).
 
 % =============================================================================
-% FIN DU FICHIER PIECES.PL
-% Derniere mise a jour : Aout 2025
+% FIN DU FICHIER PIECES.PL - VERSION REFACTORISEE
+% Derniere mise a jour : Septembre 2025
+% Optimisations : Performance, lisibilite, maintenabilite
 % =============================================================================

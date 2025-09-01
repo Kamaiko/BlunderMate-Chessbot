@@ -1,22 +1,21 @@
 % =============================================================================
-% CHESS INTERFACE - INTERFACE UTILISATEUR ET MESSAGES FRANCAIS
+% CHESS INTERFACE - INTERFACE UTILISATEUR REFACTORISEE
 % =============================================================================
 % 
-% Ce module centralise TOUTE l'interface utilisateur :
-% - Menu principal et navigation
-% - Boucle de jeu et interaction joueur
-% - Messages en francais centralises
-% - Gestion des commandes et de l'aide
+% Module interface optimise et maintenable :
+% - Menu principal avec design uniforme
+% - Traitement commandes unifie et extensible
+% - Messages francais centralises
+% - Utilitaires d'affichage optimises
 %
 % Auteur : Patrick Patenaude
-% Version : 5.1 (Consolidation intuitive)
+% Version : 6.0 (Refactorisation complete - Sept 2025)
 %
-% RESPONSABILITES :
-% - Menu principal et choix utilisateur
-% - Interface de jeu humain vs humain
-% - Messages francais et aide
-% - Gestion des entrees et validation
-% - Integration avec les tests externes
+% AMELIORATIONS v6.0 :
+% - Dispatch commandes unifie (plus de duplication)
+% - Utilitaires affichage optimises avec forall/2
+% - Architecture extensible pour nouvelles fonctionnalites
+% - Code plus maintenable et testable
 % =============================================================================
 
 :- [pieces].
@@ -77,14 +76,8 @@ clear_screen :-
 % draw_line(+Length, +Character)
 % Dessine une ligne horizontale de longueur donnee.
 draw_line(Length, Char) :-
-    draw_line_aux(Length, Char).
-
-draw_line_aux(0, _) :- !.
-draw_line_aux(N, Char) :-
-    N > 0,
-    write(Char),
-    N1 is N - 1,
-    draw_line_aux(N1, Char).
+    Length >= 0,
+    forall(between(1, Length, _), write(Char)).
 
 % center_text(+Text, +Width)
 % Centre un texte dans une largeur donnee.
@@ -101,12 +94,9 @@ center_text(Text, Width) :-
 
 % draw_spaces(+Count)
 % Dessine un nombre donne d'espaces.
-draw_spaces(0) :- !.
-draw_spaces(N) :-
-    N > 0,
-    write(' '),
-    N1 is N - 1,
-    draw_spaces(N1).
+draw_spaces(Count) :-
+    Count >= 0,
+    forall(between(1, Count, _), write(' ')).
 
 % display_title_box(+Title)
 % Affiche un titre dans une boite ASCII de 50 caracteres de large.
@@ -318,49 +308,50 @@ read_player_input(Input) :-
 % =============================================================================
 
 % process_game_input(+Input, +GameState, -NewGameState)
-% Traitement des commandes pendant le jeu.
-process_game_input(Input, _, _) :-
-    member(Input, [quitter, menu]),
-    display_message_ln(goodbye),
-    main_menu, !.
-
-process_game_input(Input, _, _) :-
-    member(Input, [sortir, quitter_jeu]),
-    display_message_ln(goodbye),
-    halt.
-
-process_game_input(Input, GameState, GameState) :-
-    member(Input, [aide]),
-    show_game_help, !.
-
+% Traitement des commandes pendant le jeu - version simplifiee
 process_game_input(Input, GameState, NewGameState) :-
-    atom(Input),
-    atom_string(Input, InputStr),
-    process_command_string(InputStr, GameState, NewGameState).
+    normalize_input(Input, NormalizedInput),
+    dispatch_game_command(NormalizedInput, GameState, NewGameState).
 
-% process_command_string(+InputStr, +GameState, -NewGameState)
-% Traite les commandes sous forme de chaines.
-process_command_string(InputStr, _, _) :-
-    member(InputStr, ["sortir", "quitter_jeu"]),
+% normalize_input - Normalise les entrees (atom/string)
+normalize_input(Input, Input) :- string(Input), !.
+normalize_input(Input, InputStr) :- atom(Input), atom_string(Input, InputStr).
+normalize_input(Input, Input).  % Autres types inchanges
+
+% dispatch_game_command - Dispatch unifie des commandes
+dispatch_game_command(Input, _, _) :-
+    is_exit_command(Input),
+    handle_exit_command(Input).
+dispatch_game_command(Input, GameState, GameState) :-
+    is_help_command(Input),
+    show_game_help, !.
+dispatch_game_command(Input, GameState, NewGameState) :-
+    process_move_command(Input, GameState, NewGameState).
+
+% Utilitaires de classification des commandes
+is_exit_command(Input) :- member(Input, ["quitter", "menu", "sortir", "quitter_jeu", quitter, menu, sortir, quitter_jeu]).
+is_help_command(Input) :- member(Input, ["aide", aide]).
+
+% handle_exit_command - Gestion unifiee des sorties
+handle_exit_command(Input) :-
+    member(Input, ["menu", "quitter", menu, quitter]),
+    display_message_ln(goodbye),
+    main_menu, !.
+handle_exit_command(_) :-
     display_message_ln(goodbye),
     halt.
 
-process_command_string(InputStr, _, _) :-
-    member(InputStr, ["quitter", "menu"]),
-    display_message_ln(goodbye),
-    main_menu, !.
-
-process_command_string(InputStr, GameState, GameState) :-
-    member(InputStr, ["aide"]),
-    show_game_help.
-
-process_command_string(InputStr, GameState, NewGameState) :-
-    % Tentative de mouvement
-    (parse_move_input(InputStr, FromRow, FromCol, ToRow, ToCol) ->
+% process_move_command - Traitement des mouvements
+process_move_command(Input, GameState, NewGameState) :-
+    (parse_move_input(Input, FromRow, FromCol, ToRow, ToCol) ->
         attempt_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState)
-    ;   display_invalid_input_error(InputStr),
+    ;   display_invalid_input_error(Input),
         NewGameState = GameState
     ).
+
+% Legacy support - process_command_string redirige vers dispatch_game_command
+process_command_string(InputStr, GameState, NewGameState) :-
+    dispatch_game_command(InputStr, GameState, NewGameState).
 
 % display_invalid_input_error(+InputStr)
 % Affiche une erreur de format d'entree.
@@ -461,6 +452,7 @@ show_game_help :-
     write('    '), draw_line(40, '='), nl, nl.
 
 % =============================================================================
-% FIN DU FICHIER INTERFACE.PL
-% Derniere mise a jour : Aout 2025
+% FIN DU FICHIER INTERFACE.PL - VERSION REFACTORISEE
+% Derniere mise a jour : Septembre 2025
+% Optimisations : Dispatch unifie, reduction duplication, extensibilite
 % =============================================================================
