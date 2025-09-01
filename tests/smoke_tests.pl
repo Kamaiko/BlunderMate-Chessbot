@@ -15,11 +15,11 @@
 % - Validation des composants principaux
 % =============================================================================
 
-% Chargement robuste des modules source avec gestion chemins relatifs
-% Version simplifiee avec fallback automatique
-:- (exists_file('src/pieces.pl') -> consult('src/pieces') ; consult(pieces)).
-:- (exists_file('src/board.pl') -> consult('src/board') ; consult(board)).
-:- (exists_file('src/game.pl') -> consult('src/game') ; consult(game)).
+% Chargement des modules source
+:- style_check(-singleton).
+:- consult('../src/pieces').
+:- consult('../src/board').
+:- consult('../src/game').
 
 % =============================================================================
 % SECTION 1 : TESTS RAPIDES DU SYSTÈME
@@ -126,9 +126,9 @@ test_board_display :-
     ;   write('FAIL'), nl, fail
     ), nl.
 
-% test_move_validation/0
+% test_smoke_move_validation/0
 % Test spécifique de la validation des mouvements
-test_move_validation :-
+test_smoke_move_validation :-
     write('[TEST] TEST VALIDATION MOUVEMENTS'), nl,
     write('-----------------------------'), nl,
     
@@ -166,7 +166,7 @@ run_all_quick_tests :-
     get_time(StartTime),
     
     test_board_display,
-    test_move_validation,
+    test_smoke_move_validation,
     quick_test,
     
     get_time(EndTime),

@@ -6,11 +6,11 @@
 % Date : Aout 2025
 % =============================================================================
 
-% Chargement robuste des modules source avec gestion chemins relatifs
-% Version simplifiee avec fallback automatique
-:- (exists_file('src/pieces.pl') -> consult('src/pieces') ; consult(pieces)).
-:- (exists_file('src/board.pl') -> consult('src/board') ; consult(board)).
-:- (exists_file('src/game.pl') -> consult('src/game') ; consult(game)).
+% Chargement des modules source
+:- style_check(-singleton).
+:- consult('../src/pieces').
+:- consult('../src/board').
+:- consult('../src/game').
 
 % =============================================================================
 % TESTS DE BASE
@@ -464,32 +464,32 @@ run_all_tests :-
     get_time(StartTime),
     
     % Section 1: Tests de base
-    write('+-- SECTION 1: TESTS DE BASE -------------------------+'), nl,
+    write('+-- SECTION 1: TESTS DE BASE ---------------------------+'), nl,
     run_basic_tests,
     write('+---------------------------------------------------+'), nl, nl,
     
     % Section 2: Tests de logique
-    write('+-- SECTION 2: TESTS DE LOGIQUE ---------------------+'), nl,
+    write('+-- SECTION 2: TESTS DE LOGIQUE -----------------------+'), nl,
     run_logic_tests,
     write('+---------------------------------------------------+'), nl, nl,
     
     % Section 3: Tests par piece
-    write('+-- SECTION 3: TESTS PAR PIECE --------------------+'), nl,
+    write('+-- SECTION 3: TESTS PAR PIECE -------------------------+'), nl,
     run_piece_tests,
     write('+---------------------------------------------------+'), nl, nl,
     
     % Section 4: Scenarios
-    write('+-- SECTION 4: TESTS DE SCENARIOS ------------------+'), nl,
+    write('+-- SECTION 4: TESTS DE SCENARIOS ----------------------+'), nl,
     run_scenario_tests,
     write('+---------------------------------------------------+'), nl, nl,
     
     % Section 5: Robustesse
-    write('+-- SECTION 5: TESTS DE ROBUSTESSE -----------------+'), nl,
+    write('+-- SECTION 5: TESTS DE ROBUSTESSE ---------------------+'), nl,
     run_robustness_tests,
     write('+---------------------------------------------------+'), nl, nl,
     
     % Section 6: Tests d'intégration des chemins bloqués
-    write('+-- SECTION 6: TESTS D\'INTEGRATION DES CHEMINS -------+'), nl,
+    write('+-- SECTION 6: TESTS D\'INTEGRATION DES CHEMINS --------+'), nl,
     test_game_integration_path_blocking,
     write('+---------------------------------------------------+'), nl, nl,
     
