@@ -44,23 +44,32 @@ valid_chess_move(FromRow, FromCol, ToRow, ToCol) :-
 
 % char_to_col(+ColumnChar, -ColumnNumber)
 % Convertit une lettre de colonne (a-h) en numero de colonne (1-8).
-char_to_col('a', 1). char_to_col('b', 2). char_to_col('c', 3). char_to_col('d', 4).
-char_to_col('e', 5). char_to_col('f', 6). char_to_col('g', 7). char_to_col('h', 8).
+% Version computationnelle pour reduire la repetition.
+char_to_col(ColChar, ColNum) :-
+    member(ColChar, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']),
+    char_code(ColChar, Code),
+    ColNum is Code - 96.  % 'a' = 97, donc 97-96 = 1
 
-% char_to_row(+RowChar, -RowNumber)  
+% char_to_row(+RowChar, -RowNumber)
 % Convertit un chiffre de rangee ('1'-'8') en numero de rangee (1-8).
-char_to_row('1', 1). char_to_row('2', 2). char_to_row('3', 3). char_to_row('4', 4).
-char_to_row('5', 5). char_to_row('6', 6). char_to_row('7', 7). char_to_row('8', 8).
+char_to_row(RowChar, RowNum) :-
+    member(RowChar, ['1', '2', '3', '4', '5', '6', '7', '8']),
+    char_code(RowChar, Code),
+    RowNum is Code - 48.  % '1' = 49, donc 49-48 = 1
 
 % col_to_char(+ColumnNumber, -ColumnChar)
 % Conversion inverse : numero de colonne vers lettre.
-col_to_char(1, 'a'). col_to_char(2, 'b'). col_to_char(3, 'c'). col_to_char(4, 'd').
-col_to_char(5, 'e'). col_to_char(6, 'f'). col_to_char(7, 'g'). col_to_char(8, 'h').
+col_to_char(ColNum, ColChar) :-
+    between(1, 8, ColNum),
+    Code is ColNum + 96,  % 1+96 = 97 = 'a'
+    char_code(ColChar, Code).
 
 % row_to_char(+RowNumber, -RowChar)
 % Conversion inverse : numero de rangee vers chiffre.
-row_to_char(1, '1'). row_to_char(2, '2'). row_to_char(3, '3'). row_to_char(4, '4').
-row_to_char(5, '5'). row_to_char(6, '6'). row_to_char(7, '7'). row_to_char(8, '8').
+row_to_char(RowNum, RowChar) :-
+    between(1, 8, RowNum),
+    Code is RowNum + 48,  % 1+48 = 49 = '1'
+    char_code(RowChar, Code).
 
 % parse_algebraic_move(+MoveString, -FromRow, -FromCol, -ToRow, -ToCol)
 % Parse une chaine algebrique "e2e4" en coordonnees numeriques.
@@ -115,13 +124,15 @@ create_empty_board(Board) :-
 create_empty_board(0, Board, Board) :- !.
 create_empty_board(RowsLeft, Acc, Board) :-
     RowsLeft > 0,
-    create_row(RowsLeft, RowList),
+    create_empty_row(RowList),
     NextRows is RowsLeft - 1,
     create_empty_board(NextRows, [RowList|Acc], Board).
 
-% create_row(+RowNumber, -RowList)
-% Cree une rangee de 8 cases vides.
-create_row(_RowNumber, [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']).
+% create_empty_row(-RowList)
+% Cree une rangee de 8 cases vides de maniere plus declarative.
+create_empty_row(Row) :-
+    length(Row, 8),
+    maplist(=(' '), Row).
 
 % =============================================================================
 % SECTION 4 : MANIPULATION DE L'ECHIQUIER
@@ -206,12 +217,13 @@ place_piece_row(Board, Row, Piece, NewBoard) :-
 
 % place_piece_row(+Board, +Row, +Col, +Piece, -NewBoard)
 % Version recursive pour placement sur une rangee.
-place_piece_row(Board, _Row, 9, _Piece, Board) :- !.
+place_piece_row(Board, _Row, Col, _Piece, Board) :-
+    Col > 8, !.
 place_piece_row(Board, Row, Col, Piece, NewBoard) :-
     Col =< 8,
-    place_single_piece(Board, Row, Col, Piece, Board1),
+    place_single_piece(Board, Row, Col, Piece, TempBoard),
     NextCol is Col + 1,
-    place_piece_row(Board1, Row, NextCol, Piece, NewBoard).
+    place_piece_row(TempBoard, Row, NextCol, Piece, NewBoard).
 
 % =============================================================================
 % SECTION 6 : AFFICHAGE ASCII AVEC COULEURS

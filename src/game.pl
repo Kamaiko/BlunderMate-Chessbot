@@ -80,28 +80,40 @@ make_move_algebraic(GameState, MoveString, NewGameState) :-
 make_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState) :-
     GameState = game_state(Board, Player, MoveCount, active, CapturedPieces),
     valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
-    execute_move(Board, FromRow, FromCol, ToRow, ToCol, NewBoard, CapturedPieces, NewCapturedPieces),
+    execute_move(Board, from(FromRow, FromCol), to(ToRow, ToCol), NewBoard, CapturedPieces, NewCapturedPieces),
+    advance_game_state(Player, MoveCount, NewBoard, NewCapturedPieces, NewGameState).
+
+% advance_game_state(+CurrentPlayer, +MoveCount, +NewBoard, +NewCapturedPieces, -NewGameState)
+% Met a jour l'etat du jeu apres un mouvement.
+advance_game_state(Player, MoveCount, NewBoard, NewCapturedPieces, NewGameState) :-
     switch_player(Player, NewPlayer),
     NewMoveCount is MoveCount + 1,
-    
     % Pour l'instant, le jeu continue toujours (pas de detection d'echec et mat)
     NewGameState = game_state(NewBoard, NewPlayer, NewMoveCount, active, NewCapturedPieces).
 
-% execute_move(+Board, +FromRow, +FromCol, +ToRow, +ToCol, -NewBoard, +CapturedPieces, -NewCapturedPieces)
-% Execute un mouvement sur l'echiquier avec gestion des captures.
-execute_move(Board, FromRow, FromCol, ToRow, ToCol, NewBoard, CapturedPieces, NewCapturedPieces) :-
-    get_piece(Board, FromRow, FromCol, Piece),
+% execute_move(+Board, +FromPos, +ToPos, -NewBoard, +CapturedPieces, -NewCapturedPieces)
+% Execute un mouvement avec positions groupees pour plus de clarte.
+execute_move(Board, from(FromRow, FromCol), to(ToRow, ToCol), NewBoard, CapturedPieces, NewCapturedPieces) :-
+    get_piece(Board, FromRow, FromCol, MovingPiece),
     get_piece(Board, ToRow, ToCol, TargetPiece),
     
     % Mettre a jour les pieces capturees si capture
-    (TargetPiece \= ' ' ->
-        update_captured_pieces(TargetPiece, CapturedPieces, NewCapturedPieces)
-    ;   NewCapturedPieces = CapturedPieces
-    ),
+    handle_capture(TargetPiece, CapturedPieces, NewCapturedPieces),
     
-    % Executer le mouvement
-    place_single_piece(Board, FromRow, FromCol, ' ', Board1),
-    place_single_piece(Board1, ToRow, ToCol, Piece, NewBoard).
+    % Executer le mouvement atomique
+    perform_move(Board, MovingPiece, from(FromRow, FromCol), to(ToRow, ToCol), NewBoard).
+
+% handle_capture(+TargetPiece, +CapturedPieces, -NewCapturedPieces)
+% Gere la capture d'une piece si elle existe.
+handle_capture(' ', CapturedPieces, CapturedPieces) :- !.
+handle_capture(TargetPiece, CapturedPieces, NewCapturedPieces) :-
+    update_captured_pieces(TargetPiece, CapturedPieces, NewCapturedPieces).
+
+% perform_move(+Board, +Piece, +FromPos, +ToPos, -NewBoard)
+% Execute physiquement le mouvement sur l'echiquier.
+perform_move(Board, Piece, from(FromRow, FromCol), to(ToRow, ToCol), NewBoard) :-
+    place_single_piece(Board, FromRow, FromCol, ' ', TempBoard),
+    place_single_piece(TempBoard, ToRow, ToCol, Piece, NewBoard).
 
 % update_captured_pieces(+Piece, +CapturedPieces, -NewCapturedPieces)
 % Met a jour la liste des pieces capturees.
@@ -165,16 +177,36 @@ chess_info(Context, Message) :-
 % validate_move_input(+Input, -FromRow, -FromCol, -ToRow, -ToCol)
 % Valide et parse une entree de mouvement avec gestion d'erreur.
 validate_move_input(Input, FromRow, FromCol, ToRow, ToCol) :-
+    validate_input_exists(Input),
+    validate_input_length(Input),
+    validate_input_coordinates(Input, FromRow, FromCol, ToRow, ToCol).
+
+% validate_input_exists(+Input)
+% Verifie que l'entree n'est pas vide.
+validate_input_exists(Input) :-
     (nonvar(Input) ->
-        (string_length(Input, 4) ->
-            (parse_algebraic_move(Input, FromRow, FromCol, ToRow, ToCol) ->
-                true
-            ;   chess_error(validation, mouvement, 'Coordonnees invalides dans le mouvement'),
-                fail)
-        ;   chess_error(syntaxe, saisie_mouvement, 'Le mouvement doit contenir exactement 4 caracteres'),
-            fail)
+        true
     ;   chess_error(entree, saisie_mouvement, 'Aucune entree fournie'),
-        fail).
+        fail
+    ).
+
+% validate_input_length(+Input)
+% Verifie que l'entree a la bonne longueur.
+validate_input_length(Input) :-
+    (string_length(Input, 4) ->
+        true
+    ;   chess_error(syntaxe, saisie_mouvement, 'Le mouvement doit contenir exactement 4 caracteres'),
+        fail
+    ).
+
+% validate_input_coordinates(+Input, -FromRow, -FromCol, -ToRow, -ToCol)
+% Valide que les coordonnees sont correctes.
+validate_input_coordinates(Input, FromRow, FromCol, ToRow, ToCol) :-
+    (parse_algebraic_move(Input, FromRow, FromCol, ToRow, ToCol) ->
+        true
+    ;   chess_error(validation, mouvement, 'Coordonnees invalides dans le mouvement'),
+        fail
+    ).
 
 % =============================================================================
 % SECTION 6 : UTILITAIRES DE JEU

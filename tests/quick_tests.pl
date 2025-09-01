@@ -106,7 +106,7 @@ demo_basic_moves :-
 test_board_display :-
     write('=== TEST AFFICHAGE ÉCHIQUIER ==='), nl,
     init_game_state(GameState),
-    GameState = game_state(Board, _, _, _),
+    GameState = game_state(Board, _, _, _, _),
     
     write('Test de l\'affichage de l\'échiquier :'), nl,
     display_board(Board),
@@ -117,7 +117,7 @@ test_board_display :-
 test_move_validation :-
     write('=== TEST VALIDATION DES MOUVEMENTS ==='), nl,
     init_game_state(GameState),
-    GameState = game_state(Board, white, _, _),
+    GameState = game_state(Board, white, _, _, _),
     
     % Test mouvement valide
     write('1. Test mouvement valide (e2e4)...'), nl,

@@ -270,30 +270,43 @@ process_game_input(board, GameState, GameState) :-
     GameState = game_state(Board, _, _, _, _),
     display_board(Board), !.
 
+% Clauses separees pour chaque type de commande - plus lisible
 process_game_input(Input, GameState, NewGameState) :-
     atom(Input),
     atom_string(Input, InputStr),
-    % Verifier les commandes speciales
-    (InputStr = "exit" ->
-        (display_message_ln(thanks_playing),
-         display_message_ln(goodbye),
-         halt)
-    ; InputStr = "quit" ->
-        (display_message_ln(thanks_playing),
-         display_message_ln(press_key_menu),
-         get_single_char(_),
-         main_menu, !)
-    ; InputStr = "help" ->
-        (show_game_help, NewGameState = GameState)
-    ; % Sinon, c'est un mouvement
-        (parse_move_input(InputStr, FromRow, FromCol, ToRow, ToCol) ->
-            attempt_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState)
-        ;   write('Format de mouvement invalide!'), nl,
-            write('  Attendu: 4 caracteres comme "e2e4" (de e2 vers e4)'), nl,
-            write('  Ou: exit, quit, help'), nl,
-            write('  Votre entree: '), write(InputStr), nl,
-            NewGameState = GameState)
+    process_command_string(InputStr, GameState, NewGameState).
+
+% process_command_string(+InputStr, +GameState, -NewGameState)
+% Traite les commandes sous forme de chaines.
+process_command_string("exit", _, _) :-
+    display_message_ln(thanks_playing),
+    display_message_ln(goodbye),
+    halt.
+
+process_command_string("quit", _, _) :-
+    display_message_ln(thanks_playing),
+    display_message_ln(press_key_menu),
+    get_single_char(_),
+    main_menu, !.
+
+process_command_string("help", GameState, GameState) :-
+    show_game_help.
+
+process_command_string(InputStr, GameState, NewGameState) :-
+    % Tentative de mouvement
+    (parse_move_input(InputStr, FromRow, FromCol, ToRow, ToCol) ->
+        attempt_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState)
+    ;   display_invalid_input_error(InputStr),
+        NewGameState = GameState
     ).
+
+% display_invalid_input_error(+InputStr)
+% Affiche une erreur de format d'entree.
+display_invalid_input_error(InputStr) :-
+    write('Format de mouvement invalide!'), nl,
+    write('  Attendu: 4 caracteres comme "e2e4" (de e2 vers e4)'), nl,
+    write('  Ou: exit, quit, help'), nl,
+    write('  Votre entree: '), write(InputStr), nl.
 
 % parse_move_input(+InputStr, -FromRow, -FromCol, -ToRow, -ToCol)
 % Parse l'entree de mouvement.

@@ -86,40 +86,33 @@ get_piece_color(Piece, Color) :-
 % =============================================================================
 
 % can_piece_move(+Board, +FromRow, +FromCol, +ToRow, +ToCol, +Piece)
-% Dispatcher principal pour valider le mouvement d'une piece selon ses regles.
+% Valide le mouvement d'une piece selon ses regles specifiques.
+% Utilise le pattern matching de Prolog pour une logique plus claire.
+can_piece_move(Board, FromRow, FromCol, ToRow, ToCol, 'P') :-
+    can_white_pawn_move(Board, FromRow, FromCol, ToRow, ToCol).
+
+can_piece_move(Board, FromRow, FromCol, ToRow, ToCol, 'p') :-
+    can_black_pawn_move(Board, FromRow, FromCol, ToRow, ToCol).
+
 can_piece_move(Board, FromRow, FromCol, ToRow, ToCol, Piece) :-
-    (
-        % Pion blanc
-        Piece = 'P' ->
-            can_white_pawn_move(Board, FromRow, FromCol, ToRow, ToCol)
-        ;
-        % Pion noir  
-        Piece = 'p' ->
-            can_black_pawn_move(Board, FromRow, FromCol, ToRow, ToCol)
-        ;
-        % Tour (blanche ou noire)
-        (Piece = 'R' ; Piece = 'r') ->
-            can_rook_move(Board, FromRow, FromCol, ToRow, ToCol)
-        ;
-        % Cavalier (blanc ou noir)
-        (Piece = 'N' ; Piece = 'n') ->
-            can_knight_move(FromRow, FromCol, ToRow, ToCol)
-        ;
-        % Fou (blanc ou noir)
-        (Piece = 'B' ; Piece = 'b') ->
-            can_bishop_move(Board, FromRow, FromCol, ToRow, ToCol)
-        ;
-        % Dame (blanche ou noire)
-        (Piece = 'Q' ; Piece = 'q') ->
-            can_queen_move(Board, FromRow, FromCol, ToRow, ToCol)
-        ;
-        % Roi (blanc ou noir)
-        (Piece = 'K' ; Piece = 'k') ->
-            can_king_move(FromRow, FromCol, ToRow, ToCol)
-        ;
-        % Piece inconnue
-        false
-    ).
+    member(Piece, ['R', 'r']),
+    can_rook_move(Board, FromRow, FromCol, ToRow, ToCol).
+
+can_piece_move(_, FromRow, FromCol, ToRow, ToCol, Piece) :-
+    member(Piece, ['N', 'n']),
+    can_knight_move(FromRow, FromCol, ToRow, ToCol).
+
+can_piece_move(Board, FromRow, FromCol, ToRow, ToCol, Piece) :-
+    member(Piece, ['B', 'b']),
+    can_bishop_move(Board, FromRow, FromCol, ToRow, ToCol).
+
+can_piece_move(Board, FromRow, FromCol, ToRow, ToCol, Piece) :-
+    member(Piece, ['Q', 'q']),
+    can_queen_move(Board, FromRow, FromCol, ToRow, ToCol).
+
+can_piece_move(_, FromRow, FromCol, ToRow, ToCol, Piece) :-
+    member(Piece, ['K', 'k']),
+    can_king_move(FromRow, FromCol, ToRow, ToCol).
 
 % =============================================================================
 % SECTION 4 : REGLES SPECIFIQUES DES PIONS
@@ -127,39 +120,65 @@ can_piece_move(Board, FromRow, FromCol, ToRow, ToCol, Piece) :-
 
 % Pion blanc - se deplace vers les rangees superieures
 can_white_pawn_move(Board, FromRow, FromCol, ToRow, ToCol) :-
-    (
-        % Mouvement simple d'une case
-        (ToRow is FromRow + 1, FromCol = ToCol, 
-         get_piece(Board, ToRow, ToCol, ' '))
-    ;
-        % Mouvement initial de deux cases depuis la rangee 2
-        (FromRow = 2, ToRow = 4, FromCol = ToCol, 
-         get_piece(Board, 3, ToCol, ' '), 
-         get_piece(Board, 4, ToCol, ' '))
-    ;
-        % Capture en diagonale
-        (ToRow is FromRow + 1, abs(ToCol - FromCol) =:= 1,
-         get_piece(Board, ToRow, ToCol, TargetPiece),
-         is_black_piece(TargetPiece))
+    (   white_pawn_single_move(Board, FromRow, FromCol, ToRow, ToCol)
+    ;   white_pawn_double_move(Board, FromRow, FromCol, ToRow, ToCol)
+    ;   white_pawn_capture(Board, FromRow, FromCol, ToRow, ToCol)
     ).
+
+% white_pawn_single_move(+Board, +FromRow, +FromCol, +ToRow, +ToCol)
+% Mouvement simple d'une case pour pion blanc.
+white_pawn_single_move(Board, FromRow, FromCol, ToRow, ToCol) :-
+    ToRow is FromRow + 1,
+    FromCol = ToCol,
+    get_piece(Board, ToRow, ToCol, ' ').
+
+% white_pawn_double_move(+Board, +FromRow, +FromCol, +ToRow, +ToCol)
+% Mouvement initial de deux cases pour pion blanc.
+white_pawn_double_move(Board, FromRow, FromCol, ToRow, ToCol) :-
+    FromRow = 2,
+    ToRow = 4,
+    FromCol = ToCol,
+    get_piece(Board, 3, ToCol, ' '),
+    get_piece(Board, 4, ToCol, ' ').
+
+% white_pawn_capture(+Board, +FromRow, +FromCol, +ToRow, +ToCol)
+% Capture diagonale pour pion blanc.
+white_pawn_capture(Board, FromRow, FromCol, ToRow, ToCol) :-
+    ToRow is FromRow + 1,
+    abs(ToCol - FromCol) =:= 1,
+    get_piece(Board, ToRow, ToCol, TargetPiece),
+    is_black_piece(TargetPiece).
 
 % Pion noir - se deplace vers les rangees inferieures
 can_black_pawn_move(Board, FromRow, FromCol, ToRow, ToCol) :-
-    (
-        % Mouvement simple d'une case
-        (ToRow is FromRow - 1, FromCol = ToCol, 
-         get_piece(Board, ToRow, ToCol, ' '))
-    ;
-        % Mouvement initial de deux cases depuis la rangee 7
-        (FromRow = 7, ToRow = 5, FromCol = ToCol, 
-         get_piece(Board, 6, ToCol, ' '), 
-         get_piece(Board, 5, ToCol, ' '))
-    ;
-        % Capture en diagonale
-        (ToRow is FromRow - 1, abs(ToCol - FromCol) =:= 1,
-         get_piece(Board, ToRow, ToCol, TargetPiece),
-         is_white_piece(TargetPiece))
+    (   black_pawn_single_move(Board, FromRow, FromCol, ToRow, ToCol)
+    ;   black_pawn_double_move(Board, FromRow, FromCol, ToRow, ToCol)
+    ;   black_pawn_capture(Board, FromRow, FromCol, ToRow, ToCol)
     ).
+
+% black_pawn_single_move(+Board, +FromRow, +FromCol, +ToRow, +ToCol)
+% Mouvement simple d'une case pour pion noir.
+black_pawn_single_move(Board, FromRow, FromCol, ToRow, ToCol) :-
+    ToRow is FromRow - 1,
+    FromCol = ToCol,
+    get_piece(Board, ToRow, ToCol, ' ').
+
+% black_pawn_double_move(+Board, +FromRow, +FromCol, +ToRow, +ToCol)
+% Mouvement initial de deux cases pour pion noir.
+black_pawn_double_move(Board, FromRow, FromCol, ToRow, ToCol) :-
+    FromRow = 7,
+    ToRow = 5,
+    FromCol = ToCol,
+    get_piece(Board, 6, ToCol, ' '),
+    get_piece(Board, 5, ToCol, ' ').
+
+% black_pawn_capture(+Board, +FromRow, +FromCol, +ToRow, +ToCol)
+% Capture diagonale pour pion noir.
+black_pawn_capture(Board, FromRow, FromCol, ToRow, ToCol) :-
+    ToRow is FromRow - 1,
+    abs(ToCol - FromCol) =:= 1,
+    get_piece(Board, ToRow, ToCol, TargetPiece),
+    is_white_piece(TargetPiece).
 
 % =============================================================================
 % SECTION 5 : REGLES SPECIFIQUES DES AUTRES PIECES
@@ -201,40 +220,44 @@ can_king_move(FromRow, FromCol, ToRow, ToCol) :-
 
 % is_path_clear(+Board, +FromRow, +FromCol, +ToRow, +ToCol)
 % Verifie que le chemin entre deux positions est libre (pieces glissantes).
+% Version simplifiee sans compteur de profondeur explicite.
 is_path_clear(Board, FromRow, FromCol, ToRow, ToCol) :-
     % Validation des parametres
-    nonvar(Board), nonvar(FromRow), nonvar(FromCol), nonvar(ToRow), nonvar(ToCol),
-    FromRow >= 1, FromRow =< 8, FromCol >= 1, FromCol =< 8,
-    ToRow >= 1, ToRow =< 8, ToCol >= 1, ToCol =< 8,
+    validate_path_parameters(FromRow, FromCol, ToRow, ToCol),
     
     % Calculer la direction du mouvement
     RowDir is sign(ToRow - FromRow),
     ColDir is sign(ToCol - FromCol),
     
-    % Verifier chaque case intermediaire avec limite de profondeur
+    % Verifier chaque case intermediaire
     NextRow is FromRow + RowDir,
     NextCol is FromCol + ColDir,
-    check_path_recursive(Board, NextRow, NextCol, ToRow, ToCol, RowDir, ColDir, 0).
+    check_path_clear(Board, NextRow, NextCol, ToRow, ToCol, RowDir, ColDir).
 
-% check_path_recursive(+Board, +Row, +Col, +ToRow, +ToCol, +RowDir, +ColDir, +Depth)
-% Verification recursive du chemin avec protection contre boucles infinies.
-check_path_recursive(_, Row, Col, Row, Col, _, _, _) :-
+% validate_path_parameters(+FromRow, +FromCol, +ToRow, +ToCol)
+% Valide que les parametres du chemin sont corrects.
+validate_path_parameters(FromRow, FromCol, ToRow, ToCol) :-
+    nonvar(FromRow), nonvar(FromCol), nonvar(ToRow), nonvar(ToCol),
+    valid_chess_position(FromRow, FromCol),
+    valid_chess_position(ToRow, ToCol).
+
+% check_path_clear(+Board, +Row, +Col, +ToRow, +ToCol, +RowDir, +ColDir)
+% Verification recursive du chemin - version simplifiee.
+check_path_clear(_, Row, Col, Row, Col, _, _) :-
     % Arrive a la destination - chemin libre
     !.
 
-check_path_recursive(Board, Row, Col, ToRow, ToCol, RowDir, ColDir, Depth) :-
-    % Protection contre boucle infinie
-    Depth < 8,
+check_path_clear(Board, Row, Col, ToRow, ToCol, RowDir, ColDir) :-
+    % Verifier si on est encore dans les limites de l'echiquier
+    valid_chess_position(Row, Col),
     
     % Verifier si la case courante est libre
-    get_piece(Board, Row, Col, Piece),
-    Piece = ' ',  % Case vide
+    get_piece(Board, Row, Col, ' '),
     
     % Continuer vers la case suivante
     NextRow is Row + RowDir,
     NextCol is Col + ColDir,
-    NextDepth is Depth + 1,
-    check_path_recursive(Board, NextRow, NextCol, ToRow, ToCol, RowDir, ColDir, NextDepth).
+    check_path_clear(Board, NextRow, NextCol, ToRow, ToCol, RowDir, ColDir).
 
 % =============================================================================
 % SECTION 7 : UTILITAIRES POUR LES COULEURS ET JOUEURS

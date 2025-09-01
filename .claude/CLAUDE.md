@@ -158,5 +158,6 @@ src/
 
 ## Project Context Links
 - **Specifications & Roadmap**: [PRD.md](../PRD.md)
+- **Development Tasks**: [TASKS.md](../TASKS.md)
 - **User Guide**: [README.md](../README.md)
 - **Test Files**: [tests/](../tests/)
