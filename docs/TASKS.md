@@ -36,7 +36,6 @@ Liste des tâches de développement pour le projet d'IA d'échecs en Prolog.
 
 ### 1.5.1 Améliorations Menu Principal
 - [x] **Design visuel amélioré** : Bordures, espacements, couleurs
-- [ ] **Options étendues** : Niveaux difficulté, paramètres
 - [x] **Navigation intuitive** : Raccourcis clavier, retour facile
 - [ ] **Messages informatifs** : Statut système, aide contextuelle
 
