@@ -25,7 +25,32 @@ Liste des tâches de développement pour le projet d'IA d'échecs en Prolog.
 - [x] **Boucle de jeu** : Alternance joueurs, validation moves
 - [x] **Messages d'aide** : Format moves, commandes disponibles
 
-## Focus Actuel : Phase 2 → Phase 3
+## Focus Actuel : Amélioration Interface → Phase 2 → Phase 3
+
+### Prochaines Étapes Planifiées
+1. **Améliorer l'interface utilisateur** et le menu du jeu
+2. **Implémenter les règles avancées** d'échecs (Phase 2)  
+3. **Développer une IA fonctionnelle** pour remplacer le prototype
+
+## Phase 1.5 : Amélioration Interface
+
+### 1.5.1 Améliorations Menu Principal
+- [ ] **Design visuel amélioré** : Bordures, espacements, couleurs
+- [ ] **Options étendues** : Niveaux difficulté, paramètres
+- [ ] **Navigation intuitive** : Raccourcis clavier, retour facile
+- [ ] **Messages informatifs** : Statut système, aide contextuelle
+
+### 1.5.2 Interface de Jeu  
+- [ ] **Affichage plateau amélioré** : Coordonnées plus lisibles, highlights
+- [ ] **Feedback utilisateur** : Confirmation coups, suggestions
+- [ ] **Gestion d'erreurs** : Messages plus clairs et utiles
+- [ ] **Commandes étendues** : Annuler coup, sauvegarder/charger
+
+### 1.5.3 Expérience Utilisateur
+- [ ] **Mode débutant** : Aide moves légaux, explications
+- [ ] **Historique des coups** : Notation PGN, replay
+- [ ] **Statistiques de jeu** : Temps par coup, captures
+- [ ] **Configuration** : Couleurs, langue, préférences
 
 ## Phase 2 : Règles Avancées d'Échecs
 
@@ -74,8 +99,9 @@ Liste des tâches de développement pour le projet d'IA d'échecs en Prolog.
 
 ---
 
-**Priorités** : Phase 2 (règles avancées) → Phase 3 (⚠️ réimplémentation IA) → Phase 4 (extensions)  
-**Validation** : ⚠️ ai.pl = PROTOTYPE NON FONCTIONNEL, potentiel à supprimer
+**Priorités** : Phase 1.5 (interface) → Phase 2 (règles avancées) → Phase 3 (⚠️ réimplémentation IA) → Phase 4 (extensions)  
+**Validation** : ⚠️ ai.pl = PROTOTYPE NON FONCTIONNEL, potentiel à supprimer  
+**Prochaine action** : Améliorer l'interface utilisateur et le menu du jeu
 
 **Références** : [CLAUDE.md](.claude/CLAUDE.md) • [PRD.md](PRD.md) • [tests/](tests/) 
 **Tests** : smoke_tests.pl (rapide) • regression_tests.pl (complet)

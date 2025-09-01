@@ -27,22 +27,10 @@
 % SECTION 1 : MESSAGES FRANCAIS CENTRALISES
 % =============================================================================
 
-% Messages du menu principal
-message(welcome_title, 'JEU D\'ECHECS PROLOG').
-message(welcome_separator, '======================').
-message(menu_prompt, 'Choisissez une option:').
-message(menu_option_1, '1 - Commencer une partie Humain vs Humain').
-message(menu_option_2, '2 - Commencer une partie Humain vs Bot (Bientot disponible)').
-message(menu_option_3, '3 - Executer les tests rapides (externes)').
-message(menu_option_4, '4 - Executer la suite complete de tests (externe)').
-message(menu_option_5, '5 - Afficher l\'aide').
-message(menu_option_6, '6 - Quitter').
-message(menu_choice_prompt, 'Entrez votre choix (1-6): ').
+% Messages du menu - PARTIELLEMENT NETTOYES
 message(invalid_choice, 'Choix invalide. Veuillez entrer 1, 2, 3, 4, 5, ou 6.').
 message(goodbye, 'Au revoir!').
 message(thanks_playing, 'Merci d\'avoir joue aux Echecs Prolog!').
-message(press_key_continue, 'Appuyez sur une touche pour continuer...').
-message(press_key_menu, 'Appuyez sur une touche pour retourner au menu principal...').
 
 % Messages de jeu
 message(game_title_human_vs_human, '=== PARTIE D\'ECHECS HUMAIN VS HUMAIN ===').
@@ -60,30 +48,7 @@ message(illegal_move, 'Mouvement illegal!').
 message(invalid_coordinates, 'Coordonnees invalides!').
 message(no_piece_at_position, 'Aucune piece de votre couleur a cette position!').
 
-% Messages d'aide
-message(help_title, '=== AIDE JEU D\'ECHECS ===').
-message(help_description, 'Ceci est un jeu d\'echecs Humain vs Humain.').
-message(help_move_format, 'Entrez les mouvements en notation algebrique: e2e4').
-message(help_commands_intro, 'Pendant le jeu, vous pouvez aussi taper:').
-message(help_command_help, '- help: Afficher les commandes').
-message(help_command_board, '- board: Afficher la position actuelle').
-message(help_command_quit, '- quit: Retour au menu principal').
-message(help_command_exit, '- exit: Quitter le programme completement').
-message(help_dot_reminder, 'N\'oubliez pas le point (.) apres chaque commande!').
-
-% Messages d'aide pendant le jeu
-message(game_help_title, '=== AIDE PENDANT LE JEU ===').
-message(game_help_commands, 'Commandes disponibles :').
-message(game_help_moves, '- Mouvements : e2e4 (notation algebrique)').
-message(game_help_move_example, '  * De e2 vers e4 - exemple: pion avance de 2 cases').
-message(game_help_format_required, '  * Format obligatoire: 4 caracteres exactement').
-message(game_help_help, '- help : Afficher cette aide').
-message(game_help_board, '- board : Afficher l\'echiquier actuel').
-message(game_help_quit, '- quit : Retour au menu principal').
-message(game_help_exit, '- exit : Quitter le programme completement').
-message(game_help_pieces_title, 'PIECES (notation ASCII):').
-message(game_help_white_pieces, 'Blanches: P=Pion R=Tour N=Cavalier B=Fou Q=Dame K=Roi').
-message(game_help_black_pieces, 'Noires:   p=pion r=tour n=cavalier b=fou q=dame k=roi').
+% Messages d'aide - NETTOYES (fonctions modernes utilisees maintenant)
 
 % Messages de test
 message(running_quick_tests, 'Execution des tests rapides externes...').
@@ -99,7 +64,65 @@ message(bot_not_implemented, 'Le mode Humain vs Bot n\'est pas encore implemente
 message(available_future_version, 'Disponible dans une version future!').
 
 % =============================================================================
-% SECTION 2 : UTILITAIRES D'AFFICHAGE DES MESSAGES
+% SECTION 2 : UTILITAIRES D'AFFICHAGE ET INTERFACE
+% =============================================================================
+
+% clear_screen
+% Nettoie l'ecran de maniere compatible multi-plateformes.
+clear_screen :-
+    (current_prolog_flag(windows, true) ->
+        shell('cls', 0)
+    ;   shell('clear', 0)
+    ).
+
+% draw_line(+Length, +Character)
+% Dessine une ligne horizontale de longueur donnee.
+draw_line(Length, Char) :-
+    draw_line_aux(Length, Char).
+
+draw_line_aux(0, _) :- !.
+draw_line_aux(N, Char) :-
+    N > 0,
+    write(Char),
+    N1 is N - 1,
+    draw_line_aux(N1, Char).
+
+% center_text(+Text, +Width)
+% Centre un texte dans une largeur donnee.
+center_text(Text, Width) :-
+    atom_length(Text, TextLen),
+    (TextLen >= Width ->
+        write(Text)
+    ;   Padding is (Width - TextLen) // 2,
+        draw_spaces(Padding),
+        write(Text),
+        RemainingSpaces is Width - TextLen - Padding,
+        draw_spaces(RemainingSpaces)
+    ).
+
+% draw_spaces(+Count)
+% Dessine un nombre donne d'espaces.
+draw_spaces(0) :- !.
+draw_spaces(N) :-
+    N > 0,
+    write(' '),
+    N1 is N - 1,
+    draw_spaces(N1).
+
+% display_title_box(+Title)
+% Affiche un titre dans une boite ASCII de 50 caracteres de large.
+display_title_box(Title) :-
+    nl, nl,
+    write('    '), draw_line(50, '='), nl,
+    write('    |'), draw_spaces(48), write('|'), nl,
+    write('    |'),
+    center_text(Title, 48),
+    write('|'), nl,
+    write('    |'), draw_spaces(48), write('|'), nl,
+    write('    '), draw_line(50, '='), nl, nl.
+
+% =============================================================================
+% SECTION 3 : UTILITAIRES D'AFFICHAGE DES MESSAGES
 % =============================================================================
 
 % display_message(+MessageKey)
@@ -130,23 +153,59 @@ get_message(Key, Text) :-
 start :- main_menu.
 
 % main_menu
-% Affiche et gere le menu principal.
+% Affiche et gere le menu principal moderne.
 main_menu :-
-    display_message_ln(welcome_separator),
-    display_message_ln(welcome_title),
-    display_message_ln(welcome_separator), nl,
-    display_message_ln(menu_prompt),
-    display_message_ln(menu_option_1),
-    display_message_ln(menu_option_2),
-    display_message_ln(menu_option_3),
-    display_message_ln(menu_option_4),
-    display_message_ln(menu_option_5),
-    display_message_ln(menu_option_6), nl,
-    display_message(menu_choice_prompt),
+    display_modern_menu,
+    read_menu_choice(Choice),
+    process_choice(Choice).
+
+% display_modern_menu
+% Affiche le menu principal avec design ASCII moderne.
+display_modern_menu :-
+    nl, nl,
+    % Bordure superieure
+    write('    '), draw_line(50, '='), nl,
+    write('    |'), draw_spaces(48), write('|'), nl,
+    
+    % Titre centre
+    write('    |'),
+    center_text('JEU D\'ECHECS PROLOG', 48),
+    write('|'), nl,
+    
+    write('    |'), draw_spaces(48), write('|'), nl,
+    write('    '), draw_line(50, '='), nl,
+    
+    % Options du menu
+    nl,
+    write('    1. Nouvelle partie Humain vs Humain'), nl,
+    write('    2. Mode IA (bientot disponible)'), nl,
+    nl,
+    write('    3. Tests rapides'), nl,
+    write('    4. Tests complets'), nl,
+    nl,
+    write('    5. Aide'), nl,
+    write('    6. Quitter'), nl,
+    nl,
+    
+    % Ligne de separation
+    write('    '), draw_line(35, '-'), nl,
+    write('    Entrez votre choix (1-6): ').
+
+% read_menu_choice(-Choice)
+% Lit le choix du menu de maniere robuste.
+read_menu_choice(Choice) :-
     get_single_char(CharCode),
     char_code(Choice, CharCode),
+    nl, nl.
+
+% pause_and_return_menu
+% Pause elegant et retour au menu principal.
+pause_and_return_menu :-
     nl,
-    process_choice(Choice).
+    write('    '), draw_line(35, '-'), nl,
+    write('    Appuyez sur une touche pour continuer...'),
+    get_single_char(_),
+    main_menu.
 
 % process_choice(+Choice)
 % Traitement des choix du menu principal.
@@ -154,39 +213,32 @@ process_choice('1') :-
     start_human_game.
 
 process_choice('2') :-
+    display_title_box('MODE INTELLIGENCE ARTIFICIELLE'),
     display_message_ln(bot_not_implemented),
-    display_message_ln(available_future_version), nl,
-    display_message_ln(press_key_continue),
-    get_single_char(_),
-    main_menu.
+    display_message_ln(available_future_version),
+    pause_and_return_menu.
 
 process_choice('3') :-
-    display_message_ln(running_quick_tests),
+    display_title_box('TESTS RAPIDES'),
     display_message_ln(loading_quick_tests),
     (consult('tests/smoke_tests') ->
         quick_test
     ;   display_message_ln(error_loading_quick_tests),
-        display_message_ln(ensure_file_exists)), nl,
-    display_message_ln(press_key_continue),
-    get_single_char(_),
-    main_menu.
+        display_message_ln(ensure_file_exists)),
+    pause_and_return_menu.
 
 process_choice('4') :-
-    display_message_ln(running_full_tests),
+    display_title_box('TESTS COMPLETS'),
     display_message_ln(loading_full_tests),
     (consult('tests/regression_tests') ->
         run_all_tests
     ;   display_message_ln(error_loading_full_tests),
-        display_message_ln(ensure_file_exists)), nl,
-    display_message_ln(press_key_continue),
-    get_single_char(_),
-    main_menu.
+        display_message_ln(ensure_file_exists)),
+    pause_and_return_menu.
 
 process_choice('5') :-
     show_help,
-    display_message_ln(press_key_continue),
-    get_single_char(_),
-    main_menu.
+    pause_and_return_menu.
 
 process_choice('6') :-
     display_message_ln(goodbye),
@@ -194,8 +246,12 @@ process_choice('6') :-
     halt.
 
 process_choice(_) :-
+    nl,
+    write('    '), draw_line(35, '-'), nl,
+    write('    CHOIX INVALIDE'), nl,
+    write('    '), draw_line(35, '-'), nl,
     display_message_ln(invalid_choice),
-    main_menu.
+    pause_and_return_menu.
 
 % =============================================================================
 % SECTION 4 : JEU HUMAIN VS HUMAIN
@@ -204,12 +260,10 @@ process_choice(_) :-
 % start_human_game
 % Demarre une partie humain vs humain.
 start_human_game :-
-    display_message_ln(game_title_human_vs_human),
+    display_title_box('NOUVELLE PARTIE'),
     display_legend,
     init_game_state(GameState),
     display_game_state(GameState),
-    display_message_ln(move_instructions),
-    display_message_ln(game_commands), nl,
     game_loop(GameState).
 
 % display_legend
@@ -226,7 +280,7 @@ display_legend :-
 game_loop(GameState) :-
     GameState = game_state(_, Player, _, Status, _),
     (Status = active ->
-        (write('Joueur '), translate_player(Player, PlayerFR), write(PlayerFR), write('> '),
+        (write('Joueur '), translate_player(Player, PlayerFR), write(PlayerFR), write(' (tapez "aide")> '),
          read_player_input(Input),
          process_game_input(Input, GameState, NewGameState),
          game_loop(NewGameState))
@@ -249,24 +303,22 @@ read_player_input(Input) :-
 % =============================================================================
 
 % process_game_input(+Input, +GameState, -NewGameState)
-% Traitement des commandes pendant le jeu.
-process_game_input(quit, _, _) :-
+% Traitement des commandes pendant le jeu (francais et anglais supportes).
+process_game_input(Input, _, _) :-
+    member(Input, [quit, quitter, menu]),
     display_message_ln(thanks_playing),
-    display_message_ln(press_key_menu),
-    get_single_char(_),
     main_menu, !.
 
-process_game_input(exit, _, _) :-
+process_game_input(Input, _, _) :-
+    member(Input, [exit, sortir, quitter_jeu]),
     display_message_ln(thanks_playing),
     display_message_ln(goodbye),
     halt.
 
-process_game_input(help, GameState, GameState) :-
+process_game_input(Input, GameState, GameState) :-
+    member(Input, [help, aide]),
     show_game_help, !.
 
-process_game_input(board, GameState, GameState) :-
-    GameState = game_state(Board, _, _, _, _),
-    display_board(Board), !.
 
 % Clauses separees pour chaque type de commande - plus lisible
 process_game_input(Input, GameState, NewGameState) :-
@@ -275,19 +327,20 @@ process_game_input(Input, GameState, NewGameState) :-
     process_command_string(InputStr, GameState, NewGameState).
 
 % process_command_string(+InputStr, +GameState, -NewGameState)
-% Traite les commandes sous forme de chaines.
-process_command_string("exit", _, _) :-
+% Traite les commandes sous forme de chaines (francais et anglais).
+process_command_string(InputStr, _, _) :-
+    member(InputStr, ["exit", "sortir", "quitter_jeu"]),
     display_message_ln(thanks_playing),
     display_message_ln(goodbye),
     halt.
 
-process_command_string("quit", _, _) :-
+process_command_string(InputStr, _, _) :-
+    member(InputStr, ["quit", "quitter", "menu"]),
     display_message_ln(thanks_playing),
-    display_message_ln(press_key_menu),
-    get_single_char(_),
     main_menu, !.
 
-process_command_string("help", GameState, GameState) :-
+process_command_string(InputStr, GameState, GameState) :-
+    member(InputStr, ["help", "aide"]),
     show_game_help.
 
 process_command_string(InputStr, GameState, NewGameState) :-
@@ -323,8 +376,6 @@ attempt_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState) :-
                 (coordinates_to_algebraic(FromRow, FromCol, ToRow, ToCol, MoveStr),
                  display_message(move_played), write(MoveStr), nl, nl,
                  display_game_state(TempGameState),
-                 display_message_ln(move_instructions),
-                 display_message_ln(game_commands), nl,
                  NewGameState = TempGameState)
             ;   display_message_ln(illegal_move),
                 write('  Raison: Cette piece ne peut pas aller a cette position'), nl,
@@ -343,37 +394,60 @@ attempt_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState) :-
 % =============================================================================
 
 % show_help
-% Affiche l'aide generale.
+% Affiche l'aide generale avec design moderne.
 show_help :-
+    nl, nl,
+    % En-tete aide
+    write('    '), draw_line(50, '='), nl,
+    write('    |'), draw_spaces(48), write('|'), nl,
+    write('    |'),
+    center_text('AIDE - JEU D\'ECHECS PROLOG', 48),
+    write('|'), nl,
+    write('    |'), draw_spaces(48), write('|'), nl,
+    write('    '), draw_line(50, '='), nl,
     nl,
-    display_message_ln(help_title),
-    display_message_ln(help_description),
-    display_message_ln(help_move_format),
-    display_message_ln(help_commands_intro),
-    display_message_ln(help_command_help),
-    display_message_ln(help_command_board),
-    display_message_ln(help_command_quit),
-    display_message_ln(help_command_exit),
-    display_message_ln(help_dot_reminder), nl.
+    
+    % Sections d'aide
+    write('    PRINCIPE DU JEU'), nl,
+    write('    '), draw_line(35, '-'), nl,
+    write('    Jeu d\'echecs classique Humain vs Humain'), nl,
+    nl,
+    
+    write('    FORMAT DES COUPS'), nl,
+    write('    '), draw_line(35, '-'), nl,
+    write('    Notation algebrique: e2e4 (de e2 vers e4)'), nl,
+    write('    Colonnes: a-h  |  Rangees: 1-8'), nl,
+    nl,
+    
+    write('    COMMANDES PENDANT LE JEU'), nl,
+    write('    '), draw_line(35, '-'), nl,
+    write('    aide        : Afficher cette aide'), nl,
+    write('    quitter     : Retour au menu principal'), nl,
+    write('    sortir      : Quitter le programme'), nl,
+    nl,
+    
+    write('    PIECES (notation ASCII)'), nl,
+    write('    '), draw_line(35, '-'), nl,
+    write('    Blanches: P=Pion R=Tour N=Cavalier'), nl,
+    write('              B=Fou  Q=Dame K=Roi'), nl,
+    write('    Noires:   p=pion r=tour n=cavalier'), nl,
+    write('              b=fou  q=dame k=roi'), nl,
+    nl.
 
 % show_game_help
-% Affiche l'aide pendant le jeu.
+% Affiche l'aide pendant le jeu avec design moderne.
 show_game_help :-
     nl,
-    display_message_ln(game_help_title),
-    display_message_ln(game_help_commands),
-    display_message_ln(game_help_moves),
-    display_message_ln(game_help_move_example),
-    display_message_ln(game_help_format_required),
-    display_message_ln(game_help_help),
-    display_message_ln(game_help_board),
-    display_message_ln(game_help_quit),
-    display_message_ln(game_help_exit),
-    display_message_ln(help_dot_reminder),
-    write(''), nl,
-    display_message_ln(game_help_pieces_title),
-    display_message_ln(game_help_white_pieces),
-    display_message_ln(game_help_black_pieces), nl.
+    write('    '), draw_line(40, '='), nl,
+    write('    AIDE RAPIDE'), nl,
+    write('    '), draw_line(40, '='), nl,
+    
+    write('    COUPS: e2e4 (de e2 vers e4)'), nl,
+    write('    COMMANDES: aide, quitter, sortir'), nl,
+    write('    PIECES: P/p=Pion R/r=Tour N/n=Cavalier'), nl,
+    write('            B/b=Fou Q/q=Dame K/k=Roi'), nl,
+    
+    write('    '), draw_line(40, '='), nl, nl.
 
 % =============================================================================
 % FIN DU FICHIER INTERFACE.PL

@@ -19,9 +19,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Quick Context
 - **Project**: Chess AI in Prolog - University AI course (IFT-2003)
-- **Current Phase**: Phase 1 COMPLETE ✅ - Ready for Phase 2 (advanced rules) or Phase 3 (AI)
-- **Architecture**: 4-module design (pieces/board/game/interface) + optimized operations
-- **Status**: Hardened foundations, security fixes applied, performance optimized, AI-ready
+- **Current Phase**: Phase 1 COMPLETE ✅ - Interface modernisée, prêt pour Phase 2 (règles avancées) ou Phase 3 (IA)
+- **Architecture**: 5-module design (pieces/board/game/interface/ai) + interface française professionnelle
+- **Status**: Fondations solides, interface utilisateur modernisée, tests uniformisés, prêt pour développement
 
 ## Development Commands
 
@@ -69,11 +69,12 @@ swipl -s src/ai.pl -g ai_vs_human_mode
 
 ## Architecture Overview
 
-### 4-Module Design
+### 5-Module Design
 - **pieces.pl**: Movement rules per piece type, piece identification
 - **board.pl**: 8x8 board representation, coordinates, ASCII display
 - **game.pl**: Game state management, move validation, capture logic
-- **interface.pl**: French UI, game loop, user interaction
+- **interface.pl**: Interface française professionnelle, boucle de jeu, interaction utilisateur
+- **ai.pl**: Intelligence artificielle (PROTOTYPE NON FONCTIONNEL - voir section IA)
 
 ### Data Structures
 ```prolog
@@ -98,7 +99,7 @@ game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces)
 ### Code Conventions
 - **Predicates**: snake_case (`valid_move/5`, `piece_at/3`)
 - **Variables**: PascalCase (`Board`, `GameState`, `FromRow`)
-- **Language**: English predicates/code, French comments (no accents)
+- **Language**: English predicates/code, French comments (SANS ACCENTS - voir section Unicode ci-dessous)
 - **Move format**: "e2e4" (not "e2-e4")
 
 ### Critical Validation Patterns (ENHANCED ✅)
@@ -149,12 +150,20 @@ check_path_clear(Board, Row, Col, ToRow, ToCol, RowDir, ColDir, Depth) :-
 
 ## Common Issues & Solutions
 
+### Unicode & Terminal Compatibility ⚠️
+**PROBLÈME CRITIQUE IDENTIFIÉ**: Incompatibilité des caractères Unicode avec certains terminaux Windows
+- **Impact**: Pièces d'échecs Unicode, accents français ne s'affichent pas correctement
+- **Solution temporaire**: ÉVITER TOUT CARACTÈRE UNICODE dans le code
+- **Objectif futur**: Résoudre la compatibilité pour tous les OS
+- **Règle actuelle**: Interface française SANS ACCENTS uniquement (é→e, à→a, è→e, etc.)
+
 ### Debugging Checklist
 - **Variables unbound**: Use `ground/1` validation
 - **Coordinates out of range**: Ensure 1-8 bounds
 - **Move format**: Use "e2e4" not "e2-e4"
 - **Infinite loops**: Check `findall/3` usage
 - **Trace debugging**: `trace.` then call predicate
+- **Unicode issues**: Check terminal compatibility, avoid Unicode characters
 
 ### Before Committing
 ```bash

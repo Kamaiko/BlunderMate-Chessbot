@@ -6,12 +6,18 @@ Jeu d'échecs complet en Prolog avec focus sur l'Intelligence Artificielle - Pro
 
 ## Architecture
 
-4 modules principaux :
+5 modules principaux :
 - **pieces.pl** : Règles de mouvement des pièces
 - **board.pl** : Gestion du plateau et positions  
 - **game.pl** : Logique de jeu et validation des coups
-- **interface.pl** : Interface utilisateur française
+- **interface.pl** : Interface utilisateur française professionnelle
 - **⚠️ ai.pl** : PROTOTYPE NON FONCTIONNEL (à éviter)
+
+### Interface Modernisée ✅
+- Menu principal ASCII professionnel
+- Interface française complète (sans accents - compatibilité terminaux)
+- Commandes françaises : `aide`, `quitter`, `sortir`
+- Tests uniformisés avec format `[OK]` cohérent
 
 ## Installation & Tests
 
@@ -33,7 +39,8 @@ swipl -s tests/smoke_tests.pl
 
 - **Format coups :** `e2e4` (de e2 vers e4)
 - **Notation :** colonnes a-h, rangées 1-8
-- **Commandes :** `start.` pour démarrer
+- **Commandes :** Menu interactif, `aide` pour assistance
+- **⚠️ Unicode :** Éviter accents français - problème compatibilité terminaux identifié
 
 ## Documentation
 
@@ -41,4 +48,4 @@ swipl -s tests/smoke_tests.pl
 - **⚙️ Guide développeur :** [.claude/CLAUDE.md](.claude/CLAUDE.md)
 
 ---
-**Projet IA** • **v5.1** • Tests exhaustifs • Architecture éducative • **⚠️ ai.pl = prototype non testé**
+**Projet IA** • **v5.2** • Interface modernisée • Tests exhaustifs • Architecture éducative • **⚠️ Unicode à résoudre**
