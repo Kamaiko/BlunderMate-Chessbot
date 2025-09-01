@@ -39,7 +39,7 @@ message(white_pieces_legend, 'Pieces blanches (majuscules): P=Pion, R=Tour, N=Ca
 message(black_pieces_legend, 'Pieces noires (minuscules): p=pion, r=tour, n=cavalier, b=fou, q=dame, k=roi').
 message(move_format_help, 'Format des mouvements: e2e4. (de e2 vers e4, n\'oubliez pas le point!)').
 message(move_instructions, 'Entrez les mouvements en notation algebrique (ex: e2e4)').
-message(game_commands, 'Commandes: quit (menu), exit (quitter), help (aide)').
+message(game_commands, 'Commandes: menu (retour menu), exit (quitter), help (aide)').
 message(current_player, 'Joueur actuel: ').
 message(move_count, 'Nombre de coups: ').
 message(game_finished, 'Partie terminee!').
@@ -261,7 +261,6 @@ process_choice(_) :-
 % Demarre une partie humain vs humain.
 start_human_game :-
     display_title_box('NOUVELLE PARTIE'),
-    display_legend,
     init_game_state(GameState),
     display_game_state(GameState),
     game_loop(GameState).
@@ -421,7 +420,7 @@ show_help :-
     write('    COMMANDES PENDANT LE JEU'), nl,
     write('    '), draw_line(35, '-'), nl,
     write('    aide        : Afficher cette aide'), nl,
-    write('    quitter     : Retour au menu principal'), nl,
+    write('    menu        : Retour au menu principal'), nl,
     write('    sortir      : Quitter le programme'), nl,
     nl,
     
@@ -442,7 +441,7 @@ show_game_help :-
     write('    '), draw_line(40, '='), nl,
     
     write('    COUPS: e2e4 (de e2 vers e4)'), nl,
-    write('    COMMANDES: aide, quitter, sortir'), nl,
+    write('    COMMANDES: menu, sortir'), nl,
     write('    PIECES: P/p=Pion R/r=Tour N/n=Cavalier'), nl,
     write('            B/b=Fou Q/q=Dame K/k=Roi'), nl,
     
