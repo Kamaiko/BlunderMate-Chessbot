@@ -6,9 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Quick Context
 - **Project**: Chess AI in Prolog - University AI course (IFT-2003)
-- **Current Phase**: Ready for Phase 3 (AI implementation) after solid foundations
-- **Architecture**: 4-module design (pieces/board/game/interface)
-- **Status**: Complete foundation, comprehensive tests, ready for minimax+alpha-beta
+- **Current Phase**: Phase 1 COMPLETE ✅ - Ready for Phase 2 (advanced rules) or Phase 3 (AI)
+- **Architecture**: 4-module design (pieces/board/game/interface) + optimized operations
+- **Status**: Hardened foundations, security fixes applied, performance optimized, AI-ready
 
 ## Development Commands
 
@@ -64,10 +64,12 @@ game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces)
 ```
 
 ### Key Predicates
-- `valid_move/5`: Core movement validation
+- `valid_move/5`: Core movement validation (robust input validation)
 - `execute_move/6`: Move execution with state update  
 - `parse_algebraic_move/5`: Convert "e2e4" format
 - `display_game_state/1`: ASCII board display
+- `place_piece_optimized/5`: High-performance board operations (AI-ready)
+- `check_path_clear/7`: Path validation with recursion protection
 
 ## Prolog Development Guidelines
 
@@ -77,20 +79,30 @@ game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces)
 - **Language**: English predicates/code, French comments (no accents)
 - **Move format**: "e2e4" (not "e2-e4")
 
-### Critical Validation Patterns
+### Critical Validation Patterns (ENHANCED ✅)
 ```prolog
-% Always validate arguments
-valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol) :-
-    ground(Board), ground(Player),
-    ground(FromRow), ground(FromCol), ground(ToRow), ground(ToCol),
-    % ... rest of validation
+% ROBUST input validation - ALL predicates now follow this pattern
+get_piece(Board, Row, Col, Piece) :-
+    ground(Board), ground(Row), ground(Col),
+    is_list(Board), length(Board, 8),
+    integer(Row), integer(Col),
+    valid_chess_position(Row, Col),
+    % ... safe operations
+
+% Recursion protection - ALL path checking includes depth limits  
+check_path_clear(Board, Row, Col, ToRow, ToCol, RowDir, ColDir, Depth) :-
+    Depth < 8,  % Maximum chess board traversal
+    ground(Row), ground(Col), integer(Row), integer(Col),
+    % ... safe recursion
 ```
 
-### Performance Considerations
+### Performance Considerations (OPTIMIZED ✅)
+- **Board Operations**: Use `place_piece_optimized/5` for frequent operations (AI-ready)
+- **Memory**: `replace_list_element_direct/5` reduces O(n²) complexity
 - Avoid `findall/3` in loops (performance killer)
 - Use `once/1` for deterministic predicates
-- Validate coordinates are 1-8 range
-- Prevent variable unification issues
+- **Security**: All coordinates validated with `ground/1` + type checks
+- **Recursion**: Depth-limited with automatic protection (max 8 moves)
 
 ## Testing Strategy
 
@@ -117,16 +129,18 @@ valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol) :-
 - **Infinite loops**: Check `findall/3` usage
 - **Trace debugging**: `trace.` then call predicate
 
-### Before Committing
+### Before Committing (ROBUST PATHS ✅)
 ```bash
-# Validate all tests pass
-swipl -s tests/quick_tests.pl
+# Validate all tests pass (now with robust path loading)
+swipl -g "consult('tests/quick_tests'), quick_test, halt."
+
+# Full test suite validation  
+swipl -g "consult('tests/chess_tests'), run_all_tests, halt."
 
 # Check git remotes
 git remote -v
 
-# Run specific test section if issues
-swipl -g "consult('tests/chess_tests'), run_test(section3), halt."
+# All tests now work from any directory (fixed hardcoded paths)
 ```
 
 ## AI Implementation Roadmap (Phase 3)
