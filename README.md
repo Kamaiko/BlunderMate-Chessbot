@@ -19,11 +19,11 @@ Jeu d'échecs complet en Prolog avec focus sur l'Intelligence Artificielle - Pro
 # Lancement du jeu (stable)
 swipl go.pl
 
-# Tests complets
-swipl -t run_tests -s tests/chess_tests.pl
+# Tests complets (regression)
+swipl -t run_tests -s tests/regression_tests.pl
 
-# Tests rapides  
-swipl -s tests/quick_tests.pl
+# Tests rapides (smoke)
+swipl -s tests/smoke_tests.pl
 
 # ⚠️ MODE IA - NON FONCTIONNEL, NE PAS UTILISER
 # swipl -s src/ai.pl (PROTOTYPE DÉFAILLANT)

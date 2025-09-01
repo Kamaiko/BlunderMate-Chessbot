@@ -27,18 +27,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Testing
 ```bash
-# Full test suite (5 categories)
-swipl -t run_tests -s tests/chess_tests.pl
+# Full regression suite (5 categories)
+swipl -t run_tests -s tests/regression_tests.pl
 
-# Quick validation tests
-swipl -s tests/quick_tests.pl
+# Quick smoke tests
+swipl -s tests/smoke_tests.pl
 
 # Single test category examples
-swipl -g "consult('tests/chess_tests'), run_basic_tests, halt."
-swipl -g "consult('tests/chess_tests'), run_logic_tests, halt."
+swipl -g "consult('tests/regression_tests'), run_basic_tests, halt."
+swipl -g "consult('tests/regression_tests'), run_logic_tests, halt."
 
 # Interactive test session
-swipl tests/chess_tests.pl
+swipl tests/regression_tests.pl
 ?- run_tests.
 ```
 
@@ -159,13 +159,13 @@ check_path_clear(Board, Row, Col, ToRow, ToCol, RowDir, ColDir, Depth) :-
 ### Before Committing
 ```bash
 # Run quick validation
-swipl -s tests/quick_tests.pl
+swipl -s tests/smoke_tests.pl
 
 # Full test suite validation  
-swipl -t run_tests -s tests/chess_tests.pl
+swipl -t run_tests -s tests/regression_tests.pl
 
 # Interactive testing
-swipl tests/chess_tests.pl
+swipl tests/regression_tests.pl
 ```
 
 ## AI Implementation Status (Phase 3)

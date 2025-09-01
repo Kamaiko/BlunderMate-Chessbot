@@ -77,4 +77,5 @@ Liste des tâches de développement pour le projet d'IA d'échecs en Prolog.
 **Priorités** : Phase 2 (règles avancées) → Phase 3 (⚠️ réimplémentation IA) → Phase 4 (extensions)  
 **Validation** : ⚠️ ai.pl = PROTOTYPE NON FONCTIONNEL, potentiel à supprimer
 
-**Références** : [CLAUDE.md](.claude/CLAUDE.md) • [PRD.md](PRD.md) • [tests/](tests/)
+**Références** : [CLAUDE.md](.claude/CLAUDE.md) • [PRD.md](PRD.md) • [tests/](tests/) 
+**Tests** : smoke_tests.pl (rapide) • regression_tests.pl (complet)

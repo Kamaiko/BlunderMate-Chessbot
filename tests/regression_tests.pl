@@ -1,9 +1,9 @@
 % =============================================================================
-% SUITE DE TESTS CONSOLIDEE - PROLOG CHESS GAME
+% REGRESSION TESTS - SUITE COMPLETE PROLOG CHESS GAME
 % =============================================================================
-% Version : 2.0 - Consolidée avec tests de blocage de chemins
+% Version : 2.0 - Consolidee avec tests de blocage de chemins
 % Auteur : Patrick Patenaude
-% Date : Août 2025
+% Date : Aout 2025
 % =============================================================================
 
 % Chargement robuste des modules source avec gestion chemins relatifs
@@ -17,78 +17,110 @@
 % =============================================================================
 
 test_board_basics :-
-    write('=== TESTS DE BASE DE L\'ECHIQUIER ==='), nl,
+    write('[TEST] TESTS DE BASE - Infrastructure'), nl,
+    write('---------------------------------------'), nl,
     
     % Test 1: Initialisation
-    write('1. Initialisation de l\'echiquier...'), nl,
-    init_game_state(GS),
-    GS = game_state(Board, white, 0, active, _),
-    write('   + Echiquier initialise correctement'), nl,
+    write('[OK] Test 1/3: Initialisation echiquier........ '),
+    (   (init_game_state(GS), GS = game_state(Board, white, 0, active, _)) ->
+        write('PASS'), nl
+    ;   write('FAIL'), nl, fail
+    ),
     
     % Test 2: Affichage
-    write('2. Test d\'affichage...'), nl,
-    display_game_state(GS),
-    write('   + Affichage fonctionne'), nl.
+    write('[OK] Test 2/3: Affichage plateau............. '),
+    (   display_game_state(GS) ->
+        write('PASS'), nl
+    ;   write('FAIL'), nl, fail
+    ),
+    
+    % Test 3: Structure board
+    write('[OK] Test 3/3: Structure plateau 8x8......... '),
+    (   (length(Board, 8), maplist(length_8, Board)) ->
+        write('PASS'), nl
+    ;   write('FAIL'), nl, fail
+    ), nl.
+
+length_8(Row) :- length(Row, 8).
 
 test_notation :-
-    write('=== TESTS DE NOTATION ALGEBRIQUE ==='), nl,
+    write('[TEST] TESTS NOTATION ALGEBRIQUE'), nl,
+    write('---------------------------------------'), nl,
     
     % Test 1: Parsing des mouvements
-    write('1. Parsing des mouvements...'), nl,
-    parse_algebraic_move("e2e4", 2, 5, 4, 5),
-    write('   + e2e4 -> (2,5) vers (4,5)'), nl,
+    write('[OK] Test 1/2: Parsing e2e4.................. '),
+    (   parse_algebraic_move("e2e4", 2, 5, 4, 5) ->
+        write('PASS'), nl
+    ;   write('FAIL'), nl, fail
+    ),
     
-    parse_algebraic_move("g1f3", 1, 7, 3, 6),
-    write('   + g1f3 -> (1,7) vers (3,6)'), nl.
+    write('[OK] Test 2/2: Parsing g1f3.................. '),
+    (   parse_algebraic_move("g1f3", 1, 7, 3, 6) ->
+        write('PASS'), nl
+    ;   write('FAIL'), nl, fail
+    ), nl.
 
 % =============================================================================
 % TESTS DE LOGIQUE
 % =============================================================================
 
 test_move_validation :-
-    write('=== TESTS DE VALIDATION DES MOUVEMENTS ==='), nl,
+    write('[TEST] TESTS VALIDATION MOUVEMENTS'), nl,
+    write('---------------------------------------'), nl,
     
-    % Test 1: Mouvements valides
-    write('1. Mouvements valides...'), nl,
     init_game_state(GS),
     GS = game_state(Board, white, 0, active, _),
     
-    (valid_move(Board, white, 2, 5, 4, 5) ->
-        write('   + e2-e4 valide pour les blancs'), nl
-    ;   write('   - e2-e4 devrait etre valide'), nl),
+    write('[OK] Test 1/4: Mouvement valide e2e4.......... '),
+    (   valid_move(Board, white, 2, 5, 4, 5) ->
+        write('PASS'), nl
+    ;   write('FAIL'), nl, fail
+    ),
     
-    (\+ valid_move(Board, white, 7, 5, 6, 5) ->
-        write('   + e7-e6 refuse pour les blancs'), nl
-    ;   write('   - e7-e6 ne devrait pas etre valide pour les blancs'), nl),
+    write('[OK] Test 2/4: Mouvement invalide (adversaire).. '),
+    (   \+ valid_move(Board, white, 7, 5, 6, 5) ->
+        write('PASS'), nl
+    ;   write('FAIL'), nl, fail
+    ),
     
-    % Test 2: Tests aux limites
-    write('2. Tests aux limites...'), nl,
-    (\+ valid_move(Board, white, 2, 5, 9, 5) ->
-        write('   + Mouvement hors limites refuse'), nl
-    ;   write('   - Mouvement hors limites accepte'), nl),
+    write('[OK] Test 3/4: Mouvement hors limites......... '),
+    (   \+ valid_move(Board, white, 2, 5, 9, 5) ->
+        write('PASS'), nl
+    ;   write('FAIL'), nl, fail
+    ),
     
-    (\+ valid_move(Board, white, 2, 5, 2, 5) ->
-        write('   + Mouvement sur place refuse'), nl
-    ;   write('   - Mouvement sur place accepte'), nl).
+    write('[OK] Test 4/4: Mouvement sur place............ '),
+    (   \+ valid_move(Board, white, 2, 5, 2, 5) ->
+        write('PASS'), nl
+    ;   write('FAIL'), nl, fail
+    ), nl.
 
 test_game_state_management :-
-    write('=== TESTS DE GESTION D\'ETAT ==='), nl,
+    write('[TEST] TESTS GESTION ETAT'), nl,
+    write('---------------------------------------'), nl,
     
-    % Test 1: Alternance des joueurs
-    write('1. Alternance des joueurs...'), nl,
     init_game_state(GS1),
-    make_move_algebraic(GS1, "e2e4", GS2),
-    GS2 = game_state(_, black, 1, _, _),
-    write('   + Joueur change vers noir apres coup blanc'), nl,
     
-    make_move_algebraic(GS2, "e7e5", GS3),
-    GS3 = game_state(_, white, 2, _, _),
-    write('   + Joueur change vers blanc apres coup noir'), nl,
+    write('[OK] Test 1/3: Alternance joueur (blanc→noir)... '),
+    (   (make_move_algebraic(GS1, "e2e4", GS2),
+         GS2 = game_state(_, black, 1, _, _)) ->
+        write('PASS'), nl
+    ;   write('FAIL'), nl, fail
+    ),
     
-    % Test 2: Compteur de coups
-    write('2. Compteur de coups...'), nl,
-    GS3 = game_state(_, _, MoveCount, _, _),
-    write('   + Compteur de coups correct: '), write(MoveCount), nl.
+    write('[OK] Test 2/3: Alternance joueur (noir→blanc)... '),
+    (   (make_move_algebraic(GS2, "e7e5", GS3),
+         GS3 = game_state(_, white, 2, _, _)) ->
+        write('PASS'), nl
+    ;   write('FAIL'), nl, fail
+    ),
+    
+    write('[OK] Test 3/3: Compteur coups................ '),
+    (   (GS3 = game_state(_, _, MoveCount, _, _),
+         MoveCount =:= 2) ->
+        write('PASS'), nl
+    ;   write('FAIL'), nl, fail
+    ), nl.
 
 % =============================================================================
 % TESTS PAR PIECE
@@ -383,27 +415,42 @@ test_game_integration_path_blocking :-
 % =============================================================================
 
 run_basic_tests :-
+    write('[BASIC] CATEGORIE: Tests de Base'), nl,
+    write('=============================='), nl,
     test_board_basics,
-    test_notation.
+    test_notation,
+    write('[OK] Categorie Tests de Base terminee'), nl, nl.
 
 run_logic_tests :-
+    write('[LOGIC] CATEGORIE: Tests de Logique'), nl,
+    write('=============================='), nl,
     test_move_validation,
     test_game_state_management,
-    test_path_blocking.
+    test_path_blocking,
+    write('[OK] Categorie Tests de Logique terminee'), nl, nl.
 
 run_piece_tests :-
+    write('[PIECES] CATEGORIE: Tests des Pieces'), nl,
+    write('=============================='), nl,
     test_pawn_rules,
     test_knight_rules,
     test_sliding_pieces,
-    test_king_rules.
+    test_king_rules,
+    write('[OK] Categorie Tests des Pieces terminee'), nl, nl.
 
 run_scenario_tests :-
+    write('[SCENARIO] CATEGORIE: Tests de Scenarios'), nl,
+    write('=============================='), nl,
     test_opening_sequence,
-    test_tactical_sequence.
+    test_tactical_sequence,
+    write('[OK] Categorie Tests de Scenarios terminee'), nl, nl.
 
 run_robustness_tests :-
+    write('[ROBUST] CATEGORIE: Tests de Robustesse'), nl,
+    write('=============================='), nl,
     test_error_handling,
-    test_boundary_conditions.
+    test_boundary_conditions,
+    write('[OK] Categorie Tests de Robustesse terminee'), nl, nl.
 
 % =============================================================================
 % SUITE COMPLETE DE TESTS
@@ -411,10 +458,10 @@ run_robustness_tests :-
 
 run_all_tests :-
     nl,
-    write('======================================================='), nl,
-    write('           PROLOG CHESS GAME - TEST SUITE             '), nl,
-    write('======================================================='), nl,
+    write('[REGRESSION] REGRESSION TESTS - Suite Complete'), nl,
+    write('================================================='), nl,
     nl,
+    get_time(StartTime),
     
     % Section 1: Tests de base
     write('+-- SECTION 1: TESTS DE BASE -------------------------+'), nl,
@@ -447,13 +494,17 @@ run_all_tests :-
     write('+---------------------------------------------------+'), nl, nl,
     
     % Rapport final
-    write('======================================================='), nl,
-    write('                    RESULTATS                          '), nl,
-    write('======================================================='), nl,
-    write('+ Toutes les sections de tests completees'), nl,
-    write('+ Systeme pret pour utilisation'), nl,
+    get_time(EndTime),
+    Duration is EndTime - StartTime,
+    
     nl,
-    write('+ Systeme pret pour utilisation'), nl.
+    write('[REGRESSION] RESULTATS FINAUX'), nl,
+    write('==================================================='), nl,
+    write('[OK] 5 categories de tests executees avec succes'), nl,
+    write('[OK] Systeme valide et pret pour utilisation'), nl,
+    format('- Duree: Duree totale: ~2f secondes~n', [Duration]), nl,
+    write('[OK] Pret pour Phase 2 (regles avancees)'), nl,
+    write('==================================================='), nl, nl.
 
 % =============================================================================
 % AIDE ET DOCUMENTATION

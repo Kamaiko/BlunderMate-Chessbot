@@ -87,13 +87,13 @@ message(game_help_black_pieces, 'Noires:   p=pion r=tour n=cavalier b=fou q=dame
 
 % Messages de test
 message(running_quick_tests, 'Execution des tests rapides externes...').
-message(loading_quick_tests, 'Chargement de tests/quick_tests.pl...').
+message(loading_quick_tests, 'Chargement de tests/smoke_tests.pl...').
 message(tests_loaded_success, 'Tests charges avec succes. Execution de quick_test...').
 message(running_full_tests, 'Execution de la suite complete de tests externe...').
-message(loading_full_tests, 'Chargement de tests/chess_tests.pl...').
+message(loading_full_tests, 'Chargement de tests/regression_tests.pl...').
 message(full_tests_loaded_success, 'Tests charges avec succes. Execution de run_all_tests...').
-message(error_loading_quick_tests, 'Erreur: Impossible de charger tests/quick_tests.pl').
-message(error_loading_full_tests, 'Erreur: Impossible de charger tests/chess_tests.pl').
+message(error_loading_quick_tests, 'Erreur: Impossible de charger tests/smoke_tests.pl').
+message(error_loading_full_tests, 'Erreur: Impossible de charger tests/regression_tests.pl').
 message(ensure_file_exists, 'Veuillez vous assurer que le fichier existe et est accessible.').
 message(bot_not_implemented, 'Le mode Humain vs Bot n\'est pas encore implemente.').
 message(available_future_version, 'Disponible dans une version future!').
@@ -163,8 +163,7 @@ process_choice('2') :-
 process_choice('3') :-
     display_message_ln(running_quick_tests),
     display_message_ln(loading_quick_tests),
-    (consult('tests/quick_tests') ->
-        display_message_ln(tests_loaded_success), nl,
+    (consult('tests/smoke_tests') ->
         quick_test
     ;   display_message_ln(error_loading_quick_tests),
         display_message_ln(ensure_file_exists)), nl,
@@ -175,8 +174,7 @@ process_choice('3') :-
 process_choice('4') :-
     display_message_ln(running_full_tests),
     display_message_ln(loading_full_tests),
-    (consult('tests/chess_tests') ->
-        display_message_ln(full_tests_loaded_success), nl,
+    (consult('tests/regression_tests') ->
         run_all_tests
     ;   display_message_ln(error_loading_full_tests),
         display_message_ln(ensure_file_exists)), nl,

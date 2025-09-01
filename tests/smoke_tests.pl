@@ -1,5 +1,5 @@
 % =============================================================================
-% QUICK TESTS - TESTS RAPIDES DU SYSTÈME
+% SMOKE TESTS - TESTS RAPIDES DU SYSTÈME
 % =============================================================================
 %
 % Ce fichier contient les tests rapides et les démonstrations du système.
@@ -39,29 +39,38 @@
 % Ce test était précédemment dans play_chess.pl et a été déplacé ici
 % pour respecter la séparation des responsabilités.
 quick_test :-
-    write('=== QUICK SYSTEM TEST ==='), nl,
-    write('Ce test valide les fonctionnalites de base du systeme.'), nl, nl,
+    write('[SMOKE TEST] - Validation Rapide Systeme'), nl,
+    write('=============================================='), nl, nl,
+    
+    get_time(StartTime),
     
     % Test 1 : Initialisation du jeu
-    write('1. Test d\'initialisation...'), nl,
-    init_game_state(GameState),
-    display_game_state(GameState),
-    write('   + Initialisation reussie'), nl, nl,
+    write('[OK] Test 1/3: Initialisation systeme.......... '),
+    (   init_game_state(GameState) ->
+        write('PASS'), nl
+    ;   write('FAIL'), nl, fail
+    ),
     
     % Test 2 : Premier mouvement (e2e4)
-    write('2. Test du mouvement e2e4...'), nl,
-    make_move(GameState, 2, 5, 4, 5, GameState2),
-    display_game_state(GameState2),
-    write('   + Mouvement e2e4 reussi'), nl, nl,
+    write('[OK] Test 2/3: Mouvement de base (e2e4)........ '),
+    (   make_move(GameState, 2, 5, 4, 5, GameState2) ->
+        write('PASS'), nl
+    ;   write('FAIL'), nl, fail
+    ),
     
     % Test 3 : Deuxieme mouvement (e7e5)
-    write('3. Test du mouvement e7e5...'), nl,
-    make_move(GameState2, 7, 5, 5, 5, GameState3),
-    display_game_state(GameState3),
-    write('   + Mouvement e7e5 reussi'), nl, nl,
+    write('[OK] Test 3/3: Mouvement adverse (e7e5)........ '),
+    (   make_move(GameState2, 7, 5, 5, 5, _GameState3) ->
+        write('PASS'), nl
+    ;   write('FAIL'), nl, fail
+    ),
     
-    write('=== TEST SYSTEME TERMINE AVEC SUCCES ==='), nl,
-    write('Toutes les fonctionnalites de base fonctionnent correctement.'), nl, nl.
+    get_time(EndTime),
+    Duration is EndTime - StartTime,
+    
+    nl,
+    format('[RESULTATS] Resultats: 3/3 tests reussis (100%) - Duree: ~2fs', [Duration]), nl,
+    write('=============================================='), nl, nl.
 
 % =============================================================================
 % SECTION 2 : DÉMONSTRATIONS INTERACTIVES
@@ -106,34 +115,39 @@ demo_basic_moves :-
 % test_board_display/0
 % Test spécifique de l'affichage de l'échiquier
 test_board_display :-
-    write('=== TEST AFFICHAGE ÉCHIQUIER ==='), nl,
-    init_game_state(GameState),
-    GameState = game_state(Board, _, _, _, _),
+    write('[TEST] TEST AFFICHAGE ECHIQUIER'), nl,
+    write('-----------------------------'), nl,
     
-    write('Test de l\'affichage de l\'échiquier :'), nl,
-    display_board(Board),
-    write('+ Affichage de l\'echiquier reussi'), nl, nl.
+    write('[OK] Affichage plateau................ '),
+    (   (init_game_state(GameState),
+         GameState = game_state(Board, _, _, _, _),
+         display_board(Board)) ->
+        write('PASS'), nl
+    ;   write('FAIL'), nl, fail
+    ), nl.
 
 % test_move_validation/0
 % Test spécifique de la validation des mouvements
 test_move_validation :-
-    write('=== TEST VALIDATION DES MOUVEMENTS ==='), nl,
+    write('[TEST] TEST VALIDATION MOUVEMENTS'), nl,
+    write('-----------------------------'), nl,
+    
     init_game_state(GameState),
     GameState = game_state(Board, white, _, _, _),
     
     % Test mouvement valide
-    write('1. Test mouvement valide (e2e4)...'), nl,
-    (valid_move(Board, white, 2, 5, 4, 5) ->
-        write('   + Mouvement e2e4 valide avec succes'), nl
-    ;   write('   - Echec de validation du mouvement e2e4'), nl),
+    write('[OK] Test mouvement valide (e2e4)......... '),
+    (   valid_move(Board, white, 2, 5, 4, 5) ->
+        write('PASS'), nl
+    ;   write('FAIL'), nl, fail
+    ),
     
     % Test mouvement invalide
-    write('2. Test mouvement invalide (e2e9)...'), nl,
-    (valid_move(Board, white, 2, 5, 2, 9) ->
-        write('   - Mouvement e2e9 valide par erreur'), nl
-    ;   write('   + Mouvement e2e9 correctement rejete'), nl),
-    
-    nl.
+    write('[OK] Test mouvement invalide (e2e9)....... '),
+    (   \+ valid_move(Board, white, 2, 5, 2, 9) ->
+        write('PASS'), nl
+    ;   write('FAIL'), nl, fail
+    ), nl.
 
 % =============================================================================
 % SECTION 4 : UTILITAIRES DE TEST
@@ -146,13 +160,20 @@ test_move_validation :-
 % run_all_quick_tests/0
 % Exécute tous les tests rapides disponibles
 run_all_quick_tests :-
-    write('=== EXÉCUTION DE TOUS LES TESTS RAPIDES ==='), nl, nl,
+    write('[SMOKE TESTS] - Suite Complete'), nl,
+    write('=============================================='), nl, nl,
+    
+    get_time(StartTime),
     
     test_board_display,
     test_move_validation,
     quick_test,
     
-    write('=== TOUS LES TESTS RAPIDES TERMINÉS ==='), nl, nl.
+    get_time(EndTime),
+    Duration is EndTime - StartTime,
+    
+    format('[RESULTATS] Suite smoke tests terminee - Duree: ~2fs', [Duration]), nl,
+    write('=============================================='), nl, nl.
 
 % =============================================================================
 % FIN DU FICHIER - TESTS RAPIDES DÉDIÉS
