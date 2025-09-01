@@ -11,11 +11,12 @@ Jeu d'échecs complet en Prolog avec focus sur l'Intelligence Artificielle - Pro
 - **board.pl** : Gestion du plateau et positions  
 - **game.pl** : Logique de jeu et validation des coups
 - **interface.pl** : Interface utilisateur française
+- **⚠️ ai.pl** : PROTOTYPE NON FONCTIONNEL (à éviter)
 
 ## Installation & Tests
 
 ```bash
-# Lancement du jeu
+# Lancement du jeu (stable)
 swipl go.pl
 
 # Tests complets
@@ -23,6 +24,9 @@ swipl -t run_tests -s tests/chess_tests.pl
 
 # Tests rapides  
 swipl -s tests/quick_tests.pl
+
+# ⚠️ MODE IA - NON FONCTIONNEL, NE PAS UTILISER
+# swipl -s src/ai.pl (PROTOTYPE DÉFAILLANT)
 ```
 
 ## Usage
@@ -37,4 +41,4 @@ swipl -s tests/quick_tests.pl
 - **⚙️ Guide développeur :** [.claude/CLAUDE.md](.claude/CLAUDE.md)
 
 ---
-**Projet IA** • **v5.1** • Tests exhaustifs • Architecture éducative
+**Projet IA** • **v5.1** • Tests exhaustifs • Architecture éducative • **⚠️ ai.pl = prototype non testé**

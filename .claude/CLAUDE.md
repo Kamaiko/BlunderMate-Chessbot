@@ -2,6 +2,19 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Important: Efficient File System Analysis
+
+**When using /init or analyzing codebase structure:**
+- ❌ AVOID `directory_tree` on project root (generates 10k+ tokens due to .git objects)
+- ✅ USE `list_directory` selectively on relevant folders:
+  ```
+  list_directory(".")           # Project overview
+  list_directory("src")         # Source code
+  list_directory("tests")       # Test files
+  list_directory("docs")        # Documentation
+  ```
+- Skip analysis of `.git`, `archive`, or other non-essential directories
+
 # Prolog Chess Game - AI Focus Project
 
 ## Quick Context
@@ -14,23 +27,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Testing
 ```bash
-# Full test suite (6 sections)
+# Full test suite (5 categories)
 swipl -t run_tests -s tests/chess_tests.pl
 
 # Quick validation tests
 swipl -s tests/quick_tests.pl
 
-# Single test section (replace section1 with desired section)
-swipl -g "consult('tests/chess_tests'), run_test(section1), halt."
+# Single test category examples
+swipl -g "consult('tests/chess_tests'), run_basic_tests, halt."
+swipl -g "consult('tests/chess_tests'), run_logic_tests, halt."
+
+# Interactive test session
+swipl tests/chess_tests.pl
+?- run_tests.
 ```
 
 ### Running the Game
 ```bash
-# Launch chess game
+# Launch chess game (stable)
 swipl go.pl
 
-# Direct interface launch
+# Direct interface launch (stable)
 swipl -s src/interface.pl -g start
+
+# ⚠️ AI mode (PROTOTYPE - NON FONCTIONNEL)
+# NE PAS UTILISER - peut planter le système
+swipl -s src/ai.pl -g ai_vs_human_mode
 ```
 
 ### Debugging
@@ -106,13 +128,18 @@ check_path_clear(Board, Row, Col, ToRow, ToCol, RowDir, ColDir, Depth) :-
 
 ## Testing Strategy
 
-### Test Structure (6 sections in chess_tests.pl)
-1. **Board basics**: Initialization, display, coordinates
-2. **Algebraic notation**: Move parsing, validation
-3. **Piece movements**: Individual piece rules
-4. **Game logic**: Move validation, state updates
-5. **Path blocking**: Collision detection
-6. **Integration**: Full game scenarios
+### Test Structure
+**chess_tests.pl** (5 categories):
+1. **Basic tests**: Board initialization, display, algebraic notation parsing
+2. **Logic tests**: Move validation, game state management  
+3. **Piece tests**: Individual piece movement rules (pawn, knight, sliding pieces, king)
+4. **Scenario tests**: Opening sequences, tactical combinations
+5. **Robustness tests**: Error handling, boundary conditions, path blocking
+
+**quick_tests.pl** (rapid validation):
+- System initialization and basic moves (e2e4, e7e5)
+- Component validation (board display, move validation)
+- Demo functions for interactive testing
 
 ### Test-Driven Workflow
 1. Write failing test
@@ -129,41 +156,36 @@ check_path_clear(Board, Row, Col, ToRow, ToCol, RowDir, ColDir, Depth) :-
 - **Infinite loops**: Check `findall/3` usage
 - **Trace debugging**: `trace.` then call predicate
 
-### Before Committing (ROBUST PATHS ✅)
+### Before Committing
 ```bash
-# Validate all tests pass (now with robust path loading)
-swipl -g "consult('tests/quick_tests'), quick_test, halt."
+# Run quick validation
+swipl -s tests/quick_tests.pl
 
 # Full test suite validation  
-swipl -g "consult('tests/chess_tests'), run_all_tests, halt."
+swipl -t run_tests -s tests/chess_tests.pl
 
-# Check git remotes
-git remote -v
-
-# All tests now work from any directory (fixed hardcoded paths)
+# Interactive testing
+swipl tests/chess_tests.pl
 ```
 
-## AI Implementation Roadmap (Phase 3)
+## AI Implementation Status (Phase 3)
 
-### Minimax Implementation
-- Implement `minimax/4` with depth limiting
-- Add `alpha_beta/6` pruning optimization
-- Create `evaluate_position/3` heuristic function
+⚠️ **IMPORTANT: ai.pl est un PROTOTYPE NON FONCTIONNEL**
+- **Statut**: Code expérimental, non testé, potentiellement défaillant
+- **Utilisation**: À des fins éducatives et de référence uniquement
+- **Recommandation**: Considérer une réécriture complète si implémentation IA nécessaire
 
-### Position Evaluation Factors
-- Material count (piece values)
-- Piece mobility and activity
-- King safety assessment
-- Pawn structure evaluation
+### Contenu du Prototype ai.pl
+- Algorithme minimax avec alpha-beta (théorique)
+- Évaluation de position basique (non validée)
+- Interface IA vs Humain (probablement bugguée)
+- **NE PAS UTILISER EN PRODUCTION**
 
-### Expected File Structure for AI
-```
-src/
-├── ai/
-│   ├── minimax.pl      % Minimax algorithm
-│   ├── evaluation.pl   % Position evaluation
-│   └── search.pl       % Search optimizations
-```
+### Implémentation IA Future (si nécessaire)
+- Réécrire avec architecture modulaire propre
+- Tests unitaires complets avant intégration
+- Validation algorithme avec positions connues
+- Profiling performance réel
 
 ## File Dependencies
 - interface.pl → game.pl → board.pl → pieces.pl
@@ -171,7 +193,6 @@ src/
 - go.pl is launcher (loads interface.pl directly)
 
 ## Project Context Links
-- **Specifications & Roadmap**: [PRD.md](../PRD.md)
-- **Development Tasks**: [TASKS.md](../TASKS.md)
 - **User Guide**: [README.md](../README.md)
 - **Test Files**: [tests/](../tests/)
+- **Source Code**: [src/](../src/)

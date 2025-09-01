@@ -14,7 +14,12 @@
       "mcp__playwright__*",
       "Read(C:\\Users\\Patrick Patenaude\\.config\\claude-code/**)",
       "mcp__filesystem__read_multiple_files",
-      "mcp__filesystem__read_text_file"
+      "mcp__filesystem__read_text_file",
+      "mcp__filesystem__directory_tree",
+      "Read(C:\\Users\\Patrick Patenaude\\.claude\\ide/**)",
+      "Read(C:\\Users\\Patrick Patenaude\\.claude/**)",
+      "Read(C:\\Users\\Patrick Patenaude\\.claude/**)",
+      "mcp__filesystem__list_directory"
     ],
     "deny": [],
     "ask": []

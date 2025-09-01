@@ -43,27 +43,28 @@ Liste des tâches de développement pour le projet d'IA d'échecs en Prolog.
 - [ ] **Refactor complet** : `valid_move/5` avec nouvelles règles
 - [ ] **Tests régression** : Validation Phase 1 intacte
 
-## Phase 3 : Intelligence Artificielle ⭐
+## Phase 3 : Intelligence Artificielle ⚠️ PROTOTYPE NON FONCTIONNEL
 
-### 3.1 Core Algorithm
-- [ ] **Minimax** : `minimax/4` avec profondeur limitée
-- [ ] **Alpha-Beta** : `alpha_beta/6` élagage optimisé
-- [ ] **Architecture** : modules `src/ai/` (minimax.pl, evaluation.pl)
+### 3.1 Fichier ai.pl - PROTOTYPE EXPERIMENTAL
+⚠️ **STATUT : CODE NON TESTÉ, POTENTIELLEMENT INUTILISABLE**
+- [!] **ai.pl créé** : Mais probablement défaillant, non validé
+- [!] **Algorithme minimax** : Théorique, aucune garantie de fonctionnement
+- [!] **Interface IA** : Risque de planter le système
+- [!] **À JETER** : Candidat à suppression ou réécriture complète
 
-### 3.2 Position Evaluation
-- [ ] **Matériel** : `material_value/2` pièces pondérées
-- [ ] **Mobilité** : `piece_mobility/3` coups possibles  
-- [ ] **Sécurité Roi** : `king_safety/3` protection/ouverture
-- [ ] **Fonction globale** : `evaluate_position/3`
+### 3.2 Commandes IA (⚠️ DANGER)
+```prolog
+% ⚠️ NE PAS UTILISER - Peut planter
+% ?- consult('src/ai'), ai_vs_human_mode.
 
-### 3.3 Optimisations
-- [ ] **Tri coups** : Captures/échecs prioritaires
-- [ ] **Table transposition** : Cache positions évaluées
-- [ ] **Niveaux** : Débutant(prof.2), Expert(prof.6+)
+% ⚠️ Test à vos risques et périls
+% ?- consult('src/ai'), init_game_state(GS), choose_ai_move(GS, Move).
+```
 
-### 3.4 Integration
-- [ ] **Interface IA** : Menu Humain/IA, indicateur réflexion
-- [ ] **Performance** : <5sec par coup, ELO ~1200
+### 3.3 Action Recommandée
+- [ ] **Supprimer ai.pl** : Nettoyer le prototype raté
+- [ ] **Réimplémentation propre** : Si IA vraiment nécessaire
+- [ ] **Tests d'abord** : Aucun code IA sans validation complète
 
 ## Phase 4 : Extensions Post-Universitaire
 
@@ -73,7 +74,7 @@ Liste des tâches de développement pour le projet d'IA d'échecs en Prolog.
 
 ---
 
-**Priorités** : Phase 2 (base IA) → Phase 3 (objectif principal) → Phase 4 (bonus)  
-**Validation** : Tests passent, patterns respectés, <5sec/coup
+**Priorités** : Phase 2 (règles avancées) → Phase 3 (⚠️ réimplémentation IA) → Phase 4 (extensions)  
+**Validation** : ⚠️ ai.pl = PROTOTYPE NON FONCTIONNEL, potentiel à supprimer
 
 **Références** : [CLAUDE.md](.claude/CLAUDE.md) • [PRD.md](PRD.md) • [tests/](tests/)
