@@ -140,19 +140,32 @@ create_empty_row(Row) :-
 
 % get_piece(+Board, +Row, +Col, -Piece)
 % Recupere la piece a une position donnee.
+% Version renforcee avec validation complete des parametres.
 get_piece(Board, Row, Col, Piece) :-
-    nonvar(Board), nonvar(Row), nonvar(Col),
+    ground(Board), ground(Row), ground(Col),
+    is_list(Board),
+    length(Board, 8),
+    integer(Row), integer(Col),
     valid_chess_position(Row, Col),
     BoardRow is 9 - Row,  % Conversion coordonnees echecs vers index tableau
     nth1(BoardRow, Board, RowList),
+    is_list(RowList),
+    length(RowList, 8),
     nth1(Col, RowList, Piece).
 
 % place_single_piece(+Board, +Row, +Col, +Piece, -NewBoard)
 % Place une piece a une position specifique sur l'echiquier.
+% Version renforcee avec validation complete des parametres.
 place_single_piece(Board, Row, Col, Piece, NewBoard) :-
+    ground(Board), ground(Row), ground(Col), ground(Piece),
+    is_list(Board),
+    length(Board, 8),
+    integer(Row), integer(Col),
     valid_chess_position(Row, Col),
     BoardRow is 9 - Row,  % Conversion coordonnees echecs vers index tableau
     nth1(BoardRow, Board, RowList),
+    is_list(RowList),
+    length(RowList, 8),
     replace_element(RowList, Col, Piece, NewRowList),
     replace_element(Board, BoardRow, NewRowList, NewBoard).
 
@@ -163,6 +176,25 @@ replace_element([H|T], Index, Element, [H|NewT]) :-
     Index > 1,
     NextIndex is Index - 1,
     replace_element(T, NextIndex, Element, NewT).
+
+% replace_list_element_direct(+Board, +Row, +Col, +Piece, -NewBoard)
+% Version optimisee pour remplacement direct en une passe.
+% Reduit la complexite pour operations frequentes.
+replace_list_element_direct([H|T], 1, Col, Piece, [NewH|T]) :- !,
+    replace_element(H, Col, Piece, NewH).
+replace_list_element_direct([H|T], Row, Col, Piece, [H|NewT]) :-
+    Row > 1,
+    Row1 is Row - 1,
+    replace_list_element_direct(T, Row1, Col, Piece, NewT).
+
+% place_piece_optimized(+Board, +Row, +Col, +Piece, -NewBoard)
+% Version optimisee pour operations frequentes (utilisation IA future).
+place_piece_optimized(Board, Row, Col, Piece, NewBoard) :-
+    ground(Board), ground(Row), ground(Col), ground(Piece),
+    integer(Row), integer(Col),
+    valid_chess_position(Row, Col),
+    BoardRow is 9 - Row,
+    replace_list_element_direct(Board, BoardRow, Col, Piece, NewBoard).
 
 % =============================================================================
 % SECTION 5 : INITIALISATION DE L'ECHIQUIER STANDARD

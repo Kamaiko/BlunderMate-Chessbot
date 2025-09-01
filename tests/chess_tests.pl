@@ -6,9 +6,11 @@
 % Date : Août 2025
 % =============================================================================
 
-:- [src/pieces].
-:- [src/board].
-:- [src/game].
+% Chargement robuste des modules source avec gestion chemins relatifs
+% Version simplifiee avec fallback automatique
+:- (exists_file('src/pieces.pl') -> consult('src/pieces') ; consult(pieces)).
+:- (exists_file('src/board.pl') -> consult('src/board') ; consult(board)).
+:- (exists_file('src/game.pl') -> consult('src/game') ; consult(game)).
 
 % =============================================================================
 % TESTS DE BASE

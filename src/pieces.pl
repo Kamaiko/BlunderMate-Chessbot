@@ -242,12 +242,21 @@ validate_path_parameters(FromRow, FromCol, ToRow, ToCol) :-
     valid_chess_position(ToRow, ToCol).
 
 % check_path_clear(+Board, +Row, +Col, +ToRow, +ToCol, +RowDir, +ColDir)
-% Verification recursive du chemin - version simplifiee.
-check_path_clear(_, Row, Col, Row, Col, _, _) :-
+% Verification recursive du chemin avec protection contre boucles infinies.
+check_path_clear(Board, Row, Col, ToRow, ToCol, RowDir, ColDir) :-
+    check_path_clear(Board, Row, Col, ToRow, ToCol, RowDir, ColDir, 0).
+
+% check_path_clear(+Board, +Row, +Col, +ToRow, +ToCol, +RowDir, +ColDir, +Depth)
+% Version avec compteur de profondeur pour eviter recursion infinie.
+check_path_clear(_, Row, Col, Row, Col, _, _, _) :-
     % Arrive a la destination - chemin libre
     !.
 
-check_path_clear(Board, Row, Col, ToRow, ToCol, RowDir, ColDir) :-
+check_path_clear(Board, Row, Col, ToRow, ToCol, RowDir, ColDir, Depth) :-
+    % Protection contre boucle infinie - maximum 8 deplacements sur echiquier
+    Depth < 8,
+    % Validation parametres
+    ground(Row), ground(Col), integer(Row), integer(Col),
     % Verifier si on est encore dans les limites de l'echiquier
     valid_chess_position(Row, Col),
     
@@ -257,7 +266,8 @@ check_path_clear(Board, Row, Col, ToRow, ToCol, RowDir, ColDir) :-
     % Continuer vers la case suivante
     NextRow is Row + RowDir,
     NextCol is Col + ColDir,
-    check_path_clear(Board, NextRow, NextCol, ToRow, ToCol, RowDir, ColDir).
+    NextDepth is Depth + 1,
+    check_path_clear(Board, NextRow, NextCol, ToRow, ToCol, RowDir, ColDir, NextDepth).
 
 % =============================================================================
 % SECTION 7 : UTILITAIRES POUR LES COULEURS ET JOUEURS
