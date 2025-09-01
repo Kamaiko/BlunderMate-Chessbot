@@ -103,5 +103,4 @@ Liste des tâches de développement pour le projet d'IA d'échecs en Prolog.
 **Validation** : ⚠️ ai.pl = PROTOTYPE NON FONCTIONNEL, potentiel à supprimer  
 **Prochaine action** : Améliorer l'interface utilisateur et le menu du jeu
 
-**Références** : [CLAUDE.md](.claude/CLAUDE.md) • [PRD.md](PRD.md) • [tests/](tests/) 
-**Tests** : smoke_tests.pl (rapide) • regression_tests.pl (complet)
+**Références** : [CLAUDE.md](../.claude/CLAUDE.md) • [PRD.md](PRD.md)

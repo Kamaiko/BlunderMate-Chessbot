@@ -50,8 +50,7 @@ Creer une IA d'echecs competitive (~1200 ELO) avec interface francaise qui perme
 - **interface.pl** : Menu francais, boucle jeu, messages aide
 
 ### Extension IA (Phase 3 prioritaire)
-- **src/ai/minimax.pl** : Algorithme recherche principal
-- **src/ai/evaluation.pl** : Fonctions evaluation position
+- **ai.pl** : Intelligence artificielle (PROTOTYPE NON FONCTIONNEL)
 - **Tests exhaustifs** : Suite complete dans chess_tests.pl
 
 ## Criteres succes
@@ -109,7 +108,6 @@ Creer une IA d'echecs competitive (~1200 ELO) avec interface francaise qui perme
 **Priorite** : Minimax + alpha-beta pour evaluation TP1
 
 ## Liens Documentation
-- **Guide developpeur** : [.claude/CLAUDE.md](.claude/CLAUDE.md)
+- **Guide developpeur** : [../.claude/CLAUDE.md](../.claude/CLAUDE.md)
 - **Taches detaillees** : [TASKS.md](TASKS.md)
-- **Guide utilisateur** : [README.md](README.md)
-- **Code source** : [src/](src/)
+- **Guide utilisateur** : [../README.md](../README.md)

@@ -44,7 +44,7 @@ swipl -s tests/smoke_tests.pl
 
 ## Documentation
 
-- **📋 Spécifications & Roadmap :** [PRD.md](PRD.md)
+- **📋 Spécifications & Roadmap :** [PRD.md](docs/PRD.md)
 - **⚙️ Guide développeur :** [.claude/CLAUDE.md](.claude/CLAUDE.md)
 
 ---
