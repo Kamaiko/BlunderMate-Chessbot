@@ -35,22 +35,16 @@ Liste des tâches de développement pour le projet d'IA d'échecs en Prolog.
 ## Phase 1.5 : Amélioration Interface
 
 ### 1.5.1 Améliorations Menu Principal
-- [ ] **Design visuel amélioré** : Bordures, espacements, couleurs
+- [x] **Design visuel amélioré** : Bordures, espacements, couleurs
 - [ ] **Options étendues** : Niveaux difficulté, paramètres
-- [ ] **Navigation intuitive** : Raccourcis clavier, retour facile
+- [x] **Navigation intuitive** : Raccourcis clavier, retour facile
 - [ ] **Messages informatifs** : Statut système, aide contextuelle
 
 ### 1.5.2 Interface de Jeu  
 - [ ] **Affichage plateau amélioré** : Coordonnées plus lisibles, highlights
-- [ ] **Feedback utilisateur** : Confirmation coups, suggestions
-- [ ] **Gestion d'erreurs** : Messages plus clairs et utiles
+- [x] **Gestion d'erreurs** : Messages plus clairs et utiles
 - [ ] **Commandes étendues** : Annuler coup, sauvegarder/charger
 
-### 1.5.3 Expérience Utilisateur
-- [ ] **Mode débutant** : Aide moves légaux, explications
-- [ ] **Historique des coups** : Notation PGN, replay
-- [ ] **Statistiques de jeu** : Temps par coup, captures
-- [ ] **Configuration** : Couleurs, langue, préférences
 
 ## Phase 2 : Règles Avancées d'Échecs
 
