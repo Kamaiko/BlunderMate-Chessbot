@@ -19,9 +19,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Quick Context
 - **Project**: Chess AI in Prolog - University AI course (IFT-2003)
-- **Current Phase**: Phase 2 EN COURS ⚠️ - Échec et Mat COMPLET ✅, reste En Passant et Promotion
+- **Current Phase**: Phase 2 EN COURS ⚠️ - Échec et Mat COMPLET ✅, reste Promotion
 - **Architecture**: 5-module design (pieces/board/game/interface/ai) + système d'échec et mat complet
-- **Status**: Détection d'échec et mat fonctionnelle, tests optimisés, manque En Passant et Promotion
+- **Status**: Détection d'échec et mat fonctionnelle, tests optimisés, manque Promotion
 
 ## Development Commands
 

@@ -6,7 +6,7 @@ Jeu d'échecs complet en Prolog avec focus sur l'Intelligence Artificielle - Pro
 
 ## Statut du Projet
 
-**Phase 2 EN COURS** : Échec et Mat ✅ COMPLET • En Passant et Promotion à implémenter
+**Phase 2 EN COURS** : Échec et Mat ✅ COMPLET • Promotion à implémenter
 
 ## Architecture
 
@@ -56,7 +56,7 @@ swipl -g "consult('tests/tests'), run_robust_tests, halt."    # Cas limites et e
 - **Tests exhaustifs** : 33 tests couvrant tous les aspects
 
 ### 🚧 En Développement (Phase 2)
-- **Mouvements spéciaux** : En Passant, Promotion, Roque (à implémenter)
+- **Mouvements spéciaux** : Promotion (à implémenter)
 - **États terminaux** : Pat et règles avancées
 
 ### ⚠️ Non Fonctionnel

@@ -37,7 +37,7 @@ Creer une IA d'echecs competitive (~1200 ELO) avec interface francaise qui perme
 - **FR-006** : Detection fin de partie (mat, pat, nullite)
 
 ### Fonctionnalites avancees
-- **FR-007** : Coups speciaux (roque, en passant, promotion)
+- **FR-007** : Coups speciaux (promotion)
 - **FR-008** : Niveaux difficulte (profondeur variable)
 - **FR-009** : Affichage evaluation et processus reflexion
 

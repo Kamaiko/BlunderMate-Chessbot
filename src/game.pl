@@ -15,7 +15,7 @@
 % - Validation mouvements decomposee en helpers
 % - Gestion erreurs centralisee avec format uniforme
 % - Detection attaques optimisee par patterns
-% - Code prepare pour En Passant et Promotion
+% - Code prepare pour Promotion
 % =============================================================================
 
 :- [pieces].
