@@ -47,15 +47,17 @@ message(illegal_move, 'Mouvement illegal!').
 message(invalid_coordinates, 'Coordonnees invalides!').
 message(no_piece_at_position, 'Aucune piece de votre couleur a cette position!').
 
+% Messages d'echec et mat
+message(in_check, 'ECHEC! Votre roi est en danger.').
+message(checkmate_white_wins, 'ECHEC ET MAT! Les blancs gagnent!').
+message(checkmate_black_wins, 'ECHEC ET MAT! Les noirs gagnent!').
+message(stalemate_draw, 'MATCH NUL par pat.').
+
 % Messages de test
-message(running_quick_tests, 'Execution des tests rapides externes...').
-message(loading_quick_tests, 'Chargement de tests/smoke_tests.pl...').
-message(tests_loaded_success, 'Tests charges avec succes. Execution de quick_test...').
-message(running_full_tests, 'Execution de la suite complete de tests externe...').
-message(loading_full_tests, 'Chargement de tests/regression_tests.pl...').
-message(full_tests_loaded_success, 'Tests charges avec succes. Execution de run_all_tests...').
-message(error_loading_quick_tests, 'Erreur: Impossible de charger tests/smoke_tests.pl').
-message(error_loading_full_tests, 'Erreur: Impossible de charger tests/regression_tests.pl').
+message(running_tests, 'Execution de la suite de tests...').
+message(loading_tests, 'Chargement de tests/tests.pl...').
+message(tests_loaded_success, 'Tests charges avec succes. Execution de run_all_tests...').
+message(error_loading_tests, 'Erreur: Impossible de charger tests/tests.pl').
 message(ensure_file_exists, 'Veuillez vous assurer que le fichier existe et est accessible.').
 message(bot_not_implemented, 'Le mode Humain vs Bot n\'est pas encore implemente.').
 message(available_future_version, 'Disponible dans une version future!').
@@ -177,22 +179,24 @@ display_modern_menu :-
     write('    1. Nouvelle partie Humain vs Humain'), nl,
     write('    2. Mode IA (bientot disponible)'), nl,
     nl,
-    write('    3. Tests rapides'), nl,
-    write('    4. Tests complets'), nl,
+    write('    3. Tests'), nl,
     nl,
-    write('    5. Aide'), nl,
-    write('    6. Quitter'), nl,
+    write('    4. Aide'), nl,
+    write('    5. Quitter'), nl,
     nl,
     
     % Ligne de separation
     write('    '), draw_line(35, '-'), nl,
-    write('    Entrez votre choix (1-6): ').
+    write('    Entrez votre choix (1-5): ').
 
 % read_menu_choice(-Choice)
 % Lit le choix du menu de maniere robuste.
 read_menu_choice(Choice) :-
-    get_single_char(CharCode),
-    char_code(Choice, CharCode),
+    catch(get_single_char(CharCode), _, CharCode = -1),
+    (CharCode >= 0 ->
+        char_code(Choice, CharCode)
+    ;   Choice = '5'  % Défaut: quitter si EOF ou erreur
+    ),
     nl, nl.
 
 % pause_and_return_menu
@@ -201,7 +205,7 @@ pause_and_return_menu :-
     nl,
     write('    '), draw_line(35, '-'), nl,
     write('    Appuyez sur une touche pour continuer...'),
-    get_single_char(_),
+    catch(get_single_char(_), _, true),
     main_menu.
 
 % process_choice(+Choice)
@@ -216,28 +220,19 @@ process_choice('2') :-
     pause_and_return_menu.
 
 process_choice('3') :-
-    display_title_box('TESTS RAPIDES'),
-    display_message_ln(loading_quick_tests),
-    (consult('tests/smoke_tests') ->
-        quick_test
-    ;   display_message_ln(error_loading_quick_tests),
+    display_title_box('TESTS'),
+    display_message_ln(loading_tests),
+    (consult('tests/tests') ->
+        run_all_tests
+    ;   display_message_ln(error_loading_tests),
         display_message_ln(ensure_file_exists)),
     pause_and_return_menu.
 
 process_choice('4') :-
-    display_title_box('TESTS COMPLETS'),
-    display_message_ln(loading_full_tests),
-    (consult('tests/regression_tests') ->
-        run_all_tests
-    ;   display_message_ln(error_loading_full_tests),
-        display_message_ln(ensure_file_exists)),
-    pause_and_return_menu.
-
-process_choice('5') :-
     show_help,
     pause_and_return_menu.
 
-process_choice('6') :-
+process_choice('5') :-
     display_message_ln(goodbye),
     halt.
 
@@ -263,15 +258,48 @@ start_human_game :-
 
 
 % game_loop(+GameState)
-% Boucle principale du jeu.
+% Boucle principale du jeu avec gestion echec/mat/pat.
 game_loop(GameState) :-
     GameState = game_state(_, Player, _, Status, _),
-    (Status = active ->
-        (write('Joueur '), translate_player(Player, PlayerFR), write(PlayerFR), write(' (tapez "aide")> '),
-         read_player_input(Input),
-         process_game_input(Input, GameState, NewGameState),
-         game_loop(NewGameState))
-    ;   display_message_ln(game_finished)).
+    (   Status = active ->
+        % Verifier si le joueur est en echec
+        (is_in_check(GameState, Player) ->
+            display_message_ln(in_check)
+        ;   true),
+        % Continuer le jeu normalement
+        write('Joueur '), translate_player(Player, PlayerFR), write(PlayerFR), write(' (tapez "aide")> '),
+        read_player_input(Input),
+        process_game_input(Input, GameState, NewGameState),
+        game_loop(NewGameState)
+    ;   Status = checkmate ->
+        % Annoncer le gagnant (celui qui a donne mat)
+        opposite_player(Player, Winner),
+        announce_checkmate_winner(Winner)
+    ;   Status = stalemate ->
+        display_message_ln(stalemate_draw),
+        pause_and_return_menu
+    ;   % Autre statut
+        display_message_ln(game_finished),
+        pause_and_return_menu
+    ).
+
+% announce_checkmate_winner(+Winner)
+% Annonce le gagnant d'une partie par mat.
+announce_checkmate_winner(white) :-
+    nl, nl,
+    display_title_box('ECHEC ET MAT'),
+    display_message_ln(checkmate_white_wins),
+    nl,
+    write('    Felicitations aux blancs!'), nl,
+    pause_and_return_menu.
+    
+announce_checkmate_winner(black) :-
+    nl, nl,
+    display_title_box('ECHEC ET MAT'),
+    display_message_ln(checkmate_black_wins),
+    nl,
+    write('    Felicitations aux noirs!'), nl,
+    pause_and_return_menu.
 
 % read_player_input(-Input)
 % Lit l'entree du joueur avec gestion robuste.

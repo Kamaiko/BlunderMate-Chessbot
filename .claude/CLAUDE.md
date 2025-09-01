@@ -19,26 +19,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Quick Context
 - **Project**: Chess AI in Prolog - University AI course (IFT-2003)
-- **Current Phase**: Phase 1 COMPLETE ✅ - Interface modernisée, prêt pour Phase 2 (règles avancées) ou Phase 3 (IA)
-- **Architecture**: 5-module design (pieces/board/game/interface/ai) + interface française professionnelle
-- **Status**: Fondations solides, interface utilisateur modernisée, tests uniformisés, prêt pour développement
+- **Current Phase**: Phase 2 EN COURS ⚠️ - Échec et Mat COMPLET ✅, reste En Passant et Promotion
+- **Architecture**: 5-module design (pieces/board/game/interface/ai) + système d'échec et mat complet
+- **Status**: Détection d'échec et mat fonctionnelle, tests optimisés, manque En Passant et Promotion
 
 ## Development Commands
 
 ### Testing
 ```bash
-# Full regression suite (5 categories)
-swipl -t run_tests -s tests/regression_tests.pl
-
-# Quick smoke tests
-swipl -s tests/smoke_tests.pl
+# Full test suite
+swipl -t run_tests -s tests/tests.pl
 
 # Single test category examples
-swipl -g "consult('tests/regression_tests'), run_basic_tests, halt."
-swipl -g "consult('tests/regression_tests'), run_logic_tests, halt."
+swipl -g "consult('tests/tests'), run_basic_tests, halt."
+swipl -g "consult('tests/tests'), run_logic_tests, halt."
 
 # Interactive test session
-swipl tests/regression_tests.pl
+swipl tests/tests.pl
 ?- run_tests.
 ```
 
@@ -130,22 +127,17 @@ check_path_clear(Board, Row, Col, ToRow, ToCol, RowDir, ColDir, Depth) :-
 ## Testing Strategy
 
 ### Test Structure
-**regression_tests.pl** (5 categories):
+**tests.pl** (5 categories):
 1. **Basic tests**: Board initialization, display, algebraic notation parsing
 2. **Logic tests**: Move validation, game state management  
 3. **Piece tests**: Individual piece movement rules (pawn, knight, sliding pieces, king)
 4. **Scenario tests**: Opening sequences, tactical combinations
 5. **Robustness tests**: Error handling, boundary conditions, path blocking
 
-**smoke_tests.pl** (rapid validation):
-- System initialization and basic moves (e2e4, e7e5)
-- Component validation (board display, move validation)
-- Demo functions for interactive testing
-
 ### Test-Driven Workflow
 1. Write failing test
 2. Implement minimal code to pass
-3. Run `smoke_tests.pl` for fast validation
+3. Run `tests.pl` for validation
 4. Run full suite before commits
 
 ## Common Issues & Solutions
@@ -167,14 +159,11 @@ check_path_clear(Board, Row, Col, ToRow, ToCol, RowDir, ColDir, Depth) :-
 
 ### Before Committing
 ```bash
-# Run quick validation
-swipl -s tests/smoke_tests.pl
-
 # Full test suite validation  
-swipl -t run_tests -s tests/regression_tests.pl
+swipl -t run_tests -s tests/tests.pl
 
 # Interactive testing
-swipl tests/regression_tests.pl
+swipl tests/tests.pl
 ```
 
 ## AI Implementation Status (Phase 3)
@@ -198,7 +187,7 @@ swipl tests/regression_tests.pl
 
 ## File Dependencies
 - interface.pl → game.pl → board.pl → pieces.pl
-- All test files depend on all src modules
+- tests.pl depends on all src modules
 - go.pl is launcher (loads interface.pl directly)
 
 ## Project Context Links

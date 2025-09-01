@@ -51,7 +51,7 @@ Creer une IA d'echecs competitive (~1200 ELO) avec interface francaise qui perme
 - **ai.pl** : Intelligence artificielle (PROTOTYPE NON FONCTIONNEL)
 
 ### Extension IA (Phase 3 prioritaire)
-- **Tests exhaustifs** : Suite complete dans regression_tests.pl
+- **Tests exhaustifs** : Suite complete dans tests.pl
 
 ## Criteres succes
 

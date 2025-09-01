@@ -1,99 +1,83 @@
-# TASKS - Prolog Chess Game Development
+# TASKS - Projet Échecs IA (IFT-2003)
 
-Liste des tâches de développement pour le projet d'IA d'échecs en Prolog.
+Roadmap développement - Travail universitaire TP1 (10% note finale)
 
-## Phase 1 : Fondations Jeu ✅
+## 📊 Statut Projet
 
-### 1.1 Architecture & Infrastructure
-- [x] **Structure modulaire** : 4 modules (pieces.pl, board.pl, game.pl, interface.pl)
-- [x] **Système coordonnées** : Notation algébrique, validation 1-8
-- [x] **Affichage ASCII** : Plateau coloré, pièces Unicode
-- [x] **Launcher** : go.pl pour démarrage rapide
+**Phase** : 2/3 - Règles Avancées (80% complète)  
+**Tests** : 33 tests ✅ - Architecture `tests.pl` unifiée  
+**Interface** : ✅ Menu français stable  
+**À faire** : En Passant, Promotion, puis IA minimax
 
-### 1.2 Logique des Pièces
-- [x] **Mouvements de base** : Pion, Tour, Cavalier, Fou, Dame, Roi
-- [x] **Validation stricte** : Chemins libres, captures, limites plateau
-- [x] **Game state** : Structure complète avec captures
+## Phase 1 : Fondations ✅ COMPLÈTE
 
-### 1.3 Tests & Validation
-- [x] **Suite complète** : 6 sections dans chess_tests.pl
-- [x] **Tests rapides** : quick_tests.pl pour validation
-- [x] **Couverture 100%** : Tous mouvements et cas limites
+### Architecture & Logique Core
+- [x] **5 modules** : pieces.pl, board.pl, game.pl, interface.pl, ai.pl
+- [x] **Mouvements de base** : Toutes pièces + validation stricte
+- [x] **Coordonnées** : Notation algébrique "e2e4" 
+- [x] **Affichage** : Plateau ASCII + interface française
 
-### 1.4 Interface Utilisateur
-- [x] **Menu français** : Navigation intuitive
-- [x] **Boucle de jeu** : Alternance joueurs, validation moves
-- [x] **Messages d'aide** : Format moves, commandes disponibles
+### Tests & Validation
+- [x] **Suite complète** : 33 tests (5 catégories)
+- [x] **Architecture unifiée** : tests.pl centralisé
+- [x] **Couverture** : Mouvements, erreurs, cas limites
 
-## Focus Actuel : Amélioration Interface → Phase 2 → Phase 3
+## Phase 2 : Règles Avancées 🚧
 
-### Prochaines Étapes Planifiées
-1. **Améliorer l'interface utilisateur** et le menu du jeu
-2. **Implémenter les règles avancées** d'échecs (Phase 2)  
-3. **Développer une IA fonctionnelle** pour remplacer le prototype
+### Échec et Mat ✅ COMPLET
+- [x] **Détection échec/mat/pat** : Algorithmes complets
+- [x] **Scénarios complexes** : Double échec, pièces clouées
+- [x] **Tests exhaustifs** : Tous cas de fin de partie
 
-## Phase 1.5 : Amélioration Interface
+### Mouvements Spéciaux (À FAIRE)
+- [ ] **En Passant** : Capture spéciale pion adjacente
+- [ ] **Promotion** : Choix pièce (Dame/Tour/Fou/Cavalier) 
+- [ ] **Roque** : Validation roi/tour non bougés
+- [ ] **Tests** : Coverage nouveaux mouvements
 
-### 1.5.1 Améliorations Menu Principal
-- [x] **Design visuel amélioré** : Bordures, espacements, couleurs
-- [x] **Navigation intuitive** : Raccourcis clavier, retour facile
-- [ ] **Messages informatifs** : Statut système, aide contextuelle
+## Phase 3 : Intelligence Artificielle (TP1 Objectif)
 
-### 1.5.2 Interface de Jeu  
-- [ ] **Affichage plateau amélioré** : Coordonnées plus lisibles, highlights
-- [x] **Gestion d'erreurs** : Messages plus clairs et utiles
-- [ ] **Commandes étendues** : Annuler coup, sauvegarder/charger
+### Algorithmes IA
+- [ ] **Minimax** : Arbre de recherche avec élagage
+- [ ] **Alpha-Beta** : Optimisation performance
+- [ ] **Évaluation** : Position + matériel + mobilité
+- [ ] **Interface IA** : Mode Humain vs IA
 
+### Interface Polish
+- [x] **Menu modernisé** : Design ASCII professionnel  
+- [x] **Messages français** : Aide et navigation claire
+- [x] **Gestion erreurs** : Validation robuste entrées
+- [ ] **Améliorations** : Coordonnées lisibles, highlights
 
-## Phase 2 : Règles Avancées d'Échecs
+### ⚠️ STATUT ai.pl 
+**PROTOTYPE DÉFAILLANT** - Réécriture complète requise
+- Code expérimental non testé
+- NE PAS UTILISER en mode production
+- Candidat suppression ou refactoring total
 
-### 2.1 Mouvements Spéciaux
-- [ ] **Roque** : `can_castle/4`, validation roi/tour non bougés
-- [ ] **En Passant** : Tracking dernier mouvement, capture adjacente
-- [ ] **Promotion** : Pion→Dame/autre, interface choix
+## Extensions Futures
 
-### 2.2 États Terminaux  
-- [ ] **Échec** : `is_in_check/2`, validation moves légaux
-- [ ] **Mat** : `is_checkmate/2`, aucune échappatoire
-- [ ] **Pat** : `is_stalemate/2`, match nul
-
-### 2.3 Integration
-- [ ] **Refactor complet** : `valid_move/5` avec nouvelles règles
-- [ ] **Tests régression** : Validation Phase 1 intacte
-
-## Phase 3 : Intelligence Artificielle ⚠️ PROTOTYPE NON FONCTIONNEL
-
-### 3.1 Fichier ai.pl - PROTOTYPE EXPERIMENTAL
-⚠️ **STATUT : CODE NON TESTÉ, POTENTIELLEMENT INUTILISABLE**
-- [!] **ai.pl créé** : Mais probablement défaillant, non validé
-- [!] **Algorithme minimax** : Théorique, aucune garantie de fonctionnement
-- [!] **Interface IA** : Risque de planter le système
-- [!] **À JETER** : Candidat à suppression ou réécriture complète
-
-### 3.2 Commandes IA (⚠️ DANGER)
-```prolog
-% ⚠️ NE PAS UTILISER - Peut planter
-% ?- consult('src/ai'), ai_vs_human_mode.
-
-% ⚠️ Test à vos risques et périls
-% ?- consult('src/ai'), init_game_state(GS), choose_ai_move(GS, Move).
-```
-
-### 3.3 Action Recommandée
-- [ ] **Supprimer ai.pl** : Nettoyer le prototype raté
-- [ ] **Réimplémentation propre** : Si IA vraiment nécessaire
-- [ ] **Tests d'abord** : Aucun code IA sans validation complète
-
-## Phase 4 : Extensions Post-Universitaire
-
-- [ ] **GUI** : Interface graphique, drag & drop
-- [ ] **Analyse** : Évaluation temps réel, suggestions coups
-- [ ] **Métriques** : Performance profiling, comparaisons algorithmes
+- [ ] **GUI** : Interface graphique  
+- [ ] **Analyse** : Évaluation temps réel
+- [ ] **Performance** : Profiling et métriques
 
 ---
 
-**Priorités** : Phase 1.5 (interface) → Phase 2 (règles avancées) → Phase 3 (⚠️ réimplémentation IA) → Phase 4 (extensions)  
-**Validation** : ⚠️ ai.pl = PROTOTYPE NON FONCTIONNEL, potentiel à supprimer  
-**Prochaine action** : Améliorer l'interface utilisateur et le menu du jeu
+## 🎯 Roadmap TP1
 
-**Références** : [CLAUDE.md](../.claude/CLAUDE.md) • [PRD.md](PRD.md)
+**ÉTAPE ACTUELLE** : Mouvements spéciaux (En Passant, Promotion)  
+**OBJECTIF TP1** : IA minimax fonctionnelle  
+**ÉVALUATION** : 10% note finale IFT-2003
+
+### Priorités Immédiates
+1. **En Passant** + **Promotion** → Tests  
+2. **IA minimax** → Alpha-Beta → Évaluation position  
+3. **Demo** → Documentation finale
+
+### Status Validation
+- ✅ **Base solide** : 33 tests, interface stable  
+- ✅ **Échec/mat** : Algorithmes complets  
+- 🚧 **Mouvements spéciaux** : En cours  
+- ⚠️ **IA** : Réécriture requise
+
+**Documentation** : [CLAUDE.md](../.claude/CLAUDE.md) • [PRD.md](PRD.md) • [README.md](../README.md)

@@ -343,6 +343,33 @@ is_orthogonal_move(FromRow, FromCol, ToRow, ToCol) :-
     valid_chess_move(FromRow, FromCol, ToRow, ToCol),
     (FromRow =:= ToRow ; FromCol =:= ToCol).
 
+% find_king_position(+Board, +Player, -Row, -Col)
+% Trouve la position du roi d'un joueur sur l'echiquier.
+% Utilise une recherche optimisee pour performance.
+find_king_position(Board, Player, Row, Col) :-
+    ground(Board), ground(Player),
+    is_list(Board), length(Board, 8),
+    member(Player, [white, black]),
+    (Player = white -> KingPiece = 'K' ; KingPiece = 'k'),
+    find_king_on_board(Board, KingPiece, 8, Row, Col).
+
+% find_king_on_board(+Board, +KingPiece, +CurrentRow, -Row, -Col)
+% Recherche recursive du roi sur l'echiquier par rangee.
+find_king_on_board([BoardRow|_], KingPiece, CurrentRow, CurrentRow, Col) :-
+    find_king_in_row(BoardRow, KingPiece, 1, Col), !.
+find_king_on_board([_|RestBoard], KingPiece, CurrentRow, Row, Col) :-
+    CurrentRow > 1,
+    NextRow is CurrentRow - 1,
+    find_king_on_board(RestBoard, KingPiece, NextRow, Row, Col).
+
+% find_king_in_row(+RowList, +KingPiece, +CurrentCol, -Col)
+% Recherche le roi dans une rangee donnee.
+find_king_in_row([KingPiece|_], KingPiece, CurrentCol, CurrentCol) :- !.
+find_king_in_row([_|RestRow], KingPiece, CurrentCol, Col) :-
+    CurrentCol < 8,
+    NextCol is CurrentCol + 1,
+    find_king_in_row(RestRow, KingPiece, NextCol, Col).
+
 % =============================================================================
 % SECTION 8 : VALIDATION ET TESTS
 % =============================================================================
