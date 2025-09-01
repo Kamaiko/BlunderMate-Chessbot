@@ -30,7 +30,6 @@
 % Messages du menu
 message(invalid_choice, 'Choix invalide. Veuillez entrer 1, 2, 3, 4, 5, ou 6.').
 message(goodbye, 'Au revoir!').
-message(thanks_playing, 'Merci d\'avoir joue aux Echecs Prolog!').
 
 % Messages de jeu
 message(game_title_human_vs_human, '=== PARTIE D\'ECHECS HUMAIN VS HUMAIN ===').
@@ -240,7 +239,6 @@ process_choice('5') :-
 
 process_choice('6') :-
     display_message_ln(goodbye),
-    display_message_ln(thanks_playing),
     halt.
 
 process_choice(_) :-
@@ -295,7 +293,7 @@ read_player_input(Input) :-
 % Traitement des commandes pendant le jeu.
 process_game_input(Input, _, _) :-
     member(Input, [quitter, menu]),
-    display_message_ln(thanks_playing),
+    display_message_ln(goodbye),
     main_menu, !.
 
 process_game_input(Input, _, _) :-
@@ -321,7 +319,7 @@ process_command_string(InputStr, _, _) :-
 
 process_command_string(InputStr, _, _) :-
     member(InputStr, ["quitter", "menu"]),
-    display_message_ln(thanks_playing),
+    display_message_ln(goodbye),
     main_menu, !.
 
 process_command_string(InputStr, GameState, GameState) :-
