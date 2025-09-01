@@ -27,7 +27,7 @@
 % SECTION 1 : MESSAGES FRANCAIS CENTRALISES
 % =============================================================================
 
-% Messages du menu - PARTIELLEMENT NETTOYES
+% Messages du menu
 message(invalid_choice, 'Choix invalide. Veuillez entrer 1, 2, 3, 4, 5, ou 6.').
 message(goodbye, 'Au revoir!').
 message(thanks_playing, 'Merci d\'avoir joue aux Echecs Prolog!').
@@ -39,7 +39,7 @@ message(white_pieces_legend, 'Pieces blanches (majuscules): P=Pion, R=Tour, N=Ca
 message(black_pieces_legend, 'Pieces noires (minuscules): p=pion, r=tour, n=cavalier, b=fou, q=dame, k=roi').
 message(move_format_help, 'Format des mouvements: e2e4. (de e2 vers e4, n\'oubliez pas le point!)').
 message(move_instructions, 'Entrez les mouvements en notation algebrique (ex: e2e4)').
-message(game_commands, 'Commandes: menu (retour menu), exit (quitter), help (aide)').
+message(game_commands, 'Commandes: menu (retour menu), sortir (quitter), aide (help)').
 message(current_player, 'Joueur actuel: ').
 message(move_count, 'Nombre de coups: ').
 message(game_finished, 'Partie terminee!').
@@ -47,8 +47,6 @@ message(move_played, 'Mouvement joue: ').
 message(illegal_move, 'Mouvement illegal!').
 message(invalid_coordinates, 'Coordonnees invalides!').
 message(no_piece_at_position, 'Aucune piece de votre couleur a cette position!').
-
-% Messages d'aide - NETTOYES (fonctions modernes utilisees maintenant)
 
 % Messages de test
 message(running_quick_tests, 'Execution des tests rapides externes...').
@@ -145,7 +143,7 @@ get_message(Key, Text) :-
     message(Key, Text).
 
 % =============================================================================
-% SECTION 3 : MENU PRINCIPAL ET NAVIGATION
+% SECTION 4 : MENU PRINCIPAL ET NAVIGATION
 % =============================================================================
 
 % start
@@ -254,7 +252,7 @@ process_choice(_) :-
     pause_and_return_menu.
 
 % =============================================================================
-% SECTION 4 : JEU HUMAIN VS HUMAIN
+% SECTION 5 : JEU HUMAIN VS HUMAIN
 % =============================================================================
 
 % start_human_game
@@ -265,14 +263,6 @@ start_human_game :-
     display_game_state(GameState),
     game_loop(GameState).
 
-% display_legend
-% Affiche la legende des pieces.
-display_legend :-
-    nl,
-    display_message_ln(legend_title),
-    display_message_ln(white_pieces_legend),
-    display_message_ln(black_pieces_legend),
-    display_message_ln(move_format_help), nl.
 
 % game_loop(+GameState)
 % Boucle principale du jeu.
@@ -298,47 +288,44 @@ read_player_input(Input) :-
     !.
 
 % =============================================================================
-% SECTION 5 : TRAITEMENT DES COMMANDES DE JEU
+% SECTION 6 : TRAITEMENT DES COMMANDES DE JEU
 % =============================================================================
 
 % process_game_input(+Input, +GameState, -NewGameState)
-% Traitement des commandes pendant le jeu (francais et anglais supportes).
+% Traitement des commandes pendant le jeu.
 process_game_input(Input, _, _) :-
-    member(Input, [quit, quitter, menu]),
+    member(Input, [quitter, menu]),
     display_message_ln(thanks_playing),
     main_menu, !.
 
 process_game_input(Input, _, _) :-
-    member(Input, [exit, sortir, quitter_jeu]),
+    member(Input, [sortir, quitter_jeu]),
     display_message_ln(goodbye),
     halt.
 
 process_game_input(Input, GameState, GameState) :-
-    member(Input, [help, aide]),
+    member(Input, [aide]),
     show_game_help, !.
 
-
-% Clauses separees pour chaque type de commande - plus lisible
 process_game_input(Input, GameState, NewGameState) :-
     atom(Input),
     atom_string(Input, InputStr),
     process_command_string(InputStr, GameState, NewGameState).
 
 % process_command_string(+InputStr, +GameState, -NewGameState)
-% Traite les commandes sous forme de chaines (francais et anglais).
+% Traite les commandes sous forme de chaines.
 process_command_string(InputStr, _, _) :-
-    member(InputStr, ["exit", "sortir", "quitter_jeu"]),
-    display_message_ln(thanks_playing),
+    member(InputStr, ["sortir", "quitter_jeu"]),
     display_message_ln(goodbye),
     halt.
 
 process_command_string(InputStr, _, _) :-
-    member(InputStr, ["quit", "quitter", "menu"]),
+    member(InputStr, ["quitter", "menu"]),
     display_message_ln(thanks_playing),
     main_menu, !.
 
 process_command_string(InputStr, GameState, GameState) :-
-    member(InputStr, ["help", "aide"]),
+    member(InputStr, ["aide"]),
     show_game_help.
 
 process_command_string(InputStr, GameState, NewGameState) :-
@@ -354,7 +341,7 @@ process_command_string(InputStr, GameState, NewGameState) :-
 display_invalid_input_error(InputStr) :-
     write('Format de mouvement invalide!'), nl,
     write('  Attendu: 4 caracteres comme "e2e4" (de e2 vers e4)'), nl,
-    write('  Ou: exit, quit, help'), nl,
+    write('  Ou: sortir, quitter, aide'), nl,
     write('  Votre entree: '), write(InputStr), nl.
 
 % parse_move_input(+InputStr, -FromRow, -FromCol, -ToRow, -ToCol)
@@ -388,7 +375,7 @@ attempt_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState) :-
         NewGameState = GameState).
 
 % =============================================================================
-% SECTION 6 : AFFICHAGE DE L'AIDE
+% SECTION 7 : AFFICHAGE DE L'AIDE
 % =============================================================================
 
 % show_help

@@ -48,10 +48,10 @@ Creer une IA d'echecs competitive (~1200 ELO) avec interface francaise qui perme
 - **board.pl** : Plateau 8x8, affichage ASCII, coordonnees
 - **game.pl** : Etat jeu, validation coups, alternance joueurs  
 - **interface.pl** : Menu francais, boucle jeu, messages aide
+- **ai.pl** : Intelligence artificielle (PROTOTYPE NON FONCTIONNEL)
 
 ### Extension IA (Phase 3 prioritaire)
-- **ai.pl** : Intelligence artificielle (PROTOTYPE NON FONCTIONNEL)
-- **Tests exhaustifs** : Suite complete dans chess_tests.pl
+- **Tests exhaustifs** : Suite complete dans regression_tests.pl
 
 ## Criteres succes
 

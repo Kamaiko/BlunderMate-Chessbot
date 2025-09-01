@@ -130,14 +130,14 @@ check_path_clear(Board, Row, Col, ToRow, ToCol, RowDir, ColDir, Depth) :-
 ## Testing Strategy
 
 ### Test Structure
-**chess_tests.pl** (5 categories):
+**regression_tests.pl** (5 categories):
 1. **Basic tests**: Board initialization, display, algebraic notation parsing
 2. **Logic tests**: Move validation, game state management  
 3. **Piece tests**: Individual piece movement rules (pawn, knight, sliding pieces, king)
 4. **Scenario tests**: Opening sequences, tactical combinations
 5. **Robustness tests**: Error handling, boundary conditions, path blocking
 
-**quick_tests.pl** (rapid validation):
+**smoke_tests.pl** (rapid validation):
 - System initialization and basic moves (e2e4, e7e5)
 - Component validation (board display, move validation)
 - Demo functions for interactive testing
@@ -145,7 +145,7 @@ check_path_clear(Board, Row, Col, ToRow, ToCol, RowDir, ColDir, Depth) :-
 ### Test-Driven Workflow
 1. Write failing test
 2. Implement minimal code to pass
-3. Run `quick_tests.pl` for fast validation
+3. Run `smoke_tests.pl` for fast validation
 4. Run full suite before commits
 
 ## Common Issues & Solutions
