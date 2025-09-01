@@ -311,7 +311,6 @@ process_game_input(Input, _, _) :-
 
 process_game_input(Input, _, _) :-
     member(Input, [exit, sortir, quitter_jeu]),
-    display_message_ln(thanks_playing),
     display_message_ln(goodbye),
     halt.
 
