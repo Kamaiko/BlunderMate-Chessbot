@@ -30,7 +30,7 @@
 % =============================================================================
 
 run_foundation_tests :-
-    display_test_section_header('TESTS FONDAMENTAUX', 'Initialisation et Base'),
+    display_test_section_header('SECTION 1: TESTS FONDAMENTAUX', 'Initialisation et Base'),
     run_test_group([
         test_system_initialization,
         test_algebraic_notation,
@@ -42,19 +42,19 @@ test_system_initialization :-
     write('[TEST] INITIALISATION SYSTEME'), nl,
     write('------------------------------'), nl,
     
-    write('[OK] Test 1/3: Initialisation plateau......... '),
+    write('[RUN] Test 1/3: Initialisation plateau......... '),
     (   init_game_state(GS) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
     
-    write('[OK] Test 2/3: Structure 8x8.................. '),
+    write('[RUN] Test 2/3: Structure 8x8.................. '),
     (   (GS = game_state(Board, _, _, _, _), 
          length(Board, 8), 
          maplist(length_8, Board)) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
     
-    write('[OK] Test 3/3: Etat initial correct........... '),
+    write('[RUN] Test 3/3: Etat initial correct........... '),
     (   GS = game_state(_, white, 0, active, _) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail), nl.
@@ -63,12 +63,12 @@ test_algebraic_notation :-
     write('[TEST] NOTATION ALGEBRIQUE'), nl,
     write('--------------------------'), nl,
     
-    write('[OK] Test 1/2: Parsing e2e4................... '),
+    write('[RUN] Test 1/2: Parsing e2e4................... '),
     (   parse_algebraic_move("e2e4", 2, 5, 4, 5) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
         
-    write('[OK] Test 2/2: Parsing g1f3................... '),
+    write('[RUN] Test 2/2: Parsing g1f3................... '),
     (   parse_algebraic_move("g1f3", 1, 7, 3, 6) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail), nl.
@@ -79,12 +79,12 @@ test_game_state_basics :-
     
     init_game_state(GS1),
     
-    write('[OK] Test 1/2: Mouvement valide e2e4.......... '),
+    write('[RUN] Test 1/2: Mouvement valide e2e4.......... '),
     (   make_move(GS1, 2, 5, 4, 5, GS2) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
     
-    write('[OK] Test 2/2: Alternance joueur (blanc->noir).. '),
+    write('[RUN] Test 2/2: Alternance joueur (blanc->noir).. '),
     (   GS2 = game_state(_, black, 1, active, _) ->
         write('PASS'), nl  
     ;   write('FAIL'), nl, fail), nl.
@@ -94,7 +94,7 @@ test_game_state_basics :-
 % =============================================================================
 
 run_pieces_tests :-
-    display_test_section_header('TESTS DES PIECES', 'Mouvements et Regles'),
+    display_test_section_header('SECTION 2: TESTS DES PIECES', 'Mouvements et Regles'),
     run_test_group([
         test_pawn_rules,
         test_pawn_promotion,
@@ -111,17 +111,17 @@ test_pawn_rules :-
     init_game_state(GS),
     GS = game_state(Board, _, _, _, _),
     
-    write('[OK] Test 1/3: Mouvement simple e2e3.......... '),
+    write('[RUN] Test 1/3: Mouvement simple e2e3.......... '),
     (   valid_move(Board, white, 2, 5, 3, 5) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
         
-    write('[OK] Test 2/3: Mouvement double e2e4.......... '),
+    write('[RUN] Test 2/3: Mouvement double e2e4.......... '),
     (   valid_move(Board, white, 2, 5, 4, 5) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
         
-    write('[OK] Test 3/3: Mouvement lateral interdit..... '),
+    write('[RUN] Test 3/3: Mouvement lateral interdit..... '),
     (   \+ valid_move(Board, white, 2, 5, 2, 6) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail), nl.
@@ -134,7 +134,7 @@ test_pawn_promotion :-
     create_empty_board(Board1),
     place_single_piece(Board1, 7, 1, 'P', Board2),  % Pion blanc en a7
     GS1 = game_state(Board2, white, 0, active, [[], []]),
-    write('[OK] Test 1/2: Promotion pion blanc............ '),
+    write('[RUN] Test 1/2: Promotion pion blanc............ '),
     (   (make_move(GS1, 7, 1, 8, 1, NewGS1),
          NewGS1 = game_state(NewBoard1, _, _, _, _),
          get_piece(NewBoard1, 8, 1, 'Q')) ->
@@ -145,7 +145,7 @@ test_pawn_promotion :-
     create_empty_board(Board3),
     place_single_piece(Board3, 2, 1, 'p', Board4),  % Pion noir en a2
     GS2 = game_state(Board4, black, 0, active, [[], []]),
-    write('[OK] Test 2/2: Promotion pion noir............. '),
+    write('[RUN] Test 2/2: Promotion pion noir............. '),
     (   (make_move(GS2, 2, 1, 1, 1, NewGS2),
          NewGS2 = game_state(NewBoard2, _, _, _, _),
          get_piece(NewBoard2, 1, 1, 'q')) ->
@@ -159,12 +159,12 @@ test_knight_rules :-
     init_game_state(GS),
     GS = game_state(Board, _, _, _, _),
     
-    write('[OK] Test 1/2: Mouvement en L g1f3............ '),
+    write('[RUN] Test 1/2: Mouvement en L g1f3............ '),
     (   valid_move(Board, white, 1, 7, 3, 6) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
         
-    write('[OK] Test 2/2: Mouvement invalide g1g3........ '),
+    write('[RUN] Test 2/2: Mouvement invalide g1g3........ '),
     (   \+ valid_move(Board, white, 1, 7, 3, 7) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail), nl.
@@ -179,17 +179,17 @@ test_sliding_pieces :-
     place_single_piece(Board1, 5, 5, 'B', Board2),      % Fou blanc e5
     place_single_piece(Board2, 8, 8, 'k', TestBoard),   % Roi noir h8
     
-    write('[OK] Test 1/3: Tour mouvement horizontal....... '),
+    write('[RUN] Test 1/3: Tour mouvement horizontal....... '),
     (   valid_move(TestBoard, white, 4, 4, 4, 8) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
         
-    write('[OK] Test 2/3: Tour mouvement vertical......... '),
+    write('[RUN] Test 2/3: Tour mouvement vertical......... '),
     (   valid_move(TestBoard, white, 4, 4, 8, 4) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
         
-    write('[OK] Test 3/3: Fou mouvement diagonal......... '),
+    write('[RUN] Test 3/3: Fou mouvement diagonal......... '),
     (   valid_move(TestBoard, white, 5, 5, 8, 8) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail), nl.
@@ -202,12 +202,12 @@ test_king_rules :-
     place_single_piece(EmptyBoard, 4, 4, 'K', Board1),  % Roi blanc d4
     place_single_piece(Board1, 8, 8, 'k', TestBoard),   % Roi noir h8
     
-    write('[OK] Test 1/2: Mouvement d\'une case........... '),
+    write('[RUN] Test 1/2: Mouvement d\'une case........... '),
     (   valid_move(TestBoard, white, 4, 4, 4, 5) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
         
-    write('[OK] Test 2/2: Mouvement de 2 cases interdit.. '),
+    write('[RUN] Test 2/2: Mouvement de 2 cases interdit.. '),
     (   \+ valid_move(TestBoard, white, 4, 4, 4, 6) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail), nl.
@@ -217,7 +217,7 @@ test_king_rules :-
 % =============================================================================
 
 run_checkmate_tests :-
-    display_test_section_header('TESTS ECHEC ET MAT', 'Detection et Validation'),
+    display_test_section_header('SECTION 3: TESTS ECHEC ET MAT', 'Detection et Validation'),
     run_test_group([
         test_check_detection,
         test_checkmate_detection,
@@ -231,7 +231,7 @@ test_check_detection :-
     
     % Position initiale (pas d'echec)
     init_game_state(GS1),
-    write('[OK] Test 1/3: Position initiale sans echec... '),
+    write('[RUN] Test 1/3: Position initiale sans echec... '),
     (   \+ is_in_check(GS1, white) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
@@ -243,12 +243,12 @@ test_check_detection :-
     place_single_piece(Board2, 8, 8, 'k', CheckBoard),  % Roi noir h8
     CheckGS = game_state(CheckBoard, white, 0, active, [[], []]),
     
-    write('[OK] Test 2/3: Echec horizontal simple........ '),
+    write('[RUN] Test 2/3: Echec horizontal simple........ '),
     (   is_in_check(CheckGS, white) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
     
-    write('[OK] Test 3/3: Recherche position roi......... '),
+    write('[RUN] Test 3/3: Recherche position roi......... '),
     (   find_king_position(CheckBoard, white, 1, 1) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail), nl.
@@ -265,14 +265,14 @@ test_checkmate_detection :-
     place_single_piece(Board3, 8, 8, 'k', MateBoard),    % Roi noir h8
     MateGS = game_state(MateBoard, white, 0, active, [[], []]),
     
-    write('[OK] Test 1/3: Mat du fond..................... '),
+    write('[RUN] Test 1/3: Mat du fond..................... '),
     (   is_checkmate(MateGS, white) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
     
     % Position normale (pas mat)
     init_game_state(NormalGS),
-    write('[OK] Test 2/3: Position normale (pas mat)...... '),
+    write('[RUN] Test 2/3: Position normale (pas mat)...... '),
     (   \+ is_checkmate(NormalGS, white) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
@@ -284,7 +284,7 @@ test_checkmate_detection :-
     place_single_piece(Board5, 8, 8, 'k', StalemateBoard), % Roi noir h8
     StalemateGS = game_state(StalemateBoard, white, 0, active, [[], []]),
     
-    write('[OK] Test 3/3: Detection de pat............... '),
+    write('[RUN] Test 3/3: Detection de pat............... '),
     (   is_stalemate(StalemateGS, white) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail), nl.
@@ -296,7 +296,7 @@ test_complex_scenarios :-
     % Test d'echec a la decouverte
     create_discovered_check_position(DiscoveredBoard),
     DiscoveredGS = game_state(DiscoveredBoard, white, 0, active, [[], []]),
-    write('[OK] Test 1/3: Echec a la decouverte.......... '),
+    write('[RUN] Test 1/3: Echec a la decouverte.......... '),
     (   move_leaves_king_in_check(DiscoveredGS, white, 3, 5, 4, 4) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
@@ -304,7 +304,7 @@ test_complex_scenarios :-
     % Mat par double echec
     create_double_check_mate_position(DoubleCheckBoard),
     DoubleCheckGS = game_state(DoubleCheckBoard, white, 0, active, [[], []]),
-    write('[OK] Test 2/3: Mat par double echec........... '),
+    write('[RUN] Test 2/3: Mat par double echec........... '),
     (   is_checkmate(DoubleCheckGS, white) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
@@ -312,7 +312,7 @@ test_complex_scenarios :-
     % Piece clouee ne peut bouger
     create_pinned_piece_position(PinnedBoard),  
     PinnedGS = game_state(PinnedBoard, white, 0, active, [[], []]),
-    write('[OK] Test 3/3: Piece clouee ne peut bouger.... '),
+    write('[RUN] Test 3/3: Piece clouee ne peut bouger.... '),
     (   \+ generate_legal_move(PinnedGS, white, 4, 5, _, _) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail), nl.
@@ -322,7 +322,7 @@ test_complex_scenarios :-
 % =============================================================================
 
 run_robustness_tests :-
-    display_test_section_header('TESTS DE ROBUSTESSE', 'Erreurs et Cas Limites'),
+    display_test_section_header('SECTION 4: TESTS DE ROBUSTESSE', 'Erreurs et Cas Limites'),
     run_test_group([
         test_error_handling,
         test_boundary_conditions
@@ -336,17 +336,17 @@ test_error_handling :-
     init_game_state(GS),
     GS = game_state(Board, _, _, _, _),
     
-    write('[OK] Test 1/3: Coordonnees hors limites....... '),
+    write('[RUN] Test 1/3: Coordonnees hors limites....... '),
     (   \+ valid_move(Board, white, 2, 5, 9, 5) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
         
-    write('[OK] Test 2/3: Mouvement sur place............ '),
+    write('[RUN] Test 2/3: Mouvement sur place............ '),
     (   \+ valid_move(Board, white, 2, 5, 2, 5) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
         
-    write('[OK] Test 3/3: Piece adverse.................. '),
+    write('[RUN] Test 3/3: Piece adverse.................. '),
     (   \+ valid_move(Board, white, 7, 5, 6, 5) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail), nl.
@@ -355,12 +355,12 @@ test_boundary_conditions :-
     write('[TEST] CONDITIONS LIMITES'), nl,
     write('--------------------------'), nl,
     
-    write('[OK] Test 1/2: Position coin a1............... '),
+    write('[RUN] Test 1/2: Position coin a1............... '),
     (   valid_chess_position(1, 1) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
         
-    write('[OK] Test 2/2: Position coin h8............... '),
+    write('[RUN] Test 2/2: Position coin h8............... '),
     (   valid_chess_position(8, 8) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail), nl.
@@ -370,7 +370,7 @@ test_boundary_conditions :-
 % =============================================================================
 
 run_integration_tests :-
-    display_test_section_header('TESTS D\'INTEGRATION', 'Sequences Completes'),
+    display_test_section_header('SECTION 5: TESTS D\'INTEGRATION', 'Sequences Completes'),
     run_test_group([
         test_opening_sequence,
         test_tactical_sequence
@@ -379,17 +379,15 @@ run_integration_tests :-
 
 % Utilitaires d'affichage des tests - reduit la duplication
 display_test_section_header(Title, Subtitle) :-
-    atom_length(Title, TitleLen),
-    PadLen is 50 - TitleLen,
-    format('+-- SECTION: ~w ', [Title]),
-    forall(between(1, PadLen, _), write('-')),
-    write('+'), nl,
-    format('[~w]~n', [Subtitle]),
-    write('==========================================='), nl.
+    write(''), nl,
+    write('======================================================='), nl,
+    format('    ~w~n', [Title]),
+    format('    ~w~n', [Subtitle]),
+    write('======================================================='), nl.
 
 display_test_section_footer(Message) :-
-    format('[OK] ~w~n', [Message]),
-    write('+-----------------------------------------------+'), nl, nl.
+    format('[TERMINE] ~w~n', [Message]),
+    write('-------------------------------------------------------'), nl, nl.
 
 % run_test_group - Execute une liste de tests
 run_test_group([]).
@@ -402,22 +400,22 @@ test_opening_sequence :-
     write('-----------------------------'), nl,
     
     init_game_state(GS1),
-    write('[OK] Test 1/4: 1.e4............................ '),
+    write('[RUN] Test 1/4: 1.e4............................ '),
     (   make_move(GS1, 2, 5, 4, 5, GS2) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
         
-    write('[OK] Test 2/4: 1...e5.......................... '),
+    write('[RUN] Test 2/4: 1...e5.......................... '),
     (   make_move(GS2, 7, 5, 5, 5, GS3) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
         
-    write('[OK] Test 3/4: 2.Nf3........................... '),
+    write('[RUN] Test 3/4: 2.Nf3........................... '),
     (   make_move(GS3, 1, 7, 3, 6, GS4) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
         
-    write('[OK] Test 4/4: 2...Nc6......................... '),
+    write('[RUN] Test 4/4: 2...Nc6......................... '),
     (   make_move(GS4, 8, 2, 6, 3, _GS5) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail), nl.
@@ -431,7 +429,7 @@ test_tactical_sequence :-
     make_move(GS1, 2, 5, 4, 5, GS2),    % 1.e4
     make_move(GS2, 7, 4, 5, 4, GS3),    % 1...d5
     
-    write('[OK] Test 1/1: Capture exd5................... '),
+    write('[RUN] Test 1/1: Capture exd5................... '),
     (   make_move(GS3, 4, 5, 5, 4, GS4) ->
         (GS4 = game_state(_, _, _, _, [_, CapturedBlack]),
          member(p, CapturedBlack) ->
