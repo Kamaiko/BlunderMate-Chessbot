@@ -1,13 +1,29 @@
 # TASKS - Projet Échecs IA (IFT-2003)
 
-Roadmap développement - Travail universitaire TP1 (10% note finale)
+> **Travail universitaire TP1** - 10% note finale IFT-2003
 
-## 📊 Statut Projet
+## 🎯 ROADMAP TP1 - Vue d'ensemble
 
-**Phase** : 2/3 - Règles Avancées ✅ COMPLÈTE  
-**Tests** : 35 tests ✅ - Architecture `tests.pl` unifiée + promotion  
-**Interface** : ✅ Menu français stable  
-**Suivant** : IA minimax (Phase 3)
+| Phase | Status | Contenu | Tests |
+|-------|--------|---------|-------|
+| **Phase 1** | ✅ **COMPLÈTE** | Fondations, mouvements base, interface | 28 tests |
+| **Phase 2** | ✅ **COMPLÈTE** | Échec/mat, promotion pions | +7 tests (35 total) |
+| **Phase 3** | 🚧 **EN COURS** | IA minimax, alpha-beta | À venir |
+
+### 📈 Étape actuelle : IA MINIMAX
+- **Objectif immédiat** : Algorithme minimax fonctionnel
+- **Priorité 1** : Réécriture complète `ai.pl` (prototype défaillant)  
+- **Priorité 2** : Alpha-beta + évaluation position
+- **📅 DEADLINE TP1** : 20 octobre 2025 - Demo IA vs Humain fonctionnelle
+
+---
+
+## 📊 Statut Détaillé
+
+**Architecture** : ✅ 5 modules stables (pieces, board, game, interface, ai)  
+**Tests** : ✅ 35 tests - Architecture `tests.pl` unifiée + promotion  
+**Interface** : ✅ Menu français professionnel  
+**Prochaine étape** : IA minimax (Phase 3)
 
 ## Phase 1 : Fondations ✅ COMPLÈTE
 
@@ -64,21 +80,8 @@ Roadmap développement - Travail universitaire TP1 (10% note finale)
 
 ---
 
-## 🎯 Roadmap TP1
+## 📚 Ressources & Documentation
 
-**ÉTAPE ACTUELLE** : IA minimax (Phase 3)  
-**OBJECTIF TP1** : IA minimax fonctionnelle  
-**ÉVALUATION** : 10% note finale IFT-2003
-
-### Priorités Immédiates
-1. ✅ **Promotion** → Tests COMPLÉTÉ  
-2. **IA minimax** → Alpha-Beta → Évaluation position  
-3. **Demo** → Documentation finale
-
-### Status Validation
-- ✅ **Base solide** : 35 tests, interface stable  
-- ✅ **Échec/mat** : Algorithmes complets  
-- ✅ **Promotion** : Implémentée + testée  
-- ⚠️ **IA** : Réécriture requise
-
-**Documentation** : [CLAUDE.md](../.claude/CLAUDE.md) • [PRD.md](PRD.md) • [README.md](../README.md)
+**Guides technique** : [CLAUDE.md](../.claude/CLAUDE.md) • [PRD.md](PRD.md) • [README.md](../README.md)  
+**Tests** : `swipl -g "consult('tests/tests'), run_all_tests, halt."`  
+**Jeu** : `swipl go.pl`
