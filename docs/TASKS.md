@@ -4,10 +4,10 @@ Roadmap développement - Travail universitaire TP1 (10% note finale)
 
 ## 📊 Statut Projet
 
-**Phase** : 2/3 - Règles Avancées (80% complète)  
-**Tests** : 33 tests ✅ - Architecture `tests.pl` unifiée  
+**Phase** : 2/3 - Règles Avancées ✅ COMPLÈTE  
+**Tests** : 35 tests ✅ - Architecture `tests.pl` unifiée + promotion  
 **Interface** : ✅ Menu français stable  
-**À faire** : Promotion, puis IA minimax
+**Suivant** : IA minimax (Phase 3)
 
 ## Phase 1 : Fondations ✅ COMPLÈTE
 
@@ -22,16 +22,17 @@ Roadmap développement - Travail universitaire TP1 (10% note finale)
 - [x] **Architecture unifiée** : tests.pl centralisé
 - [x] **Couverture** : Mouvements, erreurs, cas limites
 
-## Phase 2 : Règles Avancées 🚧
+## Phase 2 : Règles Avancées ✅ COMPLÈTE
 
 ### Échec et Mat ✅ COMPLET
 - [x] **Détection échec/mat/pat** : Algorithmes complets
 - [x] **Scénarios complexes** : Double échec, pièces clouées
 - [x] **Tests exhaustifs** : Tous cas de fin de partie
 
-### Mouvements Spéciaux (À FAIRE)
-- [ ] **Promotion** : Choix pièce (Dame/Tour/Fou/Cavalier) 
-- [ ] **Tests** : Coverage nouveaux mouvements
+### Mouvements Spéciaux ✅ COMPLET
+- [x] **Promotion** : Conversion automatique pion → dame
+- [x] **Intégration** : Logique transparente dans système validation
+- [x] **Tests** : Coverage promotion blanche/noire + capture
 
 ## Phase 3 : Intelligence Artificielle (TP1 Objectif)
 
@@ -65,19 +66,19 @@ Roadmap développement - Travail universitaire TP1 (10% note finale)
 
 ## 🎯 Roadmap TP1
 
-**ÉTAPE ACTUELLE** : Promotion (Phase 2 finale)  
+**ÉTAPE ACTUELLE** : IA minimax (Phase 3)  
 **OBJECTIF TP1** : IA minimax fonctionnelle  
 **ÉVALUATION** : 10% note finale IFT-2003
 
 ### Priorités Immédiates
-1. **Promotion** → Tests  
+1. ✅ **Promotion** → Tests COMPLÉTÉ  
 2. **IA minimax** → Alpha-Beta → Évaluation position  
 3. **Demo** → Documentation finale
 
 ### Status Validation
-- ✅ **Base solide** : 33 tests, interface stable  
+- ✅ **Base solide** : 35 tests, interface stable  
 - ✅ **Échec/mat** : Algorithmes complets  
-- 🚧 **Promotion** : À implémenter  
+- ✅ **Promotion** : Implémentée + testée  
 - ⚠️ **IA** : Réécriture requise
 
 **Documentation** : [CLAUDE.md](../.claude/CLAUDE.md) • [PRD.md](PRD.md) • [README.md](../README.md)
