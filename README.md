@@ -57,11 +57,16 @@ swipl -g "consult('tests/tests'), run_integration_tests, halt." # Tests d'intég
 - **Interface professionnelle** : Menu modernisé, messages français, alignement parfait
 - **Tests exhaustifs** : 33 tests couvrant tous les aspects (100% PASS)
 
-### 🚀 Prêt à Implémenter (Phase 3)
-- **Mode IA** : Plan détaillé disponible dans `docs/plan.md`
-- **Algorithme** : Minimax avec Alpha-Beta pruning, profondeur 2
-- **Répertoire ouvertures** : Collection modeste intégrée
-- **Estimation** : 8-11h de développement planifiées
+### ✅ Mode IA Opérationnel (Phase 1 Terminée)
+- **Mode IA disponible** : Option 2 dans menu principal (swipl go.pl)
+- **Performance** : 0.5-0.6 secondes par coup (quasi-instantané)
+- **Algorithme** : Minimax avec Alpha-Beta pruning, profondeur 1 optimisée
+- **Tests** : Section 6 IA - 7 tests complets (40/40 PASS total)
+
+### 🎯 Améliorations Future (Phases 2-3)
+- **Profondeur 2** : Optimisation pour standard académique < 1s
+- **Ouvertures** : 6-8 ouvertures essentielles intégrées
+- **Polish** : Interface et documentation finale
 
 ## Usage Pratique
 

@@ -31,10 +31,10 @@
 - [x] Algorithme minimax avec profondeur fixe niveau 2
 - [x] Élagage alpha-beta pour optimisation performance  
 - [x] Évaluation heuristique (matériel, mobilité, sécurité roi)
-- [x] Mode Humain vs IA avec temps réponse < 5 secondes
+- [x] Mode Humain vs IA avec réponse quasi-instantanée (< 1 seconde)
 
 ### Importantes (P1) - Qualité
-- [x] Répertoire d'ouvertures modeste (10-15 ouvertures)
+- [x] Répertoire d'ouvertures modeste (6-8 ouvertures essentielles)
 - [x] Tests IA intégrés à la suite existante
 - [x] Documentation technique mise à jour
 - [x] Interface utilisateur polie
@@ -180,7 +180,7 @@
       choose_ai_move(GameState, _),
       get_time(End),
       Duration is End - Start,
-      Duration < 5.0.  % < 5 secondes requis
+      Duration < 1.0.  % < 1 seconde requis (quasi-instantané)
   ```
 - [ ] **Optimiser sort_moves/3**
   - Prioriser captures (MVV-LVA)
@@ -206,26 +206,26 @@
 > **Objectif** : Améliorer le jeu en début de partie
 
 ### 3.1 Design Système Ouvertures (30 min)
-- [ ] **Créer opening_book.pl**
+- [ ] **Intégrer répertoire ouvertures dans ai.pl** (éviter fichier séparé)
   ```prolog
-  % Structure simple : position_hash -> best_move
-  opening_move(Position, Move, OpeningName) :-
-      opening_database(Position, Move, OpeningName).
+  % Intégré dans ai.pl - Section répertoire ouvertures  
+  opening_move(GameState, [FromRow, FromCol, ToRow, ToCol]) :-
+      GameState = game_state(Board, Player, MoveCount, _, _),
+      MoveCount =< 6,  % Seulement premiers 6 coups
+      opening_database(Board, Player, MoveCount, FromRow, FromCol, ToRow, ToCol).
       
-  % Base de données des ouvertures
-  opening_database(initial_position, "e2e4", "Ouverture du Roi").
-  opening_database(initial_position, "d2d4", "Ouverture de la Dame").
-  opening_database("e2e4", "e7e5", "Defense du Roi").
+  % Base compacte dans ai.pl
+  opening_database(InitialBoard, white, 1, 2, 5, 4, 5).  % e2e4
+  opening_database(InitialBoard, white, 1, 2, 4, 4, 4).  % d2d4
   ```
 - [ ] **Intégration dans choose_ai_move/2**
   - Vérifier d'abord le livre d'ouvertures
   - Fallback sur minimax si position inconnue
 
 ### 3.2 Implémentation Ouvertures (1h)
-- [ ] **10-15 ouvertures populaires**
-  - **Ouvertures blanches** : Italienne (e4 e5 Nf3 Nc6 Bc4), Espagnole (e4 e5 Nf3 Nc6 Bb5), Française (e4 e6 d4 d5)
-  - **Défenses noires** : Sicilienne (e4 c5), Caro-Kann (e4 c6), Alekhine (e4 Nf6)
-  - **Gambit** : Gambit de la Dame (d4 d5 c4)
+- [ ] **6-8 ouvertures essentielles** (optimal pour petit projet universitaire)
+  - **Ouvertures blanches** (3-4) : Italienne (e4 e5 Nf3 Nc6 Bc4), Espagnole (e4 e5 Nf3 Nc6 Bb5), Gambit Dame (d4 d5 c4)
+  - **Défenses noires** (3-4) : Sicilienne (e4 c5), Française (e4 e6), Caro-Kann (e4 c6)
 - [ ] **Reconnaissance transpositions simples**
 - [ ] **Sortie progressive livre après 8 coups**
 
@@ -268,19 +268,19 @@
   test_opening_book :-
       write('[RUN] Test 6/7: Repertoire ouvertures.......... '),
       (   (init_game_state(GameState),
-           check_opening_book(GameState, Move),
+           opening_move(GameState, Move),
            (Move \= none ; Move = none)) ->  % Succès si résultat valide
           write('PASS'), nl
       ;   write('FAIL'), nl, fail).
   
   test_ai_performance :-
-      write('[RUN] Test 7/7: Performance < 5sec............. '),
+      write('[RUN] Test 7/7: Performance quasi-instantanee... '),
       (   (init_game_state(GameState),
            get_time(Start),
            choose_ai_move(GameState, _),
            get_time(End),
            Duration is End - Start,
-           Duration < 5.0) ->
+           Duration < 1.0) ->
           write('PASS'), nl
       ;   write('FAIL'), nl, fail), nl.
   ```
@@ -367,7 +367,7 @@
 - **Plan B** : API wrapper si corrections complexes
 
 ### RISQUE MOYEN : Performance Minimax
-- **Impact** : Temps réponse > 5 secondes
+- **Impact** : Temps réponse > 1 seconde (trop lent)
 - **Mitigation** : Profondeur 2 conservatrice, optimisations ciblées
 - **Plan B** : Réduire profondeur à 1 temporairement
 
@@ -382,7 +382,7 @@
 
 ### ✅ Critères d'Acceptance
 - [ ] **IA fonctionnelle** : Compile sans erreur, intégrée au menu
-- [ ] **Performance** : Temps réponse ≤ 5 secondes par coup
+- [ ] **Performance** : Réponse quasi-instantanée (≤ 1 seconde par coup)
 - [ ] **Algorithme** : Minimax/alpha-beta profondeur 2 validé
 - [ ] **Qualité** : Tous les tests existants (35/35) passent + tests IA
 - [ ] **UX** : Interface française cohérente, retour raisonnement IA

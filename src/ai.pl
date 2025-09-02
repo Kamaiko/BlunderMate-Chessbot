@@ -18,6 +18,8 @@
 % - Interface simple pour integration
 % =============================================================================
 
+:- [pieces].
+:- [board].
 :- [game].
 
 % =============================================================================
@@ -32,7 +34,8 @@ choose_ai_move(GameState, BestMove) :-
     GameState = game_state(Board, Player, _, _, _),
     write('IA reflechit...'), nl,
     get_time(StartTime),
-    minimax_search(GameState, 4, BestMove, _),  % Profondeur 4 par defaut
+    ai_search_depth(Depth),  % Profondeur configurable
+    minimax_search(GameState, Depth, BestMove, _),
     get_time(EndTime),
     Duration is EndTime - StartTime,
     format('Coup choisi en ~2f secondes~n', [Duration]).
@@ -60,7 +63,7 @@ search_moves(_, [], _, _, Alpha, _, [], Alpha).
 
 search_moves(GameState, [Move|Moves], Depth, Player, Alpha, Beta, BestMove, BestValue) :-
     Move = [FromRow, FromCol, ToRow, ToCol],
-    execute_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState),
+    make_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState),
     NewDepth is Depth - 1,
     opposite_player(Player, Opponent),
     minimax(NewGameState, NewDepth, Opponent, Alpha, Beta, _, Value),
@@ -109,7 +112,7 @@ minimax_evaluate_moves(_, [], _, _, Alpha, _, _, CurrentBest, CurrentValue, Curr
 
 minimax_evaluate_moves(GameState, [Move|Moves], Depth, Opponent, Alpha, Beta, MaxPlayer, CurrentBest, CurrentValue, BestMove, BestValue) :-
     Move = [FromRow, FromCol, ToRow, ToCol],
-    execute_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState),
+    make_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState),
     minimax(NewGameState, Depth, Opponent, Alpha, Beta, _, MoveValue),
     
     % Ajustement selon joueur (max ou min)
@@ -161,20 +164,12 @@ count_material(Board, Player, Total) :-
     findall(PieceValue, (
         member(Row, Board),
         member(Piece, Row),
-        piece_color(Piece, Player),
+        get_piece_color(Piece, Player),
         piece_value(Piece, PieceValue)
     ), Values),
     sum_list(Values, Total).
 
-% piece_value(+Piece, -Value)
-% Valeurs standards des pieces d'echecs
-piece_value('P', 1).   piece_value('p', 1).   % Pion
-piece_value('N', 3).   piece_value('n', 3).   % Cavalier
-piece_value('B', 3).   piece_value('b', 3).   % Fou
-piece_value('R', 5).   piece_value('r', 5).   % Tour
-piece_value('Q', 9).   piece_value('q', 9).   % Dame
-piece_value('K', 999). piece_value('k', 999). % Roi (valeur symbolique)
-piece_value('.', 0).                          % Case vide
+% piece_value/2 utilise la version de pieces.pl (importee automatiquement)
 
 % mobility_value(+GameState, +Player, -Value)
 % Evaluation basee sur la mobilite des pieces
@@ -205,17 +200,31 @@ evaluate_terminal_position(GameState, Player, Value) :-
 % =============================================================================
 
 % generate_all_moves(+GameState, -Moves)
-% Genere tous les coups legaux possibles
+% Genere coups legaux avec limitation intelligente pour performance
 generate_all_moves(game_state(Board, Player, _, _, _), Moves) :-
-    findall([FromRow, FromCol, ToRow, ToCol], (
+    % Genere seulement les coups les plus prometteurs  
+    findall(Priority-[FromRow, FromCol, ToRow, ToCol], (
         between(1, 8, FromRow),
         between(1, 8, FromCol),
         get_piece(Board, FromRow, FromCol, Piece),
-        piece_color(Piece, Player),
-        between(1, 8, ToRow),
-        between(1, 8, ToCol),
-        valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol)
-    ), Moves).
+        Piece \= '.',  % Skip empty squares immediately
+        get_piece_color(Piece, Player),
+        generate_piece_moves(Board, Player, FromRow, FromCol, ToRow, ToCol),
+        move_priority(Board, Player, FromRow, FromCol, ToRow, ToCol, Priority)
+    ), PrioritizedMoves),
+    % Trie par priorite et prend les 20 meilleurs coups seulement
+    keysort(PrioritizedMoves, SortedMoves),
+    reverse(SortedMoves, BestFirst),
+    take_first_n(BestFirst, 10, TopMoves),  % LIMITATION ULTRA-AGRESSIVE : 10 coups max
+    extract_moves(TopMoves, Moves).  % Utilise extract_moves existant
+
+% generate_piece_moves(+Board, +Player, +FromRow, +FromCol, -ToRow, -ToCol)
+% Genere les coups possibles pour une piece specifique (optimise pour performance)
+generate_piece_moves(Board, Player, FromRow, FromCol, ToRow, ToCol) :-
+    between(1, 8, ToRow),
+    between(1, 8, ToCol),
+    \+ (ToRow = FromRow, ToCol = FromCol),  % Pas de mouvement sur place
+    valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol).
 
 % sort_moves(+GameState, +Moves, -SortedMoves)
 % Trie les coups par priorite (captures, echecs, coups normaux)
@@ -249,6 +258,20 @@ extract_moves([], []).
 extract_moves([_-Move|Pairs], [Move|Moves]) :-
     extract_moves(Pairs, Moves).
 
+% extract_moves_from_priority - Extrait coups de [Priority, FromRow, FromCol, ToRow, ToCol]  
+extract_moves_from_priority([], []).
+extract_moves_from_priority([[_, FromRow, FromCol, ToRow, ToCol]|Rest], [[FromRow, FromCol, ToRow, ToCol]|Moves]) :-
+    extract_moves_from_priority(Rest, Moves).
+
+% take_first_n(+List, +N, -FirstN)
+% Prend les N premiers elements d'une liste
+take_first_n(_, 0, []) :- !.
+take_first_n([], _, []) :- !.
+take_first_n([H|T], N, [H|Result]) :-
+    N > 0,
+    N1 is N - 1,
+    take_first_n(T, N1, Result).
+
 % =============================================================================
 % SECTION 5 : UTILITAIRES IA
 % =============================================================================
@@ -259,14 +282,7 @@ count_legal_moves(GameState, Player, Count) :-
     generate_all_moves(GameState, Moves),
     length(Moves, Count).
 
-% find_king_position(+Board, +Player, -Row, -Col)
-% Trouve la position du roi d'un joueur
-find_king_position(Board, Player, Row, Col) :-
-    (   Player = white -> KingPiece = 'K'
-    ;   KingPiece = 'k'
-    ),
-    nth1(Row, Board, BoardRow),
-    nth1(Col, BoardRow, KingPiece).
+% find_king_position/3 utilise la version de board.pl (importee automatiquement)
 
 % count_king_defenders(+Board, +KingRow, +KingCol, +Player, -Count)
 % Compte les pieces qui defendentle roi
@@ -275,7 +291,7 @@ count_king_defenders(Board, KingRow, KingCol, Player, Count) :-
         between(1, 8, Row),
         between(1, 8, Col),
         get_piece(Board, Row, Col, Piece),
-        piece_color(Piece, Player),
+        get_piece_color(Piece, Player),
         \+ (Row = KingRow, Col = KingCol),
         defends_square(Board, Row, Col, KingRow, KingCol)
     ), Defenders),
@@ -289,7 +305,7 @@ count_king_attackers(Board, KingRow, KingCol, Player, Count) :-
         between(1, 8, Row),
         between(1, 8, Col),
         get_piece(Board, Row, Col, Piece),
-        piece_color(Piece, Opponent),
+        get_piece_color(Piece, Opponent),
         can_attack_square(Board, Row, Col, KingRow, KingCol)
     ), Attackers),
     length(Attackers, Count).
@@ -298,14 +314,14 @@ count_king_attackers(Board, KingRow, KingCol, Player, Count) :-
 % Verifie si une piece defend une case
 defends_square(Board, FromRow, FromCol, ToRow, ToCol) :-
     get_piece(Board, FromRow, FromCol, Piece),
-    piece_color(Piece, Player),
+    get_piece_color(Piece, Player),
     valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol).
 
 % can_attack_square(+Board, +FromRow, +FromCol, +ToRow, +ToCol)
 % Verifie si une piece peut attaquer une case
 can_attack_square(Board, FromRow, FromCol, ToRow, ToCol) :-
     get_piece(Board, FromRow, FromCol, Piece),
-    piece_color(Piece, Player),
+    get_piece_color(Piece, Player),
     valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol).
 
 % gives_check(+Board, +Player, +FromRow, +FromCol, +ToRow, +ToCol)
@@ -321,22 +337,9 @@ gives_check(Board, Player, FromRow, FromCol, ToRow, ToCol) :-
     find_king_position(NewBoard, Opponent, KingRow, KingCol),
     can_attack_square(NewBoard, ToRow, ToCol, KingRow, KingCol).
 
-% opposite_player(+Player, -Opponent)
-% Retourne le joueur oppose
-opposite_player(white, black).
-opposite_player(black, white).
+% opposite_player/2 utilise la version de pieces.pl (importee automatiquement)
 
-% is_in_check(+GameState, +Player)
-% Verifie si le roi du joueur est en echec
-is_in_check(game_state(Board, _, _, _, _), Player) :-
-    find_king_position(Board, Player, KingRow, KingCol),
-    opposite_player(Player, Opponent),
-    between(1, 8, Row),
-    between(1, 8, Col),
-    get_piece(Board, Row, Col, Piece),
-    piece_color(Piece, Opponent),
-    can_attack_square(Board, Row, Col, KingRow, KingCol),
-    !.  % Coupe apres la premiere attaque trouvee
+% is_in_check/2 utilise la version de game.pl (importee automatiquement)
 
 % =============================================================================
 % SECTION 6 : INTERFACE POUR INTEGRATION
@@ -349,6 +352,19 @@ ai_vs_human_mode :-
     write('L\'IA joue les noirs, vous jouez les blancs.'), nl, nl,
     init_game_state(GameState),
     ai_game_loop(GameState).
+
+% =============================================================================
+% SECTION : CONFIGURATION IA
+% =============================================================================
+
+% ai_search_depth(-Depth)
+% Configure la profondeur de recherche selon le contexte
+ai_search_depth(2) :-
+    % Profondeur 2 pour version academique finale (optimisee)
+    !.
+
+% Pour debug rapide, utiliser:
+% ai_search_depth(1) :- !.
 
 % ai_game_loop(+GameState)
 % Boucle principale du jeu avec IA
@@ -372,7 +388,7 @@ ai_game_loop(GameState) :-
             write('IA ne peut pas jouer - Fin de partie'), nl
         ;   AIMove = [FromRow, FromCol, ToRow, ToCol],
             format('IA joue : ~w~w~w~w~n', [FromRow, FromCol, ToRow, ToCol]),
-            execute_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState),
+            make_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState),
             ai_game_loop(NewGameState)
         )
     ).
@@ -381,7 +397,7 @@ ai_game_loop(GameState) :-
 % Traite le coup du joueur humain
 process_human_move(GameState, Input, NewGameState) :-
     (   parse_algebraic_move(Input, FromRow, FromCol, ToRow, ToCol) ->
-        (   execute_move(GameState, FromRow, FromCol, ToRow, ToCol, TempGameState) ->
+        (   make_move(GameState, FromRow, FromCol, ToRow, ToCol, TempGameState) ->
             NewGameState = TempGameState
         ;   write('Coup invalide! Reessayez.'), nl,
             NewGameState = GameState

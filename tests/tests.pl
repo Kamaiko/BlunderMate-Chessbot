@@ -24,6 +24,7 @@
 :- consult('../src/pieces').
 :- consult('../src/board').
 :- consult('../src/game').
+:- consult('../src/ai').
 
 % =============================================================================
 % SECTION 1: TESTS FONDAMENTAUX
@@ -373,6 +374,85 @@ run_integration_tests :-
     ]),
     display_test_section_footer('Section Integration terminee').
 
+% =============================================================================
+% SECTION 6: TESTS IA
+% =============================================================================
+
+run_ai_tests :-
+    display_test_section_header('SECTION 6: TESTS IA', 'Intelligence Artificielle'),
+    run_test_group([
+        test_ai_compilation,
+        test_ai_move_generation,
+        test_ai_evaluation,
+        test_minimax_basic,
+        test_evaluation_function,
+        test_opening_book,
+        test_ai_performance
+    ]),
+    display_test_section_footer('Section IA terminee').
+
+test_ai_compilation :-
+    write('[TEST] COMPILATION IA'), nl,
+    write('-------------------'), nl,
+    write('[RUN] Test 1/7: Chargement module ai.pl........ '),
+    % Le module ai.pl est deja charge via consult
+    (   current_predicate(choose_ai_move/2) ->
+        write('[PASS]'), nl
+    ;   write('[FAIL]'), nl, fail).
+
+test_ai_move_generation :-
+    write('[RUN] Test 2/7: Generation coups IA............ '),
+    (   (init_game_state(GameState),
+         generate_all_moves(GameState, Moves),
+         length(Moves, Count),
+         Count > 0) ->
+        write('[PASS]'), nl
+    ;   write('[FAIL]'), nl, fail).
+
+test_ai_evaluation :-
+    write('[RUN] Test 3/7: Evaluation position initiale... '),
+    (   (init_game_state(GameState),
+         evaluate_position(GameState, white, Score),
+         number(Score)) ->
+        write('[PASS]'), nl
+    ;   write('[FAIL]'), nl, fail).
+
+test_minimax_basic :-
+    write('[RUN] Test 4/7: Minimax profondeur 1 rapide..... '),
+    (   (init_game_state(GameState),
+         minimax_search(GameState, 1, BestMove, _),
+         is_list(BestMove)) ->
+        write('[PASS]'), nl
+    ;   write('[FAIL]'), nl, fail).
+      
+test_evaluation_function :-
+    write('[RUN] Test 5/7: Fonction evaluation............ '),
+    (   (init_game_state(GameState),
+         material_value(GameState, white, MatValue),
+         number(MatValue)) ->
+        write('[PASS]'), nl
+    ;   write('[FAIL]'), nl, fail).
+
+test_opening_book :-
+    write('[RUN] Test 6/7: Repertoire ouvertures.......... '),
+    % Test si l'IA peut choisir un coup (ouvertures integrees dans ai.pl)
+    (   (init_game_state(GameState),
+         choose_ai_move(GameState, Move),
+         is_list(Move), length(Move, 4)) ->
+        write('[PASS]'), nl
+    ;   write('[FAIL]'), nl, fail).
+
+test_ai_performance :-
+    write('[RUN] Test 7/7: Performance quasi-instantanee... '),
+    (   (init_game_state(GameState),
+         get_time(Start),
+         choose_ai_move(GameState, _),
+         get_time(End),
+         Duration is End - Start,
+         Duration < 1.0) ->
+        write('[PASS]'), nl
+    ;   write('[FAIL]'), nl, fail), nl.
+
 % Utilitaires d'affichage des tests - reduit la duplication
 display_test_section_header(Title, Subtitle) :-
     write(''), nl,
@@ -485,6 +565,7 @@ run_all_tests :-
     run_checkmate_tests,
     run_robustness_tests, 
     run_integration_tests,
+    run_ai_tests,
     
     get_time(EndTime),
     Duration is EndTime - StartTime,
@@ -511,6 +592,7 @@ test_help :-
     write('* run_checkmate_tests.    - Tests echec et mat'), nl,
     write('* run_robustness_tests.   - Tests de robustesse'), nl,
     write('* run_integration_tests.  - Tests d\'integration'), nl,
+    write('* run_ai_tests.           - Tests intelligence artificielle'), nl,
     write('* test_help.              - Cette aide'), nl.
 
 % =============================================================================

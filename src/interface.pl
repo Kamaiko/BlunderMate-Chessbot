@@ -14,6 +14,7 @@
 :- [pieces].
 :- [board].
 :- [game].
+:- [ai].
 
 % =============================================================================
 % SECTION 1 : MESSAGES FRANCAIS CENTRALISES
@@ -160,7 +161,7 @@ display_modern_menu :-
     % Options du menu
     nl,
     write('    1. Nouvelle partie Humain vs Humain'), nl,
-    write('    2. Mode IA (bientot disponible)'), nl,
+    write('    2. Mode IA vs Humain'), nl,
     nl,
     write('    3. Tests'), nl,
     nl,
@@ -197,10 +198,7 @@ process_choice('1') :-
     start_human_game.
 
 process_choice('2') :-
-    display_title_box('MODE INTELLIGENCE ARTIFICIELLE'),
-    display_message_ln(bot_not_implemented),
-    display_message_ln(available_future_version),
-    pause_and_return_menu.
+    start_ai_game.
 
 process_choice('3') :-
     display_title_box('TESTS'),
@@ -443,3 +441,16 @@ show_game_help :-
     write('            B/b=Fou Q/q=Dame K/k=Roi'), nl,
     
     write('    '), draw_line(40, '='), nl, nl.
+
+% =============================================================================
+% SECTION : MODE IA VS HUMAIN
+% =============================================================================
+
+% start_ai_game/0
+% Lance une partie IA vs Humain avec interface francaise
+start_ai_game :-
+    display_title_box('MODE IA vs HUMAIN'),
+    write('    L\'IA joue les noirs, vous jouez les blancs.'), nl,
+    write('    Profondeur IA: 2 (quasi-instantanee)'), nl, nl,
+    init_game_state(GameState),
+    ai_game_loop(GameState).
