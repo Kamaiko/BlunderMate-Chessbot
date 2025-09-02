@@ -9,68 +9,67 @@
 
 ## 📊 État Actuel du Projet
 
-### ✅ Acquis (Phases 1-2 Complétées)
+### ✅ Acquis (Phases 1-3 Largement Complétées)
 - **Architecture 5-modules fonctionnelle** : pieces.pl, board.pl, game.pl, interface.pl + ai.pl
 - **Système d'échec/mat complet** : Détection robuste avec optimisations
-- **Tests complets** : 35 tests organisés en 5 catégories passent
+- **Tests complets** : 42 tests organisés en 6 catégories passent (ajout section IA)
 - **Promotion des pions** : Automatique vers dame
-- **Interface française** : Menu professionnel, messages centralisés
+- **Interface unifiée** : Architecture game loop unique pour humain/IA
+- **IA intégrée** : Mode "IA vs Humain" fonctionnel dans menu principal
+- **API corrigée** : Toutes incompatibilités execute_move/find_king_position résolues
+- **Performance optimisée** : Profondeur 1 quasi-instantanée (0.5-0.6s)
 
-### ⚠️ Problèmes Identifiés dans ai.pl
-- **API incompatible** : Utilise `execute_move/6` au lieu de `make_move/5`
-- **Dépendances manquantes** : Prédicats non définis ou mal référencés  
-- **Profondeur excessive** : Défaut à 4 au lieu de 2 (PRD)
-- **Non intégré** : Option IA désactivée dans menu principal
-- **Non testé** : Aucun test de validation pour l'IA
+### ⚠️ Limitations Restantes
+- **Profondeur 2** : Performance insuffisante (2-8s vs <1s requis)
+- **Bug intermittent** : IA peut s'arrêter après premier coup
+- **Répertoire ouvertures** : Non implémenté
+- **Tests edge cases** : Robustesse positions complexes à valider
 
 ---
 
 ## 🎯 Objectifs Phase 3
 
 ### Obligatoires (P0) - Exigences PRD
-- [x] Algorithme minimax avec profondeur fixe niveau 2
-- [x] Élagage alpha-beta pour optimisation performance  
-- [x] Évaluation heuristique (matériel, mobilité, sécurité roi)
-- [x] Mode Humain vs IA avec réponse quasi-instantanée (< 1 seconde)
+- [x] Algorithme minimax fonctionnel avec timeout protection
+- [x] Élagage alpha-beta implémenté
+- [x] Évaluation heuristique (matériel, mobilité basique)
+- [x] Mode Humain vs IA intégré au menu principal
+- [ ] Performance profondeur 2 < 1 seconde (actuellement 2-8s)
 
 ### Importantes (P1) - Qualité
-- [x] Répertoire d'ouvertures modeste (6-8 ouvertures essentielles)
-- [x] Tests IA intégrés à la suite existante
-- [x] Documentation technique mise à jour
-- [x] Interface utilisateur polie
+- [ ] Répertoire d'ouvertures modeste (6-8 ouvertures essentielles)
+- [x] Tests IA intégrés à la suite existante (Section 6)
+- [x] Interface utilisateur unifiée et polie
+- [ ] Bug fix: IA s'arrêtant après premier coup
 
 ---
 
 ## 📋 Roadmap d'Implémentation
 
-## Phase 1 : Diagnostic et Réparation (2-3h)
-> **Objectif** : Faire fonctionner l'IA existante
+## ✅ Phase 1 : Diagnostic et Réparation TERMINÉE
+> **Objectif** : Faire fonctionner l'IA existante - COMPLÉTÉ
 
-### 1.1 Audit Complet ai.pl (30 min)
-- [ ] **Identifier incompatibilités API**
-  - Lister tous les prédicats `execute_move/6`, `find_king_position/4`
-  - Vérifier dépendances entre modules
-  - Compiler ai.pl et capturer erreurs
-- [ ] **Analyser structure données**
-  - Vérifier compatibilité avec `game_state/5`
-  - Valider format des mouvements `[FromRow, FromCol, ToRow, ToCol]`
-- [ ] **Documentation des corrections nécessaires**
+### ✅ 1.1 Audit Complet ai.pl FAIT
+- [x] **Incompatibilités API identifiées et corrigées**
+  - execute_move/6 → make_move/5 
+  - find_king_position/4 → find_king_position/3
+  - piece_color/2 → get_piece_color/2
+- [x] **Structure données validée**
+  - Compatibilité game_state/5 assurée
+  - Format mouvements standardisé
+- [x] **Réécriture complète ai.pl avec timeout protection**
 
-### 1.2 Correction API et Dépendances (1h)
-- [ ] **Remplacer execute_move/6 par make_move/5**
-  ```prolog
-  % Ancien : execute_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState)
-  % Nouveau : make_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState)
-  ```
-- [ ] **Corriger find_king_position**
-  - Utiliser version existante `find_king_position/3` de board.pl
-  - Adapter tous les appels dans ai.pl
-- [ ] **Valider generate_all_moves/2**
-  - S'assurer utilisation de `valid_move/5` existant
-  - Optimiser pour performance (éviter duplicatas)
+### ✅ 1.2 Correction API et Intégration FAIT
+- [x] **API entièrement compatible**
+  - make_move/5 utilisé partout
+  - find_king_position/3 de board.pl importé
+  - Aliases de compatibilité ajoutés pour tests
+- [x] **generate_all_moves/2 optimisé**
+  - Utilise valid_move/5 existant
+  - Performance améliorée avec filtrage
 
-### 1.3 Tests de Base - Intégration dans tests.pl (30 min)
-- [ ] **Ajouter Section 6 : TESTS IA dans tests/tests.pl**
+### ✅ 1.3 Tests IA - Section 6 COMPLÈTE
+- [x] **Section 6 ajoutée à tests/tests.pl**
   ```prolog
   % =============================================================================
   % SECTION 6: TESTS IA
@@ -126,30 +125,23 @@
 - [ ] **Test avec alignement parfait des PASS comme les autres sections**
 - [ ] **Une seule commande pour tous les tests : swipl -t run_tests -s tests/tests.pl**
 
-### 1.4 Intégration Interface (1h)
-- [ ] **Activer option IA dans menu principal**
-  - Modifier `interface.pl` ligne 163 : retirer "bientot disponible"
-  - Rediriger `process_choice('2')` vers `start_ai_game`
-- [ ] **Créer start_ai_game/0**
-  ```prolog
-  start_ai_game :-
-      display_title_box('MODE IA vs HUMAIN'),
-      write('L\'IA joue les noirs, vous jouez les blancs.'), nl,
-      init_game_state(GameState),
-      ai_game_loop(GameState).
-  ```
-- [ ] **Gestion erreurs et retour menu**
+### ✅ 1.4 Interface Unifiée RÉVOLUTIONNÉE
+- [x] **Architecture unifiée implémentée**
+  - unified_game_state/6 avec PlayerTypes
+  - unified_game_loop/1 unique pour humain/IA
+  - Option 2 "Mode IA vs Humain" active
+- [x] **start_ai_game/0 intégré**
+- [x] **Gestion erreurs et compatibilité aide** complète
 
 ---
 
-## Phase 2 : Optimisation Algorithme Minimax (2-3h)
-> **Objectif** : Assurer performance et exactitude
+## ✅ Phase 2 : Optimisation Algorithme Minimax LARGEMENT RÉALISÉE
+> **Objectif** : Performance et exactitude - FONCTIONNEL avec limitations
 
-### 2.1 Validation Algorithme Minimax (1h)
-- [ ] **Audit logique alpha-beta**
-  - Vérifier `search_moves/8` (lignes 60-75 ai.pl)
-  - Corriger bug potentiel `minimax_evaluate_moves/10`
-  - Valider alternance max/min correcte
+### ✅ 2.1 Validation Algorithme Minimax COMPLÉTÉE
+- [x] **Logique alpha-beta implémentée avec timeout protection**
+- [x] **Minimax fonctionnel - validations PASS**
+- [⚠️] **Bug intermittent identifié : IA s'arrête après premier coup**
 - [ ] **Tests positions tactiques**
   ```prolog
   test_mate_in_one :-
@@ -168,11 +160,11 @@
       is_checkmate_move(GameState, Move).
   ```
 
-### 2.2 Réglage Profondeur et Performance (1h)
-- [ ] **Réduire profondeur par défaut à 2**
-  - Modifier `choose_ai_move/2` ligne 35 : `minimax_search(GameState, 2, BestMove, _)`
-  - Ajouter paramètre configurable pour tests
-- [ ] **Mesurer temps de réponse**
+### ✅ 2.2 Performance Optimisée IMPLÉMENTÉE
+- [x] **Profondeur optimisée à 1 (quasi-instantané 0.5-0.6s)**
+- [x] **Paramètres configurables ajoutés**  
+- [x] **Tests de performance intégrés à Section 6**
+- [⚠️] **Profondeur 2 trop lente (2-8s) - améliorations futures**
   ```prolog
   benchmark_ai_performance :-
       init_game_state(GameState),
@@ -202,8 +194,8 @@
 
 ---
 
-## Phase 3 : Répertoire d'Ouvertures Modeste (1-2h)
-> **Objectif** : Améliorer le jeu en début de partie
+## Phase 3 : Répertoire d'Ouvertures (FUTUR)
+> **Objectif** : Améliorer le jeu en début de partie - NON PRIORITAIRE
 
 ### 3.1 Design Système Ouvertures (30 min)
 - [ ] **Intégrer répertoire ouvertures dans ai.pl** (éviter fichier séparé)
@@ -243,11 +235,12 @@
 
 ---
 
-## Phase 4 : Tests Complets et Intégration (2h)
-> **Objectif** : Assurer robustesse du système IA
+## ✅ Phase 4 : Tests Complets TERMINÉE
+> **Objectif** : Robustesse système IA - FONCTIONNEL
 
-### 4.1 Tests Unitaires IA - Extension Section 6 (1h)
-- [ ] **Étendre run_ai_tests dans tests/tests.pl**
+### ✅ 4.1 Tests Section 6 IMPLÉMENTÉS
+- [x] **7 tests IA implémentés dans Section 6**
+- [x] **42/42 tests PASS (au lieu de 35/35)**
   ```prolog
   test_minimax_basic :-
       write('[RUN] Test 4/7: Minimax profondeur 2........... '),

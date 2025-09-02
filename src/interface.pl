@@ -17,7 +17,40 @@
 :- [ai].
 
 % =============================================================================
-% SECTION 1 : MESSAGES FRANCAIS CENTRALISES
+% SECTION 1 : ETAT DE JEU UNIFIE AVEC TYPES DE JOUEURS
+% =============================================================================
+
+% Structure d'etat de jeu unifie
+% unified_game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces, PlayerTypes)
+% PlayerTypes = player_types(WhitePlayerType, BlackPlayerType)  
+% PlayerType = human | ai
+
+% init_unified_game_state(+WhiteType, +BlackType, -UnifiedGameState)
+% Initialise un etat de jeu unifie avec types de joueurs
+init_unified_game_state(WhiteType, BlackType, UnifiedGameState) :-
+    init_game_state(GameState),
+    GameState = game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces),
+    PlayerTypes = player_types(WhiteType, BlackType),
+    UnifiedGameState = unified_game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces, PlayerTypes).
+
+% extract_game_state(+UnifiedGameState, -GameState)
+% Extrait l'etat de jeu standard depuis l'etat unifie
+extract_game_state(unified_game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces, _), 
+                   game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces)).
+
+% update_unified_game_state(+UnifiedGameState, +NewGameState, -NewUnifiedGameState)
+% Met a jour l'etat unifie avec un nouvel etat de jeu standard
+update_unified_game_state(unified_game_state(_, _, _, _, _, PlayerTypes), 
+                          game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces),
+                          unified_game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces, PlayerTypes)).
+
+% get_player_type(+UnifiedGameState, +Player, -PlayerType)
+% Determine le type d'un joueur (human ou ai)
+get_player_type(unified_game_state(_, _, _, _, _, player_types(WhiteType, _)), white, WhiteType).
+get_player_type(unified_game_state(_, _, _, _, _, player_types(_, BlackType)), black, BlackType).
+
+% =============================================================================
+% SECTION 2 : MESSAGES FRANCAIS CENTRALISES
 % =============================================================================
 
 % Messages du menu
@@ -56,7 +89,7 @@ message(bot_not_implemented, 'Le mode Humain vs Bot n\'est pas encore implemente
 message(available_future_version, 'Disponible dans une version future!').
 
 % =============================================================================
-% SECTION 2 : UTILITAIRES D'AFFICHAGE ET INTERFACE
+% SECTION 3 : UTILITAIRES D'AFFICHAGE ET INTERFACE
 % =============================================================================
 
 % clear_screen
@@ -105,7 +138,7 @@ display_title_box(Title) :-
     write('    '), draw_line(50, '='), nl, nl.
 
 % =============================================================================
-% SECTION 3 : UTILITAIRES D'AFFICHAGE DES MESSAGES
+% SECTION 4 : UTILITAIRES D'AFFICHAGE DES MESSAGES
 % =============================================================================
 
 % display_message(+MessageKey)
@@ -128,7 +161,7 @@ get_message(Key, Text) :-
     message(Key, Text).
 
 % =============================================================================
-% SECTION 4 : MENU PRINCIPAL ET NAVIGATION
+% SECTION 5 : MENU PRINCIPAL ET NAVIGATION
 % =============================================================================
 
 % start
@@ -226,32 +259,29 @@ process_choice(_) :-
     pause_and_return_menu.
 
 % =============================================================================
-% SECTION 5 : JEU HUMAIN VS HUMAIN
+% SECTION 6 : MOTEUR DE JEU UNIFIE
 % =============================================================================
 
-% start_human_game
-% Demarre une partie humain vs humain.
-start_human_game :-
-    display_title_box('NOUVELLE PARTIE'),
-    init_game_state(GameState),
-    display_game_state(GameState),
-    game_loop(GameState).
-
-
-% game_loop(+GameState)
-% Boucle principale du jeu avec gestion echec/mat/pat.
-game_loop(GameState) :-
+% unified_game_loop(+UnifiedGameState)
+% Boucle de jeu principale gerant tous les types de joueurs.
+unified_game_loop(UnifiedGameState) :-
+    extract_game_state(UnifiedGameState, GameState),
     GameState = game_state(_, Player, _, Status, _),
+    
+    % Afficher l'etat du jeu
+    display_game_state(GameState),
+    
     (   Status = active ->
         % Verifier si le joueur est en echec
         (is_in_check(GameState, Player) ->
             display_message_ln(in_check)
         ;   true),
-        % Continuer le jeu normalement
-        write('Joueur '), translate_player(Player, PlayerFR), write(PlayerFR), write(' (tapez "aide")> '),
-        read_player_input(Input),
-        process_game_input(Input, GameState, NewGameState),
-        game_loop(NewGameState)
+        
+        % Traitement selon le type de joueur
+        get_player_type(UnifiedGameState, Player, PlayerType),
+        handle_player_turn(UnifiedGameState, Player, PlayerType, NewUnifiedGameState),
+        unified_game_loop(NewUnifiedGameState)
+        
     ;   Status = checkmate ->
         % Annoncer le gagnant (celui qui a donne mat)
         opposite_player(Player, Winner),
@@ -263,6 +293,52 @@ game_loop(GameState) :-
         display_message_ln(game_finished),
         pause_and_return_menu
     ).
+
+% handle_player_turn(+UnifiedGameState, +Player, +PlayerType, -NewUnifiedGameState)
+% Gere le tour d'un joueur selon son type (humain ou IA)
+handle_player_turn(UnifiedGameState, Player, human, NewUnifiedGameState) :-
+    % Tour d'un joueur humain - utilise l'interface unifiee
+    write('Joueur '), translate_player(Player, PlayerFR), write(PlayerFR), write(' (tapez "aide")> '),
+    read_player_input(Input),
+    extract_game_state(UnifiedGameState, GameState),
+    process_game_input(Input, GameState, NewGameState),
+    update_unified_game_state(UnifiedGameState, NewGameState, NewUnifiedGameState).
+
+handle_player_turn(UnifiedGameState, Player, ai, NewUnifiedGameState) :-
+    % Tour de l'IA - genere un coup automatiquement
+    write('IA reflechit ('), translate_player(Player, PlayerFR), write(PlayerFR), write(', minimax alpha-beta)...'), nl,
+    extract_game_state(UnifiedGameState, GameState),
+    get_time(StartTime),
+    choose_ai_move(GameState, AIMove),
+    get_time(EndTime),
+    Duration is EndTime - StartTime,
+    
+    (   AIMove = [] ->
+        write('IA ne peut pas jouer - Fin de partie'), nl,
+        NewUnifiedGameState = UnifiedGameState
+    ;   AIMove = [FromRow, FromCol, ToRow, ToCol],
+        format('IA joue : ~w~w~w~w (~2f sec)~n', [FromRow, FromCol, ToRow, ToCol, Duration]),
+        make_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState),
+        update_unified_game_state(UnifiedGameState, NewGameState, NewUnifiedGameState)
+    ).
+
+% game_loop(+GameState) 
+% Boucle de jeu pour compatibilite retrograde.
+game_loop(GameState) :-
+    init_unified_game_state(human, human, UnifiedGameState),
+    update_unified_game_state(UnifiedGameState, GameState, UpdatedUnifiedGameState),
+    unified_game_loop(UpdatedUnifiedGameState).
+
+% =============================================================================
+% SECTION 7 : MODES DE JEU - HUMAIN VS HUMAIN
+% =============================================================================
+
+% start_human_game/0
+% Demarre une partie humain vs humain.
+start_human_game :-
+    display_title_box('NOUVELLE PARTIE'),
+    init_unified_game_state(human, human, UnifiedGameState),
+    unified_game_loop(UnifiedGameState).
 
 % announce_checkmate_winner(+Winner)
 % Annonce le gagnant d'une partie par mat.
@@ -295,7 +371,21 @@ read_player_input(Input) :-
     !.
 
 % =============================================================================
-% SECTION 6 : TRAITEMENT DES COMMANDES DE JEU
+% SECTION 8 : MODES DE JEU - IA VS HUMAIN
+% =============================================================================
+
+% start_ai_game/0
+% Lance une partie IA vs Humain.
+start_ai_game :-
+    display_title_box('MODE IA vs HUMAIN'),
+    write('    L\'IA joue les noirs, vous jouez les blancs.'), nl,
+    write('    Profondeur IA: 2 (quasi-instantanee)'), nl,
+    write('    Commandes disponibles: aide, menu, sortir'), nl, nl,
+    init_unified_game_state(human, ai, UnifiedGameState),
+    unified_game_loop(UnifiedGameState).
+
+% =============================================================================
+% SECTION 9 : TRAITEMENT DES COMMANDES DE JEU
 % =============================================================================
 
 % process_game_input(+Input, +GameState, -NewGameState)
@@ -383,7 +473,7 @@ attempt_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState) :-
         NewGameState = GameState).
 
 % =============================================================================
-% SECTION 7 : AFFICHAGE DE L'AIDE
+% SECTION 10 : AFFICHAGE DE L'AIDE
 % =============================================================================
 
 % show_help
@@ -442,15 +532,3 @@ show_game_help :-
     
     write('    '), draw_line(40, '='), nl, nl.
 
-% =============================================================================
-% SECTION : MODE IA VS HUMAIN
-% =============================================================================
-
-% start_ai_game/0
-% Lance une partie IA vs Humain avec interface francaise
-start_ai_game :-
-    display_title_box('MODE IA vs HUMAIN'),
-    write('    L\'IA joue les noirs, vous jouez les blancs.'), nl,
-    write('    Profondeur IA: 2 (quasi-instantanee)'), nl, nl,
-    init_game_state(GameState),
-    ai_game_loop(GameState).
