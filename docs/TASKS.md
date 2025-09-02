@@ -18,35 +18,6 @@
 
 ---
 
-## 📊 Statut Détaillé
-
-**Architecture** : ✅ 5 modules stables (pieces, board, game, interface, ai)  
-**Tests** : ✅ 35 tests - Architecture `tests.pl` unifiée + promotion
-
-## Phase 1 : Fondations ✅ COMPLÈTE
-
-### Architecture & Logique Core
-- [x] **5 modules** : pieces.pl, board.pl, game.pl, interface.pl, ai.pl
-- [x] **Mouvements de base** : Toutes pièces + validation stricte
-- [x] **Coordonnées** : Notation algébrique "e2e4" 
-- [x] **Affichage** : Plateau ASCII + interface française
-
-### Tests & Validation
-- [x] **Suite complète** : 33 tests (5 catégories)
-- [x] **Architecture unifiée** : tests.pl centralisé
-- [x] **Couverture** : Mouvements, erreurs, cas limites
-
-## Phase 2 : Règles Avancées ✅ COMPLÈTE
-
-### Échec et Mat ✅ COMPLET
-- [x] **Détection échec/mat/pat** : Algorithmes complets
-- [x] **Scénarios complexes** : Double échec, pièces clouées
-- [x] **Tests exhaustifs** : Tous cas de fin de partie
-
-### Mouvements Spéciaux ✅ COMPLET
-- [x] **Promotion** : Conversion automatique pion → dame
-- [x] **Intégration** : Logique transparente dans système validation
-- [x] **Tests** : Coverage promotion blanche/noire + capture
 
 ## Phase 3 : Intelligence Artificielle (TP1 Objectif)
 

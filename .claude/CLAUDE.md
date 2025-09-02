@@ -19,9 +19,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Quick Context
 - **Project**: Chess AI in Prolog - University AI course (IFT-2003)
-- **Current Phase**: Phase 2 EN COURS ⚠️ - Échec et Mat COMPLET ✅, reste Promotion
-- **Architecture**: 5-module design (pieces/board/game/interface/ai) + système d'échec et mat complet
-- **Status**: Détection d'échec et mat fonctionnelle, tests optimisés, manque Promotion
+- **Current Phase**: Phase 2 COMPLÈTE ✅ - Promotion automatique des pions implémentée
+- **Next Phase**: Phase 3 IA - Implémentation Minimax avec Alpha-Beta pruning
+- **Architecture**: 5-module design (pieces/board/game/interface/ai) + système complet
+- **Status**: Jeu d'échecs complet fonctionnel, 33 tests PASS, prêt pour intégration IA
 
 ## Development Commands
 
@@ -47,9 +48,9 @@ swipl go.pl
 # Direct interface launch (stable)
 swipl -s src/interface.pl -g start
 
-# ⚠️ AI mode (PROTOTYPE - NON FONCTIONNEL)
-# NE PAS UTILISER - peut planter le système
-swipl -s src/ai.pl -g ai_vs_human_mode
+# ⚠️ AI mode (Phase 3 - EN DÉVELOPPEMENT)
+# Voir docs/plan.md pour l'implémentation en cours
+# swipl -s src/ai.pl -g ai_vs_human_mode
 ```
 
 ### Debugging
@@ -71,7 +72,7 @@ swipl -s src/ai.pl -g ai_vs_human_mode
 - **board.pl**: 8x8 board representation, coordinates, ASCII display
 - **game.pl**: Game state management, move validation, capture logic
 - **interface.pl**: Interface française professionnelle, boucle de jeu, interaction utilisateur
-- **ai.pl**: Intelligence artificielle (PROTOTYPE NON FONCTIONNEL - voir section IA)
+- **ai.pl**: Intelligence artificielle (Phase 3 - voir docs/plan.md pour implémentation)
 
 ### Data Structures
 ```prolog
@@ -85,10 +86,12 @@ game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces)
 
 ### Key Predicates
 - `valid_move/5`: Core movement validation (robust input validation)
-- `execute_move/6`: Move execution with state update  
+- `make_move/5`: Move execution with state update and promotion handling
 - `parse_algebraic_move/5`: Convert "e2e4" format
 - `display_game_state/1`: ASCII board display
 - `place_piece_optimized/5`: High-performance board operations (AI-ready)
+- `is_promotion_move/3`: Automatic pawn promotion detection (Phase 2 ✅)
+- `is_checkmate/2`: Complete checkmate detection system
 - `check_path_clear/7`: Path validation with recursion protection
 
 ## Prolog Development Guidelines
@@ -98,6 +101,7 @@ game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces)
 - **Variables**: PascalCase (`Board`, `GameState`, `FromRow`)
 - **Language**: English predicates/code, French comments (SANS ACCENTS - voir section Unicode ci-dessous)
 - **Move format**: "e2e4" (not "e2-e4")
+- **Comments**: NEVER add status/update comments in source code, readme.md or prd.md (e.g. "Status completed", "New implementation")
 
 ### Critical Validation Patterns (ENHANCED ✅)
 ```prolog
@@ -168,22 +172,23 @@ swipl tests/tests.pl
 
 ## AI Implementation Status (Phase 3)
 
-⚠️ **IMPORTANT: ai.pl est un PROTOTYPE NON FONCTIONNEL**
-- **Statut**: Code expérimental, non testé, potentiellement défaillant
-- **Utilisation**: À des fins éducatives et de référence uniquement
-- **Recommandation**: Considérer une réécriture complète si implémentation IA nécessaire
+🚀 **Phase 3 - PRÊTE À IMPLÉMENTER**
+- **Statut**: Plan d'implémentation détaillé créé (voir `docs/plan.md`)
+- **Algorithme**: Minimax avec Alpha-Beta pruning, profondeur 2
+- **Répertoire ouvertures**: Modeste collection intégrée
+- **Estimation**: 8-11h de développement (plan complet disponible)
 
-### Contenu du Prototype ai.pl
-- Algorithme minimax avec alpha-beta (théorique)
-- Évaluation de position basique (non validée)
-- Interface IA vs Humain (probablement bugguée)
-- **NE PAS UTILISER EN PRODUCTION**
+### Fichier ai.pl Actuel
+- Algorithme minimax avec alpha-beta présent (à corriger et optimiser)
+- Incompatibilités API identifiées et documentées
+- Base solide pour correction plutôt que réécriture complète
 
-### Implémentation IA Future (si nécessaire)
-- Réécrire avec architecture modulaire propre
-- Tests unitaires complets avant intégration
-- Validation algorithme avec positions connues
-- Profiling performance réel
+### Plan d'Implémentation (docs/plan.md)
+- Phase 1: Diagnostic et réparation des incompatibilités (2-3h)
+- Phase 2: Optimisation algorithme minimax profondeur 2 (2-3h)
+- Phase 3: Répertoire d'ouvertures modeste (1-2h)
+- Phase 4: Tests complets et intégration (2h)
+- Phase 5: Finition et documentation (1h)
 
 ## File Dependencies
 - interface.pl → game.pl → board.pl → pieces.pl
@@ -191,6 +196,7 @@ swipl tests/tests.pl
 - go.pl is launcher (loads interface.pl directly)
 
 ## Project Context Links
-- **User Guide**: [README.md](../README.md)
-- **Test Files**: [tests/](../tests/)
-- **Source Code**: [src/](../src/)
+- **User Guide**: [README.md](../README.md) - Guide d'utilisation et état du projet
+- **Test Files**: [tests/](../tests/) - 33 tests complets (100% PASS)
+- **Source Code**: [src/](../src/) - Architecture 5-modules complète
+- **AI Plan**: [plan.md](../docs/plan.md) - Roadmap détaillée Phase 3 IA
