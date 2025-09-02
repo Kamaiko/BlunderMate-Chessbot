@@ -1,113 +1,81 @@
-# Document d'Exigences Produit - Prolog Chess Game
-## Projet Universitaire Intelligence Artificielle - IFT-2003
+# Document d'Exigences Produit (PRD)
+## IA d'Échecs Prolog - Projet Universitaire IFT-2003
 
-**Contexte** : TP1 - 10% de la note finale  
-**Objectif** : Implementer une IA d'echecs avec minimax et alpha-beta en Prolog
+### Aperçu Produit
 
----
+**Produit** : IA d'échecs éducative implémentant minimax/alpha-beta en Prolog  
+**Objectif** : Évaluation académique (10% note finale) et démonstration d'apprentissage IA  
+**Valeur** : Environnement d'échecs interactif illustrant la prise de décision algorithmique
 
-## Apercu produit
+### Objectifs Académiques
 
-### Objectif
-Developper un joueur d'echecs intelligent demontrant les techniques de recherche heuristique vues en cours IFT-2003. Le projet sert d'application pratique des algorithmes minimax avec elagage alpha-beta en programmation logique Prolog.
+- Satisfaire exigences cours IFT-2003 intelligence artificielle
+- Démontrer application pratique algorithmes de théorie des jeux
+- Créer interface française éducative avec système d'aide intégré
 
-### Vision
-Creer une IA d'echecs competitive (~1200 ELO) avec interface francaise qui permet d'experimenter et comprendre la prise de decision algorithmique a travers le gameplay.
+### Utilisateurs Cibles
 
-## Objectifs
+**Instructeur** : Évaluateur académique - Besoin d'implémentation claire des algorithmes  
+**Étudiant développeur** : Utilisateur principal - Environnement stable avec tests complets  
+**Pairs évaluateurs** : Observateurs démonstration - Interface claire et comportement IA compréhensible
 
-### Pedagogiques
-- **Maitrise IA** : Demonstrer comprehension minimax/alpha-beta
-- **Programmation logique** : Application pratique concepts Prolog
-- **Evaluation** : Obtenir score satisfaisant sur TP1
+### Exigences Fonctionnelles
 
-### Utilisateur
-- **Gameplay fluide** : Partie d'echecs complete avec reponse IA <5sec
-- **Interface claire** : Messages francais, aide contextuelle
-- **Apprentissage** : Observer raisonnement IA en action
+#### Obligatoires (P0) - TP1
+- **EF-001** : Validation complète règles d'échecs (échec/mat/pat) ✅
+- **EF-002** : Algorithme minimax avec profondeur configurable
+- **EF-003** : Élagage alpha-beta pour optimisation performance  
+- **EF-004** : Évaluation heuristique position (matériel, mobilité, sécurité roi)
+- **EF-005** : Interface console française avec aide intégrée ✅
+- **EF-006** : Mode Humain vs IA avec limite 5sec/coup
 
-## Exigences principales
+#### Importantes (P1)
+- **EF-007** : Promotion pions avec sélection pièce 🚧
+- **EF-008** : Niveaux difficulté par profondeur recherche
+- **EF-009** : Affichage raisonnement IA et scores évaluation
 
-### Fonctionnalites core
-- **FR-001** : Validation complete regles d'echecs
-- **FR-002** : Algorithme minimax avec profondeur configurable  
-- **FR-003** : Elagage alpha-beta pour optimisation
-- **FR-004** : Evaluation heuristique position (materiel, mobilite, securite roi)
-- **FR-005** : Interface francaise avec aide integree
-- **FR-006** : Detection fin de partie (mat, pat, nullite)
+### Expérience Utilisateur
 
-### Fonctionnalites avancees
-- **FR-007** : Coups speciaux (promotion)
-- **FR-008** : Niveaux difficulte (profondeur variable)
-- **FR-009** : Affichage evaluation et processus reflexion
+**Lancement** : `swipl go.pl` → Menu français principal  
+**Gameplay** : Notation algébrique "e2e4" → IA répond <5sec  
+**Éducatif** : Affichage évaluation position et raisonnement IA  
+**Interface** : ASCII propre, français complet, aide contextuelle
 
-## Architecture technique
+### Vision Étudiante
 
-### Modules (Phase 1 complete ✅)
-- **pieces.pl** : Regles mouvement par type piece
-- **board.pl** : Plateau 8x8, affichage ASCII, coordonnees
-- **game.pl** : Etat jeu, validation coups, alternance joueurs  
-- **interface.pl** : Menu francais, boucle jeu, messages aide
-- **ai.pl** : Intelligence artificielle (PROTOTYPE NON FONCTIONNEL)
+Interface d'échecs éducative permettant de comprendre concrètement le fonctionnement des algorithmes de jeux à travers une expérience interactive en français, avec visualisation du processus de décision de l'IA.
 
-### Extension IA (Phase 3 prioritaire)
-- **Tests exhaustifs** : Suite complete dans tests.pl
+### Critères de Succès
 
-## Criteres succes
+**Académique** : Note ≥85% sur implémentation algorithmes et démonstration  
+**Technique** : Réponse IA <5sec, minimax+alpha-beta fonctionnels  
+**Qualité** : Tests passent (28/28), code modulaire, zéro crash gameplay
 
-### Evaluation academique
-- **Algorithme** : Minimax + alpha-beta implementes correctement
-- **Performance** : Temps reponse <5sec, force jeu raisonnable
-- **Code** : Structure modulaire claire, tests passent
-- **Demo** : Fonctionnement fluide, explications algorithmes
+### Contraintes Techniques
 
-### Metriques techniques
-- **Reactivite** : IA repond <5 secondes par coup
-- **Stabilite** : Aucun crash gameplay normal
-- **Tests** : 100% suite tests automatises reussie
+**Plateforme** : SWI-Prolog uniquement, interface console ASCII  
+**Performance** : Équilibre profondeur recherche vs temps réponse <5sec  
+**Architecture** : 5 modules (pieces, board, game, interface, ai), tests automatisés
 
-## Phases developpement
+### Phases Développement
 
-**Phase 1 : Fondations (Terminee ✅)**
-- Architecture 4 modules, regles base, tests exhaustifs
+**Phase 1** : Architecture base et règles (✅ Terminée)  
+**Phase 2** : Promotion pions (🚧 Actuelle)  
+**Phase 3** : IA minimax/alpha-beta (🎯 Priorité TP1)  
+**Phase 4** : Optimisation et démonstration
 
-**Phase 2 : Regles avancees (Actuelle)**  
-- Coups speciaux, detection mat/pat, completion FIDE
+### Cas d'Usage Principaux
 
-**Phase 3 : IA (Priorite absolue)**
-- Minimax/alpha-beta, evaluation position, niveaux difficulte
-
-**Phase 4 : Finition**
-- Optimisations, documentation, preparation demo
-
-## User stories cles
-
-**US-001** : Lancer jeu avec `swipl go.pl` → interface francaise claire  
-**US-002** : Jouer coups notation "e2e4" → validation + execution  
-**US-003** : IA genere coups legaux minimax → reponse <5sec  
-**US-004** : Detecter mat/pat → fin partie appropriee  
-**US-005** : Choisir niveau difficulte → profondeur recherche adaptee
-
-## Contraintes projet
-
-### Techniques
-- **Plateforme** : SWI-Prolog uniquement
-- **Interface** : Console ASCII (pas GUI)
-- **Performance** : Equilibre vitesse/force jeu
-- **Memoire** : Gestion efficace structures donnees
-
-### Academiques  
-- **Temps** : Developpement sur 8-12 semaines
-- **Scope** : Focus algorithmes IA, pas polish interface
-- **Originalite** : Code personnel, documentation sources
-- **Demonstration** : Preparation presentation fonctionnalites
+**CU-001** : Lancement rapide → `swipl go.pl` → Menu français <3sec  
+**CU-002** : Mouvements joueur → "e2e4" validé et exécuté avec retour visuel  
+**CU-003** : Réponse IA → Coup légal généré <5sec avec raisonnement visible  
+**CU-004** : Détection fin → Mat/Pat détecté avec annonce appropriée  
+**CU-005** : Niveaux difficulté → Profondeur recherche configurable 1-4 coups  
+**CU-006** : Promotion → Choix pièce (Dame/Tour/Fou/Cavalier) automatique  
+**CU-007** : Tests → Suite complète `swipl tests/tests.pl` 28/28 passent
 
 ---
-
-**Statut actuel** : Fondations solides, pret implementation IA  
-**Priorite** : Minimax + alpha-beta pour evaluation TP1
 
 ## Liens Documentation
-- **Guide developpeur** : [../.claude/CLAUDE.md](../.claude/CLAUDE.md)
-- **Taches detaillees** : [TASKS.md](TASKS.md)
-- **Guide utilisateur** : [../README.md](../README.md)
+
+**Roadmap détaillé** : [TASKS.md](TASKS.md) • **Guide développeur** : [../.claude/CLAUDE.md](../.claude/CLAUDE.md) • **Utilisateur** : [../README.md](../README.md)
