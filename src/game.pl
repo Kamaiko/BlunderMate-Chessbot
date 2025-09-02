@@ -1,21 +1,14 @@
 % =============================================================================
-% CHESS GAME - LOGIQUE DE JEU REFACTORISEE ET OPTIMISEE
+% CHESS GAME - LOGIQUE DE JEU
 % =============================================================================
 % 
-% Module central optimise pour la logique de jeu :
+% Module central pour la logique de jeu :
 % - Gestion d'etat avec validation modulaire
-% - Detection echec/mat complete et optimisee
-% - Validation mouvements decomposee et claire
+% - Detection echec/mat complete
+% - Validation mouvements
 % - Gestion erreurs centralisee
 %
 % Auteur : Patrick Patenaude
-% Version : 6.0 (Refactorisation complete - Sept 2025)
-%
-% AMELIORATIONS v6.0 :
-% - Validation mouvements decomposee en helpers
-% - Gestion erreurs centralisee avec format uniforme
-% - Detection attaques optimisee par patterns
-% - Code prepare pour Promotion
 % =============================================================================
 
 :- [pieces].
@@ -592,8 +585,3 @@ validate_system_consistency :-
     
     chess_info(systeme, 'Validation de coherence reussie').
 
-% =============================================================================
-% FIN DU FICHIER GAME.PL - VERSION REFACTORISEE
-% Derniere mise a jour : Septembre 2025
-% Optimisations : Modularite, performance echec/mat, maintenabilite
-% =============================================================================

@@ -1,20 +1,13 @@
 % =============================================================================
-% CHESS PIECES - LOGIQUE DES PIECES D'ECHECS (VERSION REFACTORISEE)
+% CHESS PIECES - LOGIQUE DES PIECES D'ECHECS
 % =============================================================================
 % 
-% Module optimise pour la logique des pieces d'echecs :
-% - Identification et validation des pieces (performance amelioree)
+% Module pour la logique des pieces d'echecs :
+% - Identification et validation des pieces
 % - Regles de mouvement avec dispatch unifie
 % - Utilitaires pour couleurs et joueurs
 %
 % Auteur : Patrick Patenaude
-% Version : 6.0 (Refactorisation complete - Sept 2025)
-%
-% AMELIORATIONS v6.0 :
-% - Dispatch unifie des mouvements par type
-% - Validation optimisee des chemins
-% - Reduction duplication de code
-% - Performance amelioree pour IA future
 % =============================================================================
 
 % =============================================================================
@@ -367,8 +360,3 @@ validate_black_pieces_consistency :-
 validate_no_piece_color_conflict :-
     \+ (is_white_piece(P), is_black_piece(P)).
 
-% =============================================================================
-% FIN DU FICHIER PIECES.PL - VERSION REFACTORISEE
-% Derniere mise a jour : Septembre 2025
-% Optimisations : Performance, lisibilite, maintenabilite
-% =============================================================================

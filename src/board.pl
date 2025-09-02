@@ -1,20 +1,14 @@
 % =============================================================================
-% CHESS BOARD - ECHIQUIER OPTIMISE (VERSION REFACTORISEE)
+% CHESS BOARD - ECHIQUIER
 % =============================================================================
 % 
-% Module optimise pour l'echiquier et coordonnees :
+% Module pour l'echiquier et coordonnees :
 % - Representation 8x8 avec operations optimisees
-% - Notation algebrique avec validation renforcee
-% - Initialisation optimisee par listes
+% - Notation algebrique avec validation
+% - Initialisation par listes
 % - Affichage ASCII avec pieces colorees
 %
 % Auteur : Patrick Patenaude  
-% Version : 6.0 (Refactorisation complete - Sept 2025)
-%
-% AMELIORATIONS v6.0 :
-% - Placement pieces par listes (moins de duplication)
-% - Validation coordonnees optimisee avec between/3
-% - Code plus maintenable et extensible
 % =============================================================================
 
 :- [pieces].
@@ -392,8 +386,3 @@ validate_all_positions :-
         valid_chess_position(Row, Col)
     ).
 
-% =============================================================================
-% FIN DU FICHIER BOARD.PL - VERSION REFACTORISEE
-% Derniere mise a jour : Septembre 2025
-% Optimisations : Reduction duplication, performance, lisibilite
-% =============================================================================

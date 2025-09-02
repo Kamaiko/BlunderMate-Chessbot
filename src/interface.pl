@@ -1,21 +1,14 @@
 % =============================================================================
-% CHESS INTERFACE - INTERFACE UTILISATEUR REFACTORISEE
+% CHESS INTERFACE - INTERFACE UTILISATEUR
 % =============================================================================
 % 
-% Module interface optimise et maintenable :
+% Module interface utilisateur :
 % - Menu principal avec design uniforme
 % - Traitement commandes unifie et extensible
 % - Messages francais centralises
 % - Utilitaires d'affichage optimises
 %
 % Auteur : Patrick Patenaude
-% Version : 6.0 (Refactorisation complete - Sept 2025)
-%
-% AMELIORATIONS v6.0 :
-% - Dispatch commandes unifie (plus de duplication)
-% - Utilitaires affichage optimises avec forall/2
-% - Architecture extensible pour nouvelles fonctionnalites
-% - Code plus maintenable et testable
 % =============================================================================
 
 :- [pieces].
@@ -450,9 +443,3 @@ show_game_help :-
     write('            B/b=Fou Q/q=Dame K/k=Roi'), nl,
     
     write('    '), draw_line(40, '='), nl, nl.
-
-% =============================================================================
-% FIN DU FICHIER INTERFACE.PL - VERSION REFACTORISEE
-% Derniere mise a jour : Septembre 2025
-% Optimisations : Dispatch unifie, reduction duplication, extensibilite
-% =============================================================================

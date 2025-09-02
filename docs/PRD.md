@@ -30,13 +30,13 @@
 ## ⚙️ Exigences Fonctionnelles
 
 ### 🎯 Obligatoires (P0) - TP1
-- **EF-002** : Algorithme minimax avec profondeur fixe niveau 2 🚧
-- **EF-003** : Élagage alpha-beta pour optimisation performance 🚧
-- **EF-004** : Évaluation heuristique position (matériel, mobilité, sécurité roi) 🚧
-- **EF-006** : Mode Humain vs IA avec temps de réponse raisonnable 🚧
+- **EF-002** : Algorithme minimax avec profondeur fixe niveau 2
+- **EF-003** : Élagage alpha-beta pour optimisation performance
+- **EF-004** : Évaluation heuristique position (matériel, mobilité, sécurité roi)
+- **EF-006** : Mode Humain vs IA avec temps de réponse raisonnable
 
-### ✅ Importantes (P1) - Complétées
-- **EF-007** : Promotion pions automatique vers dame ✅
+### ⭐ Importantes (P1)
+- **EF-007** : Promotion pions automatique vers dame
 - **EF-009** : Affichage raisonnement IA et scores évaluation
 
 ### 🔄 Optionnelles (P2) - Extensions Futures
@@ -61,11 +61,11 @@
 
 ## ✅ Critères de Succès
 
-| Critère | Objectif | Status |
-|---------|----------|--------|
-| **🎓 Académique** | Note ≥85% sur implémentation algorithmes | 🎯 |
-| **⚡ Technique** | Minimax+alpha-beta fonctionnels, temps réponse raisonnable | 🚧 |
-| **🧪 Qualité** | Tests passent (35/35), code modulaire, zéro crash | ✅ |
+| Critère | Objectif |
+|---------|----------|
+| **🎓 Académique** | Note ≥85% sur implémentation algorithmes |
+| **⚡ Technique** | Minimax+alpha-beta fonctionnels, temps réponse raisonnable |
+| **🧪 Qualité** | Tests passent (35/35), code modulaire, zéro crash |
 
 ## 🔧 Contraintes Techniques
 
@@ -75,9 +75,9 @@
 
 ## 📈 Phases Développement
 
-- **Phase 1** : Architecture base et règles ✅ **TERMINÉE**
-- **Phase 2** : Règles avancées et promotion ✅ **TERMINÉE**  
-- **Phase 3** : IA minimax/alpha-beta 🚧 **ACTUELLE** *(Deadline: 20 oct 2025)*
+- **Phase 1** : Architecture base et règles
+- **Phase 2** : Règles avancées et promotion  
+- **Phase 3** : IA minimax/alpha-beta *(Deadline: 20 oct 2025)*
 
 ## 🎯 Cas d'Usage Principaux
 
@@ -91,10 +91,10 @@
 
 ### ⚔️ Mécaniques de Jeu
 - **CU-004** : Détection fin → Mat/Pat détecté avec annonce appropriée  
-- **CU-006** : Promotion → Conversion automatique pion vers dame ✅
+- **CU-006** : Promotion → Conversion automatique pion vers dame
 
 ### 🧪 Validation
-- **CU-007** : Tests → Suite complète `swipl tests/tests.pl` 35/35 passent ✅
+- **CU-007** : Tests → Suite complète `swipl tests/tests.pl` 35/35 passent
 
 ---
 
