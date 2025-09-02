@@ -76,7 +76,6 @@
 - [ ] **Roque** : Validation roi/tour non bougés  
 - [ ] **GUI** : Interface graphique  
 - [ ] **Analyse** : Évaluation temps réel
-- [ ] **Performance** : Profiling et métriques
 
 ---
 
