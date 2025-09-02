@@ -84,7 +84,7 @@ test_game_state_basics :-
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
     
-    write('[RUN] Test 2/2: Alternance joueur (blanc->noir).. '),
+    write('[RUN] Test 2/2: Alternance joueur.............. '),
     (   GS2 = game_state(_, black, 1, active, _) ->
         write('PASS'), nl  
     ;   write('FAIL'), nl, fail), nl.
@@ -97,7 +97,6 @@ run_pieces_tests :-
     display_test_section_header('SECTION 2: TESTS DES PIECES', 'Mouvements et Regles'),
     run_test_group([
         test_pawn_rules,
-        test_pawn_promotion,
         test_knight_rules,
         test_sliding_pieces,
         test_king_rules
@@ -111,30 +110,26 @@ test_pawn_rules :-
     init_game_state(GS),
     GS = game_state(Board, _, _, _, _),
     
-    write('[RUN] Test 1/3: Mouvement simple e2e3.......... '),
+    write('[RUN] Test 1/5: Mouvement simple e2e3.......... '),
     (   valid_move(Board, white, 2, 5, 3, 5) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
         
-    write('[RUN] Test 2/3: Mouvement double e2e4.......... '),
+    write('[RUN] Test 2/5: Mouvement double e2e4.......... '),
     (   valid_move(Board, white, 2, 5, 4, 5) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
         
-    write('[RUN] Test 3/3: Mouvement lateral interdit..... '),
+    write('[RUN] Test 3/5: Mouvement lateral interdit..... '),
     (   \+ valid_move(Board, white, 2, 5, 2, 6) ->
         write('PASS'), nl
-    ;   write('FAIL'), nl, fail), nl.
-
-test_pawn_promotion :-
-    write('[TEST] PROMOTION DES PIONS'), nl,
-    write('--------------------------'), nl,
+    ;   write('FAIL'), nl, fail),
     
-    % Test promotion pion blanc
+    % Tests de promotion integres
     create_empty_board(Board1),
     place_single_piece(Board1, 7, 1, 'P', Board2),  % Pion blanc en a7
     GS1 = game_state(Board2, white, 0, active, [[], []]),
-    write('[RUN] Test 1/2: Promotion pion blanc............ '),
+    write('[RUN] Test 4/5: Promotion pion blanc........... '),
     (   (make_move(GS1, 7, 1, 8, 1, NewGS1),
          NewGS1 = game_state(NewBoard1, _, _, _, _),
          get_piece(NewBoard1, 8, 1, 'Q')) ->
@@ -145,12 +140,13 @@ test_pawn_promotion :-
     create_empty_board(Board3),
     place_single_piece(Board3, 2, 1, 'p', Board4),  % Pion noir en a2
     GS2 = game_state(Board4, black, 0, active, [[], []]),
-    write('[RUN] Test 2/2: Promotion pion noir............. '),
+    write('[RUN] Test 5/5: Promotion pion noir............ '),
     (   (make_move(GS2, 2, 1, 1, 1, NewGS2),
          NewGS2 = game_state(NewBoard2, _, _, _, _),
          get_piece(NewBoard2, 1, 1, 'q')) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail), nl.
+
 
 test_knight_rules :-
     write('[TEST] REGLES DU CAVALIER'), nl,
@@ -179,12 +175,12 @@ test_sliding_pieces :-
     place_single_piece(Board1, 5, 5, 'B', Board2),      % Fou blanc e5
     place_single_piece(Board2, 8, 8, 'k', TestBoard),   % Roi noir h8
     
-    write('[RUN] Test 1/3: Tour mouvement horizontal....... '),
+    write('[RUN] Test 1/3: Tour mouvement horizontal...... '),
     (   valid_move(TestBoard, white, 4, 4, 4, 8) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
         
-    write('[RUN] Test 2/3: Tour mouvement vertical......... '),
+    write('[RUN] Test 2/3: Tour mouvement vertical........ '),
     (   valid_move(TestBoard, white, 4, 4, 8, 4) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
@@ -265,14 +261,14 @@ test_checkmate_detection :-
     place_single_piece(Board3, 8, 8, 'k', MateBoard),    % Roi noir h8
     MateGS = game_state(MateBoard, white, 0, active, [[], []]),
     
-    write('[RUN] Test 1/3: Mat du fond..................... '),
+    write('[RUN] Test 1/3: Mat du fond.................... '),
     (   is_checkmate(MateGS, white) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
     
     % Position normale (pas mat)
     init_game_state(NormalGS),
-    write('[RUN] Test 2/3: Position normale (pas mat)...... '),
+    write('[RUN] Test 2/3: Position normale (pas mat)..... '),
     (   \+ is_checkmate(NormalGS, white) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
@@ -400,22 +396,22 @@ test_opening_sequence :-
     write('-----------------------------'), nl,
     
     init_game_state(GS1),
-    write('[RUN] Test 1/4: 1.e4............................ '),
+    write('[RUN] Test 1/4: 1.e4........................... '),
     (   make_move(GS1, 2, 5, 4, 5, GS2) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
         
-    write('[RUN] Test 2/4: 1...e5.......................... '),
+    write('[RUN] Test 2/4: 1...e5......................... '),
     (   make_move(GS2, 7, 5, 5, 5, GS3) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
         
-    write('[RUN] Test 3/4: 2.Nf3........................... '),
+    write('[RUN] Test 3/4: 2.Nf3.......................... '),
     (   make_move(GS3, 1, 7, 3, 6, GS4) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail),
         
-    write('[RUN] Test 4/4: 2...Nc6......................... '),
+    write('[RUN] Test 4/4: 2...Nc6........................ '),
     (   make_move(GS4, 8, 2, 6, 3, _GS5) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail), nl.
@@ -515,7 +511,6 @@ test_help :-
     write('* run_checkmate_tests.    - Tests echec et mat'), nl,
     write('* run_robustness_tests.   - Tests de robustesse'), nl,
     write('* run_integration_tests.  - Tests d\'integration'), nl,
-    write('* test_pawn_promotion.    - Tests promotion pions'), nl,
     write('* test_help.              - Cette aide'), nl.
 
 % =============================================================================

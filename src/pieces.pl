@@ -143,8 +143,9 @@ white_pawn_capture(Board, FromRow, FromCol, ToRow, ToCol) :-
 
 % is_promotion_move(+Player, +FromRow, +ToRow)
 % Detecte si un mouvement de pion constitue une promotion.
-is_promotion_move(white, _, 8).  % Pion blanc atteint la 8e rangee
-is_promotion_move(black, _, 1).  % Pion noir atteint la 1ere rangee
+% SECURITE: Valide que le pion vient bien de la rangee precedente.
+is_promotion_move(white, 7, 8).  % Pion blanc de 7e vers 8e rangee seulement
+is_promotion_move(black, 2, 1).  % Pion noir de 2e vers 1ere rangee seulement
 
 % get_promotion_piece(+Player, -PromotionPiece)
 % Retourne la piece de promotion (automatiquement une dame).

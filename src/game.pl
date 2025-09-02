@@ -131,7 +131,14 @@ perform_move(Board, Piece, from(FromRow, FromCol), to(ToRow, ToCol), NewBoard) :
 
 % determine_final_piece(+OriginalPiece, +FromRow, +ToRow, -FinalPiece)
 % Determine la piece finale apres mouvement (gere la promotion des pions).
+% SECURITE: Validation complete des parametres pour eviter corruption.
 determine_final_piece(Piece, FromRow, ToRow, FinalPiece) :-
+    % Validation des parametres - SECURITE CRITIQUE
+    ground(Piece), ground(FromRow), ground(ToRow),
+    integer(FromRow), integer(ToRow),
+    valid_chess_position(FromRow, 1),  % FromRow dans les limites de l'echiquier
+    valid_chess_position(ToRow, 1),    % ToRow dans les limites de l'echiquier
+    % Logique de promotion validee
     (is_pawn_promotion(Piece, FromRow, ToRow) ->
         get_piece_color(Piece, Color),
         get_promotion_piece(Color, FinalPiece)
