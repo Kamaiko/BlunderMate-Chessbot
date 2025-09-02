@@ -33,8 +33,8 @@ choose_ai_move(GameState, BestMove) :-
     worst_value(Player, Alpha),
     best_value(Player, Beta),
     
-    % Timeout de securite - 3 secondes maximum
-    (   call_with_time_limit(3, 
+    % Timeout de securite - 5 secondes pour profondeur 1
+    (   call_with_time_limit(5, 
             minimax_root(GameState, Player, Depth, Alpha, Beta, BestMove, _)
         )
     ->  true
@@ -72,8 +72,10 @@ evaluate_all_moves(GameState, [Move|RestMoves], Player, Depth, Alpha, Beta) :-
     
     opposite_player(Player, Opponent),
     NewDepth is Depth - 1,
-    minimax_evaluate(NewGameState, Opponent, NewDepth, Alpha, Beta, _, Value),
+    minimax_evaluate(NewGameState, Opponent, NewDepth, Alpha, Beta, _, OpponentValue),
     
+    % Inverser la valeur car elle vient du point de vue de l'adversaire
+    Value is -OpponentValue,
     update_best_move(Move, Value, Player),
     
     % Test de coupure alpha-beta
@@ -110,7 +112,10 @@ minimax_search_moves(GameState, [Move|RestMoves], Player, Depth, Alpha, Beta, Cu
     
     opposite_player(Player, Opponent),
     NewDepth is Depth - 1,
-    minimax_evaluate(NewGameState, Opponent, NewDepth, Alpha, Beta, _, MoveValue),
+    minimax_evaluate(NewGameState, Opponent, NewDepth, Alpha, Beta, _, OpponentMoveValue),
+    
+    % Inverser la valeur car elle vient du point de vue de l'adversaire
+    MoveValue is -OpponentMoveValue,
     
     % Determine si c'est mieux selon le joueur
     (   is_better_move(Player, MoveValue, CurrentValue) ->
@@ -301,7 +306,7 @@ generate_legal_moves(GameState, Player, SortedMoves) :-
     
     % Trie les coups par priorite et limite a 15 meilleurs
     prioritize_moves(GameState, AllMoves, PrioritizedMoves),
-    take_best_moves(PrioritizedMoves, 15, SortedMoves).
+    take_best_moves(PrioritizedMoves, 10, SortedMoves).
 
 % prioritize_moves(+GameState, +Moves, -PrioritizedMoves)
 % Trie les coups par priorite
@@ -378,7 +383,7 @@ emergency_move_selection(GameState, BestMove) :-
 
 % ai_search_depth(-Depth)
 % Configure la profondeur de recherche
-ai_search_depth(2).  % Profondeur 2 optimisee
+ai_search_depth(2).  % Profondeur 2 comme demande
 
 % Interface IA integree dans le systeme principal (interface.pl)
 % Utilisez start_ai_game/0 pour lancer une partie contre l'IA
