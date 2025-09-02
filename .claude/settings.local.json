@@ -11,7 +11,6 @@
       "mcp__sequential-thinking__sequentialthinking",
       "mcp__context7__*",
       "mcp__filesystem__*",
-      "mcp__playwright__*",
       "Read(C:\\Users\\Patrick Patenaude\\.config\\claude-code/**)",
       "mcp__filesystem__read_multiple_files",
       "mcp__filesystem__read_text_file",
@@ -19,9 +18,12 @@
       "Read(C:\\Users\\Patrick Patenaude\\.claude\\ide/**)",
       "Read(C:\\Users\\Patrick Patenaude\\.claude/**)",
       "Read(C:\\Users\\Patrick Patenaude\\.claude/**)",
-      "mcp__filesystem__list_directory"
+      "mcp__filesystem__list_directory",
+      "Read(C:\\Users\\Patrick Patenaude\\.config\\claude-code/**)"
     ],
-    "deny": [],
+    "deny": [
+      "mcp__playwright__*"
+    ],
     "ask": []
   }
 }
