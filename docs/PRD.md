@@ -67,30 +67,39 @@
 | **⚡ Technique** | Minimax+alpha-beta fonctionnels, temps réponse raisonnable | 🚧 |
 | **🧪 Qualité** | Tests passent (35/35), code modulaire, zéro crash | ✅ |
 
-### Contraintes Techniques
+## 🔧 Contraintes Techniques
 
-**Plateforme** : SWI-Prolog uniquement, interface console ASCII  
-**Performance** : Équilibre profondeur recherche vs temps réponse raisonnable  
-**Architecture** : 5 modules (pieces, board, game, interface, ai), tests automatisés
+- **🖥️ Plateforme** : SWI-Prolog uniquement, interface console ASCII
+- **⚡ Performance** : Équilibre profondeur recherche vs temps réponse raisonnable  
+- **🏗️ Architecture** : 5 modules (pieces, board, game, interface, ai), tests automatisés
 
-### Phases Développement
+## 📈 Phases Développement
 
-**Phase 1** : Architecture base et règles (✅ Terminée)  
-**Phase 2** : Règles avancées et promotion (✅ Terminée)  
-**Phase 3** : IA minimax/alpha-beta (🚧 Actuelle - Deadline 20 oct 2025)
+- **Phase 1** : Architecture base et règles ✅ **TERMINÉE**
+- **Phase 2** : Règles avancées et promotion ✅ **TERMINÉE**  
+- **Phase 3** : IA minimax/alpha-beta 🚧 **ACTUELLE** *(Deadline: 20 oct 2025)*
 
-### Cas d'Usage Principaux
+## 🎯 Cas d'Usage Principaux
 
-**CU-001** : Lancement rapide → `swipl go.pl` → Menu principal <3sec  
-**CU-002** : Mouvements joueur → "e2e4" validé et exécuté avec retour visuel  
-**CU-003** : Réponse IA → Coup légal généré avec raisonnement visible  
-**CU-004** : Détection fin → Mat/Pat détecté avec annonce appropriée  
-**CU-005** : IA recherche → Profondeur fixe 2 coups pour simplicité  
-**CU-006** : Promotion → Conversion automatique pion vers dame ✅  
-**CU-007** : Tests → Suite complète `swipl tests/tests.pl` 35/35 passent ✅
+### 🚀 Lancement & Navigation
+- **CU-001** : Lancement rapide → `swipl go.pl` → Menu principal <3sec
+- **CU-002** : Mouvements joueur → "e2e4" validé et exécuté avec retour visuel
+
+### 🤖 Intelligence Artificielle  
+- **CU-003** : Réponse IA → Coup légal généré avec raisonnement visible
+- **CU-005** : IA recherche → Profondeur fixe 2 coups pour simplicité
+
+### ⚔️ Mécaniques de Jeu
+- **CU-004** : Détection fin → Mat/Pat détecté avec annonce appropriée  
+- **CU-006** : Promotion → Conversion automatique pion vers dame ✅
+
+### 🧪 Validation
+- **CU-007** : Tests → Suite complète `swipl tests/tests.pl` 35/35 passent ✅
 
 ---
 
-## Liens Documentation
+## 📚 Ressources & Documentation
 
-**Roadmap détaillé** : [TASKS.md](TASKS.md) • **Guide développeur** : [../.claude/CLAUDE.md](../.claude/CLAUDE.md) • **Utilisateur** : [../README.md](../README.md)
+**📋 Roadmap détaillé** : [TASKS.md](TASKS.md)  
+**🛠️ Guide développeur** : [CLAUDE.md](../.claude/CLAUDE.md)  
+**👤 Guide utilisateur** : [README.md](../README.md)
