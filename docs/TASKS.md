@@ -21,9 +21,7 @@
 ## 📊 Statut Détaillé
 
 **Architecture** : ✅ 5 modules stables (pieces, board, game, interface, ai)  
-**Tests** : ✅ 35 tests - Architecture `tests.pl` unifiée + promotion  
-**Interface** : ✅ Menu français professionnel  
-**Prochaine étape** : IA minimax (Phase 3)
+**Tests** : ✅ 35 tests - Architecture `tests.pl` unifiée + promotion
 
 ## Phase 1 : Fondations ✅ COMPLÈTE
 
