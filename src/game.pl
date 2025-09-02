@@ -133,7 +133,24 @@ handle_capture(TargetPiece, CapturedPieces, NewCapturedPieces) :-
 % Execute physiquement le mouvement sur l'echiquier.
 perform_move(Board, Piece, from(FromRow, FromCol), to(ToRow, ToCol), NewBoard) :-
     place_single_piece(Board, FromRow, FromCol, ' ', TempBoard),
-    place_single_piece(TempBoard, ToRow, ToCol, Piece, NewBoard).
+    determine_final_piece(Piece, FromRow, ToRow, FinalPiece),
+    place_single_piece(TempBoard, ToRow, ToCol, FinalPiece, NewBoard).
+
+% determine_final_piece(+OriginalPiece, +FromRow, +ToRow, -FinalPiece)
+% Determine la piece finale apres mouvement (gere la promotion des pions).
+determine_final_piece(Piece, FromRow, ToRow, FinalPiece) :-
+    (is_pawn_promotion(Piece, FromRow, ToRow) ->
+        get_piece_color(Piece, Color),
+        get_promotion_piece(Color, FinalPiece)
+    ;   FinalPiece = Piece
+    ).
+
+% is_pawn_promotion(+Piece, +FromRow, +ToRow)
+% Verifie si le mouvement d'un pion constitue une promotion.
+is_pawn_promotion(Piece, FromRow, ToRow) :-
+    get_piece_type(Piece, pion),
+    get_piece_color(Piece, Color),
+    is_promotion_move(Color, FromRow, ToRow).
 
 % update_captured_pieces(+Piece, +CapturedPieces, -NewCapturedPieces)
 % Met a jour la liste des pieces capturees.

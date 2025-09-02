@@ -97,6 +97,7 @@ run_pieces_tests :-
     display_test_section_header('TESTS DES PIECES', 'Mouvements et Regles'),
     run_test_group([
         test_pawn_rules,
+        test_pawn_promotion,
         test_knight_rules,
         test_sliding_pieces,
         test_king_rules
@@ -122,6 +123,32 @@ test_pawn_rules :-
         
     write('[OK] Test 3/3: Mouvement lateral interdit..... '),
     (   \+ valid_move(Board, white, 2, 5, 2, 6) ->
+        write('PASS'), nl
+    ;   write('FAIL'), nl, fail), nl.
+
+test_pawn_promotion :-
+    write('[TEST] PROMOTION DES PIONS'), nl,
+    write('--------------------------'), nl,
+    
+    % Test promotion pion blanc
+    create_empty_board(Board1),
+    place_single_piece(Board1, 7, 1, 'P', Board2),  % Pion blanc en a7
+    GS1 = game_state(Board2, white, 0, active, [[], []]),
+    write('[OK] Test 1/2: Promotion pion blanc............ '),
+    (   (make_move(GS1, 7, 1, 8, 1, NewGS1),
+         NewGS1 = game_state(NewBoard1, _, _, _, _),
+         get_piece(NewBoard1, 8, 1, 'Q')) ->
+        write('PASS'), nl
+    ;   write('FAIL'), nl, fail),
+    
+    % Test promotion pion noir
+    create_empty_board(Board3),
+    place_single_piece(Board3, 2, 1, 'p', Board4),  % Pion noir en a2
+    GS2 = game_state(Board4, black, 0, active, [[], []]),
+    write('[OK] Test 2/2: Promotion pion noir............. '),
+    (   (make_move(GS2, 2, 1, 1, 1, NewGS2),
+         NewGS2 = game_state(NewBoard2, _, _, _, _),
+         get_piece(NewBoard2, 1, 1, 'q')) ->
         write('PASS'), nl
     ;   write('FAIL'), nl, fail), nl.
 
@@ -490,6 +517,7 @@ test_help :-
     write('* run_checkmate_tests.    - Tests echec et mat'), nl,
     write('* run_robustness_tests.   - Tests de robustesse'), nl,
     write('* run_integration_tests.  - Tests d\'integration'), nl,
+    write('* test_pawn_promotion.    - Tests promotion pions'), nl,
     write('* test_help.              - Cette aide'), nl.
 
 % =============================================================================

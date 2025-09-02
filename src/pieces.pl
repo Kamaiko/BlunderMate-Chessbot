@@ -144,6 +144,20 @@ white_pawn_capture(Board, FromRow, FromCol, ToRow, ToCol) :-
     get_piece(Board, ToRow, ToCol, TargetPiece),
     is_black_piece(TargetPiece).
 
+% =============================================================================
+% SECTION 4.5 : DETECTION PROMOTION DES PIONS
+% =============================================================================
+
+% is_promotion_move(+Player, +FromRow, +ToRow)
+% Detecte si un mouvement de pion constitue une promotion.
+is_promotion_move(white, _, 8).  % Pion blanc atteint la 8e rangee
+is_promotion_move(black, _, 1).  % Pion noir atteint la 1ere rangee
+
+% get_promotion_piece(+Player, -PromotionPiece)
+% Retourne la piece de promotion (automatiquement une dame).
+get_promotion_piece(white, 'Q').  % Dame blanche
+get_promotion_piece(black, 'q').  % Dame noire
+
 % Pion noir - se deplace vers les rangees inferieures
 can_black_pawn_move(Board, FromRow, FromCol, ToRow, ToCol) :-
     (   black_pawn_single_move(Board, FromRow, FromCol, ToRow, ToCol)
