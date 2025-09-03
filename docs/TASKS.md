@@ -8,13 +8,13 @@
 |-------|--------|---------|-------|
 | **Phase 1** | ✅ **COMPLÈTE** | Fondations, mouvements base, interface | 28 tests |
 | **Phase 2** | ✅ **COMPLÈTE** | Échec/mat, promotion pions | +7 tests (35 total) |
-| **Phase 3** | ✅ **FONCTIONNELLE** | IA minimax, alpha-beta, interface unifiée | +7 tests (42 total) |
+| **Phase 3** | ❌ **DÉFAILLANTE** | IA minimax, alpha-beta, interface unifiée | +7 tests (42 total) |
 
-### ✅ Étape actuelle : IA FONCTIONNELLE
-- **Réalisation majeure** : IA minimax avec alpha-beta fonctionnelle
-- **Status** : Interface unifiée, 42/42 tests PASS, Mode IA vs Humain actif
-- **Améliorations** : Bug intermittent à corriger, optimisation profondeur 2
-- **📅 DEADLINE TP1** : 20 octobre 2025 - OBJECTIF ATTEINT
+### ❌ Étape actuelle : IA DÉFAILLANTE
+- **Status technique** : Interface unifiée, 42/42 tests PASS, Mode IA vs Humain actif
+- **Problème critique** : IA fait des blunders tactiques constants (donne matériel gratuitement)
+- **Impact** : IA non utilisable en pratique malgré tests passants
+- **📅 DEADLINE TP1** : 20 octobre 2025 - OBJECTIF NON ATTEINT
 
 ---
 
@@ -33,12 +33,13 @@
 - [x] **Gestion erreurs** : Validation robuste entrées
 - [ ] **Améliorations** : Coordonnées lisibles, highlights
 
-### ✅ STATUT ai.pl 
-**FONCTIONNEL** - Version production stable
-- Code testé avec Section 6 (7 tests IA)
+### ❌ STATUT ai.pl 
+**DÉFAILLANT** - Blunders tactiques constants
+- Section 6 (14 tests IA) complètement outdated - ne passent pas
 - Intégré au menu principal (Option 2)
 - Architecture unifiée avec interface.pl
-- ⚠️ Bug intermittent : IA peut s'arrêter après premier coup
+- ❌ Bug critique : IA donne matériel gratuitement (captures sans voir recaptures)
+- ❌ Tests défaillants : Section 6 IA à refaire complètement
 
 ## Extensions Futures
 

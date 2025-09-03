@@ -338,7 +338,39 @@
 
 ## 🧪 Phase 4-REFACTOR : Tests Qualité Jeu (2h)
 > **Objectif** : Tests détectant qualité IA réelle (pas seulement compilation)  
-> **Statut** : 42/42 tests PASS mais ne détectent pas bugs g8h6 et qualité
+> **Statut** : ⚠️ PROBLÈME CRITIQUE DÉCOUVERT - Tables piece-square défaillantes
+
+### ⚠️ DÉCOUVERTE CRITIQUE (SEPTEMBRE 2025)
+**PROBLÈME** : IA fait ENCORE des blunders malgré corrections multiples
+**CAUSE RACINE** : Tables piece-square masquent pertes matérielles réelles
+
+#### Diagnostic Effectué ✅
+- ✅ **Logique captures** : Fonctionnelle (d4xe5, Nc6xd4, Qd1xd4)
+- ✅ **Algorithme minimax** : Fonctionnel (profondeur 2, génération coups) 
+- ✅ **Génération coups** : Améliorée (développement vs pions latéraux)
+- ❌ **Tables évaluation** : DÉFAILLANTES
+
+#### Données Critical Debug
+```
+Position test: nc6, Pd4, Qd1, Ke1, ke8
+Séquence: Nc6xd4 → Qd1xd4 (perte cavalier vs pion)
+
+ATTENDU: -220 points (cavalier 320 - pion 100)
+RÉEL:    +5 points (bonus positionnels compensent perte!)
+
+Tables problématiques:
+- Cavalier central: +20 bonus positionnel  
+- Pion central: +25 bonus positionnel
+- RÉSULTAT: Différence matérielle noyée
+```
+
+#### Solution Recommandée
+```prolog
+% Dans piece_values_sophisticated.pl
+% RÉDUIRE tous ajustements à ±30 maximum (vs ±50+ actuels)
+pos_value_reference(knight, 4, 4, white, 10).  % Au lieu de 20
+pos_value_reference(pawn, 4, 4, white, 15).    % Au lieu de 25
+```
 
 ### 🧪 4-R.1 Tests Qualité Jeu - NOUVEAUX (1.5h)
 - [ ] **TEST VARIÉTÉ premiers coups** : Détecter bug g8h6

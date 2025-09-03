@@ -10,6 +10,7 @@
 :- [pieces].
 :- [board].
 :- [game].
+:- consult('./piece_values_sophisticated.pl').
 
 % =============================================================================
 % CONSTANTES REFERENCE EXACTES - BOARD_EVAL.PL:5-12
@@ -68,24 +69,32 @@ eval_move_simple(GameState, [FromRow, FromCol, ToRow, ToCol], Player, Depth, Val
     make_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState),
     opposite_player(Player, Opponent),
     NewDepth is Depth - 1,
-    minimax_simple_ref(NewGameState, Opponent, NewDepth, _, OpponentValue),
-    Value is -OpponentValue.
+    % CORRECTION: appeler minimax pour l'adversaire, puis negate
+    minimax_simple_ref(NewGameState, Opponent, NewDepth, _, OpponentBestValue),
+    % Dans minimax: la valeur retournee par l'adversaire est son meilleur score
+    % Notre score est l'oppose de son meilleur score
+    Value is -OpponentBestValue.
 
 % is_better_simple(+Player, +NewValue, +OldValue)
+% CORRECTION: avec evaluation symetrique, tous cherchent valeur PLUS ELEVEE
 is_better_simple(white, NewValue, OldValue) :- NewValue > OldValue.
-is_better_simple(black, NewValue, OldValue) :- NewValue < OldValue.
+is_better_simple(black, NewValue, OldValue) :- NewValue > OldValue.
 
 % =============================================================================
 % EVALUATION PURE REFERENCE - BOARD_EVAL.PL EXACT
 % =============================================================================
 
 % evaluate_pure_reference(+GameState, +Player, -Value)
-% EXACTEMENT comme chess.pl:56-60 + board_eval.pl:14-24
+% CORRECTION CRITIQUE: Evaluation symmetrique pour minimax correct
 evaluate_pure_reference(GameState, Player, Value) :-
     count_material_pure_ref(GameState, white, WhiteValue),
     count_material_pure_ref(GameState, black, BlackValue),
-    compensate_ref(Player, Comp),
-    Value is WhiteValue - BlackValue + Comp.
+    MaterialDiff is WhiteValue - BlackValue,
+    % Retourner valeur du point de vue du joueur actuel
+    (   Player = white ->
+        Value = MaterialDiff
+    ;   Value is -MaterialDiff
+    ).
 
 % count_material_pure_ref(+GameState, +Color, -Value)
 % EXACTEMENT comme count_halfst dans board_eval.pl:14-24
@@ -151,61 +160,16 @@ piece_is_type_pure('Q', queen). piece_is_type_pure('q', queen).
 piece_is_type_pure('K', king). piece_is_type_pure('k', king).
 
 % pos_value_pure_ref(+Type, +Row, +Col, +Color, -Value)
-% EXACTEMENT board_eval.pl:35-70 avec CORRECTION calcul noirs
-pos_value_pure_ref(Type, Row, Col, black, Value) :-
-    % CORRECTION CRITIQUE: Calcul exact comme référence board_eval.pl:35-37
-    Pos is Row * 10 + Col,
-    RelPos is 99 - Pos,  % EXACTEMENT comme référence
-    RelRow is RelPos // 10,
-    RelCol is RelPos mod 10,
-    pos_value_pure_ref(Type, RelRow, RelCol, white, Value), !.
+% TABLES DE REFERENCE CHESS PROGRAMMING WIKI - Adaptées
+pos_value_pure_ref(Type, Row, Col, Color, Value) :-
+    pos_value_reference(Type, Row, Col, Color, Value), !.
 
-% Pions blancs - EXACTEMENT board_eval.pl:43-47
-pos_value_pure_ref(pawn, Row, Col, white, 127) :-
-    Pos is Row * 10 + Col,
-    member(Pos, [34,35]), !.  % d4, e4 
-pos_value_pure_ref(pawn, Row, Col, white, 131) :-
-    Pos is Row * 10 + Col,
-    member(Pos, [44,45,54,55]), !.  % d5, e5, d6, e6
-pos_value_pure_ref(pawn, _, _, white, 100) :- !.
-
-% Roi - EXACTEMENT board_eval.pl:48-49
-pos_value_pure_ref(king, Row, Col, white, 30) :-
-    Pos is Row * 10 + Col,
-    member(Pos, [11,12,13,17,18]), !.  % Roi sécurisé
-pos_value_pure_ref(king, _, _, white, 0) :- !.
-
-% Tour - EXACTEMENT board_eval.pl:50
-pos_value_pure_ref(rook, _, _, white, 450) :- !.
-
-% Cavalier - EXACTEMENT board_eval.pl:51-56
-pos_value_pure_ref(knight, Row, Col, white, Value) :-
-    row_value_pure(knight, Row, V1),
-    line_value_pure(knight, Col, V2),
-    Value is V1 + V2, !.
-
-% Fou et Dame - EXACTEMENT board_eval.pl:39-42
-pos_value_pure_ref(bishop, Row, _, white, Value) :-
-    row_value_pure(bishop, Row, Value), !.
-pos_value_pure_ref(queen, Row, _, white, Value) :-
-    row_value_pure(queen, Row, Value), !.
-
-% row_value_pure et line_value_pure - EXACTEMENT board_eval.pl:58-74
-row_value_pure(knight, 2, 320) :- !.
-row_value_pure(knight, 3, 321) :- !.
-row_value_pure(knight, X, 348) :- member(X, [4,5]), !.
-row_value_pure(knight, X, 376) :- member(X, [6,7]), !.
-row_value_pure(knight, _, 290) :- !.
-
-row_value_pure(bishop, 1, 300) :- !.
-row_value_pure(bishop, X, 329) :- member(X, [2,3]), !.
-row_value_pure(bishop, _, 330) :- !.
-
-row_value_pure(queen, 1, 850) :- !.
-row_value_pure(queen, _, 876) :- !.
-
-line_value_pure(knight, X, 0) :- member(X, [1,8]), !.
-line_value_pure(knight, _, 10) :- !.
+% Fallback pour pieces non définies dans les tables
+pos_value_pure_ref(Type, _, _, Color, Value) :-
+    piece_reference_value(Type, BaseValue),
+    (   Color = white -> Value = BaseValue
+    ;   Value is -BaseValue
+    ), !.
 
 % =============================================================================
 % GENERATION COUPS SIMPLE
@@ -213,53 +177,106 @@ line_value_pure(knight, _, 10) :- !.
 
 % generate_moves_simple(+GameState, +Player, -Moves)
 generate_moves_simple(GameState, Player, Moves) :-
+    GameState = game_state(_, _, MoveCount, _, _),
+    
+    % Phase d'ouverture (premiers 15 coups) - priorités spéciales
+    (   MoveCount =< 15 ->
+        generate_opening_moves(GameState, Player, Moves)
+    ;   generate_regular_moves(GameState, Player, Moves)
+    ).
+
+% generate_opening_moves(+GameState, +Player, -Moves)
+% Génération optimisée pour l'ouverture selon principes classiques
+generate_opening_moves(GameState, Player, Moves) :-
     GameState = game_state(Board, _, _, _, _),
     
-    % Générer coups par priorité : développement d'abord, puis pions
+    % 1. PIONS CENTRAUX PRIORITAIRES (e4, d4, e5, d5)
     findall([FromRow, FromCol, ToRow, ToCol], (
-        % D'abord cavaliers et fous (développement)
         between(1, 8, FromRow),
         between(1, 8, FromCol),
         get_piece(Board, FromRow, FromCol, Piece),
         Piece \= '.',
         get_piece_color(Piece, Player),
-        member(Piece, ['N','n','B','b']),  % Cavaliers et fous d'abord
+        member(Piece, ['P','p']),
         between(1, 8, ToRow),
         between(1, 8, ToCol),
-        valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol)
+        valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
+        % FILTRE: Seulement pions centraux d4, e4, d5, e5
+        member([FromCol, ToCol], [[4,4], [5,5]])  % d et e colonnes
+    ), CentralPawnMoves),
+    
+    % 2. DÉVELOPPEMENT PIÈCES MINEURES (cavaliers puis fous)
+    findall([FromRow, FromCol, ToRow, ToCol], (
+        between(1, 8, FromRow),
+        between(1, 8, FromCol),
+        get_piece(Board, FromRow, FromCol, Piece),
+        Piece \= '.',
+        get_piece_color(Piece, Player),
+        member(Piece, ['N','n','B','b']),  
+        between(1, 8, ToRow),
+        between(1, 8, ToCol),
+        valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
+        % FILTRE: Éviter développements sur bords
+        ToCol >= 2, ToCol =< 7,  % Pas colonnes a/h
+        ToRow >= 3, ToRow =< 6   % Positions centrales
     ), DevelopmentMoves),
     
-    % Puis coups de pions
+    % 3. COUPS DE PIONS SECONDAIRES (seulement 2 cases si possible)
     findall([FromRow, FromCol, ToRow, ToCol], (
         between(1, 8, FromRow),
         between(1, 8, FromCol),
         get_piece(Board, FromRow, FromCol, Piece),
         Piece \= '.',
         get_piece_color(Piece, Player),
-        member(Piece, ['P','p']),  % Pions
+        member(Piece, ['P','p']),
         between(1, 8, ToRow),
         between(1, 8, ToCol),
-        valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol)
-    ), PawnMoves),
+        valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
+        % FILTRE: Éviter pions faibles (f6, g6, h6 pour noirs)
+        \+ member([FromCol, ToRow], [[6,6], [7,6], [8,6]]),  % Pas f6, g6, h6
+        % Préférer coups 2 cases sur flancs
+        (   abs(ToRow - FromRow) =:= 2  % Coup 2 cases
+        ;   member(FromCol, [3,4,5,6])  % Ou pions centraux
+        )
+    ), SecondaryPawnMoves),
     
-    % Puis autres pièces
+    % 4. AUTRES COUPS (tour, dame, roi)
     findall([FromRow, FromCol, ToRow, ToCol], (
         between(1, 8, FromRow),
         between(1, 8, FromCol),
         get_piece(Board, FromRow, FromCol, Piece),
         Piece \= '.',
         get_piece_color(Piece, Player),
-        \+ member(Piece, ['P','p','N','n','B','b']),  % Autres
+        member(Piece, ['R','r','Q','q','K','k']),
         between(1, 8, ToRow),
         between(1, 8, ToCol),
         valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol)
     ), OtherMoves),
     
-    % Combiner par priorité
-    append(DevelopmentMoves, PawnMoves, TempMoves),
-    append(TempMoves, OtherMoves, AllMoves),
+    % Priorité: Centraux > Développement > Pions secondaires > Autres
+    append(CentralPawnMoves, DevelopmentMoves, Priority1),
+    append(Priority1, SecondaryPawnMoves, Priority2), 
+    append(Priority2, OtherMoves, AllMoves),
     
-    % Prendre premiers 20 coups (augmenté pour inclure plus d'options)
+    take_first_20_simple(AllMoves, Moves).
+
+% generate_regular_moves(+GameState, +Player, -Moves)  
+% Génération standard pour milieu/fin de partie
+generate_regular_moves(GameState, Player, Moves) :-
+    GameState = game_state(Board, _, _, _, _),
+    
+    % Génération standard sans restrictions d'ouverture
+    findall([FromRow, FromCol, ToRow, ToCol], (
+        between(1, 8, FromRow),
+        between(1, 8, FromCol),
+        get_piece(Board, FromRow, FromCol, Piece),
+        Piece \= '.',
+        get_piece_color(Piece, Player),
+        between(1, 8, ToRow),
+        between(1, 8, ToCol),
+        valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol)
+    ), AllMoves),
+    
     take_first_20_simple(AllMoves, Moves).
 
 % take_first_20_simple(+List, -First20)
