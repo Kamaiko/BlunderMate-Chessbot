@@ -170,14 +170,15 @@ swipl -t run_tests -s tests/tests.pl
 swipl tests/tests.pl
 ```
 
-## AI Implementation Status (Phase 3) - AMÉLIORATIONS MAJEURES ✅⚠️
+## AI Implementation Status (Phase 3) - AI V1 ARCHIVÉE 🔄
 
-🔄 **CORRECTIONS MAJEURES APPLIQUÉES - PROGRÈS SIGNIFICATIFS**
-- **Statut**: IA partiellement corrigée, développement des pièces fonctionnel
-- **Progrès 1**: ✅ Développement des pièces résolu (Nc6, Nf6 au lieu de pions uniquement)  
-- **Progrès 2**: ✅ Bugs critiques corrigés (valeurs noires, comptage rois, évaluation matérielle)
-- **Impact**: IA maintenant utilisable pour développement, mais problèmes tactiques persistent
-- **Documentation**: `docs/AI_STATUS_HANDOFF.md` mis à jour avec corrections et nouveaux problèmes
+❌ **AI V1 DÉFAILLANTE ARCHIVÉE - PRÉPARATION AI V2**
+- **Statut**: AI v1 archivée dans `archive/ai_v1_defaillante.pl` (Septembre 2025)
+- **Problème critique identifié**: Status mismatch (active/ongoing) empêche évaluation captures
+- **Tests AI**: Section 6 supprimée de tests.pl (complètement outdated)
+- **Blunders persistants**: Cavaliers mangés par pions, développement identique sans tenir compte du board
+- **Prochaine étape**: Implémentation AI v2 avec architecture corrigée
+- **Documentation**: `docs/AI_STATUS_HANDOFF.md` contient diagnostic complet
 
 ### ✅ Corrections Majeures Réussies (Septembre 2025)
 - **🎯 Développement pièces RÉSOLU**: IA joue maintenant Nc6, Nf6, Be7, Bd7 en ouverture
@@ -187,15 +188,56 @@ swipl tests/tests.pl
 
 ### ❌ Problèmes Tactiques Persistants (À Corriger)
 - **🚨 Recaptures manquées**: En échec Qd8+, choisit Ke7 au lieu de Bxd8 (sacrifice dame!)
-- **🎯 Logique ouverture**: Manque 1.d4 d5 (imitation coup central), développe trop tôt
+- **🎯 Logique ouverture INCORRECTE**: Développement prématuré au lieu de réponses centrales classiques
 - **⚠️ Détection menaces**: Ignore cavalier f6 attaqué par e4-e5, ne protège pas
 - **🧪 Tests IA outdated**: Section 6 ne reflète pas les nouvelles corrections
 
+### 📚 RECOMMANDATIONS THÉORIQUES À IMPLÉMENTER
+
+#### **Réponses d'Ouverture Classiques** (Priorité 1)
+```prolog
+% Réponse au pion roi - OBLIGATOIRE avant développement
+opening_move([e2,e4], [e7,e5]).   % Ouverture ouverte (classique)
+opening_move([e2,e4], [c7,c5]).   % Sicilienne
+opening_move([e2,e4], [e7,e6]).   % Française
+opening_move([e2,e4], [c7,c6]).   % Caro-Kann
+opening_move([e2,e4], [d7,d6]).   % Pirc/Moderne
+opening_move([e2,e4], [g8,f6]).   % Défense hypermoderne
+
+% Réponse au pion dame - OBLIGATOIRE avant développement
+opening_move([d2,d4], [d7,d5]).   % Classique (PRIORITÉ #1)
+opening_move([d2,d4], [g8,f6]).   % Indienne
+opening_move([d2,d4], [e7,e6]).   % Française pour d4
+opening_move([d2,d4], [c7,c6]).   % Slav / Caro-Kann dame
+opening_move([d2,d4], [d7,d6]).   % Moderne pour d4
+```
+
+#### **Checklist Évaluation Heuristique** (Profondeur 2)
+```prolog
+% 1. Valeur des pièces (CORRIGÉ ✅)
+% Pion=100, Cavalier=320, Fou=330, Tour=500, Dame=900, Roi=10000
+
+% 2. Contrôle du centre (À IMPLÉMENTER ❌)
+% Bonus pour pions/pièces sur d4, e4, d5, e5
+
+% 3. Sécurité du roi / Roque (À IMPLÉMENTER ❌)
+% Malus pour roi exposé, bonus pour roque
+
+% 4. Structure des pions (À IMPLÉMENTER ❌)
+% Malus pions isolés/doublés, bonus chaînes de pions
+
+% 5. Développement des pièces (PARTIELLEMENT ✅)
+% Bonus cavaliers/fous actifs (fait), mais APRÈS coups centraux
+
+% 6. Coups d'ouverture théoriques (À IMPLÉMENTER ❌)
+% Énorme bonus pour réponses classiques (1.d4 d5, 1.e4 e5)
+```
+
 ### 📋 État Actuel Diagnostic (Décembre 2025)
-- **Développement pièces**: ✅ FONCTIONNEL (Nc6, Nf6 en priorité)
+- **Développement pièces**: ⚠️ PRÉMATURÉ (développe Nc6, Nf6 avant réponses centrales)
 - **Évaluation matérielle**: ✅ CORRIGÉE (valeurs noires négatives, rois comptés)
 - **Captures tactiques**: ❌ DÉFAILLANT (recaptures manquées, sacrifices involontaires)
-- **Stratégie ouverture**: ⚠️ PARTIELLE (développe mais pas d'imitation 1.d4 d5)
+- **Logique d'ouverture**: ❌ NON CONFORME (ignore coups mirror : 1.d4 d5, 1.e4 e5)
 
 ## File Dependencies
 - interface.pl → game.pl → board.pl → pieces.pl
