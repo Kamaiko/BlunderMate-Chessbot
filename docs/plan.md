@@ -19,45 +19,72 @@
 - **API corrigée** : Toutes incompatibilités execute_move/find_king_position résolues
 - **Performance optimisée** : Profondeur 1 quasi-instantanée (0.5-0.6s)
 
-### ⚠️ Limitations Restantes
-- **Profondeur 2** : Performance insuffisante (2-8s vs <1s requis)
-- **Bug intermittent** : IA peut s'arrêter après premier coup
-- **Répertoire ouvertures** : Non implémenté
-- **Tests edge cases** : Robustesse positions complexes à valider
+### ⚠️ BUGS CRITIQUES IDENTIFIÉS - Architecture IA Défaillante
+- **🚨 Bug g8h6 systématique** : IA joue toujours cavalier g8→h6 premier coup (déterminisme fatal)
+- **🚨 IA s'arrête après premier coup** : Problème dans unified_game_loop/1
+- **⚠️ Valeurs matérielles incorrectes** : P=1,N=3,B=3,R=5,Q=9 vs standard P=10,N=30,B=30,R=50,Q=90
+- **⚠️ Absence Piece-Square Tables** : Pas d'évaluation positionnelle selon standards FreeCodeCamp
+- **⚠️ Évaluation primitive** : Tous coups d'ouverture ont priorité identique (100)
+- **⚠️ Profondeur 2** : Performance insuffisante (2-8s vs <1s requis)
+- **Tests PASS mais qualité faible** : Tests ne détectent pas les problèmes de qualité de jeu
 
 ---
 
-## 🎯 Objectifs Phase 3
+## 🚨 NOUVELLE ÉVALUATION - Refactoring Architectural Nécessaire
 
-### Obligatoires (P0) - Exigences PRD
-- [x] Algorithme minimax fonctionnel avec timeout protection
-- [x] Élagage alpha-beta implémenté
-- [x] Évaluation heuristique (matériel, mobilité basique)
-- [x] Mode Humain vs IA intégré au menu principal
+> **DÉCOUVERTE CRITIQUE** : Comparaison avec tutoriel FreeCodeCamp révèle architecture IA défaillante  
+> **DIAGNOSTIC** : IA "fonctionnelle" mais qualité de jeu inacceptable (g8h6 systématique)  
+> **DÉCISION** : 4 phases de refactoring selon standards FreeCodeCamp requises
+
+### 🚨 Obligatoires (P0) - Corrections Critiques URGENTES
+- [⚠️] **BUG g8h6** : Algorithme déterministe - correction immédiate requise
+- [⚠️] **IA s'arrête** : unified_game_loop/1 défaillant après premier coup
+- [⚠️] **Valeurs matérielles** : P=10,N=30,B=30,R=50,Q=90 selon standards
+- [⚠️] **Piece-Square Tables** : Implémentation évaluation positionnelle manquante
+- [x] Mode Humain vs IA intégré au menu principal (interface OK)
 - [ ] Performance profondeur 2 < 1 seconde (actuellement 2-8s)
 
-### Importantes (P1) - Qualité
-- [ ] Répertoire d'ouvertures modeste (6-8 ouvertures essentielles)
-- [x] Tests IA intégrés à la suite existante (Section 6)
+### 📊 Réévaluation Statuts (P1) - Architecture
+- [⚠️] **Algorithme minimax** : Fonctionne mais évaluation primitive (RÉVISION NÉCESSAIRE)
+- [⚠️] **Élagage alpha-beta** : Implémenté mais inefficace sans piece-square tables
+- [⚠️] **Évaluation heuristique** : Basique uniquement - nécessite refactoring complet
+- [x] Tests IA intégrés à la suite existante (Section 6) - mais ne détectent pas qualité
 - [x] Interface utilisateur unifiée et polie
-- [ ] Bug fix: IA s'arrêtant après premier coup
 
 ---
 
-## 📋 Roadmap d'Implémentation
+## 📋 NOUVELLE ROADMAP - 4 Phases de Refactoring Architectural
 
-## ✅ Phase 1 : Diagnostic et Réparation TERMINÉE
-> **Objectif** : Faire fonctionner l'IA existante - COMPLÉTÉ
+> **MÉTHODOLOGIE** : Suivre tutoriel FreeCodeCamp pour architecture IA standard  
+> **PRIORITÉ 1** : Correction immédiate bug g8h6 (déterminisme)  
+> **PRIORITÉ 2** : Refactoring complet évaluation selon standards
 
-### ✅ 1.1 Audit Complet ai.pl FAIT
-- [x] **Incompatibilités API identifiées et corrigées**
-  - execute_move/6 → make_move/5 
-  - find_king_position/4 → find_king_position/3
-  - piece_color/2 → get_piece_color/2
-- [x] **Structure données validée**
-  - Compatibilité game_state/5 assurée
-  - Format mouvements standardisé
-- [x] **Réécriture complète ai.pl avec timeout protection**
+## ⚠️ Phase 1-BIS : Corrections Critiques URGENTES - EN COURS
+> **Objectif** : Corriger bugs fatals identifiés - PRIORITÉ ABSOLUE
+> **Statut** : Phase 1 "TERMINÉE" mais qualité inacceptable - REFACTORING REQUIS
+
+### 🚨 1-BIS.1 Correction Bug g8h6 - CRITIQUE (2h)
+- [ ] **DIAGNOSTIC ROOT CAUSE** : generate_all_moves/2 déterministe
+  - Analyser algorithme génération coups dans ai.pl
+  - Identifier pourquoi toujours même ordre (g8h6 premier)
+  - Comparer avec tutoriel FreeCodeCamp
+- [ ] **CORRECTION IMMÉDIATE** : Randomisation ou tri intelligent
+  ```prolog
+  % Option 1: Randomisation simple
+  generate_random_moves(GameState, RandomMoves) :-
+      generate_all_moves(GameState, Moves),
+      random_permutation(Moves, RandomMoves).
+  
+  % Option 2: Tri par priorité (captures d'abord)
+  sort_moves_by_priority(Moves, SortedMoves).
+  ```
+- [ ] **VALIDATION** : Test avec 10 parties différentes - vérifier variété premiers coups
+
+### ⚠️ 1-BIS.2 Correction IA s'arrête - CRITIQUE (1h)
+- [ ] **DEBUG unified_game_loop/1** : Tracer exécution après premier coup IA
+- [ ] **IDENTIFIER blocage** : Variable non unifiée ou exception silencieuse?
+- [ ] **CORRECTION** : Assurer continuité boucle de jeu IA vs Humain
+- [ ] **TEST ROBUSTESSE** : Partie complète 20+ coups sans interruption
 
 ### ✅ 1.2 Correction API et Intégration FAIT
 - [x] **API entièrement compatible**
@@ -135,14 +162,47 @@
 
 ---
 
-## ✅ Phase 2 : Optimisation Algorithme Minimax LARGEMENT RÉALISÉE
-> **Objectif** : Performance et exactitude - FONCTIONNEL avec limitations
+## 🔄 Phase 2-REFACTOR : Architecture Évaluation Standard (4h)
+> **Objectif** : Refactoring complet selon tutoriel FreeCodeCamp  
+> **Statut** : RÉVISION ARCHITECTURALE NÉCESSAIRE - algorithme OK mais évaluation primitive
 
-### ✅ 2.1 Validation Algorithme Minimax COMPLÉTÉE
-- [x] **Logique alpha-beta implémentée avec timeout protection**
-- [x] **Minimax fonctionnel - validations PASS**
-- [⚠️] **Bug intermittent identifié : IA s'arrête après premier coup**
-- [ ] **Tests positions tactiques**
+### 🔧 2-R.1 Refactoring Valeurs Matérielles - STANDARD (1h)
+- [ ] **REMPLACEMENT valeurs actuelles P=1,N=3,B=3,R=5,Q=9**
+  ```prolog
+  % AVANT (incorrect)
+  piece_value('P', 1). piece_value('p', -1).
+  piece_value('N', 3). piece_value('n', -3).
+  
+  % APRÈS (standard FreeCodeCamp)
+  piece_value('P', 10). piece_value('p', -10).
+  piece_value('N', 30). piece_value('n', -30).
+  piece_value('B', 30). piece_value('b', -30).
+  piece_value('R', 50). piece_value('r', -50).
+  piece_value('Q', 90). piece_value('q', -90).
+  piece_value('K', 900). piece_value('k', -900).
+  ```
+- [ ] **VALIDATION** : Test évaluation positions standard
+- [ ] **IMPACT** : Vérifier que changement améliore qualité coups
+
+### 🆕 2-R.2 Implémentation Piece-Square Tables - NOUVEAU (2h)
+- [ ] **CRÉATION tables positionnelles selon FreeCodeCamp**
+  ```prolog
+  % Piece-Square Tables pour évaluation positionnelle
+  pawn_square_table(Row, Col, Value) :-
+      PawnTable = [[0,  0,  0,  0,  0,  0,  0,  0],
+                   [50,50,50,50,50,50,50,50],
+                   [10,10,20,30,30,20,10,10],
+                   [ 5, 5,10,25,25,10, 5, 5],
+                   [ 0, 0, 0,20,20, 0, 0, 0],
+                   [ 5,-5,-10, 0, 0,-10,-5, 5],
+                   [ 5,10,10,-20,-20,10,10, 5],
+                   [ 0, 0, 0, 0, 0, 0, 0, 0]],
+      nth0(Row, PawnTable, RowValues),
+      nth0(Col, RowValues, Value).
+  ```
+- [ ] **INTÉGRATION dans evaluate_position/3** : Ajouter bonus positionnel
+- [ ] **TABLES pour toutes pièces** : Pions, Cavaliers, Fous, Tours, Dame, Roi
+- [ ] **TEST IMPACT** : Comparer qualité jeu avant/après implementation
   ```prolog
   test_mate_in_one :-
       % Position : Blancs mat en 1
@@ -178,11 +238,21 @@
   - Prioriser captures (MVV-LVA)
   - Éviter évaluations coûteuses en tri
 
-### 2.3 Amélioration Évaluation (1h)
-- [ ] **Valider fonction evaluate_position/3**
-  - Vérifier pondération : matériel×10, mobilité×2, sécurité roi×5
-  - Tester sur positions d'ouverture standard
-- [ ] **Ajouter debug évaluation**
+### 🔧 2-R.3 Refactoring Fonction Évaluation Complète (1h)
+- [ ] **REMPLACEMENT évaluation primitive actuelle**
+  ```prolog
+  % NOUVELLE évaluation selon FreeCodeCamp
+  evaluate_position(GameState, Player, FinalScore) :-
+      material_score(GameState, Player, MaterialScore),
+      positional_score(GameState, Player, PositionalScore),  % NOUVEAU
+      mobility_score(GameState, Player, MobilityScore),
+      king_safety_score(GameState, Player, SafetyScore),
+      % Pondération standard
+      FinalScore is MaterialScore + PositionalScore + MobilityScore + SafetyScore.
+  ```
+- [ ] **SUPPRESSION priorité coups d'ouverture identique (100)**
+- [ ] **INTÉGRATION piece-square tables dans évaluation**
+- [ ] **DEBUG évaluation avancée** : Affichage détaillé scores par composant
   ```prolog
   evaluate_position_debug(GameState, Player, Value) :-
       material_value(GameState, Player, Mat),
@@ -194,10 +264,41 @@
 
 ---
 
-## Phase 3 : Répertoire d'Ouvertures (FUTUR)
-> **Objectif** : Améliorer le jeu en début de partie - NON PRIORITAIRE
+## 🔄 Phase 3-REFACTOR : Optimisation Recherche (2h)
+> **Objectif** : Améliorer algorithme selon standards FreeCodeCamp  
+> **Statut** : Phase 2 terminée, optimisations recherche nécessaires
 
-### 3.1 Design Système Ouvertures (30 min)
+### 🚀 3-R.1 Amélioration Tri Coups - Performance (1h)
+- [ ] **IMPLÉMENTATION MVV-LVA** (Most Valuable Victim - Least Valuable Attacker)
+  ```prolog
+  % Tri coups par priorité selon FreeCodeCamp
+  sort_moves_by_value(GameState, Moves, SortedMoves) :-
+      map_moves_to_values(GameState, Moves, MovesWithValues),
+      sort(MovesWithValues, SortedMovesWithValues),
+      extract_moves(SortedMovesWithValues, SortedMoves).
+  
+  % Priorité : Captures > Promotions > Coups normaux
+  move_priority(GameState, Move, Priority).
+  ```
+- [ ] **OPTIMISATION alpha-beta** : Meilleur tri = plus d'élagages
+- [ ] **TEST performance** : Mesurer amélioration vitesse profondeur 2
+
+### 🆕 3-R.2 Optimisation Mémoire et Caches (1h)
+- [ ] **TRANSPOSITION TABLE basique** : Éviter recalculs positions
+  ```prolog
+  % Cache évaluations (optionnel mais efficace)
+  :- dynamic(position_cache/2).
+  
+  evaluate_with_cache(GameState, Score) :-
+      game_state_hash(GameState, Hash),
+      (   position_cache(Hash, Score) ->
+          true  % Cache hit
+      ;   evaluate_position(GameState, white, Score),
+          assertz(position_cache(Hash, Score))
+      ).
+  ```
+- [ ] **LIMITATION profondeur intelligente** : Depth + Quiescence search
+- [ ] **BENCHMARK final** : Profondeur 2 < 1 seconde objectif
 - [ ] **Intégrer répertoire ouvertures dans ai.pl** (éviter fichier séparé)
   ```prolog
   % Intégré dans ai.pl - Section répertoire ouvertures  
@@ -235,12 +336,34 @@
 
 ---
 
-## ✅ Phase 4 : Tests Complets TERMINÉE
-> **Objectif** : Robustesse système IA - FONCTIONNEL
+## 🧪 Phase 4-REFACTOR : Tests Qualité Jeu (2h)
+> **Objectif** : Tests détectant qualité IA réelle (pas seulement compilation)  
+> **Statut** : 42/42 tests PASS mais ne détectent pas bugs g8h6 et qualité
 
-### ✅ 4.1 Tests Section 6 IMPLÉMENTÉS
-- [x] **7 tests IA implémentés dans Section 6**
-- [x] **42/42 tests PASS (au lieu de 35/35)**
+### 🧪 4-R.1 Tests Qualité Jeu - NOUVEAUX (1.5h)
+- [ ] **TEST VARIÉTÉ premiers coups** : Détecter bug g8h6
+  ```prolog
+  test_ai_move_variety :-
+      write('[RUN] Test VARIÉTÉ: Pas toujours g8h6......... '),
+      findall(Move, (
+          init_game_state(GS),
+          choose_ai_move(GS, Move)
+      ), [Move1, Move2, Move3, Move4, Move5]),
+      % Au moins 2 coups différents sur 5 essais
+      sort([Move1, Move2, Move3, Move4, Move5], UniqueMoves),
+      length(UniqueMoves, UniqueCount),
+      (   UniqueCount >= 2 ->
+          write('PASS'), nl
+      ;   write('FAIL - toujours même coup'), nl, fail).
+  ```
+- [ ] **TEST ÉVALUATION correcte** : Vérifier nouvelles valeurs matérielles
+- [ ] **TEST PARTIE COMPLÈTE** : IA vs IA 20+ coups sans arrêt
+- [ ] **TEST POSITIONS TACTIQUES** : Trouve-t-elle captures évidentes?
+
+### 🔧 4-R.2 Tests Robustesse Architecture (0.5h)
+- [ ] **MISE À JOUR run_all_tests** : Inclure nouveaux tests qualité
+- [ ] **VALIDATION non-régression** : Anciens tests passent toujours
+- [ ] **BENCHMARK performance** : Nouvelles optimisations efficaces
   ```prolog
   test_minimax_basic :-
       write('[RUN] Test 4/7: Minimax profondeur 2........... '),
@@ -308,17 +431,19 @@
 
 ---
 
-## Phase 5 : Finition et Documentation (1h)
-> **Objectif** : Préparer livraison finale
+## 📚 Phase 5-FINAL : Documentation Refactoring (1h)
+> **Objectif** : Documenter architecture refactorisée et corrections apportées
 
-### 5.1 Documentation Technique (30 min)
-- [ ] **Mettre à jour CLAUDE.md**
-  - Retirer "PROTOTYPE NON FONCTIONNEL"
-  - Documenter API IA pour développeurs
-  - Instructions d'utilisation mode IA
-- [ ] **Mettre à jour README.md**
-  - Section "Mode IA" fonctionnel  
-  - Commandes : `swipl go.pl` → Option 2
+### 📝 5-F.1 Documentation Architecture Corrigée (30 min)
+- [ ] **METTRE À JOUR CLAUDE.md** : État réel après refactoring
+  - ✅ "IA Phase 1 FONCTIONNELLE" → ⚠️ "IA REFACTORISÉE selon standards"
+  - Documenter corrections bugs g8h6 et arrêt partie
+  - Nouvelles valeurs matérielles P=10,N=30,B=30,R=50,Q=90
+  - Architecture Piece-Square Tables implémentée
+- [ ] **METTRE À JOUR README.md** : Nouvelles fonctionnalités IA
+  - Évaluation positionnelle avancée
+  - Correction déterminisme (variété coups)
+  - Performance optimisée profondeur 2
 
 ### 5.2 Interface Utilisateur Finale (30 min)
 - [ ] **Messages français cohérents**
@@ -333,53 +458,64 @@
 
 ---
 
-## ⏰ Planning Recommandé
+## ⏰ NOUVEAU PLANNING - Refactoring Architectural
 
-### 🌅 MATIN (4h) - Fonctionnel de Base
-- **09h00-10h30** : Phase 1.1-1.2 (Audit et corrections API)
-- **10h30-11h00** : Pause
-- **11h00-12h30** : Phase 1.3-1.4 + Phase 2.1 (Tests base + validation minimax)
-- **12h30** : **OBJECTIF** - IA fonctionnelle basique intégrée
+### 🚨 PRIORITÉ 1 - Corrections Critiques (3h)
+- **09h00-10h30** : Phase 1-BIS.1 (Correction bug g8h6 - randomisation/tri)
+- **10h30-11h00** : Phase 1-BIS.2 (Correction IA s'arrête - debug unified_game_loop)
+- **11h00-12h00** : Tests validation corrections - parties variées sans arrêt
+- **12h00** : **OBJECTIF** - IA sans bugs critiques, jouable
 
-### 🌞 APRÈS-MIDI (4h) - Optimisations et Tests
-- **14h00-15h30** : Phase 2.2-2.3 (Performance et évaluation)
-- **15h30-16h00** : Pause
-- **16h00-17h30** : Phase 3 (Répertoire ouvertures)
-- **17h30-18h30** : Phase 4 (Tests complets)
+### 🔧 REFACTORING ARCHITECTURAL (5h)
+- **13h00-14h00** : Phase 2-R.1 (Valeurs matérielles standards P=10,N=30...)
+- **14h00-16h00** : Phase 2-R.2 (Piece-Square Tables - cœur architectural)
+- **16h00-16h30** : Pause
+- **16h30-17h30** : Phase 2-R.3 (Refactoring évaluation complète)
+- **17h30-18h30** : Phase 3-R.1-2 (Optimisations recherche MVV-LVA)
 
-### 🌆 FINALISATION (1h) - Polish
-- **18h30-19h30** : Phase 5 (Documentation et interface finale)
-
----
-
-## 🚨 Gestion des Risques
-
-### RISQUE ÉLEVÉ : Incompatibilités API
-- **Impact** : IA ne compile pas ou plante
-- **Mitigation** : Phase 1 prioritaire avec tests compilation
-- **Plan B** : API wrapper si corrections complexes
-
-### RISQUE MOYEN : Performance Minimax
-- **Impact** : Temps réponse > 1 seconde (trop lent)
-- **Mitigation** : Profondeur 2 conservatrice, optimisations ciblées
-- **Plan B** : Réduire profondeur à 1 temporairement
-
-### RISQUE FAIBLE : Complexité Ouvertures
-- **Impact** : Retard sur planning
-- **Mitigation** : Design simple, 5-8 ouvertures minimum
-- **Plan B** : Report Phase 3 si Phase 4 prioritaire
+### 🧪 VALIDATION QUALITÉ (2h)
+- **18h30-19h30** : Phase 4-R.1-2 (Tests qualité jeu + robustesse)
+- **19h30-20h00** : Phase 5-F.1 (Documentation corrections)
+- **20h00** : **OBJECTIF FINAL** - IA architecture standard, qualité acceptable
 
 ---
 
-## 📊 Définition de Succès
+## 🚨 NOUVELLE Gestion des Risques - Architecture
 
-### ✅ Critères d'Acceptance
-- [ ] **IA fonctionnelle** : Compile sans erreur, intégrée au menu
-- [ ] **Performance** : Réponse quasi-instantanée (≤ 1 seconde par coup)
-- [ ] **Algorithme** : Minimax/alpha-beta profondeur 2 validé
-- [ ] **Qualité** : Tous les tests existants (35/35) passent + tests IA
-- [ ] **UX** : Interface française cohérente, retour raisonnement IA
-- [ ] **Documentation** : CLAUDE.md et README.md mis à jour
+### RISQUE CRITIQUE : Résistance au Refactoring
+- **Impact** : Garder architecture défaillante par peur de casser le "fonctionnel"
+- **Réalité** : IA actuelle = qualité inacceptable (g8h6 systématique)
+- **Mitigation** : Refactoring par étapes avec tests de validation
+- **Plan B** : Correction minimale g8h6 uniquement si temps insuffisant
+
+### RISQUE ÉLEVÉ : Complexité Piece-Square Tables
+- **Impact** : Implémentation longue, bugs possibles dans évaluation
+- **Mitigation** : Suivre exactement tutoriel FreeCodeCamp, tables simplifiées
+- **Plan B** : Valeurs matérielles correctes + randomisation coups minimum
+
+### RISQUE MOYEN : Performance Dégradée
+- **Impact** : Nouvelles évaluations plus lentes
+- **Mitigation** : Benchmarks à chaque étape, optimisations ciblées
+- **Plan B** : Profondeur 1 temporairement avec architecture correcte
+
+---
+
+## 📊 NOUVELLE Définition de Succès - Qualité IA
+
+### ✅ Critères d'Acceptance RÉVISÉS
+- [ ] **🚨 CORRECTION g8h6** : IA joue coups variés (randomisation/tri intelligent)
+- [ ] **🚨 ROBUSTESSE** : Parties complètes 20+ coups sans arrêt IA
+- [ ] **📊 ÉVALUATION standard** : Valeurs P=10,N=30,B=30,R=50,Q=90 implémentées
+- [ ] **🎯 PIECE-SQUARE TABLES** : Évaluation positionnelle selon FreeCodeCamp
+- [ ] **⚡ PERFORMANCE** : Profondeur 2 < 1 seconde avec nouvelles optimisations
+- [ ] **🧪 TESTS QUALITÉ** : Tests détectent variété coups + qualité jeu
+- [ ] **📚 DOCUMENTATION** : Architecture refactorisée documentée
+
+### 🎯 Objectifs Minimaux Si Temps Limité
+- [ ] **CORRECTION g8h6** : Priorité absolue - IA doit jouer différemment
+- [ ] **VALEURS MATÉRIELLES** : Standards FreeCodeCamp minimum
+- [ ] **ROBUSTESSE** : Parties sans interruption IA
+- [ ] **TESTS** : Validation corrections apportées
 
 ### 🎯 Objectifs Étendus (Si Temps)
 - [ ] **Répertoire ouvertures** : 10+ ouvertures implémentées
@@ -412,10 +548,16 @@ swipl -g "benchmark_ai_performance, halt." -s src/ai.pl
 
 ---
 
-## 🎉 Conclusion
+## 🎉 Conclusion RÉVISÉE
 
-Ce plan transforme le **prototype ai.pl existant en IA fonctionnelle** avec une approche **réparation plutôt que réécriture**. L'architecture 5-modules solide et les 35 tests existants offrent une base robuste.
+**DÉCOUVERTE MAJEURE** : L'IA "fonctionnelle" Phase 1-2 souffre de **défauts architecturaux critiques** identifiés par comparaison avec standards FreeCodeCamp. Le bug g8h6 systématique révèle une **qualité de jeu inacceptable** malgré des tests qui passent.
 
-**L'implémentation est réaliste pour une journée intensive** avec des phases clairement définies, des risques identifiés et des solutions de contournement. Le focus sur la **correction d'API en Phase 1** assure un prototype fonctionnel dès le matin, permettant l'itération et l'amélioration l'après-midi.
+**NOUVELLE APPROCHE** : **Refactoring architectural complet** plutôt que simple "optimisation". Les 4 phases de correction suivent les standards établis :
+1. **Corrections critiques** : g8h6 + arrêt partie
+2. **Refactoring évaluation** : Valeurs standard + Piece-Square Tables  
+3. **Optimisation recherche** : MVV-LVA + caches
+4. **Tests qualité** : Détecter réels problèmes IA
 
-**Ready to code! 🚀**
+**L'implémentation reste réaliste pour une journée intensive** mais nécessite **courage de refactorer** une architecture défaillante plutôt que l'accepter. L'objectif n'est plus "faire fonctionner" mais **"faire bien fonctionner"** selon standards reconnus.
+
+**Ready to refactor! 🔧→🚀**

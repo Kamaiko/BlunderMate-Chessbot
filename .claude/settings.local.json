@@ -19,7 +19,11 @@
       "Read(C:\\Users\\Patrick Patenaude\\.claude/**)",
       "Read(C:\\Users\\Patrick Patenaude\\.claude/**)",
       "mcp__filesystem__list_directory",
-      "Read(C:\\Users\\Patrick Patenaude\\.config\\claude-code/**)"
+      "Read(C:\\Users\\Patrick Patenaude\\.config\\claude-code/**)",
+      "Read(C:\\DevTools\\Projects\\PrologChessNotMine/**)",
+      "Read(C:\\DevTools\\Projects\\PrologChessNotMine/**)",
+      "Bash(timeout 8 swipl -s test_hybrid.pl -g test_hybrid)",
+      "Bash(timeout 8 swipl -s test_minimax_direct.pl -g test_minimax_direct)"
     ],
     "deny": [
       "mcp__playwright__*"

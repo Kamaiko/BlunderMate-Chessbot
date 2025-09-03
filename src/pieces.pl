@@ -326,13 +326,14 @@ piece_value(Piece, Value) :-
 piece_value(' ', 0).
 piece_value('.', 0).
 
-% piece_base_value - Table de valeurs directe pour performance
-piece_base_value('P', 1). piece_base_value('p', 1).  % Pions
-piece_base_value('N', 3). piece_base_value('n', 3).  % Cavaliers
-piece_base_value('B', 3). piece_base_value('b', 3).  % Fous
-piece_base_value('R', 5). piece_base_value('r', 5).  % Tours
-piece_base_value('Q', 9). piece_base_value('q', 9).  % Dames
-piece_base_value('K', 1000). piece_base_value('k', 1000).  % Rois
+% piece_base_value - Valeurs materielles standard FreeCodeCamp avec gestion couleur
+% Pieces blanches = valeurs positives, pieces noires = valeurs negatives
+piece_base_value('P', 10). piece_base_value('p', -10).  % Pions
+piece_base_value('N', 30). piece_base_value('n', -30).  % Cavaliers
+piece_base_value('B', 30). piece_base_value('b', -30).  % Fous
+piece_base_value('R', 50). piece_base_value('r', -50).  % Tours
+piece_base_value('Q', 90). piece_base_value('q', -90).  % Dames
+piece_base_value('K', 900). piece_base_value('k', -900).  % Rois
 
 % opposite_color(+Color, -OppositeColor)
 % Retourne la couleur opposee.
