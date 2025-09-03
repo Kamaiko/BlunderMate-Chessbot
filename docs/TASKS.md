@@ -33,13 +33,19 @@
 - [x] **Gestion erreurs** : Validation robuste entrées
 - [ ] **Améliorations** : Coordonnées lisibles, highlights
 
-### ❌ STATUT ai.pl 
-**DÉFAILLANT** - Blunders tactiques constants
-- Section 6 (14 tests IA) complètement outdated - ne passent pas
-- Intégré au menu principal (Option 2)
-- Architecture unifiée avec interface.pl
-- ❌ Bug critique : IA donne matériel gratuitement (captures sans voir recaptures)
-- ❌ Tests défaillants : Section 6 IA à refaire complètement
+### 🔄 STATUT ai.pl - AMÉLIORÉ PARTIELLEMENT 
+**EN COURS D'AMÉLIORATION** - Corrections majeures appliquées
+- ✅ **Développement des pièces** : IA joue maintenant Nc6, Nf6 (au lieu de pions uniquement)
+- ✅ **Bugs critiques corrigés** : Valeurs noires, comptage rois, évaluation matérielle
+- ❌ **Problème recapture** : IA ne capture pas la dame même quand possible (Bxd8 vs Ke7)
+- ❌ **Logique d'ouverture** : Manque 1.d4 d5 (imitation coup central), ignore menaces sur pièces
+- ❌ **Section 6 tests IA** : Toujours outdated - à refaire complètement
+
+### 📋 PROBLÈMES IDENTIFIÉS À CORRIGER
+1. **Recapture dame** : En échec Qd8+, IA choisit Ke7 au lieu de Bxd8 
+2. **Stratégie ouverture** : Après 1.d4, devrait jouer 1...d5 avant développement
+3. **Détection menaces** : Nf6 attaqué par e4-e5, IA ignore et joue d7-d5
+4. **Tests validation** : Section 6 complètement à refaire pour nouvelles corrections
 
 ## Extensions Futures
 

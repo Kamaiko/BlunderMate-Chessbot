@@ -304,4 +304,5 @@ pos_value_reference(king, 8, 1, white, 20). pos_value_reference(king, 8, 2, whit
 
 pos_value_reference(Type, Row, Col, black, Value) :-
     MirrorRow is 9 - Row,  % Symétrie verticale (rang 8 devient rang 1, etc.)
-    pos_value_reference(Type, MirrorRow, Col, white, Value).  % MÊME valeur positive
+    pos_value_reference(Type, MirrorRow, Col, white, WhiteValue),
+    Value is -WhiteValue.  % VALEUR NEGATIVE pour les noirs dans évaluation asymétrique

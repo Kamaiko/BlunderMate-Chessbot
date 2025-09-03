@@ -101,12 +101,13 @@ evaluate_pure_reference(GameState, Player, Value) :-
 count_material_pure_ref(GameState, Color, TotalValue) :-
     GameState = game_state(Board, _, _, _, _),
     
-    % Compter EXACTEMENT comme référence
+    % Compter EXACTEMENT comme référence + ROI AJOUTÉ
     count_pieces_type(Board, Color, pawn, V1),
     count_pieces_type(Board, Color, rook, V2),
     count_pieces_type(Board, Color, knight, V3),
     count_pieces_type(Board, Color, bishop, V4),
     count_pieces_type(Board, Color, queen, V5),
+    count_pieces_type(Board, Color, king, V6),  % ROI AJOUTÉ !
     
     % Double bonus EXACTEMENT comme board_eval.pl:21-24
     count_pieces_positions(Board, Color, rook, RookCount),
@@ -117,7 +118,7 @@ count_material_pure_ref(GameState, Color, TotalValue) :-
     double_bonus_pure(KnightCount, D2),
     double_bonus_pure(BishopCount, D3),
     
-    TotalValue is V1 + V2 + V3 + V4 + V5 + 30*(D1 + D2 + D3).
+    TotalValue is V1 + V2 + V3 + V4 + V5 + V6 + 30*(D1 + D2 + D3).
 
 % double_bonus_pure(+Count, -Bonus)
 % EXACTEMENT board_eval.pl:26-27
@@ -160,9 +161,17 @@ piece_is_type_pure('Q', queen). piece_is_type_pure('q', queen).
 piece_is_type_pure('K', king). piece_is_type_pure('k', king).
 
 % pos_value_pure_ref(+Type, +Row, +Col, +Color, -Value)
-% TABLES DE REFERENCE CHESS PROGRAMMING WIKI - Adaptées
+% TABLES DE REFERENCE AVEC BONUS DÉVELOPPEMENT OUVERTURE
 pos_value_pure_ref(Type, Row, Col, Color, Value) :-
-    pos_value_reference(Type, Row, Col, Color, Value), !.
+    pos_value_reference(Type, Row, Col, Color, BaseValue),
+    % BONUS DÉVELOPPEMENT EN OUVERTURE
+    (   (Type = knight; Type = bishop),
+        is_development_square(Row, Col, Type, Color) ->
+        % BONUS MASSIF pour développements naturels
+        DevelopmentBonus = 100,
+        Value is BaseValue + DevelopmentBonus
+    ;   Value = BaseValue
+    ), !.
 
 % Fallback pour pieces non définies dans les tables
 pos_value_pure_ref(Type, _, _, Color, Value) :-
@@ -170,6 +179,17 @@ pos_value_pure_ref(Type, _, _, Color, Value) :-
     (   Color = white -> Value = BaseValue
     ;   Value is -BaseValue
     ), !.
+
+% is_development_square(+Row, +Col, +Type, +Color)
+% Cases de développement naturel
+is_development_square(6, 3, knight, black).  % Nc6
+is_development_square(6, 6, knight, black).  % Nf6
+is_development_square(3, 3, knight, white).  % Nc3
+is_development_square(3, 6, knight, white).  % Nf3
+is_development_square(6, 4, bishop, black).  % Bd6
+is_development_square(6, 5, bishop, black).  % Be6
+is_development_square(3, 4, bishop, white).  % Bd3
+is_development_square(3, 5, bishop, white).  % Be3.
 
 % =============================================================================
 % GENERATION COUPS SIMPLE
@@ -186,42 +206,30 @@ generate_moves_simple(GameState, Player, Moves) :-
     ).
 
 % generate_opening_moves(+GameState, +Player, -Moves)
-% Génération optimisée pour l'ouverture selon principes classiques
+% Génération équilibrée pour l'ouverture - DÉVELOPPEMENT PRIORITAIRE
 generate_opening_moves(GameState, Player, Moves) :-
     GameState = game_state(Board, _, _, _, _),
     
-    % 1. PIONS CENTRAUX PRIORITAIRES (e4, d4, e5, d5)
+    % 1. DÉVELOPPEMENT PRIORITAIRE (cavaliers et fous AVANT tout)
     findall([FromRow, FromCol, ToRow, ToCol], (
         between(1, 8, FromRow),
         between(1, 8, FromCol),
         get_piece(Board, FromRow, FromCol, Piece),
         Piece \= '.',
         get_piece_color(Piece, Player),
-        member(Piece, ['P','p']),
+        member(Piece, ['N','n','B','b']),
         between(1, 8, ToRow),
         between(1, 8, ToCol),
         valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
-        % FILTRE: Seulement pions centraux d4, e4, d5, e5
-        member([FromCol, ToCol], [[4,4], [5,5]])  % d et e colonnes
-    ), CentralPawnMoves),
-    
-    % 2. DÉVELOPPEMENT PIÈCES MINEURES (cavaliers puis fous)
-    findall([FromRow, FromCol, ToRow, ToCol], (
-        between(1, 8, FromRow),
-        between(1, 8, FromCol),
-        get_piece(Board, FromRow, FromCol, Piece),
-        Piece \= '.',
-        get_piece_color(Piece, Player),
-        member(Piece, ['N','n','B','b']),  
-        between(1, 8, ToRow),
-        between(1, 8, ToCol),
-        valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
-        % FILTRE: Éviter développements sur bords
-        ToCol >= 2, ToCol =< 7,  % Pas colonnes a/h
-        ToRow >= 3, ToRow =< 6   % Positions centrales
+        % DÉVELOPPEMENTS NATURELS: c6, d6, e6, f6 pour cavaliers et fous
+        ToRow >= 3, ToRow =< 6,    % Rangs centraux
+        ToCol >= 3, ToCol =< 6     % Colonnes centrales
     ), DevelopmentMoves),
     
-    % 3. COUPS DE PIONS SECONDAIRES (seulement 2 cases si possible)
+    % Éliminer les doublons de développement
+    remove_duplicates_simple(DevelopmentMoves, UniqueDevelopment),
+    
+    % 2. PIONS CENTRAUX (d4, e4, d5, e5)
     findall([FromRow, FromCol, ToRow, ToCol], (
         between(1, 8, FromRow),
         between(1, 8, FromCol),
@@ -232,15 +240,28 @@ generate_opening_moves(GameState, Player, Moves) :-
         between(1, 8, ToRow),
         between(1, 8, ToCol),
         valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
-        % FILTRE: Éviter pions faibles (f6, g6, h6 pour noirs)
-        \+ member([FromCol, ToRow], [[6,6], [7,6], [8,6]]),  % Pas f6, g6, h6
-        % Préférer coups 2 cases sur flancs
-        (   abs(ToRow - FromRow) =:= 2  % Coup 2 cases
-        ;   member(FromCol, [3,4,5,6])  % Ou pions centraux
-        )
-    ), SecondaryPawnMoves),
+        member(ToCol, [4,5]),  % Colonnes d et e
+        member(ToRow, [4,5])   % Rangs 4 et 5
+    ), CentralPawnMoves),
     
-    % 4. AUTRES COUPS (tour, dame, roi)
+    % 3. PIONS SUPPORT ÉLARGIS (c6, d6, e6, f6 - plus restrictif sur flancs)
+    findall([FromRow, FromCol, ToRow, ToCol], (
+        between(1, 8, FromRow),
+        between(1, 8, FromCol),
+        get_piece(Board, FromRow, FromCol, Piece),
+        Piece \= '.',
+        get_piece_color(Piece, Player),
+        member(Piece, ['P','p']),
+        between(1, 8, ToRow),
+        between(1, 8, ToCol),
+        valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
+        % ÉLARGI: Colonnes centrales c,d,e,f (pas seulement c,f)
+        member(ToCol, [3,4,5,6]),  % c, d, e, f
+        member(ToRow, [6,5]),      % 6e rang (noirs) ou 5e rang si nécessaire  
+        abs(ToRow - FromRow) =< 2  % 1 ou 2 cases maximum
+    ), SupportPawnMoves),
+    
+    % 4. AUTRES COUPS
     findall([FromRow, FromCol, ToRow, ToCol], (
         between(1, 8, FromRow),
         between(1, 8, FromCol),
@@ -253,9 +274,14 @@ generate_opening_moves(GameState, Player, Moves) :-
         valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol)
     ), OtherMoves),
     
-    % Priorité: Centraux > Développement > Pions secondaires > Autres
-    append(CentralPawnMoves, DevelopmentMoves, Priority1),
-    append(Priority1, SecondaryPawnMoves, Priority2), 
+    % PRIORITÉ CORRECTE: DÉVELOPPEMENT EN PREMIER !
+    take_first_8_simple(UniqueDevelopment, PriorityDevelopment),
+    take_first_3_simple(CentralPawnMoves, LimitedCentral),
+    take_first_4_simple(SupportPawnMoves, LimitedSupport),
+    
+    % ORDRE CORRECT: Développement d'abord, puis pions
+    append(PriorityDevelopment, LimitedCentral, Priority1),
+    append(Priority1, LimitedSupport, Priority2),
     append(Priority2, OtherMoves, AllMoves),
     
     take_first_20_simple(AllMoves, Moves).
@@ -279,9 +305,37 @@ generate_regular_moves(GameState, Player, Moves) :-
     
     take_first_20_simple(AllMoves, Moves).
 
-% take_first_20_simple(+List, -First20)
+% take_first_N_simple(+List, +N, -FirstN)
 take_first_20_simple(List, First20) :-
+    take_first_n_simple(List, 20, First20).
+
+take_first_10_simple(List, First10) :-
+    take_first_n_simple(List, 10, First10).
+
+take_first_8_simple(List, First8) :-
+    take_first_n_simple(List, 8, First8).
+
+take_first_5_simple(List, First5) :-
+    take_first_n_simple(List, 5, First5).
+
+take_first_4_simple(List, First4) :-
+    take_first_n_simple(List, 4, First4).
+
+take_first_3_simple(List, First3) :-
+    take_first_n_simple(List, 3, First3).
+
+take_first_n_simple(List, N, FirstN) :-
     length(List, Len),
-    (   Len =< 20 -> First20 = List
-    ;   length(First20, 20), append(First20, _, List)
+    (   Len =< N -> FirstN = List
+    ;   length(FirstN, N), append(FirstN, _, List)
     ).
+
+% remove_duplicates_simple(+List, -UniqueList)
+% Supprime les doublons d'une liste
+remove_duplicates_simple([], []).
+remove_duplicates_simple([H|T], [H|UniqueT]) :-
+    \+ member(H, T),
+    remove_duplicates_simple(T, UniqueT).
+remove_duplicates_simple([H|T], UniqueT) :-
+    member(H, T),
+    remove_duplicates_simple(T, UniqueT).

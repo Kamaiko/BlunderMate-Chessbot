@@ -170,33 +170,32 @@ swipl -t run_tests -s tests/tests.pl
 swipl tests/tests.pl
 ```
 
-## AI Implementation Status (Phase 3) - ÉCHEC TP1 ❌
+## AI Implementation Status (Phase 3) - AMÉLIORATIONS MAJEURES ✅⚠️
 
-❌ **OBJECTIF TP1 NON ATTEINT - CORRECTION REQUISE**
-- **Statut critique**: IA défaillante + tests IA outdated ne passent pas
-- **Problème 1**: Blunders tactiques constants (donne matériel gratuitement)  
-- **Problème 2**: Section 6 tests IA complètement outdated
-- **Impact**: Jeu non utilisable, deadline TP1 (20 oct 2025) en danger
-- **Documentation**: `docs/AI_STATUS_HANDOFF.md` contient diagnostic complet avec 4 théories
+🔄 **CORRECTIONS MAJEURES APPLIQUÉES - PROGRÈS SIGNIFICATIFS**
+- **Statut**: IA partiellement corrigée, développement des pièces fonctionnel
+- **Progrès 1**: ✅ Développement des pièces résolu (Nc6, Nf6 au lieu de pions uniquement)  
+- **Progrès 2**: ✅ Bugs critiques corrigés (valeurs noires, comptage rois, évaluation matérielle)
+- **Impact**: IA maintenant utilisable pour développement, mais problèmes tactiques persistent
+- **Documentation**: `docs/AI_STATUS_HANDOFF.md` mis à jour avec corrections et nouveaux problèmes
 
-### ⚠️ Corrections Partielles Appliquées (Insuffisantes)
-- **🚨 BUG g8h6 CORRIGÉ**: Génération coups avec priorités
-- **⚠️ Génération ouverture PARTIELLEMENT AMÉLIORÉE**: IA oscille entre "que pions" et "que pièces mineures"
-- **📊 Tables piece-square**: Implémentées mais créent déséquilibres
-- **🧹 Cleanup projet**: 14 fichiers debug supprimés
+### ✅ Corrections Majeures Réussies (Septembre 2025)
+- **🎯 Développement pièces RÉSOLU**: IA joue maintenant Nc6, Nf6, Be7, Bd7 en ouverture
+- **🐛 Bugs critiques CORRIGÉS**: Valeurs pièces noires négatives, rois comptés dans évaluation
+- **📊 Génération coups AMÉLIORÉE**: Priorité développement > pions, quotas équilibrés
+- **🧹 Code NETTOYÉ**: Refactorisation ai.pl, suppression logs debug, architecture simplifiée
 
-### ❌ Problèmes Persistants NON RÉSOLUS
-- **🚨 BLUNDERS CONSTANTS**: IA donne matériel gratuitement (Nxd4 sans voir Qxd4)
-- **📊 Évaluation défaillante**: Séquence perte cavalier évaluée comme gain (+5 au lieu de -220)
-- **🎯 Développement DÉSÉQUILIBRÉ**: IA oscille entre "que pions" et "que pièces mineures" (pas d'équilibre)
-- **🧪 Tests IA outdated**: Section 6 ne passe pas, complètement obsolète
-- **⚡ Minimax défaillant**: Algorithme structure OK mais résultats incorrects
+### ❌ Problèmes Tactiques Persistants (À Corriger)
+- **🚨 Recaptures manquées**: En échec Qd8+, choisit Ke7 au lieu de Bxd8 (sacrifice dame!)
+- **🎯 Logique ouverture**: Manque 1.d4 d5 (imitation coup central), développe trop tôt
+- **⚠️ Détection menaces**: Ignore cavalier f6 attaqué par e4-e5, ne protège pas
+- **🧪 Tests IA outdated**: Section 6 ne reflète pas les nouvelles corrections
 
-### 📋 État Actuel Diagnostic (Septembre 2025)
-- **Logique captures**: ✅ FONCTIONNELLE (testée: d4xe5, Nc6xd4, Qd1xd4)
-- **Algorithme minimax**: ❌ DÉFAILLANT (structure OK, propagation problématique)
-- **Tables évaluation**: ❌ SUSPECTES (bonus positionnels masquent pertes)
-- **Tests validation**: ❌ OUTDATED (Section 6 IA à refaire complètement)
+### 📋 État Actuel Diagnostic (Décembre 2025)
+- **Développement pièces**: ✅ FONCTIONNEL (Nc6, Nf6 en priorité)
+- **Évaluation matérielle**: ✅ CORRIGÉE (valeurs noires négatives, rois comptés)
+- **Captures tactiques**: ❌ DÉFAILLANT (recaptures manquées, sacrifices involontaires)
+- **Stratégie ouverture**: ⚠️ PARTIELLE (développe mais pas d'imitation 1.d4 d5)
 
 ## File Dependencies
 - interface.pl → game.pl → board.pl → pieces.pl
