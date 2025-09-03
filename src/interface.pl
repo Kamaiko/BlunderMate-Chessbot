@@ -14,7 +14,7 @@
 :- [pieces].
 :- [board].
 :- [game].
-:- [ai_logic_reference].
+:- [ai].
 
 % =============================================================================
 % SECTION 1 : ETAT DE JEU UNIFIE AVEC TYPES DE JOUEURS

@@ -170,13 +170,13 @@ swipl -t run_tests -s tests/tests.pl
 swipl tests/tests.pl
 ```
 
-## AI Implementation Status (Phase 3) - REFACTORISÉ ✅
+## AI Implementation Status (Phase 3) - PROBLÈMES TACTIQUES CRITIQUES ❌
 
-✅ **REFACTORING COMPLET TERMINÉ - IA ARCHITECTURE STANDARD**
-- **Statut**: IA refactorisée selon standards FreeCodeCamp avec corrections critiques
-- **Performance**: Profondeur 2 opérationnelle avec optimisations (~1-2s par coup)
-- **Tests**: Section 6 étendue - 11 tests IA incluant qualité et variété
-- **Interface**: Mode "IA vs Humain" stable avec gestion erreurs améliorée
+⚠️ **TRANSFERT DÉVELOPPEUR NÉCESSAIRE - BLUNDERS NON RÉSOLUS**
+- **Statut**: IA joue coups développement corrects MAIS donne matériel gratuitement
+- **Problème critique**: Captures sans voir recaptures (ex: Nxd4 quand Nxd4 possible)
+- **Performance**: Profondeur 2 (~1.4s par coup) mais algorithme minimax défaillant
+- **Documentation**: Voir `docs/AI_STATUS_HANDOFF.md` pour diagnostic complet
 
 ### ✅ Corrections Critiques Appliquées (Phase 1-BIS)
 - **🚨 BUG g8h6 CORRIGÉ**: Randomisation triple + priorité ouvertures/minimax (80/20%)
