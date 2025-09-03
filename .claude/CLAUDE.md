@@ -179,15 +179,16 @@ swipl tests/tests.pl
 - **Impact**: Jeu non utilisable, deadline TP1 (20 oct 2025) en danger
 - **Documentation**: `docs/AI_STATUS_HANDOFF.md` contient diagnostic complet avec 4 théories
 
-### ✅ Corrections Partielles Appliquées (Insuffisantes)
+### ⚠️ Corrections Partielles Appliquées (Insuffisantes)
 - **🚨 BUG g8h6 CORRIGÉ**: Génération coups avec priorités
-- **⚡ Génération ouverture AMÉLIORÉE**: Développement vs pions latéraux  
-- **📊 Tables piece-square**: Implémentées mais possiblement problématiques
+- **⚠️ Génération ouverture PARTIELLEMENT AMÉLIORÉE**: IA oscille entre "que pions" et "que pièces mineures"
+- **📊 Tables piece-square**: Implémentées mais créent déséquilibres
 - **🧹 Cleanup projet**: 14 fichiers debug supprimés
 
 ### ❌ Problèmes Persistants NON RÉSOLUS
 - **🚨 BLUNDERS CONSTANTS**: IA donne matériel gratuitement (Nxd4 sans voir Qxd4)
 - **📊 Évaluation défaillante**: Séquence perte cavalier évaluée comme gain (+5 au lieu de -220)
+- **🎯 Développement DÉSÉQUILIBRÉ**: IA oscille entre "que pions" et "que pièces mineures" (pas d'équilibre)
 - **🧪 Tests IA outdated**: Section 6 ne passe pas, complètement obsolète
 - **⚡ Minimax défaillant**: Algorithme structure OK mais résultats incorrects
 

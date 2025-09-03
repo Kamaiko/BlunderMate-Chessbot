@@ -79,9 +79,10 @@ MAIS: Avec tous les ajustements positionnels, diff devient ~5 points!
 
 ### 🔍 OBSERVATION COMPORTEMENTALE CRITIQUE
 **Pattern identifié par l'utilisateur** :
-- Session précédente : IA poussait pions excessivement (c7-c6, f7-f6)
-- Session actuelle : IA développe correctement (Nb8-c6) MAIS fait blunders tactiques
-- **Conclusion** : L'IA oscille entre différents types d'erreurs selon ajustements
+- Session précédente : IA poussait pions excessivement (c7-c6, f7-f6)  
+- Session actuelle : IA développe pièces mineures MAIS de façon déséquilibrée
+- **Observation finale** : IA ne joue PAS de développement équilibré (oscille entre "que pions" et "que pièces")
+- **Conclusion** : L'IA oscille entre différents types d'erreurs selon ajustements, sans jamais atteindre l'équilibre
 
 ### 🎯 THÉORIES SUR LA CAUSE RÉELLE
 
