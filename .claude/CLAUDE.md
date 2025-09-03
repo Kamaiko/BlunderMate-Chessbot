@@ -19,10 +19,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Quick Context
 - **Project**: Chess AI in Prolog - University AI course (IFT-2003)
-- **Current Phase**: Phase 2 COMPLÈTE ✅ - Promotion automatique des pions implémentée
-- **Next Phase**: Phase 3 IA - Implémentation Minimax avec Alpha-Beta pruning
+- **Current Phase**: Phase 3 ❌ DÉFAILLANTE - IA fait blunders tactiques constants
+- **Critical Issue**: Minimax implémenté MAIS donne matériel gratuitement
 - **Architecture**: 5-module design (pieces/board/game/interface/ai) + système complet
-- **Status**: Jeu d'échecs complet fonctionnel, 33 tests PASS, prêt pour intégration IA
+- **Status**: Interface fonctionnelle, tests IA outdated, objectif TP1 NON ATTEINT
 
 ## Development Commands
 
@@ -48,9 +48,9 @@ swipl go.pl
 # Direct interface launch (stable)
 swipl -s src/interface.pl -g start
 
-# ⚠️ AI mode (Phase 3 - EN DÉVELOPPEMENT)
-# Voir docs/plan.md pour l'implémentation en cours
-# swipl -s src/ai.pl -g ai_vs_human_mode
+# ❌ AI mode (Phase 3 - DÉFAILLANTE)  
+# IA fait blunders constants, voir docs/AI_STATUS_HANDOFF.md
+swipl go.pl  # Option 2: IA vs Humain (non recommandé - blunders)
 ```
 
 ### Debugging
@@ -170,45 +170,42 @@ swipl -t run_tests -s tests/tests.pl
 swipl tests/tests.pl
 ```
 
-## AI Implementation Status (Phase 3) - PROBLÈMES TACTIQUES CRITIQUES ❌
+## AI Implementation Status (Phase 3) - ÉCHEC TP1 ❌
 
-⚠️ **TRANSFERT DÉVELOPPEUR NÉCESSAIRE - BLUNDERS NON RÉSOLUS**
-- **Statut**: IA joue coups développement corrects MAIS donne matériel gratuitement
-- **Problème critique**: Captures sans voir recaptures (ex: Nxd4 quand Nxd4 possible)
-- **Performance**: Profondeur 2 (~1.4s par coup) mais algorithme minimax défaillant
-- **Documentation**: Voir `docs/AI_STATUS_HANDOFF.md` pour diagnostic complet
+❌ **OBJECTIF TP1 NON ATTEINT - CORRECTION REQUISE**
+- **Statut critique**: IA défaillante + tests IA outdated ne passent pas
+- **Problème 1**: Blunders tactiques constants (donne matériel gratuitement)  
+- **Problème 2**: Section 6 tests IA complètement outdated
+- **Impact**: Jeu non utilisable, deadline TP1 (20 oct 2025) en danger
+- **Documentation**: `docs/AI_STATUS_HANDOFF.md` contient diagnostic complet avec 4 théories
 
-### ✅ Corrections Critiques Appliquées (Phase 1-BIS)
-- **🚨 BUG g8h6 CORRIGÉ**: Randomisation triple + priorité ouvertures/minimax (80/20%)
-- **🚨 IA s'arrête CORRIGÉ**: Gestion robuste des erreurs et timeouts
-- **⚡ Génération coups AMÉLIORÉE**: MVV-LVA enrichi + tri tactique + développement
-- **🎯 Sélection urgence RENFORCÉE**: Priorité captures puis coups aléatoires
+### ✅ Corrections Partielles Appliquées (Insuffisantes)
+- **🚨 BUG g8h6 CORRIGÉ**: Génération coups avec priorités
+- **⚡ Génération ouverture AMÉLIORÉE**: Développement vs pions latéraux  
+- **📊 Tables piece-square**: Implémentées mais possiblement problématiques
+- **🧹 Cleanup projet**: 14 fichiers debug supprimés
 
-### ✅ Architecture Évaluation Refactorisée (Phase 2-R)
-- **📊 Valeurs matérielles**: Standards FreeCodeCamp avec gestion couleur (-10/+10)
-- **🎯 Piece-Square Tables**: Déjà présentes et optimisées pour évaluation positionnelle  
-- **⚡ Évaluation AMÉLIORÉE**: Pondération phase de jeu (ouverture vs finale)
-- **🚀 Mobilité OPTIMISÉE**: Comptage pièces actives vs génération complète coups
+### ❌ Problèmes Persistants NON RÉSOLUS
+- **🚨 BLUNDERS CONSTANTS**: IA donne matériel gratuitement (Nxd4 sans voir Qxd4)
+- **📊 Évaluation défaillante**: Séquence perte cavalier évaluée comme gain (+5 au lieu de -220)
+- **🧪 Tests IA outdated**: Section 6 ne passe pas, complètement obsolète
+- **⚡ Minimax défaillant**: Algorithme structure OK mais résultats incorrects
 
-### ✅ Optimisations Recherche (Phase 3-R)  
-- **🏆 MVV-LVA ENRICHI**: Captures > Promotions > Tactiques > Développement > Centre
-- **💾 Transposition Table**: Cache basique positions évaluées (profondeur 0)
-- **⚡ Profondeur 2**: Activée avec optimisations pour performance acceptable
-- **🎯 Heuristiques tactiques**: Fork cavalier, diagonales fortes, colonnes ouvertes
-
-### ✅ Tests Qualité Implémentés (Phase 4-R)
-- **🧪 Test variété**: 10 essais, minimum 3 coups uniques (anti-déterminisme)
-- **⚡ Test performance profondeur 2**: Objectif <1.5s avec fallback acceptable
-- **🎯 Test robustesse**: 10 coups minimum sans arrêt (fallback 5 coups)
-- **📊 Section 6 étendue**: 11 tests IA vs 7 précédents
+### 📋 État Actuel Diagnostic (Septembre 2025)
+- **Logique captures**: ✅ FONCTIONNELLE (testée: d4xe5, Nc6xd4, Qd1xd4)
+- **Algorithme minimax**: ❌ DÉFAILLANT (structure OK, propagation problématique)
+- **Tables évaluation**: ❌ SUSPECTES (bonus positionnels masquent pertes)
+- **Tests validation**: ❌ OUTDATED (Section 6 IA à refaire complètement)
 
 ## File Dependencies
 - interface.pl → game.pl → board.pl → pieces.pl
-- tests.pl depends on all src modules
+- ai.pl → pieces.pl, board.pl, game.pl, piece_values_sophisticated.pl
+- tests.pl depends on all src modules (Section 6 IA outdated)
 - go.pl is launcher (loads interface.pl directly)
 
-## Project Context Links
-- **User Guide**: [README.md](../README.md) - Guide d'utilisation et état du projet
-- **Test Files**: [tests/](../tests/) - 33 tests complets (100% PASS)
-- **Source Code**: [src/](../src/) - Architecture 5-modules complète
-- **AI Plan**: [plan.md](../docs/plan.md) - Roadmap détaillée Phase 3 IA
+## Critical Project Files  
+- **🚨 AI Status**: [docs/AI_STATUS_HANDOFF.md](../docs/AI_STATUS_HANDOFF.md) - Diagnostic complet + 4 théories
+- **📋 Tasks**: [docs/TASKS.md](../docs/TASKS.md) - Status réaliste TP1 (échec)
+- **📊 Plan**: [docs/plan.md](../docs/plan.md) - Découverte critique intégrée
+- **🧪 Tests**: [tests/tests.pl](../tests/tests.pl) - Section 6 IA À REFAIRE
+- **🤖 IA**: [src/ai.pl](../src/ai.pl) - Algorithme défaillant à debugger
