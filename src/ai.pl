@@ -201,7 +201,7 @@ pairs_values([_-Value|RestPairs], [Value|RestValues]) :-
 % =============================================================================
 
 % evaluate_pure_reference(+GameState, +Player, -Value)
-% ÉVALUATION SIMPLE: Matériel + PSQT (stable et rapide)
+% ÉVALUATION COMPLÈTE: Matériel + PSQT + Sécurité (anti-blunders)
 evaluate_pure_reference(GameState, Player, Value) :-
     % 1. Évaluation matérielle standard (sans roi)
     count_material_standard(GameState, white, WhiteMaterial),
@@ -213,8 +213,13 @@ evaluate_pure_reference(GameState, Player, Value) :-
     evaluate_psqt_total(GameState, black, BlackPSQT),
     PSQTDiff is WhitePSQT - BlackPSQT,
     
-    % Combiner: Matériel + PSQT
-    TotalDiff is MaterialDiff + PSQTDiff,
+    % 3. NOUVEAU: Sécurité des pièces (détection hanging pieces)
+    evaluate_piece_safety(GameState, white, WhiteSafety),
+    evaluate_piece_safety(GameState, black, BlackSafety),
+    SafetyDiff is WhiteSafety - BlackSafety,
+    
+    % Combiner: Matériel + PSQT + Sécurité
+    TotalDiff is MaterialDiff + PSQTDiff + SafetyDiff,
     
     % Retourner du point de vue du joueur demandé
     (   Player = white ->
@@ -300,6 +305,75 @@ piece_type_from_symbol('Q', queen) :- !.
 piece_type_from_symbol('q', queen) :- !.
 piece_type_from_symbol('K', king) :- !.
 piece_type_from_symbol('k', king) :- !.
+
+% =============================================================================
+% ÉVALUATION SÉCURITÉ DES PIÈCES - ANTI-BLUNDERS
+% =============================================================================
+
+% evaluate_piece_safety(+GameState, +Player, -SafetyValue)
+% Détecte pièces attaquées et non défendues (hanging pieces)
+% Pénalise les pièces non-défendues, bonus pour attaquer pièces adverses non-défendues
+evaluate_piece_safety(GameState, Player, SafetyValue) :-
+    GameState = game_state(Board, _, _, _, _),
+    
+    % Pénalités pour nos pièces en danger
+    findall(PenaltyValue, (
+        between(1, 8, Row), between(1, 8, Col),
+        get_piece(Board, Row, Col, Piece),
+        Piece \= ' ', Piece \= '.',
+        piece_belongs_to_player(Piece, Player),
+        
+        % Vérifier si la pièce est attaquée
+        opposite_player(Player, Opponent),
+        is_square_attacked(Board, Row, Col, Player),
+        
+        % Si attaquée, vérifier si défendue
+        \+ is_piece_defended(GameState, Row, Col, Player),
+        
+        % Pénalité = valeur de la pièce
+        standard_piece_value(Piece, PenaltyValue)
+    ), OurPenalties),
+    
+    % Bonus pour pièces adverses en danger que nous pouvons capturer
+    opposite_player(Player, Opponent),
+    findall(BonusValue, (
+        between(1, 8, Row), between(1, 8, Col),
+        get_piece(Board, Row, Col, Piece),
+        Piece \= ' ', Piece \= '.',
+        piece_belongs_to_player(Piece, Opponent),
+        
+        % Vérifier si nous attaquons cette pièce
+        is_square_attacked(Board, Row, Col, Opponent),
+        
+        % Si attaquée par nous, vérifier si elle est défendue
+        \+ is_piece_defended(GameState, Row, Col, Opponent),
+        
+        % Bonus = valeur de la pièce adverse
+        standard_piece_value(Piece, BonusValue)
+    ), TheirPenalties),
+    
+    sum_list(OurPenalties, TotalOurPenalties),
+    sum_list(TheirPenalties, TotalTheirBonuses),
+    
+    % Score = bonus pour capturer leurs pièces - pénalité pour nos pièces en danger
+    SafetyValue is TotalTheirBonuses - TotalOurPenalties.
+
+% is_piece_defended(+GameState, +Row, +Col, +DefendingPlayer)
+% Vérifie si une pièce attaquée peut être protégée par une pièce alliée
+% Utilise une approche simplifiée : cherche si une pièce alliée peut venir défendre
+is_piece_defended(GameState, Row, Col, DefendingPlayer) :-
+    GameState = game_state(Board, _, _, _, _),
+    
+    % Chercher une pièce alliée qui peut atteindre cette case
+    between(1, 8, FromRow), between(1, 8, FromCol),
+    get_piece(Board, FromRow, FromCol, DefenderPiece),
+    piece_belongs_to_player(DefenderPiece, DefendingPlayer),
+    (FromRow \= Row ; FromCol \= Col),  % Pas la même pièce
+    
+    % Vérifier si le défenseur peut légalement aller sur cette case
+    % (soit pour capturer l'attaquant, soit pour défendre)
+    valid_move(GameState, DefendingPlayer, FromRow, FromCol, Row, Col),
+    !.  % Une seule défense trouvée suffit
 
 % evaluate_tactical_safety(+GameState, +Player, -SafetyValue)
 % Évaluation tactique SIMPLIFIÉE pour performance
