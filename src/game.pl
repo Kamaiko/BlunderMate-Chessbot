@@ -575,8 +575,8 @@ square_attacked_by_pawn(Board, Row, Col, AttackingPlayer) :-
 % pawn_attack_direction(+Player, -RowOffset)  
 % Direction INVERSE pour trouver le pion qui attaque une case donnee.
 % Si pions blancs attaquent vers le haut (+1), pour trouver l'attaquant on va vers le bas (-1).
-pawn_attack_direction(white,  1).  % Pour trouver pion blanc attaquant, aller vers le bas
-pawn_attack_direction(black, -1).  % Pour trouver pion noir attaquant, aller vers le haut
+pawn_attack_direction(white, -1).  % Pour trouver pion blanc attaquant, aller vers le bas
+pawn_attack_direction(black,  1).  % Pour trouver pion noir attaquant, aller vers le haut
 
 % pawn_attack_column_offset(-ColOffset)
 % Colonnes d'attaque diagonale des pions.
