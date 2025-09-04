@@ -19,16 +19,18 @@
 - **Détection terminale**: Mat/Pat avec scores appropriés
 - **Interface**: Mode Humain vs IA fonctionnel
 - **Tests**: 42/42 tests passent
-- **Ouverture**: Coups fixes Caro-Kann implémentés
+- **Ouverture**: ~~Coups fixes Caro-Kann~~ → **À SUPPRIMER pour IA pure**
 
-### ❌ Problèmes Identifiés
-1. **Évaluation position manquante** → Implémenter Piece-Square Tables
-2. **Cases vides inconsistantes** → Standardiser `' '` vs `'.'`
-3. **Blunders tactiques** → Recaptures manquées, sacrifices involontaires
-4. **Bonus développement excessif** → 100 points vs 30 recommandés
-5. **Tests structurés manquants** → Mat en 1, parade obligatoire
+### ❌ Problèmes Identifiés (Cross-File Consistency Check - Sept 2025)
+1. **🎯 Coups fixes Caro-Kann** → **SUPPRIMER pour IA authentique** (ÉDUCATIF)
+2. **Évaluation position manquante** → Implémenter Piece-Square Tables
+3. **🚨 Cases vides inconsistantes** → Standardiser `' '` vs `'.'` (CRITIQUE)  
+4. **🚨 Tests cassés** → `run_all_tests` manquant dans tests.pl (MAJEUR)
+5. **Blunders tactiques** → Recaptures manquées, sacrifices involontaires
+6. **Bonus développement excessif** → 100 points vs 30 recommandés
+7. **Tests structurés manquants** → Mat en 1, parade obligatoire
 
-## 📅 Phase 1: Fondations Évaluatives (Session 1 - 90 min)
+## 📅 Phase 1: Fondations Évaluatives (Session 1 - 105 min)
 
 ### 🎯 Objectif: Implémenter évaluation positionnelle éducative simple
 
@@ -46,16 +48,20 @@
 - Pion e4 > pion a4 (contrôle centre)
 - Code éducatif simple, commenté pour compréhension
 
-#### 🔧 Tâche 1.2: Simplification Architecture (30 min)
+#### 🔧 Tâche 1.2: Simplification Architecture + Consistency Fix (45 min)
+- [ ] **🎯 PRIORITÉ 0: Supprimer coups fixes** → IA pure négamax dès coup 1 (ÉDUCATIF)
+- [ ] **🚨 PRIORITÉ 1: Fixer `run_all_tests`** → Ajouter prédicat manquant tests.pl
+- [ ] **🚨 PRIORITÉ 2: Standardiser cases vides** → `' '` partout (vs `'.' inconsistent`)
 - [ ] **Enlever SEE complètement**: Trop complexe niveau universitaire
-- [ ] **Standardiser cases vides**: `' '` partout (vs `'.'`)
 - [ ] **Réduire bonus développement**: 100 → 30 points max
 - [ ] **Nettoyer évaluation**: Matériel + PSQT + mobilité basique seulement
 
 **Critères validation**:
+- **IA authentique**: 1.e4 → IA répond e5/c5 via PSQT (pas scripts fixes)
+- Menu Tests (Option 3) fonctionne sans erreur  
+- Cases vides cohérentes: pieces.pl, board.pl, ai.pl alignés
 - Code plus lisible, commentaires éducatifs
 - Performance maintenue <10s profondeur 2-3
-- Logique transparente pour évaluation académique
 
 #### 📖 Tâche 1.3: Documentation Architecture (15 min)
 - [ ] **Commenter algorithme négamax**: Chaque étape expliquée
@@ -177,15 +183,18 @@ prioritize_recaptures(LastMove, Moves, PrioritizedMoves) :-
 
 ## 🎯 Prochaine Session Immédiate
 
-### 📅 Session Demain (90 min) - Focus Phase 1
+### 📅 Session Demain (105 min) - Focus Phase 1 + Suppression Coups Fixes
 1. **0-45min**: Implémenter Piece-Square Tables selon ChessProgramming.org
-2. **45-75min**: Enlever SEE, standardiser cases vides, réduire bonus développement  
-3. **75-90min**: Tests rapides + documentation algorithme
+2. **45-90min**: **CONSISTENCY + PURETÉ IA** - Supprimer coups fixes + fixer `run_all_tests` + cases vides
+3. **90-105min**: Tests IA authentique + documentation négamax pur
 
 ### 🎪 Résultat Attendu Session 1
+- **🎯 IA Authentique**: Négamax pur dès coup 1 (finies les béquilles Caro-Kann!)
 - IA évalue positions avec PSQT (cavalier centre > bord)
+- **Menu Tests fonctionnel** (Option 3 interface.pl → run_all_tests)
+- **Cases vides cohérentes** (`' '` standardisé partout)
 - Code simplifié, éducatif, commenté
-- Base solide pour tests structurés Phase 2
+- **Démonstration TP1**: Algorithme robuste sans scripts préprogrammés
 
 ---
 

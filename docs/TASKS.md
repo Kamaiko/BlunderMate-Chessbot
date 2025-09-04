@@ -24,7 +24,7 @@
 - [x] **Négamax (variante minimax)** : `minimax_ab/5` avec alpha-beta et élagage
 - [x] **Tri MVV-LVA** : Most Valuable Victim - Least Valuable Attacker  
 - [x] **Détection terminale** : Mat (-100000), Pat (0)
-- [x] **Coups d'ouverture** : Caro-Kann c7-c6, d7-d5 (premiers coups noirs)
+- [ ] **Coups d'ouverture** : ~~Caro-Kann fixes~~ → **SUPPRIMER pour IA authentique**
 
 ### 📊 Évaluation (Architecture Éducative)
 - ✅ **Matériel** : Valeurs centipawns (P:100, N:320, B:330, R:500, Q:900)
@@ -36,7 +36,14 @@
 
 ## 🎯 PLAN SESSION DEMAIN (2025-09-05)
 
-### 📋 Checklist Critique (90 minutes)
+### 📋 Checklist Critique (105 minutes) - CONSISTENCY + SUPPRESSION COUPS FIXES
+
+#### 🚨 PHASE 0 : Consistency Fixes + IA Pure (45 min) - NOUVEAU  
+- [ ] **🎯 PRIORITÉ 0: Supprimer coups fixes** : IA négamax pur dès coup 1 (ÉDUCATIF)
+- [ ] **🚨 PRIORITÉ 1: Tests cassés** : Ajouter `run_all_tests` dans tests.pl
+- [ ] **🚨 PRIORITÉ 2: Cases vides** : `' '` seulement, supprimer `'.'` inconsistant
+- [ ] **Validation Menu** : Option 3 "Tests" fonctionne sans erreur
+- [ ] **Test IA authentique** : 1.e4 → IA répond via PSQT (pas scripts)
 
 #### 🔥 PHASE 1 : Piece-Square Tables (30 min)
 - [ ] **Implémenter PSQT** selon ChessProgramming.org Simplified
@@ -44,36 +51,54 @@
 - [ ] **Valeurs centrales** : Cavaliers centre bon, bords mauvais  
 - [ ] **Test intégration** : Vérifier évaluation fonctionne
 
-#### 🧪 PHASE 2 : Tests Structurés (45 min)  
+#### 🧪 PHASE 2 : Tests Structurés (30 min)  
 - [ ] **Test mat en 1** : IA choisit coup gagnant unique
 - [ ] **Test parade** : IA joue seule défense anti-mat
 - [ ] **Test recaptures** : e4xd5 → c6xd5 automatique
 - [ ] **Validation alpha-beta** : Même résultats que minimax
 
 #### ⚡ PHASE 3 : Finalisation (15 min)
-- [ ] **Cases vides** : Standardiser `empty_cell(' ')` partout
 - [ ] **Performance** : <10s profondeur 2-3  
-- [ ] **Documentation** : Commit status final
+- [ ] **Documentation** : Commit status final avec consistency fixes
 
 ---
 
-## 🔧 Corrections Techniques Requises
+## 🔧 Corrections Techniques Requises (Cross-File Consistency Check)
 
-### 🚨 Priorité 1 - Évaluation
-1. **Implémenter PSQT** : ChessProgramming.org Simplified Evaluation
-2. **Enlever SEE** : Remplacer par évaluation positionnelle basique
-3. **Bonus développement** : Réduire 100→30 points max
+### 🚨 Priorité 1 - Consistency Fixes (CRITIQUE)
+1. **🚨 Tests cassés** : Ajouter `run_all_tests` manquant dans tests.pl
+2. **🚨 Cases vides** : Standardiser `' '` vs `'.'` (pieces.pl, board.pl, ai.pl inconsistant)
+3. **Implémenter PSQT** : ChessProgramming.org Simplified Evaluation
 
-### ⚠️ Priorité 2 - Robustesse  
-1. **Cases vides** : Standardiser `' '` vs `'.'` tests
-2. **Génération coups** : Garde-fou si roi en échec
-3. **Validation** : `fast_get_piece/4` optimisée IA
+### ⚠️ Priorité 2 - Architecture IA
+1. **Enlever SEE** : Remplacer par évaluation positionnelle basique
+2. **Bonus développement** : Réduire 100→30 points max
+3. **Génération coups** : Garde-fou si roi en échec
+
+### 🔧 Priorité 3 - Optimisation
+1. **Validation** : `fast_get_piece/4` optimisée IA
+2. **Performance** : Cache positions pour éviter boucles 8x8
 
 ---
 
 ## 📊 TESTS STRUCTURÉS PLANIFIÉS
 
-### Phase 1 : Tests Unitaires Contrôlés
+### Phase 0 : Consistency Tests (NOUVEAU)
+```prolog
+% Test cases vides cohérentes
+test_empty_cell_consistency :-
+    % Vérifier que tous modules utilisent ' ' pour cases vides
+    create_empty_board(Board),
+    get_piece(Board, 1, 1, EmptyCell),
+    EmptyCell = ' '.  % DOIT être espace, pas point
+
+% Test run_all_tests existe
+test_run_all_tests_exists :-
+    % Vérifier que le prédicat appelé par interface.pl existe
+    current_predicate(run_all_tests/0).
+```
+
+### Phase 1 : Tests Unitaires Contrôlés  
 ```prolog
 % Test mat en 1 : IA trouve coup gagnant unique
 test_mate_in_one :-
