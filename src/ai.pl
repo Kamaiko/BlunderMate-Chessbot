@@ -10,6 +10,7 @@
 :- [pieces].
 :- [board].
 :- [game].
+:- [psqt_tables].
 
 % =============================================================================
 % CONSTANTES REFERENCE EXACTES - BOARD_EVAL.PL:5-12
@@ -21,6 +22,47 @@ compensate_ref(black, -15).
 % =============================================================================
 % INTERFACE PRINCIPALE SIMPLE
 % =============================================================================
+
+% display_position_evaluation(+GameState, +Player)
+% Affiche le détail de l'évaluation pour debug/interface
+display_position_evaluation(GameState, Player) :-
+    % Calculs détaillés
+    count_material_pure_ref(GameState, white, WhiteMaterial),
+    count_material_pure_ref(GameState, black, BlackMaterial),
+    evaluate_psqt_total(GameState, white, WhitePSQT),
+    evaluate_psqt_total(GameState, black, BlackPSQT),
+    evaluate_tactical_safety(GameState, white, WhiteSafety),
+    evaluate_tactical_safety(GameState, black, BlackSafety),
+    
+    % Différentiels 
+    MaterialDiff is WhiteMaterial - BlackMaterial,
+    PSQTDiff is WhitePSQT - BlackPSQT,
+    SafetyDiff is WhiteSafety - BlackSafety,
+    TotalDiff is MaterialDiff + PSQTDiff + SafetyDiff,
+    
+    % Évaluation du point de vue du joueur
+    (   Player = white ->
+        FinalScore = TotalDiff
+    ;   FinalScore is -TotalDiff
+    ),
+    
+    % Affichage détaillé
+    write('=== ÉVALUATION POSITION ==='), nl,
+    format('Matériel    : Blancs ~w vs Noirs ~w (diff: ~w)~n', 
+           [WhiteMaterial, BlackMaterial, MaterialDiff]),
+    format('PSQT        : Blancs ~w vs Noirs ~w (diff: ~w)~n', 
+           [WhitePSQT, BlackPSQT, PSQTDiff]),
+    format('Sécurité    : Blancs ~w vs Noirs ~w (diff: ~w)~n', 
+           [WhiteSafety, BlackSafety, SafetyDiff]),
+    write('------------------------'), nl,
+    format('SCORE TOTAL (~w): ~w~n', [Player, FinalScore]),
+    (   FinalScore > 0 ->
+        format('Position favorable à ~w (~w)~n', [Player, FinalScore])
+    ;   FinalScore < 0 ->
+        format('Position défavorable à ~w (~w)~n', [Player, FinalScore])
+    ;   write('Position équilibrée (0)'), nl
+    ),
+    write('========================'), nl.
 
 % =============================================================================
 % COUPS D'OUVERTURE FIXES - CARO-KANN/SLAV DEFENSE
@@ -161,26 +203,79 @@ pairs_values([_-Value|RestPairs], [Value|RestValues]) :-
 % =============================================================================
 
 % evaluate_pure_reference(+GameState, +Player, -Value)
-% AMÉLIORATION TACTIQUE: Evaluation matérielle + sécurité des pièces
+% ÉVALUATION SIMPLIFIÉE: Matériel standard + PSQT
 evaluate_pure_reference(GameState, Player, Value) :-
-    % Évaluation matérielle existante
-    count_material_pure_ref(GameState, white, WhiteValue),
-    count_material_pure_ref(GameState, black, BlackValue),
-    MaterialDiff is WhiteValue - BlackValue,
+    % 1. Évaluation matérielle standard (sans roi)
+    count_material_standard(GameState, white, WhiteMaterial),
+    count_material_standard(GameState, black, BlackMaterial),
+    MaterialDiff is WhiteMaterial - BlackMaterial,
     
-    % NOUVELLE: Évaluation tactique - détection pièces en danger
-    evaluate_tactical_safety(GameState, white, WhiteSafety),
-    evaluate_tactical_safety(GameState, black, BlackSafety),
-    SafetyDiff is WhiteSafety - BlackSafety,
+    % 2. Évaluation PSQT (Piece-Square Tables)
+    evaluate_psqt_total(GameState, white, WhitePSQT),
+    evaluate_psqt_total(GameState, black, BlackPSQT),
+    PSQTDiff is WhitePSQT - BlackPSQT,
     
-    % Combiner matériel + sécurité tactique
-    TotalDiff is MaterialDiff + SafetyDiff,
+    % Combiner: Matériel + PSQT (plus simple, plus prévisible)
+    TotalDiff is MaterialDiff + PSQTDiff,
     
-    % Retourner valeur du point de vue du joueur actuel
-    (   Player = white ->
-        Value = TotalDiff
-    ;   Value is -TotalDiff
-    ).
+    % Retourner valeur TOUJOURS du point de vue des blancs (+ = blanc gagne, - = noir gagne)
+    Value = TotalDiff.
+
+% count_material_standard(+GameState, +Player, -MaterialValue)
+% Compte matériel selon valeurs standard (SANS roi)
+count_material_standard(GameState, Player, MaterialValue) :-
+    GameState = game_state(Board, _, _, _, _),
+    findall(Value, (
+        between(1, 8, Row), between(1, 8, Col),
+        get_piece(Board, Row, Col, Piece),
+        Piece \= ' ', Piece \= '.',
+        piece_belongs_to_player(Piece, Player),
+        standard_piece_value(Piece, Value)
+    ), Values),
+    sum_list(Values, MaterialValue).
+
+% standard_piece_value(+Piece, -Value)
+% Valeurs matérielles standard (ROI EXCLU)
+standard_piece_value('P', 100) :- !.
+standard_piece_value('p', 100) :- !.
+standard_piece_value('N', 320) :- !.
+standard_piece_value('n', 320) :- !.
+standard_piece_value('B', 330) :- !.
+standard_piece_value('b', 330) :- !.
+standard_piece_value('R', 500) :- !.
+standard_piece_value('r', 500) :- !.
+standard_piece_value('Q', 900) :- !.
+standard_piece_value('q', 900) :- !.
+% Roi n'a pas de valeur matérielle
+
+% evaluate_psqt_total(+GameState, +Player, -PSQTValue)
+% Évalue toutes les pièces d'un joueur selon les PSQT
+evaluate_psqt_total(GameState, Player, PSQTValue) :-
+    GameState = game_state(Board, _, _, _, _),
+    findall(Value, (
+        between(1, 8, Row), between(1, 8, Col),
+        get_piece(Board, Row, Col, Piece),
+        Piece \= ' ', Piece \= '.',
+        piece_belongs_to_player(Piece, Player),
+        piece_type_from_symbol(Piece, PieceType),
+        get_psqt_value(PieceType, Row, Col, Player, Value)
+    ), Values),
+    sum_list(Values, PSQTValue).
+
+% piece_type_from_symbol(+PieceSymbol, -PieceType)
+% Convertit symbole pièce vers type PSQT
+piece_type_from_symbol('P', pawn) :- !.
+piece_type_from_symbol('p', pawn) :- !.
+piece_type_from_symbol('N', knight) :- !.
+piece_type_from_symbol('n', knight) :- !.
+piece_type_from_symbol('B', bishop) :- !.
+piece_type_from_symbol('b', bishop) :- !.
+piece_type_from_symbol('R', rook) :- !.
+piece_type_from_symbol('r', rook) :- !.
+piece_type_from_symbol('Q', queen) :- !.
+piece_type_from_symbol('q', queen) :- !.
+piece_type_from_symbol('K', king) :- !.
+piece_type_from_symbol('k', king) :- !.
 
 % evaluate_tactical_safety(+GameState, +Player, -SafetyValue)
 % Évaluation tactique avancée avec SEE (Static Exchange Evaluation)

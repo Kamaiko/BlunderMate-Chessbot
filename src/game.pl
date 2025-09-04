@@ -45,7 +45,9 @@ valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol) :-
     validate_move_coordinates(FromRow, FromCol, ToRow, ToCol),
     validate_piece_ownership(Board, FromRow, FromCol, Player, Piece),
     validate_destination_square(Board, ToRow, ToCol, Player),
-    validate_piece_specific_rules(Board, FromRow, FromCol, ToRow, ToCol, Piece).
+    validate_piece_specific_rules(Board, FromRow, FromCol, ToRow, ToCol, Piece),
+    % CRITIQUE: Vérifier que le mouvement ne laisse pas le roi en échec
+    validate_king_safety_after_move(Board, Player, FromRow, FromCol, ToRow, ToCol).
 
 % Validation helpers pour reduire la complexite
 validate_move_coordinates(FromRow, FromCol, ToRow, ToCol) :-
@@ -167,7 +169,7 @@ update_captured_pieces(Piece, [WhiteCaptured, BlackCaptured], [NewWhiteCaptured,
 % =============================================================================
 
 % display_game_state(+GameState)
-% Affiche l'etat complet du jeu.
+% Affiche l'etat complet du jeu avec évaluation.
 display_game_state(GameState) :-
     GameState = game_state(Board, Player, MoveCount, _, CapturedPieces),
     display_board(Board),
@@ -175,7 +177,105 @@ display_game_state(GameState) :-
     write('Joueur actuel: '), 
     translate_player(Player, PlayerFR), 
     write(PlayerFR), nl,
-    write('Nombre de coups: '), write(MoveCount), nl, nl.
+    write('Nombre de coups: '), write(MoveCount), nl,
+    
+    % NOUVEAU: Affichage évaluation position
+    display_position_score(GameState, Player), nl.
+
+% display_position_score(+GameState, +Player)
+% Affiche un score simple de la position
+display_position_score(GameState, Player) :-
+    % Essayer d'utiliser l'évaluation IA si disponible
+    (   catch(evaluate_pure_reference(GameState, Player, Score), _, fail) ->
+        format('[EVAL] Position: ~w', [Score])
+    ;   % Fallback: évaluation matérielle simple
+        GameState = game_state(Board, _, _, _, _),
+        count_material_simple(Board, white, WhiteMaterial),
+        count_material_simple(Board, black, BlackMaterial),
+        Score is WhiteMaterial - BlackMaterial,
+        format('[EVAL] Position: ~w', [Score])
+    ).
+
+% count_material_simple(+Board, +Player, -MaterialValue)
+% Compte le matériel d'un joueur (fallback simple)
+count_material_simple(Board, Player, MaterialValue) :-
+    findall(Value, (
+        between(1, 8, Row), between(1, 8, Col),
+        get_piece(Board, Row, Col, Piece),
+        Piece \= ' ', Piece \= '.',
+        piece_belongs_to_player(Piece, Player),
+        simple_piece_value(Piece, Value)
+    ), Values),
+    sum_list(Values, MaterialValue).
+
+% simple_piece_value(+Piece, -Value)
+% Valeurs matérielles basiques
+simple_piece_value('P', 100) :- !.
+simple_piece_value('p', 100) :- !.
+simple_piece_value('N', 320) :- !.
+simple_piece_value('n', 320) :- !.
+simple_piece_value('B', 330) :- !.
+simple_piece_value('b', 330) :- !.
+simple_piece_value('R', 500) :- !.
+simple_piece_value('r', 500) :- !.
+simple_piece_value('Q', 900) :- !.
+simple_piece_value('q', 900) :- !.
+simple_piece_value('K', 0) :- !.   % Roi ne compte pas dans matériel
+simple_piece_value('k', 0) :- !.
+
+% =============================================================================
+% VALIDATION SÉCURITÉ ROI (FIX BUG ÉCHEC IGNORÉ)
+% =============================================================================
+
+% validate_king_safety_after_move(+Board, +Player, +FromRow, +FromCol, +ToRow, +ToCol)
+% Vérifie qu'après le mouvement, le roi du joueur n'est pas en échec
+validate_king_safety_after_move(Board, Player, FromRow, FromCol, ToRow, ToCol) :-
+    % Simuler le mouvement
+    get_piece(Board, FromRow, FromCol, MovingPiece),
+    place_single_piece(Board, FromRow, FromCol, ' ', TempBoard1),
+    place_single_piece(TempBoard1, ToRow, ToCol, MovingPiece, NewBoard),
+    
+    % Vérifier que le roi n'est pas en échec après le mouvement
+    \+ is_king_in_check(NewBoard, Player).
+
+% is_king_in_check(+Board, +Player)
+% Vérifie si le roi du joueur est en échec
+is_king_in_check(Board, Player) :-
+    find_king_position(Board, Player, KingRow, KingCol),
+    opposite_player(Player, Opponent),
+    can_player_attack_square(Board, Opponent, KingRow, KingCol).
+
+% find_king_position(+Board, +Player, -Row, -Col)
+% Trouve la position du roi du joueur
+find_king_position(Board, Player, Row, Col) :-
+    (   Player = white -> KingSymbol = 'K'
+    ;   KingSymbol = 'k'
+    ),
+    between(1, 8, Row),
+    between(1, 8, Col),
+    get_piece(Board, Row, Col, KingSymbol), !.
+
+% can_player_attack_square(+Board, +Player, +TargetRow, +TargetCol)
+% Vérifie si le joueur peut attaquer une case donnée
+can_player_attack_square(Board, Player, TargetRow, TargetCol) :-
+    between(1, 8, FromRow),
+    between(1, 8, FromCol),
+    get_piece(Board, FromRow, FromCol, Piece),
+    Piece \= ' ', Piece \= '.',
+    piece_belongs_to_player(Piece, Player),
+    % Test si cette pièce peut attaquer la case cible (sans vérifier sécurité roi)
+    validate_move_coordinates(FromRow, FromCol, TargetRow, TargetCol),
+    validate_destination_square_attack(Board, TargetRow, TargetCol, Player),
+    validate_piece_specific_rules(Board, FromRow, FromCol, TargetRow, TargetCol, Piece).
+
+% validate_destination_square_attack(+Board, +ToRow, +ToCol, +Player)
+% Version spéciale pour attaque (peut capturer pièces adverses)
+validate_destination_square_attack(Board, ToRow, ToCol, Player) :-
+    get_piece(Board, ToRow, ToCol, TargetPiece),
+    (   TargetPiece = ' '  % Case vide OK
+    ;   TargetPiece = '.'  % Case vide OK
+    ;   \+ piece_belongs_to_player(TargetPiece, Player)  % Pièce adverse OK
+    ).
 
 % display_captured_pieces(+CapturedPieces)
 % Affiche les pieces capturees de maniere lisible.

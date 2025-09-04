@@ -24,7 +24,10 @@
       "Read(C:\\DevTools\\Projects\\PrologChessNotMine/**)",
       "Bash(timeout 8 swipl -s test_hybrid.pl -g test_hybrid)",
       "Bash(timeout 8 swipl -s test_minimax_direct.pl -g test_minimax_direct)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(git add:*)",
+      "Read(/C:\\DevTools\\Projects\\PrologChessGame_Clean/**)",
+      "Read(/C:\\DevTools\\Projects\\PrologChessGame_Clean\\.claude/**)"
     ],
     "deny": [
       "mcp__playwright__*"

@@ -19,10 +19,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Quick Context
 - **Project**: Chess AI in Prolog - University AI course (IFT-2003)
-- **Current Phase**: Phase 3 ❌ DÉFAILLANTE - IA fait blunders tactiques constants
-- **Critical Issue**: Minimax implémenté MAIS donne matériel gratuitement
-- **Architecture**: 5-module design (pieces/board/game/interface/ai) + système complet
-- **Status**: Interface fonctionnelle, tests IA outdated, objectif TP1 NON ATTEINT
+- **Current Phase**: Phase 3 ✅ TERMINÉE - IA négamax + alpha-beta profondeur 2
+- **Status**: Négamax + alpha-beta pruning + PSQT + évaluation unified (+ = blanc, - = noir)
+- **Architecture**: 5-module design (pieces/board/game/interface/ai) + psqt_tables.pl
+- **Tests**: 8 sections consolidées, interface Option 3 fonctionnelle
 
 ## Development Commands
 
@@ -170,15 +170,16 @@ swipl -t run_tests -s tests/tests.pl
 swipl tests/tests.pl
 ```
 
-## AI Implementation Status (Phase 3) - ⚡ EN FINALISATION
+## AI Implementation Status (Phase 3) - ✅ TERMINÉ
 
-✅ **NÉGAMAX + ALPHA-BETA IMPLÉMENTÉ**
+✅ **NÉGAMAX + ALPHA-BETA + PSQT IMPLÉMENTÉ**
 - **Algorithme**: Négamax avec élagage alpha-beta fonctionnel
 - **Tri MVV-LVA**: Most Valuable Victim - Least Valuable Attacker implémenté
-- **Détection terminale**: Mat (-100000), Pat (0) avec scores appropriés
-- **À compléter**: Piece-Square Tables selon ChessProgramming.org
-- **Tests**: 42/42 moteur de jeu + tests structurés IA à ajouter
-- **Session prochaine**: PSQT + validation tactique finale
+- **PSQT**: Piece-Square Tables ChessProgramming.org intégrées (adaptées SANS ROQUE)
+- **Évaluation**: Matériel standard + PSQT unified (+ = blanc gagne, - = noir gagne)
+- **Validation**: Sécurité roi implémentée (fix bug échec ignoré)
+- **Tests**: 8 sections consolidées avec boards visuels et validation PSQT
+- **Interface**: Score unique visible `[EVAL] Position: X` (sans mention joueur)
 
 ### ✅ Corrections Majeures Réussies (Septembre 2025)
 - **🎯 Développement pièces RÉSOLU**: IA joue maintenant Nc6, Nf6, Be7, Bd7 en ouverture
@@ -186,11 +187,11 @@ swipl tests/tests.pl
 - **📊 Génération coups AMÉLIORÉE**: Priorité développement > pions, quotas équilibrés
 - **🧹 Code NETTOYÉ**: Refactorisation ai.pl, suppression logs debug, architecture simplifiée
 
-### 🎯 Objectifs Session Prochaine (2025-09-05)
-- **📈 Piece-Square Tables**: Implémenter selon ChessProgramming.org
-- **🧪 Tests structurés**: Mat en 1, parade obligatoire, alpha-beta consistency
-- **🔧 Standardisation**: Cases vides `empty_cell(' ')` partout
-- **⚡ Performance**: Validation <10s profondeur 2-3
+### 🎯 Prochaine Phase Optionnelle : Tests Rigoureux
+- **🧪 Tests structurés**: Mat en 1, parade obligatoire, recaptures
+- **📊 Tests tactiques**: Validation blunders évités, sacrifices
+- **⚡ Performance**: Profondeur 2 optimale maintenue
+- **📚 Documentation**: Tests clairs et bien affichés console
 
 ### 📚 RECOMMANDATIONS THÉORIQUES À IMPLÉMENTER
 
