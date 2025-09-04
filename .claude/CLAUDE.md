@@ -48,9 +48,9 @@ swipl go.pl
 # Direct interface launch (stable)
 swipl -s src/interface.pl -g start
 
-# ❌ AI mode (Phase 3 - DÉFAILLANTE)  
-# IA fait blunders constants, voir docs/AI_STATUS_HANDOFF.md
-swipl go.pl  # Option 2: IA vs Humain (non recommandé - blunders)
+# ✅ AI mode (Phase 3 - ALPHA-BETA FONCTIONNEL)  
+# IA avec négamax + alpha-beta + évaluation PSQT simple
+swipl go.pl  # Option 2: IA vs Humain (alpha-beta implémenté)
 ```
 
 ### Debugging
@@ -170,9 +170,9 @@ swipl -t run_tests -s tests/tests.pl
 swipl tests/tests.pl
 ```
 
-## AI Implementation Status (Phase 3) - AI V1 ARCHIVÉE 🔄
+## AI Implementation Status (Phase 3) - ALPHA-BETA IMPLÉMENTÉ ✅
 
-❌ **AI V1 DÉFAILLANTE ARCHIVÉE - PRÉPARATION AI V2**
+✅ **AI V2 ALPHA-BETA - ÉVALUATION SIMPLIFIÉE
 - **Statut**: AI v1 archivée dans `archive/ai_v1_defaillante.pl` (Septembre 2025)
 - **Problème critique identifié**: Status mismatch (active/ongoing) empêche évaluation captures
 - **Tests AI**: Section 6 supprimée de tests.pl (complètement outdated)
@@ -250,4 +250,4 @@ opening_move([d2,d4], [d7,d6]).   % Moderne pour d4
 - **📋 Tasks**: [docs/TASKS.md](../docs/TASKS.md) - Status réaliste TP1 (échec)
 - **📊 Plan**: [docs/plan.md](../docs/plan.md) - Découverte critique intégrée
 - **🧪 Tests**: [tests/tests.pl](../tests/tests.pl) - Section 6 IA À REFAIRE
-- **🤖 IA**: [src/ai.pl](../src/ai.pl) - Algorithme défaillant à debugger
+- **🤖 IA**: [src/ai.pl](../src/ai.pl) - Alpha-beta fonctionnel, PSQT à implémenter

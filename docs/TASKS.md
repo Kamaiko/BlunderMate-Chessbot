@@ -44,19 +44,18 @@
 - ✅ **Coups fixes ouverture** : Caro-Kann c7-c6, d7-d5 (premiers 2 coups noirs)
 - ✅ **Génération coups optimisée** : Captures prioritaires + développement
 
-#### 📊 Système d'Évaluation Multi-Facteurs
-- ✅ **Matériel** : Valeurs standards (P:10, N/B:30, R:50, Q:90, K:900)
-- ✅ **SEE implémentée** : `evaluate_simple_exchange/7` - Static Exchange Evaluation
-- ✅ **Détection danger** : `evaluate_material_at_risk/3` - CORRECTION ANTI-BLUNDERS
-- ✅ **Contrôle centre** : Bonus d4,e4,d5,e5 (10pts occupé, 5pts attaqué)
-- ✅ **Mobilité** : Compte coups légaux disponibles par joueur
-- ✅ **Développement** : Bonus +100pts cavaliers/fous sur cases naturelles
+#### 📊 Évaluation Simplifiée ÉDUCATIVE (Chess Programming Wiki)
+- ✅ **Matériel** : Valeurs centipawns (P:100, N:320, B:330, R:500, Q:900)
+- ✅ **Piece-Square Tables** : Tables positionnelles par pièce (centre bon, bords mauvais)
+- ✅ **Exemple Cavalier** : -50pts bords, +bonus cases centrales
+- ✅ **Exemple Roi** : Abri pions (milieu), actif centre (finale)
+- ✅ **Philosophie** : Encourager développement, pénaliser bords
 
 #### ✅ CORRECTIONS CRITIQUES APPLIQUÉES (2025-01-09)
 - **Alpha-beta implémenté** : Élagage complet avec tri MVV-LVA
 - **abs/2 corrigé** : Syntaxe Prolog standard `AbsValue is abs(Value)`
-- **SEE simulation** : Évaluation post-capture avec board simulé
-- **Détection risque** : Matériel en danger avec recaptures simulées
+- **Évaluation simplifiée** : Pas de SEE - trop complexe niveau éducatif
+- **Détection basique** : Anti-blunder simple sans simulation
 - **Mat/Pat détection** : Positions terminales dans minimax
 
 ### ✅ PROBLÈME RÉSOLU - OUVERTURE FIXES
@@ -120,7 +119,7 @@ opening_move([d2,d4], [e7,e6]).   % Française pour d4
 - [ ] **Alpha-beta = minimax** : Mêmes résultats sur positions test
 - [ ] **Recaptures auto** : e4xd5 → c6xd5 systématique
 - [ ] **Performance <10s** : Profondeur 2-3 acceptable
-- [ ] **Formule pénalité** : Logique échange matériel correcte
+- [ ] **Piece-Square Tables** : Implémenter tables ChessProgramming.org
 - [ ] **Cases vides** : `empty_cell(' ')` partout
 
 ### 🚀 Extensions Potentielles (Après Validation)
@@ -132,7 +131,7 @@ opening_move([d2,d4], [e7,e6]).   % Française pour d4
 ### ⚡ Rappels Techniques
 - **Négamax** : `minimax_ab/5` déjà correct avec `Value is -OpponentValue`
 - **Tri MVV-LVA** : Captures prioritaires déjà implémenté
-- **SEE simulation** : Évaluation post-capture fonctionnelle
+- **Évaluation simple** : Matériel + position basique (pas de SEE)
 - **Terminal detection** : Mat/pat avec `terminal_score/3`
 
 ---
@@ -141,11 +140,11 @@ opening_move([d2,d4], [e7,e6]).   % Française pour d4
 
 ### 📅 Plan d'Action Prioritaire (90 minutes)
 
-#### 🔥 PHASE 1 : Corrections Critiques (30 min)
-1. **Corriger formule pénalité** : `evaluate_material_at_risk/3` logique échange
-2. **Standardiser cases vides** : `empty_cell(' ')` + `is_empty/1` partout
-3. **Baisser bonus développement** : 100 → 30 points max
-4. **Garde-fou échec** : `generate_moves_simple/3` sans limite si roi en danger
+#### 🔥 PHASE 1 : Implémentation Piece-Square Tables (30 min)
+1. **Implémenter PSQT** : Tables ChessProgramming.org Simplified Evaluation
+2. **Enlever SEE complètement** : Remplacer par évaluation positionnelle simple
+3. **Valeurs centipawns** : P:100, N:320, B:330, R:500, Q:900 (standard)
+4. **Tables par pièce** : Cavaliers centre bonus, bords malus, etc.
 
 #### 🧪 PHASE 2 : Tests Structurés (45 min)
 1. **Tests mat en 1** : IA doit choisir coup gagnant immédiat
@@ -170,10 +169,10 @@ opening_move([d2,d4], [e7,e6]).   % Française pour d4
 - **🎲 Ouverture** : Coups fixes + génération optimisée ✅
 
 ### ⚡ Corrections À Finaliser Demain
-1. **Formule pénalité** : Logique échange matériel en danger
+1. **Piece-Square Tables** : Implémenter évaluation positionnelle simple
 2. **Tests structurés** : Mat en 1, parade, alpha-beta validation
 3. **Cases vides** : Standardisation `' '` vs `'.'`
-4. **Performance** : Optimisations boucles et validations
+4. **Enlever SEE** : Simplifier évaluation pour niveau éducatif
 
 ### 🎯 Objectif Session
 **Éliminer derniers bugs + valider robustesse avec tests exhaustifs**
@@ -181,11 +180,11 @@ opening_move([d2,d4], [e7,e6]).   % Française pour d4
 ### 🔧 CORRECTIONS PRIORITAIRES IDENTIFIÉES (Audit Externe 2025-01-09)
 
 #### 🚨 Problèmes Bloquants (ai.pl)
-1. **Formule pénalité risque** : `AdjustedPenalty is -(AbsValue - RecaptureValue)` incorrecte
+1. **Évaluation position** : Rechercher exemples simples (piece-square tables?)
 2. **Cases vides inconsistantes** : Tests `' '` vs `'.'` mélangés → standardiser
 3. **Génération ouverture dangereuse** : Limitations ignorent coups anti-échec
 4. **Bonus développement excessif** : 100 points vs 10 pions → baisser à 30
-5. **Boucles findall coûteuses** : 8×8×8×8 dans captures → pré-lister
+5. **Simplifier évaluation** : Enlever SEE, garder matériel + position basique
 
 #### ⚠️ Corrections Qualité (Autres Fichiers)
 - **board.pl** : Validation `get_piece/4` redondante → `fast_get_piece/4`
