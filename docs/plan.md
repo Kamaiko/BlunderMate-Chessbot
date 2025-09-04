@@ -11,7 +11,7 @@
 | **✅ Acquis** | Négamax + alpha-beta + tri MVV-LVA fonctionnels |
 | **🚨 Problème** | Blunders tactiques constants, évaluation position incomplète |
 
-## 🎯 Statut Actuel (Audit Janvier 2025)
+## 🎯 Statut Actuel (Audit Septembre 2025)
 
 ### ✅ Fonctionnalités Complètes
 - **Algorithme**: Négamax avec élagage alpha-beta (profondeur 2)

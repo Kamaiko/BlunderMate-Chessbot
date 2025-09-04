@@ -170,15 +170,15 @@ swipl -t run_tests -s tests/tests.pl
 swipl tests/tests.pl
 ```
 
-## AI Implementation Status (Phase 3) - ALPHA-BETA IMPLÉMENTÉ ✅
+## AI Implementation Status (Phase 3) - ⚡ EN FINALISATION
 
-✅ **AI V2 ALPHA-BETA - ÉVALUATION SIMPLIFIÉE
-- **Statut**: AI v1 archivée dans `archive/ai_v1_defaillante.pl` (Septembre 2025)
-- **Problème critique identifié**: Status mismatch (active/ongoing) empêche évaluation captures
-- **Tests AI**: Section 6 supprimée de tests.pl (complètement outdated)
-- **Blunders persistants**: Cavaliers mangés par pions, développement identique sans tenir compte du board
-- **Prochaine étape**: Implémentation AI v2 avec architecture corrigée
-- **Documentation**: `docs/AI_STATUS_HANDOFF.md` contient diagnostic complet
+✅ **NÉGAMAX + ALPHA-BETA IMPLÉMENTÉ**
+- **Algorithme**: Négamax avec élagage alpha-beta fonctionnel
+- **Tri MVV-LVA**: Most Valuable Victim - Least Valuable Attacker implémenté
+- **Détection terminale**: Mat (-100000), Pat (0) avec scores appropriés
+- **À compléter**: Piece-Square Tables selon ChessProgramming.org
+- **Tests**: 42/42 moteur de jeu + tests structurés IA à ajouter
+- **Session prochaine**: PSQT + validation tactique finale
 
 ### ✅ Corrections Majeures Réussies (Septembre 2025)
 - **🎯 Développement pièces RÉSOLU**: IA joue maintenant Nc6, Nf6, Be7, Bd7 en ouverture
@@ -186,11 +186,11 @@ swipl tests/tests.pl
 - **📊 Génération coups AMÉLIORÉE**: Priorité développement > pions, quotas équilibrés
 - **🧹 Code NETTOYÉ**: Refactorisation ai.pl, suppression logs debug, architecture simplifiée
 
-### ❌ Problèmes Tactiques Persistants (À Corriger)
-- **🚨 Recaptures manquées**: En échec Qd8+, choisit Ke7 au lieu de Bxd8 (sacrifice dame!)
-- **🎯 Logique ouverture INCORRECTE**: Développement prématuré au lieu de réponses centrales classiques
-- **⚠️ Détection menaces**: Ignore cavalier f6 attaqué par e4-e5, ne protège pas
-- **🧪 Tests IA outdated**: Section 6 ne reflète pas les nouvelles corrections
+### 🎯 Objectifs Session Prochaine (2025-09-05)
+- **📈 Piece-Square Tables**: Implémenter selon ChessProgramming.org
+- **🧪 Tests structurés**: Mat en 1, parade obligatoire, alpha-beta consistency
+- **🔧 Standardisation**: Cases vides `empty_cell(' ')` partout
+- **⚡ Performance**: Validation <10s profondeur 2-3
 
 ### 📚 RECOMMANDATIONS THÉORIQUES À IMPLÉMENTER
 
@@ -233,7 +233,7 @@ opening_move([d2,d4], [d7,d6]).   % Moderne pour d4
 % Énorme bonus pour réponses classiques (1.d4 d5, 1.e4 e5)
 ```
 
-### 📋 État Actuel Diagnostic (Décembre 2025)
+### 📋 État Actuel Diagnostic (Septembre 2025)
 - **Développement pièces**: ⚠️ PRÉMATURÉ (développe Nc6, Nf6 avant réponses centrales)
 - **Évaluation matérielle**: ✅ CORRIGÉE (valeurs noires négatives, rois comptés)
 - **Captures tactiques**: ❌ DÉFAILLANT (recaptures manquées, sacrifices involontaires)
@@ -247,7 +247,7 @@ opening_move([d2,d4], [d7,d6]).   % Moderne pour d4
 
 ## Critical Project Files  
 - **🚨 AI Status**: [docs/AI_STATUS_HANDOFF.md](../docs/AI_STATUS_HANDOFF.md) - Diagnostic complet + 4 théories
-- **📋 Tasks**: [docs/TASKS.md](../docs/TASKS.md) - Status réaliste TP1 (échec)
+- **📋 Tasks**: [docs/TASKS.md](../docs/TASKS.md) - Roadmap structuré Phase 3 finalisation
 - **📊 Plan**: [docs/plan.md](../docs/plan.md) - Découverte critique intégrée
 - **🧪 Tests**: [tests/tests.pl](../tests/tests.pl) - Section 6 IA À REFAIRE
-- **🤖 IA**: [src/ai.pl](../src/ai.pl) - Alpha-beta fonctionnel, PSQT à implémenter
+- **🤖 IA**: [src/ai.pl](../src/ai.pl) - Négamax + alpha-beta implémenté, PSQT à ajouter

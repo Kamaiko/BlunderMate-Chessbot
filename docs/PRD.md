@@ -64,8 +64,8 @@
 | Critère | Objectif |
 |---------|----------|
 | **🎓 Académique** | Note ≥85% sur implémentation algorithmes |
-| **⚡ Technique** | Minimax+alpha-beta fonctionnels, temps réponse raisonnable |
-| **🧪 Qualité** | Tests passent (35/35), code modulaire, zéro crash |
+| **⚡ Technique** | Négamax+alpha-beta fonctionnels, temps réponse raisonnable |
+| **🧪 Qualité** | Tests passent (42/42), code modulaire, zéro crash |
 
 ## 🔧 Contraintes Techniques
 
@@ -77,7 +77,7 @@
 
 - **Phase 1** : Architecture base et règles
 - **Phase 2** : Règles avancées et promotion  
-- **Phase 3** : IA minimax/alpha-beta *(Deadline: 20 oct 2025)*
+- **Phase 3** : IA négamax/alpha-beta *(Deadline: 20 oct 2025)*
 
 ## 🎯 Cas d'Usage Principaux
 
@@ -94,7 +94,7 @@
 - **CU-006** : Promotion → Conversion automatique pion vers dame
 
 ### 🧪 Validation
-- **CU-007** : Tests → Suite complète `swipl tests/tests.pl` 35/35 passent
+- **CU-007** : Tests → Suite complète `swipl tests/tests.pl` 42/42 passent
 
 ---
 
