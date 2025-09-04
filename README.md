@@ -7,7 +7,7 @@ Jeu d'échecs complet en Prolog avec focus sur l'Intelligence Artificielle - Pro
 ## Statut du Projet
 
 **Phase 2 COMPLÈTE** ✅ : Jeu d'échecs fonctionnel avec promotion automatique des pions
-**Phase 3 PRÊTE** 🚀 : Implémentation IA - Plan détaillé disponible (voir `docs/plan.md`)
+**Phase 3 RESET** 🔄 : AI v1 archivée, préparation AI v2
 
 ## Architecture
 
@@ -80,7 +80,7 @@ swipl -g "consult('tests/tests'), run_integration_tests, halt." # Tests d'intég
 - **📋 Spécifications complètes :** [PRD.md](docs/PRD.md) - Vision produit et architecture
 - **📝 Roadmap développement :** [TASKS.md](docs/TASKS.md) - État d'avancement détaillé  
 - **⚙️ Guide développeur :** [CLAUDE.md](.claude/CLAUDE.md) - Instructions techniques complètes
-- **🤖 Plan IA Phase 3 :** [plan.md](docs/plan.md) - Roadmap détaillée implémentation Minimax
+- **🤖 AI v1 archivée :** [archive/](archive/) - Contient diagnostic complet échec AI v1
 
 ## Compatibilité
 
@@ -89,4 +89,4 @@ swipl -g "consult('tests/tests'), run_integration_tests, halt." # Tests d'intég
 - **OS** : Windows, Linux, macOS (interface multi-plateforme)
 
 ---
-**Projet Universitaire IA** • **Phase 2 COMPLÈTE ✅** • **Phase 3 PRÊTE 🚀** • **33 Tests 100% PASS** • **Plan IA Détaillé**
+**Projet Universitaire IA** • **Phase 2 COMPLÈTE ✅** • **AI v1 ARCHIVÉE 🔄** • **Tests BASE OK** • **Préparation AI v2**
