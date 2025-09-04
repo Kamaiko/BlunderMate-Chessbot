@@ -268,8 +268,20 @@ unified_game_loop(UnifiedGameState) :-
     extract_game_state(UnifiedGameState, GameState),
     GameState = game_state(_, Player, _, Status, _),
     
-    % Afficher l'etat du jeu
-    display_game_state(GameState),
+    % Afficher l'etat du jeu en début de tour
+    get_player_type(UnifiedGameState, Player, PlayerType),
+    opposite_player(Player, OtherPlayer),
+    get_player_type(UnifiedGameState, OtherPlayer, OtherPlayerType),
+    
+    % Mode Humain vs Humain : toujours afficher
+    % Mode IA vs Humain : afficher seulement au tout premier coup (MoveCount = 0)
+    GameState = game_state(_, _, MoveCount, _, _),
+    (   (PlayerType = human, OtherPlayerType = human) ->
+        display_game_state(GameState)  % Humain vs Humain
+    ;   (PlayerType = human, MoveCount = 0) ->  
+        display_game_state(GameState)  % Premier coup de la partie seulement
+    ;   true  % Autres cas : pas d'affichage (sera fait après coup IA)
+    ),
     
     (   Status = active ->
         % Verifier si le joueur est en echec
@@ -319,7 +331,14 @@ handle_player_turn(UnifiedGameState, Player, ai, NewUnifiedGameState) :-
     ;   AIMove = [FromRow, FromCol, ToRow, ToCol],
         format('IA joue : ~w~w~w~w (~2f sec)~n', [FromRow, FromCol, ToRow, ToCol, Duration]),
         make_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState),
-        update_unified_game_state(UnifiedGameState, NewGameState, NewUnifiedGameState)
+        update_unified_game_state(UnifiedGameState, NewGameState, NewUnifiedGameState),
+        % Afficher le board après le coup de l'IA en mode IA vs Humain
+        opposite_player(Player, OpponentPlayer),
+        get_player_type(UnifiedGameState, OpponentPlayer, OpponentType),
+        (   OpponentType = human ->
+            nl, display_game_state(NewGameState)
+        ;   true
+        )
     ).
 
 % game_loop(+GameState) 
@@ -458,7 +477,6 @@ attempt_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState) :-
             (make_move(GameState, FromRow, FromCol, ToRow, ToCol, TempGameState) ->
                 (coordinates_to_algebraic(FromRow, FromCol, ToRow, ToCol, MoveStr),
                  display_message(move_played), write(MoveStr), nl, nl,
-                 display_game_state(TempGameState),
                  NewGameState = TempGameState)
             ;   display_message_ln(illegal_move),
                 write('  Raison: Cette piece ne peut pas aller a cette position'), nl,

@@ -175,16 +175,14 @@ map_move_scores(Board, Player, [Move|RestMoves], [Score-Move|RestScored]) :-
     map_move_scores(Board, Player, RestMoves, RestScored).
 
 % move_score(+Board, +Player, +Move, -Score)
-% Score MVV-LVA pour captures, 0 pour autres coups
+% Score MVV-LVA pour captures avec valeurs standard correctes
 move_score(Board, _Player, [FromRow, FromCol, ToRow, ToCol], Score) :-
     get_piece(Board, ToRow, ToCol, TargetPiece),
     (   TargetPiece \= ' ', TargetPiece \= '.' ->
         get_piece(Board, FromRow, FromCol, AttackingPiece),
-        piece_value(TargetPiece, TargetVal),
-        piece_value(AttackingPiece, AttackerVal),
-        AbsTarget is abs(TargetVal),
-        AbsAttacker is abs(AttackerVal),
-        Score is AbsTarget - AbsAttacker + 1000  % Bonus captures
+        standard_piece_value(TargetPiece, TargetVal),
+        standard_piece_value(AttackingPiece, AttackerVal),
+        Score is TargetVal - AttackerVal + 1000  % MVV-LVA avec valeurs correctes
     ;   Score = 0  % Coup non-capture
     ).
 
@@ -203,7 +201,7 @@ pairs_values([_-Value|RestPairs], [Value|RestValues]) :-
 % =============================================================================
 
 % evaluate_pure_reference(+GameState, +Player, -Value)
-% ÉVALUATION SIMPLIFIÉE: Matériel standard + PSQT
+% ÉVALUATION SIMPLE: Matériel + PSQT (stable et rapide)
 evaluate_pure_reference(GameState, Player, Value) :-
     % 1. Évaluation matérielle standard (sans roi)
     count_material_standard(GameState, white, WhiteMaterial),
@@ -215,11 +213,37 @@ evaluate_pure_reference(GameState, Player, Value) :-
     evaluate_psqt_total(GameState, black, BlackPSQT),
     PSQTDiff is WhitePSQT - BlackPSQT,
     
-    % Combiner: Matériel + PSQT (plus simple, plus prévisible)
+    % Combiner: Matériel + PSQT
     TotalDiff is MaterialDiff + PSQTDiff,
     
-    % Retourner valeur TOUJOURS du point de vue des blancs (+ = blanc gagne, - = noir gagne)
-    Value = TotalDiff.
+    % Retourner du point de vue du joueur demandé
+    (   Player = white ->
+        Value = TotalDiff
+    ;   Value is -TotalDiff
+    ).
+
+% evaluate_mobility_fast(+GameState, +Player, -MobilityValue)
+% Mobilité rapide : compte pièces développées (approximation)
+evaluate_mobility_fast(GameState, Player, MobilityValue) :-
+    GameState = game_state(Board, _, _, _, _),
+    
+    % Compter pièces développées (cavaliers et fous hors rang de base)
+    (   Player = white ->
+        BaseRank = 1, DevelopedRanks = [2,3,4,5,6,7,8]
+    ;   BaseRank = 8, DevelopedRanks = [1,2,3,4,5,6,7]
+    ),
+    
+    % Compter cavaliers et fous développés
+    findall(1, (
+        member(Rank, DevelopedRanks),
+        between(1, 8, Col),
+        get_piece(Board, Rank, Col, Piece),
+        piece_belongs_to_player(Piece, Player),
+        (Piece = 'N'; Piece = 'n'; Piece = 'B'; Piece = 'b')
+    ), DevelopedPieces),
+    
+    length(DevelopedPieces, DevelopedCount),
+    MobilityValue is DevelopedCount * 10.  % Bonus modéré par pièce développée
 
 % count_material_standard(+GameState, +Player, -MaterialValue)
 % Compte matériel selon valeurs standard (SANS roi)
@@ -278,25 +302,37 @@ piece_type_from_symbol('K', king) :- !.
 piece_type_from_symbol('k', king) :- !.
 
 % evaluate_tactical_safety(+GameState, +Player, -SafetyValue)
-% Évaluation tactique avancée avec SEE (Static Exchange Evaluation)
-% Évalue les captures potentielles et la mobilité des pièces
+% Évaluation tactique SIMPLIFIÉE pour performance
 evaluate_tactical_safety(GameState, Player, SafetyValue) :-
     GameState = game_state(Board, _, _, _, _),
     
-    % 1. Évaluation des captures favorables disponibles
-    evaluate_favorable_captures(GameState, Player, CaptureValue),
-    
-    % 2. NOUVEAU: Détection matériel en danger immédiat
-    evaluate_material_at_risk(GameState, Player, RiskPenalty),
-    
-    % 3. Évaluation du contrôle du centre
+    % SEULEMENT: Contrôle du centre (rapide et essentiel)
     evaluate_center_control(Board, Player, CenterValue),
     
-    % 4. Évaluation de la mobilité des pièces
-    evaluate_piece_mobility(GameState, Player, MobilityValue),
+    % Sécurité basique : éviter roi exposé
+    evaluate_king_safety_basic(GameState, Player, KingSafety),
     
-    % Somme pondérée des facteurs tactiques (RiskPenalty est négatif)
-    SafetyValue is CaptureValue + RiskPenalty + (CenterValue * 0.5) + (MobilityValue * 0.3).
+    SafetyValue is CenterValue + KingSafety.
+
+% evaluate_king_safety_basic(+GameState, +Player, -KingSafety)
+% Évaluation basique de sécurité du roi : pénalise roi exposé (proportionnel aux valeurs pièces)
+evaluate_king_safety_basic(GameState, Player, KingSafety) :-
+    GameState = game_state(Board, _, MoveCount, _, _),
+    find_king_position(Board, Player, KingRow, KingCol),
+    
+    % Position initiale du roi selon la couleur
+    (   Player = white ->
+        InitialRow = 1
+    ;   InitialRow = 8
+    ),
+    
+    % Pénaliser roi exposé EN OUVERTURE seulement (premiers 15 coups)
+    (   MoveCount =< 15, KingRow \= InitialRow ->
+        KingSafety = -50   % Malus modéré = valeur pion/2 (proportionnel)
+    ;   KingRow = InitialRow ->
+        KingSafety = 10    % Petit bonus roi en sécurité
+    ;   KingSafety = 0     % Neutre (milieu/fin de jeu)
+    ).
 
 % evaluate_favorable_captures(+GameState, +Player, -CaptureValue)
 % Évalue les captures qui gagnent du matériel (SEE positif)
@@ -541,14 +577,9 @@ is_development_square(3, 5, bishop, white).  % Be3.
 % =============================================================================
 
 % generate_moves_simple(+GameState, +Player, -Moves)
+% Génération standard sans priorités compliquées
 generate_moves_simple(GameState, Player, Moves) :-
-    GameState = game_state(_, _, MoveCount, _, _),
-    
-    % Phase d'ouverture (premiers 15 coups) - priorités spéciales
-    (   MoveCount =< 15 ->
-        generate_opening_moves(GameState, Player, Moves)
-    ;   generate_regular_moves(GameState, Player, Moves)
-    ).
+    generate_regular_moves(GameState, Player, Moves).
 
 % generate_opening_moves(+GameState, +Player, -Moves)
 % Génération équilibrée pour l'ouverture - DÉVELOPPEMENT PRIORITAIRE
@@ -632,7 +663,7 @@ generate_opening_moves(GameState, Player, Moves) :-
     take_first_20_simple(AllMoves, Moves).
 
 % generate_regular_moves(+GameState, +Player, -Moves)  
-% Génération standard pour milieu/fin de partie
+% Génération standard avec tri MVV-LVA AVANT limitation
 generate_regular_moves(GameState, Player, Moves) :-
     GameState = game_state(Board, _, _, _, _),
     
@@ -648,7 +679,9 @@ generate_regular_moves(GameState, Player, Moves) :-
         valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol)
     ), AllMoves),
     
-    take_first_20_simple(AllMoves, Moves).
+    % CRITIQUE: Trier AVANT de limiter à 20 coups
+    order_moves(GameState, Player, AllMoves, OrderedMoves),
+    take_first_20_simple(OrderedMoves, Moves).
 
 % take_first_N_simple(+List, +N, -FirstN)
 take_first_20_simple(List, First20) :-
