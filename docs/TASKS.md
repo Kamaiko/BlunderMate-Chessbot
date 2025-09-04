@@ -107,24 +107,114 @@ opening_move([d2,d4], [e7,e6]).   % Française pour d4
 
 ---
 
-## 📊 SYNTHÈSE TECHNIQUE FINALE (Janvier 2025)
+## 📝 NOTES SESSION PROCHAINE (2025-01-10)
 
-### 🧠 Architecture IA Confirmée
+### 🎯 Décision Architecturale : Négamax Confirmé
+- **✅ Négamax** : Plus simple que minimax classique (pas de min/max séparés)
+- **✅ Alpha-beta** : Déjà implémenté avec négamax (`Value is -OpponentValue`)
+- **✅ Uniform** : Tous joueurs cherchent valeur maximale (logique symétrique)
+
+### 📋 Checklist Validation Demain
+- [ ] **Tests mat en 1** : IA choisit coup gagnant unique
+- [ ] **Tests parade** : IA évite mat avec seule défense
+- [ ] **Alpha-beta = minimax** : Mêmes résultats sur positions test
+- [ ] **Recaptures auto** : e4xd5 → c6xd5 systématique
+- [ ] **Performance <10s** : Profondeur 2-3 acceptable
+- [ ] **Formule pénalité** : Logique échange matériel correcte
+- [ ] **Cases vides** : `empty_cell(' ')` partout
+
+### 🚀 Extensions Potentielles (Après Validation)
+- **Quiescence search** : Captures à profondeur 0 pour éviter horizons
+- **Opening book** : Base théorique au lieu de coups fixes
+- **En passant + roque** : Compléter règles d'échecs
+- **Interface IA complete** : Choix difficulté/couleur
+
+### ⚡ Rappels Techniques
+- **Négamax** : `minimax_ab/5` déjà correct avec `Value is -OpponentValue`
+- **Tri MVV-LVA** : Captures prioritaires déjà implémenté
+- **SEE simulation** : Évaluation post-capture fonctionnelle
+- **Terminal detection** : Mat/pat avec `terminal_score/3`
+
+---
+
+## 🎯 ROADMAP SESSION DEMAIN (2025-01-10)
+
+### 📅 Plan d'Action Prioritaire (90 minutes)
+
+#### 🔥 PHASE 1 : Corrections Critiques (30 min)
+1. **Corriger formule pénalité** : `evaluate_material_at_risk/3` logique échange
+2. **Standardiser cases vides** : `empty_cell(' ')` + `is_empty/1` partout
+3. **Baisser bonus développement** : 100 → 30 points max
+4. **Garde-fou échec** : `generate_moves_simple/3` sans limite si roi en danger
+
+#### 🧪 PHASE 2 : Tests Structurés (45 min)
+1. **Tests mat en 1** : IA doit choisir coup gagnant immédiat
+2. **Tests parade** : IA doit jouer l'unique défense
+3. **Validation alpha-beta** : Consistency check minimax vs élagage
+4. **Tests recaptures** : e4xd5 → c6xd5 automatique
+
+#### ⚡ PHASE 3 : Optimisations (15 min)
+1. **fast_get_piece/4** : Version IA sans validation redondante
+2. **Pré-liste pièces** : Éviter boucles 8×8×8×8
+3. **Documentation finale** : Commit + status complet
+
+## 📊 ARCHITECTURE ACTUELLE CONFIRMÉE (Janvier 2025)
+
+### 🧠 Points Forts Architecturaux
 **NIVEAU** : Universitaire avancé - Dépasse les standards TP1
 
-- **🎯 Algorithme** : Minimax négamax pur (profondeur 2) - SANS alpha-beta
-- **📊 Évaluation** : Multi-facteurs sophistiquée (matériel + SEE + centre + mobilité)
-- **⚙️ Anti-blunder** : Détection matériel en danger implémentée
-- **🚀 Performance** : 0.00s coups simples, 22.73s complexes
-- **🎲 Ouverture** : Coups fixes Caro-Kann (c7-c6, d7-d5)
+- **🎯 Alpha-beta** : Négamax avec élagage + tri MVV-LVA ✅
+- **📊 SEE** : Static Exchange Evaluation avec simulation ✅
+- **⚙️ Anti-blunder** : Détection matériel en danger implémentée ✅
+- **🚀 Performance** : 0.00s coups simples, temps réalistes ✅
+- **🎲 Ouverture** : Coups fixes + génération optimisée ✅
 
-### ✅ Points Forts Identifiés
-1. **SEE implémentée** : `evaluate_simple_exchange/7` pour évaluer captures
-2. **Détection danger** : `evaluate_material_at_risk/3` prévient blunders
-3. **Génération optimisée** : Développement prioritaire en ouverture
-4. **Évaluation holistique** : Centre + mobilité + développement
+### ⚡ Corrections À Finaliser Demain
+1. **Formule pénalité** : Logique échange matériel en danger
+2. **Tests structurés** : Mat en 1, parade, alpha-beta validation
+3. **Cases vides** : Standardisation `' '` vs `'.'`
+4. **Performance** : Optimisations boucles et validations
 
-### ⚠️ Améliorations Futures
-- **Alpha-beta pruning** : Non implémenté malgré documentation
-- **Tests anti-blunder** : Validation recaptures obligatoires requise
-- **Profondeur** : Limitation à 2 niveaux (acceptable éducatif)
+### 🎯 Objectif Session
+**Éliminer derniers bugs + valider robustesse avec tests exhaustifs**
+
+### 🔧 CORRECTIONS PRIORITAIRES IDENTIFIÉES (Audit Externe 2025-01-09)
+
+#### 🚨 Problèmes Bloquants (ai.pl)
+1. **Formule pénalité risque** : `AdjustedPenalty is -(AbsValue - RecaptureValue)` incorrecte
+2. **Cases vides inconsistantes** : Tests `' '` vs `'.'` mélangés → standardiser
+3. **Génération ouverture dangereuse** : Limitations ignorent coups anti-échec
+4. **Bonus développement excessif** : 100 points vs 10 pions → baisser à 30
+5. **Boucles findall coûteuses** : 8×8×8×8 dans captures → pré-lister
+
+#### ⚠️ Corrections Qualité (Autres Fichiers)
+- **board.pl** : Validation `get_piece/4` redondante → `fast_get_piece/4`
+- **interface.pl** : Mode IA vs Humain pas branché
+- **game.pl** : Détection attaque glissante incomplète
+- **pieces.pl** : En passant + roque manquants
+
+### 📊 PLAN DE TEST STRUCTURÉ (Recommandation Externe)
+
+#### Phase 1 : Tests Unitaires Contrôlés
+```prolog
+% Mat en 1 : IA doit choisir LE coup gagnant
+test_mate_in_one :- 
+    % Position où seul Qd8# gagne, autres coups perdent
+    
+% Éviter mat : IA doit jouer l'unique parade
+test_avoid_mate :-
+    % Position où seul coup évite mat imminent
+```
+
+#### Phase 2 : Validation Alpha-Beta
+```prolog
+% Millions de tests : minimax = alpha-beta
+test_alpha_beta_consistency :-
+    % Générer positions aléatoires
+    % Assert : même résultat avec/sans élagage
+```
+
+#### Phase 3 : Anti-Blunder Réel
+- Recaptures : e4xd5 → c6xd5 obligatoire
+- Menaces ignorées : cavalier f6 attaqué par e5
+- Sacrifices involontaires : dame vs pion
