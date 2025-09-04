@@ -701,11 +701,14 @@ generate_regular_moves(GameState, Player, Moves) :-
         valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol)
     ), AllMoves),
     
-    % CRITIQUE: Trier AVANT de limiter à 20 coups
+    % CRITIQUE: Trier AVANT de limiter - AUGMENTÉ à 25 pour recaptures importantes
     order_moves(GameState, Player, AllMoves, OrderedMoves),
-    take_first_20_simple(OrderedMoves, Moves).
+    take_first_25_simple(OrderedMoves, Moves).
 
 % take_first_N_simple(+List, +N, -FirstN)
+take_first_25_simple(List, First25) :-
+    take_first_n_simple(List, 25, First25).
+
 take_first_20_simple(List, First20) :-
     take_first_n_simple(List, 20, First20).
 
