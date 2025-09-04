@@ -311,44 +311,9 @@ piece_type_from_symbol('k', king) :- !.
 % =============================================================================
 
 % evaluate_piece_safety(+GameState, +Player, -SafetyValue)
-% Version simple avec is_square_attacked corrigé
+% TEMPORAIREMENT DÉSACTIVÉ - is_square_attacked ne fonctionne pas encore
 evaluate_piece_safety(GameState, Player, SafetyValue) :-
-    GameState = game_state(Board, _, _, _, _),
-    
-    % Pénalités pour nos pièces attaquées (version simple)
-    findall(PenaltyValue, (
-        between(1, 8, Row), between(1, 8, Col),
-        get_piece(Board, Row, Col, Piece),
-        Piece \= ' ', Piece \= '.',
-        piece_belongs_to_player(Piece, Player),
-        
-        % Vérifier si la pièce est attaquée
-        is_square_attacked(Board, Row, Col, Player),
-        
-        % Pénalité = valeur de la pièce (toutes considérées non-défendues)
-        standard_piece_value(Piece, PenaltyValue)
-    ), OurPenalties),
-    
-    % Bonus pour pièces adverses attaquées  
-    opposite_player(Player, Opponent),
-    findall(BonusValue, (
-        between(1, 8, Row), between(1, 8, Col),
-        get_piece(Board, Row, Col, Piece),
-        Piece \= ' ', Piece \= '.',
-        piece_belongs_to_player(Piece, Opponent),
-        
-        % Vérifier si nous attaquons cette pièce
-        is_square_attacked(Board, Row, Col, Opponent),
-        
-        % Bonus = valeur de la pièce adverse
-        standard_piece_value(Piece, BonusValue)
-    ), TheirPenalties),
-    
-    sum_list(OurPenalties, TotalOurPenalties),
-    sum_list(TheirPenalties, TotalTheirBonuses),
-    
-    % Score = bonus - pénalité (conservateur)
-    SafetyValue is TotalTheirBonuses - TotalOurPenalties.
+    SafetyValue = 0.
 
 % is_piece_defended(+GameState, +Row, +Col, +DefendingPlayer)
 % Version simplifiée : considère toute pièce attaquée comme NON défendue  
