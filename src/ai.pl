@@ -10,7 +10,6 @@
 :- [pieces].
 :- [board].
 :- [game].
-:- consult('./piece_values_sophisticated.pl').
 
 % =============================================================================
 % CONSTANTES REFERENCE EXACTES - BOARD_EVAL.PL:5-12
@@ -117,16 +116,175 @@ is_better_simple(black, NewValue, OldValue) :- NewValue > OldValue.
 % =============================================================================
 
 % evaluate_pure_reference(+GameState, +Player, -Value)
-% CORRECTION CRITIQUE: Evaluation symmetrique pour minimax correct
+% AMÉLIORATION TACTIQUE: Evaluation matérielle + sécurité des pièces
 evaluate_pure_reference(GameState, Player, Value) :-
+    % Évaluation matérielle existante
     count_material_pure_ref(GameState, white, WhiteValue),
     count_material_pure_ref(GameState, black, BlackValue),
     MaterialDiff is WhiteValue - BlackValue,
+    
+    % NOUVELLE: Évaluation tactique - détection pièces en danger
+    evaluate_tactical_safety(GameState, white, WhiteSafety),
+    evaluate_tactical_safety(GameState, black, BlackSafety),
+    SafetyDiff is WhiteSafety - BlackSafety,
+    
+    % Combiner matériel + sécurité tactique
+    TotalDiff is MaterialDiff + SafetyDiff,
+    
     % Retourner valeur du point de vue du joueur actuel
     (   Player = white ->
-        Value = MaterialDiff
-    ;   Value is -MaterialDiff
+        Value = TotalDiff
+    ;   Value is -TotalDiff
     ).
+
+% evaluate_tactical_safety(+GameState, +Player, -SafetyValue)
+% Évaluation tactique avancée avec SEE (Static Exchange Evaluation)
+% Évalue les captures potentielles et la mobilité des pièces
+evaluate_tactical_safety(GameState, Player, SafetyValue) :-
+    GameState = game_state(Board, _, _, _, _),
+    
+    % 1. Évaluation des captures favorables disponibles
+    evaluate_favorable_captures(GameState, Player, CaptureValue),
+    
+    % 2. NOUVEAU: Détection matériel en danger immédiat
+    evaluate_material_at_risk(GameState, Player, RiskPenalty),
+    
+    % 3. Évaluation du contrôle du centre
+    evaluate_center_control(Board, Player, CenterValue),
+    
+    % 4. Évaluation de la mobilité des pièces
+    evaluate_piece_mobility(GameState, Player, MobilityValue),
+    
+    % Somme pondérée des facteurs tactiques (RiskPenalty est négatif)
+    SafetyValue is CaptureValue + RiskPenalty + (CenterValue * 0.5) + (MobilityValue * 0.3).
+
+% evaluate_favorable_captures(+GameState, +Player, -CaptureValue)
+% Évalue les captures qui gagnent du matériel (SEE positif)
+evaluate_favorable_captures(GameState, Player, CaptureValue) :-
+    GameState = game_state(Board, _, _, _, _),
+    findall(GainValue, (
+        between(1, 8, FromRow), between(1, 8, FromCol),
+        between(1, 8, ToRow), between(1, 8, ToCol),
+        get_piece(Board, FromRow, FromCol, AttackingPiece),
+        piece_belongs_to_player(AttackingPiece, Player),
+        get_piece(Board, ToRow, ToCol, TargetPiece),
+        TargetPiece \= ' ', TargetPiece \= '.',
+        opposite_player(Player, OppositePlayer),
+        piece_belongs_to_player(TargetPiece, OppositePlayer),
+        valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
+        % SEE simple : gain = valeur cible - valeur attaquant si contre-attaque
+        evaluate_simple_exchange(Board, FromRow, FromCol, ToRow, ToCol, Player, GainValue),
+        GainValue > 0  % Seulement les captures favorables
+    ), GainValues),
+    sum_list(GainValues, CaptureValue).
+
+% evaluate_material_at_risk(+GameState, +Player, -RiskPenalty)
+% CRITIQUE: Détecte les pièces du joueur qui peuvent être capturées
+% et applique un malus MASSIF si elles ne sont pas protégées
+evaluate_material_at_risk(GameState, Player, RiskPenalty) :-
+    GameState = game_state(Board, _, _, _, _),
+    opposite_player(Player, Opponent),
+    findall(PenaltyValue, (
+        between(1, 8, Row), between(1, 8, Col),
+        get_piece(Board, Row, Col, MyPiece),
+        piece_belongs_to_player(MyPiece, Player),
+        MyPiece \= ' ', MyPiece \= '.',
+        % Vérifier si l'adversaire peut capturer ma pièce
+        can_opponent_capture_piece(Board, Opponent, Row, Col, CanCapture, RecaptureValue),
+        (CanCapture = true ->
+            % Ma pièce peut être capturée
+            piece_value(MyPiece, MyPieceValue),
+            abs(MyPieceValue, AbsValue),
+            % Si je peux recapturer, le malus est réduit
+            AdjustedPenalty is -(AbsValue - RecaptureValue),
+            PenaltyValue = AdjustedPenalty
+        ;   PenaltyValue = 0  % Pièce en sécurité
+        )
+    ), PenaltyValues),
+    sum_list(PenaltyValues, RiskPenalty).
+
+% can_opponent_capture_piece(+Board, +Opponent, +Row, +Col, -CanCapture, -RecaptureValue)
+% Vérifie si l'adversaire peut capturer une pièce et si je peux recapturer
+can_opponent_capture_piece(Board, Opponent, TargetRow, TargetCol, CanCapture, RecaptureValue) :-
+    % L'adversaire peut-il capturer cette pièce ?
+    (   (between(1, 8, FromRow), between(1, 8, FromCol),
+         get_piece(Board, FromRow, FromCol, OpponentPiece),
+         piece_belongs_to_player(OpponentPiece, Opponent),
+         OpponentPiece \= ' ', OpponentPiece \= '.',
+         valid_move(Board, Opponent, FromRow, FromCol, TargetRow, TargetCol)) ->
+        CanCapture = true,
+        % Puis-je recapturer ?
+        opposite_player(Opponent, MyColor),
+        (   can_recapture_square(Board, MyColor, TargetRow, TargetCol, RecaptureValue) ->
+            true  % RecaptureValue est définie
+        ;   RecaptureValue = 0  % Pas de recapture possible
+        )
+    ;   CanCapture = false,
+        RecaptureValue = 0
+    ).
+
+% can_recapture_square(+Board, +Player, +Row, +Col, -RecaptureValue)
+% Vérifie si le joueur peut recapturer sur une case et avec quelle pièce
+can_recapture_square(Board, Player, TargetRow, TargetCol, RecaptureValue) :-
+    between(1, 8, FromRow), between(1, 8, FromCol),
+    get_piece(Board, FromRow, FromCol, MyPiece),
+    piece_belongs_to_player(MyPiece, Player),
+    MyPiece \= ' ', MyPiece \= '.',
+    valid_move(Board, Player, FromRow, FromCol, TargetRow, TargetCol),
+    % Valeur de la pièce qui peut recapturer
+    piece_value(MyPiece, PieceValue),
+    abs(PieceValue, RecaptureValue), !.
+can_recapture_square(_, _, _, _, 0).  % Pas de recapture possible
+
+% evaluate_simple_exchange(+Board, +FromRow, +FromCol, +ToRow, +ToCol, +Player, -NetGain)
+% SEE simplifié : évalue le gain net d'une capture
+evaluate_simple_exchange(Board, FromRow, FromCol, ToRow, ToCol, Player, NetGain) :-
+    get_piece(Board, FromRow, FromCol, AttackingPiece),
+    get_piece(Board, ToRow, ToCol, TargetPiece),
+    piece_value(AttackingPiece, AttackerValue),
+    piece_value(TargetPiece, TargetValue),
+    abs(AttackerValue, AbsAttackerValue),
+    abs(TargetValue, AbsTargetValue),
+    
+    % Si la case cible est défendue, risque de contre-attaque
+    (is_square_attacked(Board, ToRow, ToCol, Player) ->
+        % Case défendue : gain = cible - attaquant
+        NetGain is AbsTargetValue - AbsAttackerValue
+    ;   % Case non défendue : gain = cible complète
+        NetGain = AbsTargetValue
+    ).
+
+% evaluate_center_control(+Board, +Player, -CenterValue)
+% Évalue le contrôle des cases centrales (d4, e4, d5, e5)
+evaluate_center_control(Board, Player, CenterValue) :-
+    CenterSquares = [(4,4), (4,5), (5,4), (5,5)],  % d4, e4, d5, e5
+    findall(ControlValue, (
+        member((Row, Col), CenterSquares),
+        (get_piece(Board, Row, Col, Piece),
+         piece_belongs_to_player(Piece, Player) ->
+            ControlValue = 10  % Pièce sur case centrale
+        ; (piece_attacks_square(Board, Player, Row, Col) ->
+            ControlValue = 5   % Contrôle de la case centrale
+        ;   ControlValue = 0   % Pas de contrôle
+        ))
+    ), ControlValues),
+    sum_list(ControlValues, CenterValue).
+
+% piece_attacks_square(+Board, +Player, +TargetRow, +TargetCol)
+% Vérifie si le joueur attaque une case donnée
+piece_attacks_square(Board, Player, TargetRow, TargetCol) :-
+    between(1, 8, FromRow), between(1, 8, FromCol),
+    get_piece(Board, FromRow, FromCol, Piece),
+    piece_belongs_to_player(Piece, Player),
+    Piece \= ' ', Piece \= '.',
+    valid_move(Board, Player, FromRow, FromCol, TargetRow, TargetCol), !.
+
+% evaluate_piece_mobility(+GameState, +Player, -MobilityValue)
+% Évalue la mobilité globale des pièces
+evaluate_piece_mobility(GameState, Player, MobilityValue) :-
+    generate_moves_simple(GameState, Player, Moves),
+    length(Moves, MoveCount),
+    MobilityValue is MoveCount.  % Plus de coups = meilleure mobilité
 
 % count_material_pure_ref(+GameState, +Color, -Value)
 % EXACTEMENT comme count_halfst dans board_eval.pl:14-24
@@ -195,7 +353,9 @@ piece_is_type_pure('K', king). piece_is_type_pure('k', king).
 % pos_value_pure_ref(+Type, +Row, +Col, +Color, -Value)
 % TABLES DE REFERENCE AVEC BONUS DÉVELOPPEMENT OUVERTURE
 pos_value_pure_ref(Type, Row, Col, Color, Value) :-
-    pos_value_reference(Type, Row, Col, Color, BaseValue),
+    % Utiliser piece_value/2 comme valeur de base
+    piece_type_to_char(Type, Color, PieceChar),
+    piece_value(PieceChar, BaseValue),
     % BONUS DÉVELOPPEMENT EN OUVERTURE
     (   (Type = knight; Type = bishop),
         is_development_square(Row, Col, Type, Color) ->
@@ -207,10 +367,18 @@ pos_value_pure_ref(Type, Row, Col, Color, Value) :-
 
 % Fallback pour pieces non définies dans les tables
 pos_value_pure_ref(Type, _, _, Color, Value) :-
-    piece_reference_value(Type, BaseValue),
-    (   Color = white -> Value = BaseValue
-    ;   Value is -BaseValue
-    ), !.
+    % Conversion type vers pièce pour utiliser piece_value/2
+    piece_type_to_char(Type, Color, PieceChar),
+    piece_value(PieceChar, Value), !.
+
+% piece_type_to_char(+Type, +Color, -PieceChar)
+% Convertit un type de pièce et une couleur en caractère
+piece_type_to_char(pawn, white, 'P'). piece_type_to_char(pawn, black, 'p').
+piece_type_to_char(rook, white, 'R'). piece_type_to_char(rook, black, 'r').
+piece_type_to_char(knight, white, 'N'). piece_type_to_char(knight, black, 'n').
+piece_type_to_char(bishop, white, 'B'). piece_type_to_char(bishop, black, 'b').
+piece_type_to_char(queen, white, 'Q'). piece_type_to_char(queen, black, 'q').
+piece_type_to_char(king, white, 'K'). piece_type_to_char(king, black, 'k').
 
 % is_development_square(+Row, +Col, +Type, +Color)
 % Cases de développement naturel
