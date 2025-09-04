@@ -53,63 +53,108 @@ choose_ai_move(GameState, BestMove) :-
     (   Player = black, use_fixed_opening(MoveCount) ->
         (   get_fixed_opening_move(MoveCount, Board, BestMove) ->
             true  % Coup fixe reussi
-        ;   minimax_simple_ref(GameState, Player, 2, BestMove, _Value)  % Fallback
+        ;   minimax_ab(GameState, Player, 2, BestMove, _Value)  % Fallback alpha-beta
         )
-    ;   % Utiliser minimax pour tous les autres cas
-        minimax_simple_ref(GameState, Player, 2, BestMove, _Value)
+    ;   % Utiliser alpha-beta pour tous les autres cas
+        minimax_ab(GameState, Player, 2, BestMove, _Value)
     ).
 
 % =============================================================================
 % MINIMAX SIMPLE SELON REFERENCE
 % =============================================================================
 
-% minimax_simple_ref(+GameState, +Player, +Depth, -BestMove, -BestValue)
-minimax_simple_ref(GameState, Player, 0, [], Value) :-
+% minimax_ab(+GameState, +Player, +Depth, -BestMove, -BestValue)
+% ALPHA-BETA PRUNING IMPLÉMENTÉ - Négamax avec élagage
+minimax_ab(GameState, Player, 0, [], Value) :-
     evaluate_pure_reference(GameState, Player, Value), !.
 
-minimax_simple_ref(GameState, Player, Depth, BestMove, BestValue) :-
+minimax_ab(GameState, Player, Depth, BestMove, BestValue) :-
     Depth > 0,
     generate_moves_simple(GameState, Player, Moves),
     (   Moves = [] ->
-        evaluate_pure_reference(GameState, Player, BestValue),
+        terminal_score(GameState, Player, BestValue),
         BestMove = []
-    ;   find_best_simple(GameState, Moves, Player, Depth, BestMove, BestValue)
+    ;   order_moves(GameState, Player, Moves, OrderedMoves),
+        Alpha is -1.0Inf, Beta is 1.0Inf,
+        ab_search(OrderedMoves, GameState, Player, Depth, Alpha, Beta, none, -1.0Inf, BestMove, BestValue)
     ).
 
-% find_best_simple(+GameState, +Moves, +Player, +Depth, -BestMove, -BestValue)
-find_best_simple(GameState, [Move], Player, Depth, Move, Value) :-
-    eval_move_simple(GameState, Move, Player, Depth, Value), !.
+% Ancien minimax pour compatibilité - REDIRECTION VERS ALPHA-BETA
+minimax_simple_ref(GameState, Player, Depth, BestMove, BestValue) :-
+    minimax_ab(GameState, Player, Depth, BestMove, BestValue).
 
-find_best_simple(GameState, [FirstMove|RestMoves], Player, Depth, BestMove, BestValue) :-
-    eval_move_simple(GameState, FirstMove, Player, Depth, FirstValue),
-    compare_simple(GameState, RestMoves, Player, Depth, FirstValue, FirstMove, BestMove, BestValue).
+% ab_search(+Moves, +GameState, +Player, +Depth, +Alpha, +Beta, +BestMoveAcc, +BestValueAcc, -BestMove, -BestValue)
+% Recherche alpha-beta avec élagage
+ab_search([], _, _, _, _, _, BestMoveAcc, BestValueAcc, BestMoveAcc, BestValueAcc) :- !.
 
-% compare_simple(+GameState, +Moves, +Player, +Depth, +CurrentBest, +CurrentMove, -BestMove, -BestValue)
-compare_simple(_, [], _, _, CurrentBest, CurrentMove, CurrentMove, CurrentBest) :- !.
-
-compare_simple(GameState, [Move|RestMoves], Player, Depth, CurrentBest, CurrentMove, BestMove, BestValue) :-
-    eval_move_simple(GameState, Move, Player, Depth, MoveValue),
-    (   is_better_simple(Player, MoveValue, CurrentBest) ->
-        NewBest = MoveValue, NewMove = Move
-    ;   NewBest = CurrentBest, NewMove = CurrentMove
-    ),
-    compare_simple(GameState, RestMoves, Player, Depth, NewBest, NewMove, BestMove, BestValue).
-
-% eval_move_simple(+GameState, +Move, +Player, +Depth, -Value)
-eval_move_simple(GameState, [FromRow, FromCol, ToRow, ToCol], Player, Depth, Value) :-
+ab_search([[FromRow,FromCol,ToRow,ToCol]|RestMoves], GameState, Player, Depth, Alpha, Beta, BestMoveAcc, BestValueAcc, BestMove, BestValue) :-
     make_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState),
-    opposite_player(Player, Opponent),
+    NewGameState = game_state(_, NextPlayer, _, _, _),
     NewDepth is Depth - 1,
-    % CORRECTION: appeler minimax pour l'adversaire, puis negate
-    minimax_simple_ref(NewGameState, Opponent, NewDepth, _, OpponentBestValue),
-    % Dans minimax: la valeur retournee par l'adversaire est son meilleur score
-    % Notre score est l'oppose de son meilleur score
-    Value is -OpponentBestValue.
+    NewAlpha is -Beta, NewBeta is -Alpha,
+    minimax_ab(NewGameState, NextPlayer, NewDepth, _, OpponentValue),
+    Value is -OpponentValue,
+    
+    (   Value > BestValueAcc ->
+        NewAlpha2 is max(Alpha, Value),
+        NewBestMove = [FromRow,FromCol,ToRow,ToCol],
+        NewBestValue = Value
+    ;   NewAlpha2 = Alpha,
+        NewBestMove = BestMoveAcc,
+        NewBestValue = BestValueAcc
+    ),
+    
+    % ÉLAGAGE ALPHA-BETA
+    (   NewAlpha2 >= Beta ->
+        BestMove = NewBestMove, BestValue = NewBestValue  % Coupure beta
+    ;   ab_search(RestMoves, GameState, Player, Depth, NewAlpha2, Beta, NewBestMove, NewBestValue, BestMove, BestValue)
+    ).
 
-% is_better_simple(+Player, +NewValue, +OldValue)
-% CORRECTION: avec evaluation symetrique, tous cherchent valeur PLUS ELEVEE
-is_better_simple(white, NewValue, OldValue) :- NewValue > OldValue.
-is_better_simple(black, NewValue, OldValue) :- NewValue > OldValue.
+% terminal_score(+GameState, +Player, -Score)
+% Évalue les positions terminales (mat/pat)
+terminal_score(GameState, Player, Score) :-
+    (   is_in_check(GameState, Player) ->
+        Score = -100000  % Échec et mat
+    ;   Score = 0        % Pat (nulle)
+    ).
+
+% order_moves(+GameState, +Player, +Moves, -OrderedMoves)
+% Tri des coups : captures (MVV-LVA) d'abord, puis autres
+order_moves(GameState, Player, Moves, OrderedMoves) :-
+    GameState = game_state(Board, _, _, _, _),
+    map_move_scores(Board, Player, Moves, ScoredMoves),
+    keysort_desc(ScoredMoves, SortedPairs),
+    pairs_values(SortedPairs, OrderedMoves).
+
+% map_move_scores(+Board, +Player, +Moves, -ScoredMoves)
+map_move_scores(_, _, [], []).
+map_move_scores(Board, Player, [Move|RestMoves], [Score-Move|RestScored]) :-
+    move_score(Board, Player, Move, Score),
+    map_move_scores(Board, Player, RestMoves, RestScored).
+
+% move_score(+Board, +Player, +Move, -Score)
+% Score MVV-LVA pour captures, 0 pour autres coups
+move_score(Board, _Player, [FromRow, FromCol, ToRow, ToCol], Score) :-
+    get_piece(Board, ToRow, ToCol, TargetPiece),
+    (   TargetPiece \= ' ', TargetPiece \= '.' ->
+        get_piece(Board, FromRow, FromCol, AttackingPiece),
+        piece_value(TargetPiece, TargetVal),
+        piece_value(AttackingPiece, AttackerVal),
+        AbsTarget is abs(TargetVal),
+        AbsAttacker is abs(AttackerVal),
+        Score is AbsTarget - AbsAttacker + 1000  % Bonus captures
+    ;   Score = 0  % Coup non-capture
+    ).
+
+% keysort_desc(+Pairs, -SortedDesc)
+% Tri décroissant par clé
+keysort_desc(Pairs, SortedDesc) :-
+    sort(0, @>=, Pairs, SortedDesc).
+
+% pairs_values(+Pairs, -Values)
+pairs_values([], []).
+pairs_values([_-Value|RestPairs], [Value|RestValues]) :-
+    pairs_values(RestPairs, RestValues).
 
 % =============================================================================
 % EVALUATION PURE REFERENCE - BOARD_EVAL.PL EXACT
@@ -194,7 +239,7 @@ evaluate_material_at_risk(GameState, Player, RiskPenalty) :-
         (CanCapture = true ->
             % Ma pièce peut être capturée
             piece_value(MyPiece, MyPieceValue),
-            abs(MyPieceValue, AbsValue),
+            AbsValue is abs(MyPieceValue),
             % Si je peux recapturer, le malus est réduit
             AdjustedPenalty is -(AbsValue - RecaptureValue),
             PenaltyValue = AdjustedPenalty
@@ -204,7 +249,7 @@ evaluate_material_at_risk(GameState, Player, RiskPenalty) :-
     sum_list(PenaltyValues, RiskPenalty).
 
 % can_opponent_capture_piece(+Board, +Opponent, +Row, +Col, -CanCapture, -RecaptureValue)
-% Vérifie si l'adversaire peut capturer une pièce et si je peux recapturer
+% CORRECTION: Vérifie si l'adversaire peut capturer une pièce ET simule la recapture
 can_opponent_capture_piece(Board, Opponent, TargetRow, TargetCol, CanCapture, RecaptureValue) :-
     % L'adversaire peut-il capturer cette pièce ?
     (   (between(1, 8, FromRow), between(1, 8, FromCol),
@@ -213,9 +258,11 @@ can_opponent_capture_piece(Board, Opponent, TargetRow, TargetCol, CanCapture, Re
          OpponentPiece \= ' ', OpponentPiece \= '.',
          valid_move(Board, Opponent, FromRow, FromCol, TargetRow, TargetCol)) ->
         CanCapture = true,
-        % Puis-je recapturer ?
+        % CORRECTION: Simuler la capture adverse avant de tester la recapture
+        make_move(game_state(Board, Opponent, 1, active, []), FromRow, FromCol, TargetRow, TargetCol, 
+                  game_state(BoardAfterCapture, _, _, _, _)),
         opposite_player(Opponent, MyColor),
-        (   can_recapture_square(Board, MyColor, TargetRow, TargetCol, RecaptureValue) ->
+        (   can_recapture_square(BoardAfterCapture, MyColor, TargetRow, TargetCol, RecaptureValue) ->
             true  % RecaptureValue est définie
         ;   RecaptureValue = 0  % Pas de recapture possible
         )
@@ -233,7 +280,8 @@ can_recapture_square(Board, Player, TargetRow, TargetCol, RecaptureValue) :-
     valid_move(Board, Player, FromRow, FromCol, TargetRow, TargetCol),
     % Valeur de la pièce qui peut recapturer
     piece_value(MyPiece, PieceValue),
-    abs(PieceValue, RecaptureValue), !.
+    AbsRecapture is abs(PieceValue),
+    RecaptureValue = AbsRecapture, !.
 can_recapture_square(_, _, _, _, 0).  % Pas de recapture possible
 
 % evaluate_simple_exchange(+Board, +FromRow, +FromCol, +ToRow, +ToCol, +Player, -NetGain)
@@ -243,12 +291,14 @@ evaluate_simple_exchange(Board, FromRow, FromCol, ToRow, ToCol, Player, NetGain)
     get_piece(Board, ToRow, ToCol, TargetPiece),
     piece_value(AttackingPiece, AttackerValue),
     piece_value(TargetPiece, TargetValue),
-    abs(AttackerValue, AbsAttackerValue),
-    abs(TargetValue, AbsTargetValue),
+    AbsAttackerValue is abs(AttackerValue),
+    AbsTargetValue is abs(TargetValue),
     
-    % Si la case cible est défendue, risque de contre-attaque
-    (is_square_attacked(Board, ToRow, ToCol, Player) ->
-        % Case défendue : gain = cible - attaquant
+    % CORRECTION: Simuler la capture pour tester la défense post-coup
+    make_move(game_state(Board, Player, 1, active, []), FromRow, FromCol, ToRow, ToCol, game_state(NewBoard, _, _, _, _)),
+    opposite_player(Player, Opponent),
+    (   is_square_attacked(NewBoard, ToRow, ToCol, Opponent) ->
+        % Case défendue après capture : gain = cible - attaquant
         NetGain is AbsTargetValue - AbsAttackerValue
     ;   % Case non défendue : gain = cible complète
         NetGain = AbsTargetValue

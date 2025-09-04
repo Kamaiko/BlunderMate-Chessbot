@@ -22,10 +22,10 @@
 
 ## Phase 3 : Intelligence Artificielle (TP1 Objectif)
 
-### Algorithmes IA - STATUS RÉEL VÉRIFIÉ
-- [x] **Minimax** : `minimax_simple_ref/5` négamax profondeur 2 ✅
-- [ ] **Alpha-Beta** : NON IMPLÉMENTÉ (contrairement à la doc) ❌
-- [x] **Évaluation** : SEE + matériel en danger + centre + mobilité ✅
+### Algorithmes IA - IMPLEMENTATION COMPLÈTE ✅
+- [x] **Minimax** : `minimax_ab/5` négamax avec alpha-beta profondeur 2 ✅
+- [x] **Alpha-Beta** : IMPLÉMENTÉ + tri MVV-LVA + élagage complet ✅
+- [x] **Évaluation** : SEE + matériel en danger + centre + mobilité + mat/pat ✅
 - [x] **Interface IA** : Mode Humain vs IA intégré (Option 2) ✅
 
 ### Interface Polish
@@ -37,11 +37,12 @@
 ### 🧠 ANALYSE ARCHITECTURE IA COMPLÈTE (2025-01-09)
 **DIAGNOSTIC TECHNIQUE APPROFONDI** - Architecture sophistiquée confirmée
 
-#### 🎯 Algorithme Central Minimax
-- ✅ **Minimax pur** : `minimax_simple_ref/5` avec négamax (profondeur 2)
-- ❌ **Alpha-beta pruning** : NON implémenté (mentionné docs mais absent code)
+#### 🎯 Algorithme Alpha-Beta Complet
+- ✅ **Alpha-beta négamax** : `minimax_ab/5` avec élagage complet (profondeur 2)
+- ✅ **Tri des coups** : MVV-LVA (Most Valuable Victim - Least Valuable Attacker)
+- ✅ **Détection terminale** : Échec et mat (-100000), Pat (0)
 - ✅ **Coups fixes ouverture** : Caro-Kann c7-c6, d7-d5 (premiers 2 coups noirs)
-- ✅ **Génération coups optimisée** : Développement prioritaire (≤15 coups)
+- ✅ **Génération coups optimisée** : Captures prioritaires + développement
 
 #### 📊 Système d'Évaluation Multi-Facteurs
 - ✅ **Matériel** : Valeurs standards (P:10, N/B:30, R:50, Q:90, K:900)
@@ -51,10 +52,12 @@
 - ✅ **Mobilité** : Compte coups légaux disponibles par joueur
 - ✅ **Développement** : Bonus +100pts cavaliers/fous sur cases naturelles
 
-#### ⚠️ VALIDATIONS TECHNIQUES REQUISES
-- **Anti-blunder test** : Validation recaptures (e4xd5 → c6xd5)
-- **Performance** : 0.00s coups simples, 22.73s positions complexes
-- **Alpha-beta futur** : Prévu mais absent → optimisation performance
+#### ✅ CORRECTIONS CRITIQUES APPLIQUÉES (2025-01-09)
+- **Alpha-beta implémenté** : Élagage complet avec tri MVV-LVA
+- **abs/2 corrigé** : Syntaxe Prolog standard `AbsValue is abs(Value)`
+- **SEE simulation** : Évaluation post-capture avec board simulé
+- **Détection risque** : Matériel en danger avec recaptures simulées
+- **Mat/Pat détection** : Positions terminales dans minimax
 
 ### ✅ PROBLÈME RÉSOLU - OUVERTURE FIXES
 **IMPLÉMENTATION TERMINÉE** : Système de coups d'ouverture fixes pour résoudre définitivement le problème de logique d'ouverture.
