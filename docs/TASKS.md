@@ -1,200 +1,268 @@
-# TASKS - Projet Échecs IA (IFT-2003)
+# 🚨 PROLOG CHESS GAME - CRITICAL TASKS & DEVELOPMENT ROADMAP
 
-> **Travail universitaire TP1** - 10% note finale IFT-2003
+## 📊 **PROJECT STATUS OVERVIEW**
 
-## 🎯 STATUS PROJET - Vue d'ensemble
-
-| Phase | Status | Contenu | Tests |
-|-------|--------|---------|-------|
-| **Phase 1** | ✅ **COMPLÈTE** | Fondations, mouvements base, interface | 28 tests |
-| **Phase 2** | ✅ **COMPLÈTE** | Échec/mat, promotion pions | +7 tests (35 total) |
-| **Phase 3** | ✅ **TERMINÉE** | IA alpha-beta + PSQT + évaluation temps réel | 8 sections tests |
-
-### 🎉 Situation Finale (Septembre 2025) 
-- **Architecture IA** : Alpha-beta + PSQT + évaluation complète  
-- **Interface** : Mode IA vs Humain + scores temps réel `[EVAL] Position: X points`
-- **Validation** : Sécurité roi implémentée (impossible ignorer échec)
-- **Tests** : 8 sections consolidées (PSQT, Edge Cases, Tactiques)
-- **STATUT** : **PROJET TERMINÉ - Objectif TP1 ATTEINT** ✅
+- **Current Phase**: Phase 3 ✅ Complete (Negamax + Alpha-Beta AI)
+- **Critical Status**: ⚠️ **INTERFACE LOOP BUG RESOLVED** according to CLAUDE.md but **NEEDS VERIFICATION**
+- **Code Quality**: 🔴 **MULTIPLE CRITICAL ISSUES** identified requiring immediate attention
+- **Architecture**: 5-module design stable, comprehensive documentation created
 
 ---
 
-## 🧠 ARCHITECTURE IA CONFIRMÉE
+## ⚠️ **PRIORITY 0: CRITICAL BUG VERIFICATION (IMMEDIATE)**
 
-### ✅ Algorithmes Implémentés (COMPLET)
-- [x] **Négamax (variante minimax)** : `minimax_ab/5` avec alpha-beta et élagage
-- [x] **Tri MVV-LVA** : Most Valuable Victim - Least Valuable Attacker  
-- [x] **Détection terminale** : Mat (-100000), Pat (0)
-- [x] **Validation échec** : `validate_king_safety_after_move/6` - roi ne peut rester en échec
-- [x] **Coups d'ouverture** : Caro-Kann fixes conservés (toujours utilisés)
-
-### 📊 Évaluation (Architecture Complète) 
-- ✅ **Matériel** : Valeurs centipawns standard (P:100, N:320, B:330, R:500, Q:900)
-- ✅ **PSQT** : Piece-Square Tables ChessProgramming.org (adaptées SANS ROQUE)
-- ✅ **Affichage** : Scores temps réel `[EVAL] Position (joueur): X points`
-- ✅ **Debug** : `display_position_evaluation/2` pour analyse détaillée
-- ⚠️ **PSQT à implémenter** : Piece-Square Tables (ChessProgramming.org)
-- ❌ **SEE abandonnée** : Trop complexe pour niveau universitaire
-- ✅ **Mobilité** : Nombre coups légaux par joueur
+### 🔥 **TASK 0.1: Verify Interface Loop Bug Fix**
+- **Status**: ✅ **REPORTEDLY FIXED** (per CLAUDE.md) - **NEEDS CONFIRMATION**
+- **Location**: `src/ai.pl:754`
+- **Root Cause**: Empty square handling in move generation
+- **Fix Applied**: `Piece \= '.'` → `\+ is_empty_square(Piece)`
+- **Test Sequence**: `d2d4` → `c1g5` → `g5e7` (previously caused infinite loop)
+- **Priority**: **HIGHEST** - Verify this sequence no longer freezes interface
+- **Effort**: 15 minutes
+- **Acceptance**: Human vs AI game completes sequence without loop
 
 ---
 
-## ✅ TRAVAUX ACCOMPLIS (2025-09-04)
+## 🔴 **PRIORITY 1: CRITICAL SYSTEM BUGS (HIGH URGENCY)**
 
-### 📋 Phase 3 TERMINÉE - IA Fonctionnelle Complète
+### 🤖 **TASK 1.1: Fix Piece Safety Evaluation System**
+- **Status**: 🔴 **CRITICAL** - Completely disabled causing tactical blunders
+- **Location**: `src/ai.pl:372-373`
+- **Problem**: `evaluate_piece_safety` hardcoded to return `0`
+- **Root Cause**: Comment claims "is_square_attacked ne fonctionne pas encore" but function EXISTS in `game.pl:480`
+- **Impact**: AI sacrifices bishops vs defended pawns (tactical weakness)
+- **Decision Required**: Either fix implementation OR remove completely
+- **Effort**: 30-45 minutes
+- **Files**: `src/ai.pl` (evaluation), `src/game.pl` (is_square_attacked verification)
 
-#### ✅ PHASE 0 : Consistency Fixes + IA Pure (ACCOMPLI)
-- [x] **🎯 Évaluation unified** : Score unique (+ = blanc, - = noir)
-- [x] **🚨 Tests consolidés** : `run_all_tests` ajouté, 8 sections
-- [x] **🚨 Cases vides** : `' '` standardisé partout
-- [x] **Menu Tests fonctionnel** : Option 3 sans erreur
-- [x] **Interface propre** : Suppression Unicode, ASCII seulement
+### 🔧 **TASK 1.2: Remove Obsolete Interface Messages**
+- **Status**: 🟡 **MISLEADING** - Messages suggest incomplete AI implementation
+- **Location**: `src/interface.pl:88-89`
+- **Problem**: Messages claim "Bot not implemented" when AI is fully functional
+- **Messages to Remove/Update**:
+  - `message(bot_not_implemented, 'Le mode Humain vs Bot n\'est pas encore implemente.')`
+  - `message(available_future_version, 'Disponible dans une version future!')`
+- **Effort**: 15 minutes
+- **Impact**: User experience clarity
 
-#### ✅ PHASE 1 : Piece-Square Tables (ACCOMPLI)
-- [x] **PSQT intégrés** : ChessProgramming.org implémenté
-- [x] **Évaluation simplifiée** : Matériel + PSQT seulement
-- [x] **Validation échec** : Impossible ignorer check
-- [x] **Algorithme confirmé** : Négamax + alpha-beta profondeur 2
-
-## 🎯 PROCHAINE PHASE OPTIONNELLE : Tests Rigoureux
-
-### 📋 Tests Tactiques Structurés (Phase Optionnelle)
-- [ ] **Test mat en 1** : IA choisit coup gagnant unique
-- [ ] **Test parade** : IA joue seule défense anti-mat
-- [ ] **Test recaptures** : e4xd5 → c6xd5 automatique
-- [ ] **Tests blunders** : Validation sacrifices évités
-- [ ] **Tests console** : Affichage clair et structuré
-- [ ] **Documentation** : Tests éducatifs bien commentés
-
----
-
-## 🔧 Corrections Techniques Requises (Cross-File Consistency Check)
-
-### 🚨 Priorité 1 - Consistency Fixes (CRITIQUE)
-1. **🚨 Tests cassés** : Ajouter `run_all_tests` manquant dans tests.pl
-2. **🚨 Cases vides** : Standardiser `' '` vs `'.'` (pieces.pl, board.pl, ai.pl inconsistant)
-3. **Implémenter PSQT** : ChessProgramming.org Simplified Evaluation
-
-### ⚠️ Priorité 2 - Architecture IA
-1. **Enlever SEE** : Remplacer par évaluation positionnelle basique
-2. **Bonus développement** : Réduire 100→30 points max
-3. **Génération coups** : Garde-fou si roi en échec
-
-### 🔧 Priorité 3 - Optimisation
-1. **Validation** : `fast_get_piece/4` optimisée IA
-2. **Performance** : Cache positions pour éviter boucles 8x8
+### 🎯 **TASK 1.3: Fix Function Name Inconsistency**
+- **Status**: 🟡 **INCONSISTENT** - Debug vs actual evaluation use different functions
+- **Location**: `src/ai.pl:34-35` vs `src/ai.pl:274-275`
+- **Problem**: `display_position_evaluation` calls `evaluate_tactical_safety` but AI uses `evaluate_piece_safety`
+- **Decision**: Standardize on one function name throughout
+- **Effort**: 20 minutes
 
 ---
 
-## 📊 TESTS STRUCTURÉS PLANIFIÉS
+## 🟡 **PRIORITY 2: CODE QUALITY ISSUES (MEDIUM URGENCY)**
 
-### Phase 0 : Consistency Tests (NOUVEAU)
-```prolog
-% Test cases vides cohérentes
-test_empty_cell_consistency :-
-    % Vérifier que tous modules utilisent ' ' pour cases vides
-    create_empty_board(Board),
-    get_piece(Board, 1, 1, EmptyCell),
-    EmptyCell = ' '.  % DOIT être espace, pas point
+### 📊 **TASK 2.1: Consolidate Duplicate Piece Value Systems**
+- **Status**: 🔴 **MAJOR DUPLICATION** - 3 different value systems causing inconsistency
+- **Locations**: 
+  - `pieces.pl:322-336`: `piece_value/2`
+  - `ai.pl:323-335`: `standard_piece_value/2` 
+  - `game.pl:211-224`: `simple_piece_value/2`
+- **Solution**: Choose one authoritative system, remove others
+- **Effort**: 45 minutes
+- **Impact**: Evaluation consistency across modules
 
-% Test run_all_tests existe
-test_run_all_tests_exists :-
-    % Vérifier que le prédicat appelé par interface.pl existe
-    current_predicate(run_all_tests/0).
-```
+### 🔢 **TASK 2.2: Replace Magic Numbers with Named Constants**
+- **Status**: 🟡 **HIGH TECHNICAL DEBT** - 50+ magic numbers throughout codebase
+- **Critical Numbers**:
+  - Board dimensions: `8` appears 50+ times
+  - AI depth: `2` hardcoded in multiple places
+  - Move limits: `25`, `20`, `10` in various functions
+- **Approach**: Add constants directly in appropriate modules (not separate file)
+- **Effort**: 60 minutes
+- **Files**: All modules (`src/*.pl`)
 
-### Phase 1 : Tests Unitaires Contrôlés  
-```prolog
-% Test mat en 1 : IA trouve coup gagnant unique
-test_mate_in_one :-
-    % Position où seul Qd8# mate, autres perdent
-    setup_mate_in_one_position(GameState),
-    choose_ai_move(GameState, Move),
-    assert_is_checkmate_move(Move).
-    
-% Test parade : IA évite mat imminent  
-test_avoid_mate :-
-    % Position où seul coup évite défaite
-    setup_must_defend_position(GameState),
-    choose_ai_move(GameState, Move),
-    assert_avoids_checkmate(Move).
-```
+### 🗑️ **TASK 2.3: Remove Dead Code**
+- **Status**: 🟡 **CLEANUP REQUIRED** - Multiple unused functions cluttering codebase
+- **Unused AI Functions**:
+  - `ai.pl:136`: `minimax_limited/5`
+  - `ai.pl:151`: `generate_moves_limited/3`
+  - `ai.pl:162`: `select_first_move/2`
+  - `ai.pl:19-20`: `compensate_ref(white/black, ±15)` constants
+- **Unused Interface Code**:
+  - `interface.pl:453`: `process_command_string/3` wrapper
+- **Effort**: 30 minutes
+- **Approach**: Comment out, then remove after testing
 
-### Phase 2 : Validation Alpha-Beta
-```prolog
-% Consistency : alpha-beta = minimax sur positions test
-test_alphabeta_consistency :-
-    forall(test_position(GS), (
-        minimax_no_pruning(GS, Move1, Value1),
-        minimax_ab(GS, Move2, Value2),
-        assert_same_evaluation(Value1, Value2)
-    )).
-```
+### 🔄 **TASK 2.4: Consolidate Duplicate Utility Functions**
+- **Status**: 🟡 **CODE DUPLICATION** - Multiple similar functions for same operations
+- **Duplicated Functions**:
+  ```prolog
+  take_first_25_simple, take_first_20_simple, take_first_10_simple
+  % Should be: take_first_n(List, N, FirstN)
+  ```
+- **Solution**: Create parameterized version, remove specific ones
+- **Effort**: 45 minutes
+- **Impact**: Maintenance simplification
 
-### Phase 3 : Anti-Blunder Tactique
-- **Recaptures obligatoires** : e4xd5 → c6xd5
-- **Menaces détectées** : Cavalier f6 attaqué par e5  
-- **Pas de sacrifices** : Éviter dame vs pion
-
----
-
-## 🧩 Architecture 5 Modules
-
-### Modules Stables ✅
-- **pieces.pl** : Logique mouvement, validation pièces
-- **board.pl** : Représentation 8x8, affichage, conversion
-- **game.pl** : État jeu, validation coups, échec/mat
-- **interface.pl** : Interface française, modes de jeu
-
-### Module En Finalisation ⚡
-- **ai.pl** : Alpha-beta + PSQT à compléter
-
-### Prédicats Clés
-- `minimax_ab/5` : Alpha-beta négamax fonctionnel
-- `choose_ai_move/2` : Interface IA principale  
-- `evaluate_position/3` : À enrichir avec PSQT
-- `generate_moves_simple/3` : Génération coups optimisée
+### 📝 **TASK 2.5: Fix Misleading Comments**
+- **Status**: 🟡 **DOCUMENTATION DEBT** - Comments contradict current code state
+- **Critical Examples**:
+  - `ai.pl:372`: "is_square_attacked ne fonctionne pas encore" - **FALSE**
+  - Outdated status comments throughout source code
+- **Approach**: Update to reflect actual code state
+- **Effort**: 30 minutes
+- **Files**: Primarily `src/ai.pl`
 
 ---
 
-## 🎓 Objectif Éducatif
+## 🟢 **PRIORITY 3: CONSISTENCY & STANDARDIZATION (LOW-MEDIUM URGENCY)**
 
-### Niveau Approprié TP1
-- **Algorithme moderne** : Négamax + alpha-beta
-- **Évaluation simple** : Matériel + position basique  
-- **Code commenté** : Compréhensible niveau universitaire
-- **Performance raisonnable** : <10s acceptable
+### 🔡 **TASK 3.1: Standardize Empty Square Representation**
+- **Status**: 🟡 **INCONSISTENT** - Mixed use of `' '` (space) and `'.'` (dot)
+- **Problem**: `is_empty_square/1` accepts both but code inconsistently checks only one
+- **Evidence**: `ai.pl:754` only checked `'.'` causing the critical bug
+- **Solution**: Standardize on `' '` (space) everywhere
+- **Effort**: 45 minutes
+- **Files**: All modules, focus on board operations
 
-### Extensions Futures (Post-TP1)
-- [ ] **En passant + roque** : Compléter règles échecs
-- [ ] **Opening book** : Base théorique ouvertures
-- [ ] **Quiescence search** : Éviter horizons tactiques
-- [ ] **Interface avancée** : Choix difficulté/couleur
+### 🔧 **TASK 3.2: Standardize Function Naming Conventions**
+- **Status**: 🟡 **INCONSISTENT** - Multiple naming patterns across modules
+- **Current Patterns**:
+  - `display_position_evaluation` (descriptive style)
+  - `evaluate_pure_reference` (verb_adjective_noun)
+  - `count_material_pure_ref` (verb_noun_adj_abbrev)
+- **Recommendation**: Standardize on `action_object_modifier`
+- **Effort**: 60 minutes
+- **Impact**: Developer consistency
+
+### 📋 **TASK 3.3: Standardize Parameter Order**
+- **Status**: 🟡 **INCONSISTENT** - Function signatures vary unpredictably
+- **Examples**:
+  ```prolog
+  valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol)
+  find_king_position(Board, Player, Row, Col)  % Player before position
+  get_piece(Board, Row, Col, Piece)           % Position before piece
+  ```
+- **Recommendation**: Board first, then consistent parameter ordering
+- **Effort**: 90 minutes (high impact change)
 
 ---
 
-## 📚 Ressources & Commandes
+## 📈 **PRIORITY 4: PERFORMANCE & OPTIMIZATION (LOW URGENCY)**
 
-**Documentation** : [CLAUDE.md](../.claude/CLAUDE.md) • [plan.md](plan.md)  
-**Tests** : `swipl -g "consult('tests/tests'), run_tests, halt."`  
-**Jeu** : `swipl go.pl` (Option 2: IA vs Humain)
+### ⚡ **TASK 4.1: Optimize Nested Loop Performance**
+- **Status**: 🟡 **PERFORMANCE ISSUE** - Inefficient nested `between` loops
+- **Problem**: Some functions use 8^4 = 4096 iterations unnecessarily
+- **Solution**: Add early termination conditions, optimize algorithms
+- **Effort**: 60 minutes
+- **Impact**: AI response time improvement
 
-**Ressource PSQT** : [ChessProgramming.org Simplified Evaluation](https://www.chessprogramming.org/Simplified_Evaluation_Function)
+### 🔍 **TASK 4.2: Add Comprehensive Input Validation**
+- **Status**: 🟡 **ROBUSTNESS** - Inconsistent validation across modules
+- **Current State**: Some modules use `ground/1`, others don't
+- **Recommendation**: Add systematic validation to all AI-critical functions
+- **Effort**: 90 minutes
+- **Impact**: Runtime error reduction
 
 ---
 
-## ⚡ Décisions Architecturales Finales
+## 🧪 **PRIORITY 5: TESTING IMPROVEMENTS (LOWER PRIORITY)**
 
-### ✅ Confirmées
-- **Négamax** : Variante symétrique minimax (`Value is -OpponentValue`)
-- **Alpha-beta** : Élagage implémenté avec négamax
-- **Terminologie** : "Minimax négamax" = algorithme implémenté
-- **PSQT** : Compatible avec négamax, niveau éducatif parfait
-- **Abandon SEE** : Trop complexe, pas nécessaire TP1
+### 📊 **TASK 5.1: Replace Obsolete AI Tests (Section 7)**
+- **Status**: ⚠️ **PARTIALLY USABLE** - Current tests insufficient, proposed replacement has limitations
+- **Current State**: Only 2 basic AI tests in `tests/tests.pl` Section 7
+- **Proposed**: 83 comprehensive AI tests structured in 6 sub-sections
+- **⚠️ CRITICAL LIMITATION**: Tactical positions in proposed tests require expert validation
+- **Safe Implementation**:
+  - ✅ **Sub-sections 7.1, 7.2, 7.3, 7.5, 7.6** (Algorithmic tests) - **RELIABLE**
+  - ⚠️ **Sub-section 7.4** (Tactical tests) - **VALIDATION REQUIRED**
+- **Effort**: 180 minutes (Phase 1: Algorithmic tests only)
+- **Recommendation**: Implement algorithmic tests first, defer tactical tests until expert validation
 
-### 🎯 Session Demain - Objectif
-**Implémenter Piece-Square Tables pour compléter l'évaluation négamax**
+### 🎯 **TASK 5.2: Create Position Validation System**
+- **Status**: 🔴 **CRITICAL LIMITATION** - Cannot verify tactical position correctness
+- **Problem**: AI test positions may be tactically invalid (example: proposed "mate in 1" is not actually mate)
+- **Solutions**:
+  - **FEN Parser**: Use standard FEN notation + validated positions
+  - **Expert Validation**: Human chess expert review of all tactical positions
+  - **Focus on Algorithmic Tests**: Emphasize logic validation over position-specific tactics
+- **Effort**: 120 minutes (FEN parser approach)
+- **Priority**: Required before tactical test implementation
 
-**Note Terminologique** : Votre algorithme EST négamax (minimax symétrique) - plus simple à implémenter !
+---
 
-Terminer avec une IA robuste, performante et appropriée niveau universitaire !
+## 📋 **TASK IMPLEMENTATION ORDER & ESTIMATES**
+
+### **Week 1: Critical Bug Resolution**
+1. **TASK 0.1**: Verify interface loop fix (15 min) ⚠️ **IMMEDIATE**
+2. **TASK 1.1**: Fix piece safety evaluation (45 min) 🔴 **CRITICAL**
+3. **TASK 1.2**: Remove obsolete messages (15 min) 🔴 **CRITICAL**
+4. **TASK 1.3**: Fix function name inconsistency (20 min) 🔴 **CRITICAL**
+5. **TASK 2.3**: Remove dead code (30 min) 🟡 **QUICK WIN**
+
+**Total Week 1**: ~2 hours | **Impact**: Major stability and user experience improvement
+
+### **Week 2: Code Quality Foundation**
+6. **TASK 2.1**: Consolidate piece values (45 min) 🟡 **HIGH IMPACT**
+7. **TASK 2.4**: Consolidate utility functions (45 min) 🟡 **MAINTENANCE**
+8. **TASK 2.5**: Fix misleading comments (30 min) 🟡 **DOCUMENTATION**
+9. **TASK 3.1**: Standardize empty squares (45 min) 🟡 **CONSISTENCY**
+
+**Total Week 2**: ~2.5 hours | **Impact**: Code maintainability and consistency
+
+### **Week 3: Long-term Improvements**
+10. **TASK 2.2**: Replace magic numbers (60 min) 🟡 **MAINTENANCE**
+11. **TASK 5.1**: Implement algorithmic AI tests (180 min) 🟢 **VALIDATION**
+
+**Total Week 3**: ~4 hours | **Impact**: Technical debt reduction and test coverage
+
+### **Later: Advanced Optimizations** (Optional)
+- **TASK 3.2**: Naming conventions (60 min)
+- **TASK 3.3**: Parameter order standardization (90 min)
+- **TASK 4.1**: Performance optimization (60 min)
+- **TASK 4.2**: Input validation (90 min)
+- **TASK 5.2**: Position validation system (120 min)
+
+---
+
+## 🎯 **DEFINITION OF DONE**
+
+### **Priority 0-1 Tasks**
+- [ ] Interface loop sequence `d2d4` → `c1g5` → `g5e7` completes successfully
+- [ ] Piece safety evaluation either functional or completely removed
+- [ ] All obsolete interface messages updated
+- [ ] Function naming consistency between debug and evaluation
+- [ ] All tests pass after changes
+
+### **Priority 2-3 Tasks**
+- [ ] Single authoritative piece value system
+- [ ] All magic numbers replaced with named constants
+- [ ] All dead code removed and documented
+- [ ] Consistent empty square representation (`' '` only)
+- [ ] No misleading comments in codebase
+
+### **Priority 4-5 Tasks**
+- [ ] AI test coverage >80% with algorithmic tests
+- [ ] Performance optimizations show measurable improvement
+- [ ] Input validation prevents runtime errors
+- [ ] Position validation system for tactical tests (future)
+
+---
+
+## ⚠️ **IMPORTANT NOTES**
+
+### **Code Safety**
+- **NEVER** modify core game logic (`game.pl`, `pieces.pl`) without extensive testing
+- **ALWAYS** run full test suite before committing changes
+- **BACKUP** current working state before major refactoring
+
+### **Testing Strategy**
+- Fix critical bugs first, then run full test suite
+- Implement new tests incrementally
+- Focus on algorithmic validation over position-specific tactics
+
+### **Documentation**
+- Update CLAUDE.md status after each priority 0-1 task completion
+- Keep bug report updated with resolution status
+- Document any new architectural decisions
+
+---
+
+**📊 TOTAL ESTIMATED EFFORT**: 8-10 hours core fixes + 6-8 hours optional improvements
+**🎯 PRIMARY GOAL**: Stable, maintainable AI chess system with consistent behavior
+**⚡ IMMEDIATE ACTION**: Verify interface loop bug fix, then proceed with critical stability issues

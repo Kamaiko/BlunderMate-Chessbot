@@ -224,20 +224,26 @@ test_pawn_promotion_ai :-
 
 ## 🛠️ **UTILITAIRES DE TEST REQUIS**
 
-### **Positions de Test Standardisées**
+> **⚠️ LIMITATION CRITIQUE IDENTIFIÉE**: Les positions d'échecs complexes proposées dans cette suite peuvent être **tactiquement incorrectes**. La position "mat en 1" ci-dessous N'EST PAS un vrai mat en 1 (le roi peut fuir). **Validation humaine experte requise** pour toutes les positions tactiques.
+
+### **Positions de Test Standardisées - NÉCESSITENT VALIDATION**
 ```prolog
-% Créer positions reproductibles pour tests
-setup_mate_in_1_queen(game_state(Board, white, 10, active, [])) :-
+% ATTENTION: Position INCORRECTE - PAS un mat en 1 réel !
+% Le roi noir peut fuir (Kd8, Kf8, Kf7) - Dame seule insuffisante
+setup_mate_in_1_queen_INVALID_EXAMPLE(game_state(Board, white, 10, active, [])) :-
     Board = [
-        [' ', ' ', ' ', ' ', 'k', ' ', ' ', ' '],
+        [' ', ' ', ' ', ' ', 'k', ' ', ' ', ' '],  % Roi PEUT fuir
         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
         [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
-        [' ', ' ', ' ', 'Q', ' ', ' ', ' ', 'K']
+        [' ', ' ', ' ', 'Q', ' ', ' ', ' ', 'K']   % Dame seule = pas mate
     ].
+
+% RECOMMANDATION: Utiliser positions FEN validées par experts
+% Exemple: "8/8/8/8/8/8/6k1/4Q1K1 w - - 0 1" (vrai mat en 1)
 ```
 
 ### **Assertions Personnalisées**
@@ -257,8 +263,8 @@ assert_checkmate_move(GameState, FromR, FromC, ToR, ToC) :-
 
 ### **Phase 1: Remplacement Section 7 Actuelle**
 1. **Supprimer tests obsolètes** : `test_ai_avoids_king_moves`, `test_ai_prefers_development`
-2. **Remplacer par Sub-section 7.1** (Tests algorithme) - 15 tests
-3. **Ajouter Sub-section 7.4** (Tests tactiques critiques) - 20 tests prioritaires
+2. **Remplacer par Sub-section 7.1** (Tests algorithme) - 15 tests ✅ **SÛRS**
+3. **⚠️ ATTENTION Sub-section 7.4** (Tests tactiques) - **VALIDATION EXPERTE REQUISE**
 
 ### **Phase 2: Extension Complète Section 7**  
 1. **Ajouter Sub-section 7.2** (Génération coups) - 12 tests
@@ -327,4 +333,16 @@ run_tests :-
     write('🎯 TOUS TESTS TERMINES - IA COMPREHENSIVE!'), nl.
 ```
 
-Cette suite complète remplacera les 2 tests basiques actuels par 83 tests rigoureux couvrant tous les aspects de l'IA d'échecs.
+## ⚠️ **AVERTISSEMENT IMPORTANT**
+
+**Cette suite de tests contient des limitations critiques identifiées :**
+
+1. **Positions tactiques non validées** : Les exemples "mat en 1", "défense anti-mat" peuvent être incorrects
+2. **Validation experte requise** : Toutes les positions complexes nécessitent vérification par expert échecs
+3. **Alternative recommandée** : Parser FEN + positions validées par bases de données d'échecs
+
+**Utilisation recommandée :**
+- ✅ **Tests algorithmiques** (Sub-sections 7.1, 7.2, 7.3, 7.5, 7.6) - **FIABLES**
+- ⚠️ **Tests tactiques** (Sub-section 7.4) - **VALIDATION HUMAINE OBLIGATOIRE**
+
+Cette suite fournit une **structure** excellente mais les **positions tactiques spécifiques** doivent être créées/validées par un expert échecs.

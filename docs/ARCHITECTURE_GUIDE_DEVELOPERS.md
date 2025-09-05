@@ -283,7 +283,7 @@ handle_player_turn(UnifiedGameState, Player, ai, NewState).
 - Standardiser conventions nommage
 
 ### **Phase 2: Qualité (Semaine 2-3)**
-- Créer `constants.pl` pour magic numbers
+- Intégrer constantes magic numbers dans modules appropriés
 - Refactoriser fonctions complexes
 - Améliorer gestion erreurs
 

@@ -207,9 +207,10 @@ unified_game_loop(UnifiedGameState)
 - **Code**: `src/ai.pl:116-128` (retained)
 
 ### Attempt #3: Limited Depth IA
-- **Approach**: Reduced minimax depth from 2 to 1
+- **Approach**: Reduced minimax depth from 2 to 1  
 - **Result**: ❌ Ineffective - Problem is interface, not IA
-- **Code**: Reverted to depth 2 per user request
+- **User Decision**: Profondeur 2 maintenue - IA plus intelligente qu'avec profondeur 1
+- **Code**: Depth 2 conservée définitivement
 
 ## RECOMMENDED NEXT STEPS
 
@@ -489,7 +490,7 @@ swipl -g "consult('src/interface'), halt"
 ### **🔧 RECOMMANDATIONS TECHNIQUES STRUCTURÉES**
 
 #### **Priorité 0: Corrections Immédiates (Semaine 1)**
-1. **Créer `constants.pl`** avec tous les magic numbers
+1. **Intégrer constantes magic numbers** directement dans les modules appropriés (pas de fichier séparé)
 2. **Consolider valeurs pièces** en un seul module
 3. **Remplacer fonctions take_first_N** par version paramétrée unique
 4. **Ajouter validation entrées** aux fonctions IA critiques
@@ -515,13 +516,41 @@ swipl -g "consult('src/interface'), halt"
 - **Patterns incohérents**: 15+ violations majeures
 
 #### **Bénéfices Attendus Après Corrections**
-- **Maintenabilité**: +70% (standardisation nommage + constants)
+- **Maintenabilité**: +70% (standardisation nommage + constantes intégrées)
 - **Lisibilité**: +60% (fonctions plus courtes, responsabilités claires)
 - **Robustesse**: +50% (validation systématique, gestion erreurs)
 - **Performance**: +20% (élimination boucles inefficaces)
 
+## 🚨 **LIMITATION CRITIQUE CLAUDE - REPRÉSENTATIONS ÉCHECS** (2025-01-21)
+
+### **Issue Q: Incapacité Représentations Tactiques Complexes**
+1. **Problème Identifié**: Claude incapable de créer positions d'échecs tactiquement valides
+2. **Exemple**: Position "mat en 1" proposée N'EST PAS un mat en 1
+   ```prolog
+   % POSITION INCORRECTE PROPOSÉE PAR CLAUDE:
+   [' ', ' ', ' ', ' ', 'k', ' ', ' ', ' '],  % Roi peut fuir Kd8, Kf8, Kf7
+   [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+   % ... cases vides ...
+   [' ', ' ', ' ', 'Q', ' ', ' ', ' ', 'K']   % Dame seule = PAS mate!
+   ```
+3. **Impact**: 
+   - Tests IA tactiques potentiellement **invalides**
+   - Positions test peuvent être **incorrectes tactiquement**
+   - Validation algorithmique compromise si positions fausses
+
+### **Recommandations Alternatives Identifiées**
+1. **Parser FEN**: Standard universels, positions validées par experts
+2. **ASCII visuel**: Plus simple mais nécessite validation humaine
+3. **Liste pièces**: Flexible mais complexité validation reste
+4. **Tests algorithmiques**: Focus sur cohérence plutôt que positions spécifiques
+
+### **Impact sur Suite Tests IA**
+- **83 tests proposés**: Positions tactiques peuvent être incorrectes
+- **Tests mat en 1, défenses**: Nécessitent validation experte humaine
+- **Alternative recommandée**: Tests algorithmiques + positions FEN validées
+
 ---
 
-**Updated Developer Notes**: Au-delà du bug critique de boucle infinie, le codebase souffre de problèmes structurels majeurs de qualité qui impactent la maintenabilité. La priorité doit être: 1) Fixer le bug critique, 2) Standardiser les conventions, 3) Éliminer les duplications, 4) Refactoriser les fonctions complexes.
+**Updated Developer Notes**: Au-delà du bug critique de boucle infinie, le codebase souffre de problèmes structurels majeurs de qualité qui impactent la maintenabilité. **LIMITATION CRITIQUE**: Claude ne peut pas garantir la validité tactique des positions d'échecs complexes - validation humaine requise pour tests IA tactiques.
 
-**Confidence Level**: **High** - Problèmes de qualité documentés avec locations spécifiques et solutions concrètes.
+**Confidence Level**: **High** - Problèmes de qualité documentés avec locations spécifiques et solutions concrètes. **MODERATE** pour positions tactiques complexes.
