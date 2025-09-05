@@ -38,7 +38,6 @@ swipl -t run_tests -s tests/tests.pl
 ### Intelligence Artificielle
 - Algorithme négamax avec élagage alpha-beta
 - Profondeur de recherche : 2 niveaux
-- Évaluation basée sur matériel et position
 - Performance : 1-4 secondes par coup
 
 ## Usage

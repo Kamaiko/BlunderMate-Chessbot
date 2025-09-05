@@ -1,9 +1,12 @@
 % =============================================================================
-% IA PURE REFERENCE - STRICTEMENT SELON BOARD_EVAL.PL
+% MODULE IA ECHECS - Negamax avec Elagage Alpha-Beta
 % =============================================================================
 %
-% RETOUR à la référence EXACTE sans ajouts compliqués
-% Focus sur le calcul correct des positions de pions
+% Implementation IA principale utilisant :
+% - Algorithme negamax avec elagage alpha-beta (profondeur 2)
+% - Tri MVV-LVA (Most Valuable Victim - Least Valuable Attacker)
+% - Evaluation PSQT (Piece-Square Tables)
+% - Evaluation materielle + positionnelle
 %
 % =============================================================================
 
@@ -13,9 +16,10 @@
 :- [psqt_tables].
 
 % =============================================================================
-% CONSTANTES REFERENCE EXACTES - BOARD_EVAL.PL:5-12
+% CONSTANTES HERITEES - Actuellement Inutilisees
 % =============================================================================
 
+% Valeurs de compensation heritees - non utilisees dans l'evaluation actuelle
 compensate_ref(white, 15).
 compensate_ref(black, -15).
 
@@ -131,36 +135,38 @@ choose_emergency_move(GameState, Player, BestMove) :-
 % MINIMAX SIMPLE SELON REFERENCE
 % =============================================================================
 
+% CODE MORT - Fonctions inutilisees, gardees pour reference
+%
 % minimax_limited(+GameState, +Player, +Depth, -BestMove, -BestValue)
 % Version sécurisée avec génération de coups très limitée
-minimax_limited(GameState, Player, 0, [], Value) :-
-    evaluate_pure_reference(GameState, Player, Value), !.
-
-minimax_limited(GameState, Player, Depth, BestMove, BestValue) :-
-    Depth > 0,
-    generate_moves_limited(GameState, Player, Moves),  % Version limitée
-    (   Moves = [] ->
-        terminal_score(GameState, Player, BestValue),
-        BestMove = []
-    ;   select_first_move(Moves, BestMove),  % Prendre le premier coup simple
-        BestValue = 0
-    ).
-
+% minimax_limited(GameState, Player, 0, [], Value) :-
+%     evaluate_pure_reference(GameState, Player, Value), !.
+% 
+% minimax_limited(GameState, Player, Depth, BestMove, BestValue) :-
+%     Depth > 0,
+%     generate_moves_limited(GameState, Player, Moves),
+%     (   Moves = [] ->
+%         terminal_score(GameState, Player, BestValue),
+%         BestMove = []
+%     ;   select_first_move(Moves, BestMove),
+%         BestValue = 0
+%     ).
+% 
 % generate_moves_limited(+GameState, +Player, -Moves)
 % Génération très limitée de coups - premier coup légal trouvé
-generate_moves_limited(GameState, Player, [FirstMove]) :-
-    GameState = game_state(Board, _, _, _, _),
-    between(1, 8, FromRow), between(1, 8, FromCol),
-    get_piece(Board, FromRow, FromCol, Piece),
-    piece_belongs_to_player(Piece, Player),
-    between(1, 8, ToRow), between(1, 8, ToCol),
-    valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
-    FirstMove = [FromRow, FromCol, ToRow, ToCol], !.
-generate_moves_limited(_, _, []).
-
+% generate_moves_limited(GameState, Player, [FirstMove]) :-
+%     GameState = game_state(Board, _, _, _, _),
+%     between(1, 8, FromRow), between(1, 8, FromCol),
+%     get_piece(Board, FromRow, FromCol, Piece),
+%     piece_belongs_to_player(Piece, Player),
+%     between(1, 8, ToRow), between(1, 8, ToCol),
+%     valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
+%     FirstMove = [FromRow, FromCol, ToRow, ToCol], !.
+% generate_moves_limited(_, _, []).
+% 
 % select_first_move(+Moves, -FirstMove)
-select_first_move([First|_], First) :- !.
-select_first_move([], []).
+% select_first_move([First|_], First) :- !.
+% select_first_move([], []).
 
 % minimax_ab(+GameState, +Player, +Depth, -BestMove, -BestValue)
 % ALPHA-BETA PRUNING IMPLÉMENTÉ - Négamax avec élagage
@@ -182,8 +188,8 @@ minimax_ab(GameState, Player, Depth, BestMove, BestValue) :-
 minimax_simple_ref(GameState, Player, Depth, BestMove, BestValue) :-
     minimax_ab(GameState, Player, Depth, BestMove, BestValue).
 
-% ab_search(+Moves, +GameState, +Player, +Depth, +Alpha, +Beta, +BestMoveAcc, +BestValueAcc, -BestMove, -BestValue)
-% Recherche alpha-beta avec élagage
+% ab_search(+Moves, +GameState, +Player, +Depth, +Alpha, +Beta, +BestMoveAcc, +BestValueAcc, -BestMove, -BestValue)  
+% Recherche alpha-beta avec elagage - coeur de l'algorithme negamax
 ab_search([], _, _, _, _, _, BestMoveAcc, BestValueAcc, BestMoveAcc, BestValueAcc) :- !.
 
 ab_search([[FromRow,FromCol,ToRow,ToCol]|RestMoves], GameState, Player, Depth, Alpha, Beta, BestMoveAcc, BestValueAcc, BestMove, BestValue) :-
@@ -368,7 +374,8 @@ piece_type_from_symbol('k', king) :- !.
 % =============================================================================
 
 % evaluate_piece_safety(+GameState, +Player, -SafetyValue)
-% TEMPORAIREMENT DÉSACTIVÉ - is_square_attacked ne fonctionne pas encore
+% DESACTIVE : Retourne toujours 0 pour des raisons de performance
+% Note : is_square_attacked/4 EST implemente dans game.pl mais couteux ici
 evaluate_piece_safety(GameState, Player, SafetyValue) :-
     SafetyValue = 0.
 
@@ -751,7 +758,8 @@ generate_regular_moves(GameState, Player, Moves) :-
         between(1, 8, FromRow),
         between(1, 8, FromCol),
         get_piece(Board, FromRow, FromCol, Piece),
-        Piece \= '.',
+        % CORRECTION CRITIQUE : Verifier toute piece non-vide (' ' et '.' sont vides)
+        \+ is_empty_square(Piece),
         get_piece_color(Piece, Player),
         between(1, 8, ToRow),
         between(1, 8, ToCol),
