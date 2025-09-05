@@ -104,6 +104,7 @@ game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces)
 - **Language**: English predicates/code, French comments (SANS ACCENTS - voir section Unicode ci-dessous)
 - **Move format**: "e2e4" (not "e2-e4")
 - **Comments**: NEVER add status/update comments in source code, readme.md or prd.md (e.g. "Status completed", "New implementation")
+- **Git commits**: TOUJOURS en français - ce projet se déroule entièrement en français (commentaires, documentation, commits)
 
 ### Critical Validation Patterns (ENHANCED ✅)
 ```prolog
