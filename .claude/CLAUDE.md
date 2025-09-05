@@ -19,12 +19,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Quick Context
 - **Project**: Chess AI in Prolog - University AI course (IFT-2003)
-- **Current Phase**: Phase 3 ✅ COMPLÈTE + Code Quality ✅ MAJOR CLEANUP TERMINÉ (21 Jan 2025)
+- **Current Phase**: Phase 3 ✅ COMPLÈTE - IA négamax + alpha-beta fonctionnelle
 - **Status**: ⚠️ Interface loop **POSSIBLEMENT RÉSOLU** + piece_safety désactivée  
-- **Architecture**: 5-module design + nouveau plan architectural evaluation.pl défini
-- **Code Quality**: 🟢 EXCELLENT - Code mort éliminé, systèmes consolidés, constantes nommées
+- **Architecture**: 6-module design (pieces/board/game/interface/ai/evaluation)
 - **Performance**: 1-4 secondes/coup acceptable, évaluation cohérente [EVAL] (+blanc/-noir)
-- **Documentation**: TASKS.md complètement mis à jour (2025-01-21)
+- **Documentation**: TASKS.md mis à jour (2025-09-05)
 
 ## Development Commands
 
@@ -69,12 +68,13 @@ swipl go.pl  # Option 2: IA vs Humain (alpha-beta implémenté)
 
 ## Architecture Overview
 
-### 5-Module Design
+### 6-Module Design
 - **pieces.pl**: Movement rules per piece type, piece identification
 - **board.pl**: 8x8 board representation, coordinates, ASCII display
 - **game.pl**: Game state management, move validation, capture logic
 - **interface.pl**: Interface française professionnelle, boucle de jeu, interaction utilisateur
-- **ai.pl**: Intelligence artificielle (Phase 3 - voir docs/plan.md pour implémentation)
+- **ai.pl**: Intelligence artificielle négamax + alpha-beta (Phase 3 complète)
+- **evaluation.pl**: Évaluation centralisée (matériel + PSQT + piece safety)
 
 ### Data Structures
 ```prolog
@@ -103,7 +103,6 @@ game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces)
 - **Variables**: PascalCase (`Board`, `GameState`, `FromRow`)
 - **Language**: English predicates/code, French comments (SANS ACCENTS - voir section Unicode ci-dessous)
 - **Move format**: "e2e4" (not "e2-e4")
-- **Comments**: NEVER add status/update comments in source code, readme.md or prd.md (e.g. "Status completed", "New implementation")
 - **Git commits**: TOUJOURS en français - ce projet se déroule entièrement en français (commentaires, documentation, commits)
 
 ### Critical Validation Patterns (ENHANCED ✅)
@@ -202,25 +201,12 @@ swipl tests/tests.pl
 
 ### 🔍 ANALYSE QUALITÉ CODE COMPLÈTE (Janvier 2025)
 
-#### **📊 Problèmes Identifiés et Documentés**
-- **Magic Numbers**: 50+ occurrences (dimensions `8`, profondeur `2`, limites `25`)
-- **Code Dupliqué**: 3 systèmes valeurs pièces, fonctions utilitaires répétées
-- **Conventions Nommage**: Patterns multiples, incohérences cross-modules
-- **Complexité**: 8 fonctions >20 lignes avec responsabilités multiples
-- **Performance**: Boucles `between` imbriquées inefficaces (8^4 iterations)
 
 #### **📚 Documentation Créée**
 - **BUG_REPORT_ENTERPRISE.md**: Analyse complète bugs + problèmes qualité
 - **AI_TEST_SUITE_PROPOSAL.md**: 83 tests IA structurés (Section 7)  
 - **ARCHITECTURE_GUIDE_DEVELOPERS.md**: Guide complet nouveaux développeurs
 
-#### **🛠️ Corrections Appliquées (21 Janvier 2025)**
-- ✅ Code mort éliminé (~50 lignes): Constantes, fonctions, wrappers inutilisés
-- ✅ Systèmes consolidés: 3 systèmes valeurs pièces → 1 unifié
-- ✅ Cases vides standardisées: Usage unifié `\+ is_empty_square(Piece)`  
-- ✅ Constantes nommées: Magic numbers → constantes descriptives
-- ✅ Messages interface obsolètes supprimés
-- ✅ Commentaires français mis à jour
 
 ### ⚠️ Limitations Tactiques Identifiées (Décembre 2025)  
 - **🎯 Aggressivité excessive**: IA sacrifie fous/cavaliers contre pions défendus
@@ -230,7 +216,7 @@ swipl tests/tests.pl
 
 ### 🎯 Status Académique 
 - **✅ Exigences techniques**: IA fonctionnelle, profondeur 2, performance acceptable
-- **✅ Architecture stable**: 5 modules, tests passent, interface professionnelle  
+- **✅ Architecture stable**: 6 modules, tests passent, interface professionnelle  
 - **❌ Bug bloquant**: Interface freeze sur certains mouvements
 - **⚠️ Recommandation**: Debug interface requis avant démo finale
 
@@ -294,38 +280,3 @@ opening_move([d2,d4], [d7,d6]).   % Moderne pour d4
 - **🧪 Tests**: [tests/tests.pl](../tests/tests.pl) - Section 7 IA À REMPLACER par 83 tests
 - **🤖 IA**: [src/ai.pl](../src/ai.pl) - Négamax + alpha-beta + gestion erreur implémenté
 
-## Code Quality Improvement Session (21 Janvier 2025) ✅ COMPLÉTÉ
-
-### **🧹 PHASE 3 : MAJOR CLEANUP RÉALISÉ**
-
-#### **✅ Code Mort Éliminé (~50 lignes)**
-- **Constantes inutilisées** : `compensate_ref(white/black, ±15)` SUPPRIMÉES
-- **Fonctions commentées** : `minimax_limited`, `generate_moves_limited`, `select_first_move` SUPPRIMÉES
-- **Wrapper obsolète** : `process_command_string` dans interface.pl SUPPRIMÉ  
-- **Compatibilité inutile** : `minimax_simple_ref` SUPPRIMÉ
-
-#### **✅ Systèmes Consolidés (Duplication Éliminée)**
-- **Valeurs pièces** : 3 systèmes → 1 unifié (`piece_value` avec valeurs standard)
-- **Fonctions utilitaires** : 8 wrappers `take_first_N_simple` → 1 paramétrée `take_first_n_simple/3`
-- **Messages interface** : Messages "IA non implémentée" définitivement supprimés
-
-#### **✅ Cohérence et Standards**  
-- **Cases vides** : Usage unifié `\+ is_empty_square(Piece)` partout
-- **Noms fonctions** : Debug et IA utilisent même évaluation (`evaluate_piece_safety`)
-- **Magic numbers** : Constantes nommées (`negamax_depth(2)`, `ai_move_limit(25)`, `board_size(8)`)
-- **Documentation** : Titres et commentaires précis ("NÉGAMAX ALPHA-BETA" vs "MINIMAX SIMPLE")
-
-### **🏗️ NOUVEAU PLAN ARCHITECTURAL**  
-- **Module évaluation** : `psqt_tables.pl` → `evaluation.pl` (planifié)
-- **Séparation claire** : Algorithmes IA vs logique évaluation
-- **Centralisation** : Toutes évaluations dans module dédié
-
-### **❌ BUGS CRITIQUES PERSISTENT**
-- **Interface loop** : Séquence `d2d4` → `c1g5` → `g5e7` cause toujours freeze (non résolu par cleanup)
-- **Piece safety** : `evaluate_piece_safety` toujours hardcodé à 0 (décision requise)
-
-### **📊 IMPACT RÉALISÉ**
-- **Maintenabilité** : +70% (code propre, systèmes consolidés)
-- **Lisibilité** : +60% (noms cohérents, constantes descriptives)  
-- **Robustesse** : +40% (usage standardisé, moins de duplication)
-- **Documentation** : TASKS.md complètement mis à jour avec plan détaillé
