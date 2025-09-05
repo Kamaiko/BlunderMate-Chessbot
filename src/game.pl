@@ -13,6 +13,7 @@
 
 :- [pieces].
 :- [board].
+:- [psqt_tables].
 
 % =============================================================================
 % SECTION 1 : STRUCTURE DE L'ETAT DU JEU
@@ -202,26 +203,14 @@ count_material_simple(Board, Player, MaterialValue) :-
     findall(Value, (
         between(1, 8, Row), between(1, 8, Col),
         get_piece(Board, Row, Col, Piece),
-        Piece \= ' ', Piece \= '.',
+        \+ is_empty_square(Piece),
         piece_belongs_to_player(Piece, Player),
-        simple_piece_value(Piece, Value)
+        piece_value(Piece, SignedValue),
+        Value is abs(SignedValue)
     ), Values),
     sum_list(Values, MaterialValue).
 
-% simple_piece_value(+Piece, -Value)
-% Valeurs matérielles basiques
-simple_piece_value('P', 100) :- !.
-simple_piece_value('p', 100) :- !.
-simple_piece_value('N', 320) :- !.
-simple_piece_value('n', 320) :- !.
-simple_piece_value('B', 330) :- !.
-simple_piece_value('b', 330) :- !.
-simple_piece_value('R', 500) :- !.
-simple_piece_value('r', 500) :- !.
-simple_piece_value('Q', 900) :- !.
-simple_piece_value('q', 900) :- !.
-simple_piece_value('K', 0) :- !.   % Roi ne compte pas dans matériel
-simple_piece_value('k', 0) :- !.
+% SUPPRIMÉ: simple_piece_value - consolidé avec piece_value de pieces.pl
 
 % =============================================================================
 % VALIDATION SÉCURITÉ ROI (FIX BUG ÉCHEC IGNORÉ)
@@ -254,7 +243,7 @@ can_player_attack_square(Board, Player, TargetRow, TargetCol) :-
     between(1, 8, FromRow),
     between(1, 8, FromCol),
     get_piece(Board, FromRow, FromCol, Piece),
-    Piece \= ' ', Piece \= '.',
+    \+ is_empty_square(Piece),
     piece_belongs_to_player(Piece, Player),
     % Test si cette pièce peut attaquer la case cible (sans vérifier sécurité roi)
     validate_move_coordinates(FromRow, FromCol, TargetRow, TargetCol),
@@ -265,8 +254,7 @@ can_player_attack_square(Board, Player, TargetRow, TargetCol) :-
 % Version spéciale pour attaque (peut capturer pièces adverses)
 validate_destination_square_attack(Board, ToRow, ToCol, Player) :-
     get_piece(Board, ToRow, ToCol, TargetPiece),
-    (   TargetPiece = ' '  % Case vide OK
-    ;   TargetPiece = '.'  % Case vide OK
+    (   is_empty_square(TargetPiece)  % Case vide OK
     ;   \+ piece_belongs_to_player(TargetPiece, Player)  % Pièce adverse OK
     ).
 
@@ -377,7 +365,7 @@ remove_trailing_dot(String, Output) :-
 valid_game_state(game_state(Board, Player, MoveCount, Status, CapturedPieces)) :-
     % Valider le plateau
     is_list(Board),
-    length(Board, 8),
+    board_size(Size), length(Board, Size),
     
     % Valider le joueur
     member(Player, [white, black]),

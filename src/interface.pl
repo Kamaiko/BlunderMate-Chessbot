@@ -85,9 +85,7 @@ message(loading_tests, 'Chargement de tests/tests.pl...').
 message(tests_loaded_success, 'Tests charges avec succes. Execution de run_all_tests...').
 message(error_loading_tests, 'Erreur: Impossible de charger tests/tests.pl').
 message(ensure_file_exists, 'Veuillez vous assurer que le fichier existe et est accessible.').
-% Messages obsoletes - IA est maintenant implementee
-% message(bot_not_implemented, 'Le mode Humain vs Bot n\'est pas encore implemente.').
-% message(available_future_version, 'Disponible dans une version future!').
+% SUPPRIMÉ: Messages obsolètes - IA entièrement implémentée et fonctionnelle
 
 % =============================================================================
 % SECTION 3 : UTILITAIRES D'AFFICHAGE ET INTERFACE
@@ -450,9 +448,7 @@ process_move_command(Input, GameState, NewGameState) :-
         NewGameState = GameState
     ).
 
-% Legacy support - process_command_string redirige vers dispatch_game_command
-process_command_string(InputStr, GameState, NewGameState) :-
-    dispatch_game_command(InputStr, GameState, NewGameState).
+% SUPPRIMÉ: process_command_string - fonction wrapper inutilisée
 
 % display_invalid_input_error(+InputStr)
 % Affiche une erreur de format d'entree.

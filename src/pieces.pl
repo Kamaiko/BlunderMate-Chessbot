@@ -326,14 +326,14 @@ piece_value(Piece, Value) :-
 piece_value(' ', 0).
 piece_value('.', 0).
 
-% piece_base_value - Valeurs materielles standard FreeCodeCamp avec gestion couleur
-% Pieces blanches = valeurs positives, pieces noires = valeurs negatives
-piece_base_value('P', 10). piece_base_value('p', -10).  % Pions
-piece_base_value('N', 30). piece_base_value('n', -30).  % Cavaliers
-piece_base_value('B', 30). piece_base_value('b', -30).  % Fous
-piece_base_value('R', 50). piece_base_value('r', -50).  % Tours
-piece_base_value('Q', 90). piece_base_value('q', -90).  % Dames
-piece_base_value('K', 900). piece_base_value('k', -900).  % Rois
+% piece_base_value - Valeurs matérielles standard échecs modernes avec gestion couleur
+% Pièces blanches = valeurs positives, pièces noires = valeurs négatives
+piece_base_value('P', 100). piece_base_value('p', -100).  % Pions
+piece_base_value('N', 320). piece_base_value('n', -320).  % Cavaliers  
+piece_base_value('B', 330). piece_base_value('b', -330).  % Fous
+piece_base_value('R', 500). piece_base_value('r', -500).  % Tours
+piece_base_value('Q', 900). piece_base_value('q', -900).  % Dames
+piece_base_value('K', 0). piece_base_value('k', 0).  % Rois (valeur matérielle = 0)
 
 % opposite_color(+Color, -OppositeColor)
 % Retourne la couleur opposee.

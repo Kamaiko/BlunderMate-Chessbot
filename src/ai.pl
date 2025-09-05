@@ -16,12 +16,17 @@
 :- [psqt_tables].
 
 % =============================================================================
-% CONSTANTES HERITEES - Actuellement Inutilisees
+% CONSTANTES IA
 % =============================================================================
 
-% Valeurs de compensation heritees - non utilisees dans l'evaluation actuelle
-compensate_ref(white, 15).
-compensate_ref(black, -15).
+% Configuration algorithme IA
+negamax_depth(2).         % Profondeur recherche négamax + alpha-beta
+ai_move_limit(25).        % Nombre maximum coups évalués (recaptures importantes)
+ai_opening_moves(20).     % Limite coups en ouverture
+ai_development_limit(8).  % Limite pièces développement prioritaire
+
+% Limites sécurité et performance
+ai_max_recursion(8).      % Protection récursion infinie (taille échiquier)
 
 % =============================================================================
 % INTERFACE PRINCIPALE SIMPLE
@@ -35,8 +40,8 @@ display_position_evaluation(GameState, Player) :-
     count_material_pure_ref(GameState, black, BlackMaterial),
     evaluate_psqt_total(GameState, white, WhitePSQT),
     evaluate_psqt_total(GameState, black, BlackPSQT),
-    evaluate_tactical_safety(GameState, white, WhiteSafety),
-    evaluate_tactical_safety(GameState, black, BlackSafety),
+    evaluate_piece_safety(GameState, white, WhiteSafety),
+    evaluate_piece_safety(GameState, black, BlackSafety),
     
     % Différentiels 
     MaterialDiff is WhiteMaterial - BlackMaterial,
@@ -110,7 +115,7 @@ choose_ai_move(GameState, BestMove) :-
 choose_ai_move_safe(GameState, Player, BestMove) :-
     % Utiliser génération limitée de coups au lieu de timeout
     catch(
-        negamax_ab(GameState, Player, 2, BestMove, _Value),  % Profondeur 2 normale
+        (negamax_depth(Depth), negamax_ab(GameState, Player, Depth, BestMove, _Value)),
         Error,
         (   write('IA erreur - coup de sécurité: '), write(Error), nl,
             choose_emergency_move(GameState, Player, BestMove)
@@ -132,44 +137,11 @@ choose_emergency_move(GameState, Player, BestMove) :-
     ).
 
 % =============================================================================
-% MINIMAX SIMPLE SELON REFERENCE
+% NÉGAMAX ALPHA-BETA - ALGORITHME IA PRINCIPAL
 % =============================================================================
 
-% CODE MORT - Fonctions inutilisees, gardees pour reference
-%
-% minimax_limited(+GameState, +Player, +Depth, -BestMove, -BestValue)
-% Version sécurisée avec génération de coups très limitée
-% minimax_limited(GameState, Player, 0, [], Value) :-
-%     evaluate_pure_reference(GameState, Player, Value), !.
-% 
-% minimax_limited(GameState, Player, Depth, BestMove, BestValue) :-
-%     Depth > 0,
-%     generate_moves_limited(GameState, Player, Moves),
-%     (   Moves = [] ->
-%         terminal_score(GameState, Player, BestValue),
-%         BestMove = []
-%     ;   select_first_move(Moves, BestMove),
-%         BestValue = 0
-%     ).
-% 
-% generate_moves_limited(+GameState, +Player, -Moves)
-% Génération très limitée de coups - premier coup légal trouvé
-% generate_moves_limited(GameState, Player, [FirstMove]) :-
-%     GameState = game_state(Board, _, _, _, _),
-%     between(1, 8, FromRow), between(1, 8, FromCol),
-%     get_piece(Board, FromRow, FromCol, Piece),
-%     piece_belongs_to_player(Piece, Player),
-%     between(1, 8, ToRow), between(1, 8, ToCol),
-%     valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
-%     FirstMove = [FromRow, FromCol, ToRow, ToCol], !.
-% generate_moves_limited(_, _, []).
-% 
-% select_first_move(+Moves, -FirstMove)
-% select_first_move([First|_], First) :- !.
-% select_first_move([], []).
-
-% minimax_ab(+GameState, +Player, +Depth, -BestMove, -BestValue)
-% ALPHA-BETA PRUNING IMPLÉMENTÉ - Négamax avec élagage
+% negamax_ab(+GameState, +Player, +Depth, -BestMove, -BestValue)
+% NÉGAMAX AVEC ÉLAGAGE ALPHA-BETA - Algorithme de recherche principal
 negamax_ab(GameState, Player, 0, [], Value) :-
     evaluate_pure_reference(GameState, Player, Value), !.
 
@@ -184,9 +156,7 @@ negamax_ab(GameState, Player, Depth, BestMove, BestValue) :-
         ab_search(OrderedMoves, GameState, Player, Depth, Alpha, Beta, none, -1.0Inf, BestMove, BestValue)
     ).
 
-% Ancien minimax pour compatibilité - REDIRECTION VERS ALPHA-BETA
-minimax_simple_ref(GameState, Player, Depth, BestMove, BestValue) :-
-    negamax_ab(GameState, Player, Depth, BestMove, BestValue).
+% SUPPRIMÉ: minimax_simple_ref - wrapper de compatibilité jamais utilisé
 
 % ab_search(+Moves, +GameState, +Player, +Depth, +Alpha, +Beta, +BestMoveAcc, +BestValueAcc, -BestMove, -BestValue)  
 % Recherche alpha-beta avec elagage - coeur de l'algorithme negamax
@@ -241,11 +211,13 @@ map_move_scores(Board, Player, [Move|RestMoves], [Score-Move|RestScored]) :-
 % Score MVV-LVA pour captures avec valeurs standard correctes
 move_score(Board, _Player, [FromRow, FromCol, ToRow, ToCol], Score) :-
     get_piece(Board, ToRow, ToCol, TargetPiece),
-    (   TargetPiece \= ' ', TargetPiece \= '.' ->
+    (   \+ is_empty_square(TargetPiece) ->
         get_piece(Board, FromRow, FromCol, AttackingPiece),
-        standard_piece_value(TargetPiece, TargetVal),
-        standard_piece_value(AttackingPiece, AttackerVal),
-        Score is TargetVal - AttackerVal + 1000  % MVV-LVA avec valeurs correctes
+        piece_value(TargetPiece, TargetVal),
+        piece_value(AttackingPiece, AttackerVal),
+        AbsTargetVal is abs(TargetVal),
+        AbsAttackerVal is abs(AttackerVal),
+        Score is AbsTargetVal - AbsAttackerVal + 1000  % MVV-LVA avec valeurs absolues
     ;   Score = 0  % Coup non-capture
     ).
 
@@ -320,25 +292,14 @@ count_material_standard(GameState, Player, MaterialValue) :-
     findall(Value, (
         between(1, 8, Row), between(1, 8, Col),
         get_piece(Board, Row, Col, Piece),
-        Piece \= ' ', Piece \= '.',
+        \+ is_empty_square(Piece),
         piece_belongs_to_player(Piece, Player),
-        standard_piece_value(Piece, Value)
+        piece_value(Piece, SignedValue),
+        Value is abs(SignedValue)
     ), Values),
     sum_list(Values, MaterialValue).
 
-% standard_piece_value(+Piece, -Value)
-% Valeurs matérielles standard (ROI EXCLU)
-standard_piece_value('P', 100) :- !.
-standard_piece_value('p', 100) :- !.
-standard_piece_value('N', 320) :- !.
-standard_piece_value('n', 320) :- !.
-standard_piece_value('B', 330) :- !.
-standard_piece_value('b', 330) :- !.
-standard_piece_value('R', 500) :- !.
-standard_piece_value('r', 500) :- !.
-standard_piece_value('Q', 900) :- !.
-standard_piece_value('q', 900) :- !.
-% Roi n'a pas de valeur matérielle
+% SUPPRIMÉ: standard_piece_value - consolidé avec piece_value de pieces.pl
 
 % evaluate_psqt_total(+GameState, +Player, -PSQTValue)
 % Évalue toutes les pièces d'un joueur selon les PSQT
@@ -347,7 +308,7 @@ evaluate_psqt_total(GameState, Player, PSQTValue) :-
     findall(Value, (
         between(1, 8, Row), between(1, 8, Col),
         get_piece(Board, Row, Col, Piece),
-        Piece \= ' ', Piece \= '.',
+        \+ is_empty_square(Piece),
         piece_belongs_to_player(Piece, Player),
         piece_type_from_symbol(Piece, PieceType),
         get_psqt_value(PieceType, Row, Col, Player, Value)
@@ -451,7 +412,7 @@ evaluate_favorable_captures(GameState, Player, CaptureValue) :-
         get_piece(Board, FromRow, FromCol, AttackingPiece),
         piece_belongs_to_player(AttackingPiece, Player),
         get_piece(Board, ToRow, ToCol, TargetPiece),
-        TargetPiece \= ' ', TargetPiece \= '.',
+        \+ is_empty_square(TargetPiece),
         opposite_player(Player, OppositePlayer),
         piece_belongs_to_player(TargetPiece, OppositePlayer),
         valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
@@ -471,7 +432,7 @@ evaluate_material_at_risk(GameState, Player, RiskPenalty) :-
         between(1, 8, Row), between(1, 8, Col),
         get_piece(Board, Row, Col, MyPiece),
         piece_belongs_to_player(MyPiece, Player),
-        MyPiece \= ' ', MyPiece \= '.',
+        \+ is_empty_square(MyPiece),
         % Vérifier si l'adversaire peut capturer ma pièce
         can_opponent_capture_piece(Board, Opponent, Row, Col, CanCapture, RecaptureValue),
         (CanCapture = true ->
@@ -493,7 +454,7 @@ can_opponent_capture_piece(Board, Opponent, TargetRow, TargetCol, CanCapture, Re
     (   (between(1, 8, FromRow), between(1, 8, FromCol),
          get_piece(Board, FromRow, FromCol, OpponentPiece),
          piece_belongs_to_player(OpponentPiece, Opponent),
-         OpponentPiece \= ' ', OpponentPiece \= '.',
+         \+ is_empty_square(OpponentPiece),
          valid_move(Board, Opponent, FromRow, FromCol, TargetRow, TargetCol)) ->
         CanCapture = true,
         % CORRECTION: Simuler la capture adverse avant de tester la recapture
@@ -610,7 +571,7 @@ count_pieces_type(Board, Color, Type, Value) :-
         between(1, 8, Row),
         between(1, 8, Col),
         get_piece(Board, Row, Col, Piece),
-        Piece \= '.',
+        \+ is_empty_square(Piece),
         get_piece_color(Piece, Color),
         piece_is_type_pure(Piece, Type),
         pos_value_pure_ref(Type, Row, Col, Color, PieceValue)
@@ -624,7 +585,7 @@ count_pieces_positions(Board, Color, Type, Count) :-
         between(1, 8, Row),
         between(1, 8, Col),
         get_piece(Board, Row, Col, Piece),
-        Piece \= '.',
+        \+ is_empty_square(Piece),
         get_piece_color(Piece, Color),
         piece_is_type_pure(Piece, Type)
     ), Pieces),
@@ -698,7 +659,7 @@ generate_opening_moves(GameState, Player, Moves) :-
         between(1, 8, FromRow),
         between(1, 8, FromCol),
         get_piece(Board, FromRow, FromCol, Piece),
-        Piece \= '.',
+        \+ is_empty_square(Piece),
         get_piece_color(Piece, Player),
         member(Piece, ['N','n','B','b']),
         between(1, 8, ToRow),
@@ -717,7 +678,7 @@ generate_opening_moves(GameState, Player, Moves) :-
         between(1, 8, FromRow),
         between(1, 8, FromCol),
         get_piece(Board, FromRow, FromCol, Piece),
-        Piece \= '.',
+        \+ is_empty_square(Piece),
         get_piece_color(Piece, Player),
         member(Piece, ['P','p']),
         between(1, 8, ToRow),
@@ -732,7 +693,7 @@ generate_opening_moves(GameState, Player, Moves) :-
         between(1, 8, FromRow),
         between(1, 8, FromCol),
         get_piece(Board, FromRow, FromCol, Piece),
-        Piece \= '.',
+        \+ is_empty_square(Piece),
         get_piece_color(Piece, Player),
         member(Piece, ['P','p']),
         between(1, 8, ToRow),
@@ -749,7 +710,7 @@ generate_opening_moves(GameState, Player, Moves) :-
         between(1, 8, FromRow),
         between(1, 8, FromCol),
         get_piece(Board, FromRow, FromCol, Piece),
-        Piece \= '.',
+        \+ is_empty_square(Piece),
         get_piece_color(Piece, Player),
         member(Piece, ['R','r','Q','q','K','k']),
         between(1, 8, ToRow),
@@ -758,16 +719,16 @@ generate_opening_moves(GameState, Player, Moves) :-
     ), OtherMoves),
     
     % PRIORITÉ CORRECTE: DÉVELOPPEMENT EN PREMIER !
-    take_first_8_simple(UniqueDevelopment, PriorityDevelopment),
-    take_first_3_simple(CentralPawnMoves, LimitedCentral),
-    take_first_4_simple(SupportPawnMoves, LimitedSupport),
+    ai_development_limit(DevLimit), take_first_n_simple(UniqueDevelopment, DevLimit, PriorityDevelopment),
+    take_first_n_simple(CentralPawnMoves, 3, LimitedCentral),
+    take_first_n_simple(SupportPawnMoves, 4, LimitedSupport),
     
     % ORDRE CORRECT: Développement d'abord, puis pions
     append(PriorityDevelopment, LimitedCentral, Priority1),
     append(Priority1, LimitedSupport, Priority2),
     append(Priority2, OtherMoves, AllMoves),
     
-    take_first_20_simple(AllMoves, Moves).
+    ai_opening_moves(Limit), take_first_n_simple(AllMoves, Limit, Moves).
 
 % generate_regular_moves(+GameState, +Player, -Moves)  
 % Génération standard avec tri MVV-LVA AVANT limitation
@@ -789,29 +750,9 @@ generate_regular_moves(GameState, Player, Moves) :-
     
     % CRITIQUE: Trier AVANT de limiter - AUGMENTÉ à 25 pour recaptures importantes
     order_moves(GameState, Player, AllMoves, OrderedMoves),
-    take_first_25_simple(OrderedMoves, Moves).
+    ai_move_limit(Limit), take_first_n_simple(OrderedMoves, Limit, Moves).
 
-% take_first_N_simple(+List, +N, -FirstN)
-take_first_25_simple(List, First25) :-
-    take_first_n_simple(List, 25, First25).
-
-take_first_20_simple(List, First20) :-
-    take_first_n_simple(List, 20, First20).
-
-take_first_10_simple(List, First10) :-
-    take_first_n_simple(List, 10, First10).
-
-take_first_8_simple(List, First8) :-
-    take_first_n_simple(List, 8, First8).
-
-take_first_5_simple(List, First5) :-
-    take_first_n_simple(List, 5, First5).
-
-take_first_4_simple(List, First4) :-
-    take_first_n_simple(List, 4, First4).
-
-take_first_3_simple(List, First3) :-
-    take_first_n_simple(List, 3, First3).
+% SUPPRIMÉ: take_first_N_simple wrappers - consolidés vers take_first_n_simple/3
 
 take_first_n_simple(List, N, FirstN) :-
     length(List, Len),

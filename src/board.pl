@@ -14,6 +14,13 @@
 :- [pieces].
 
 % =============================================================================
+% CONSTANTES ÉCHIQUIER
+% =============================================================================
+
+% Dimensions standard de l'échiquier
+board_size(8).
+
+% =============================================================================
 % SECTION 1 : VALIDATION DES COORDONNEES
 % =============================================================================
 
@@ -109,7 +116,8 @@ algebraic_to_position(PositionString, Row, Col) :-
 % create_empty_board(-Board)
 % Cree un echiquier 8x8 vide avec des cases vides.
 create_empty_board(Board) :-
-    create_empty_board(8, [], Board).
+    board_size(Size),
+    create_empty_board(Size, [], Board).
 
 % create_empty_board(+RowsLeft, +Acc, -Board)
 % Version recursive pour creation de l'echiquier.
@@ -123,7 +131,8 @@ create_empty_board(RowsLeft, Acc, Board) :-
 % create_empty_row(-RowList)
 % Cree une rangee de 8 cases vides de maniere plus declarative.
 create_empty_row(Row) :-
-    length(Row, 8),
+    board_size(Size),
+    length(Row, Size),
     maplist(=(' '), Row).
 
 % =============================================================================
@@ -136,7 +145,7 @@ create_empty_row(Row) :-
 get_piece(Board, Row, Col, Piece) :-
     ground(Board), ground(Row), ground(Col),
     is_list(Board),
-    length(Board, 8),
+    board_size(Size), length(Board, Size),
     integer(Row), integer(Col),
     valid_chess_position(Row, Col),
     BoardRow is 9 - Row,  % Conversion coordonnees echecs vers index tableau
@@ -151,7 +160,7 @@ get_piece(Board, Row, Col, Piece) :-
 place_single_piece(Board, Row, Col, Piece, NewBoard) :-
     ground(Board), ground(Row), ground(Col), ground(Piece),
     is_list(Board),
-    length(Board, 8),
+    board_size(Size), length(Board, Size),
     integer(Row), integer(Col),
     valid_chess_position(Row, Col),
     BoardRow is 9 - Row,  % Conversion coordonnees echecs vers index tableau
@@ -337,7 +346,7 @@ is_orthogonal_move(FromRow, FromCol, ToRow, ToCol) :-
 % Utilise une recherche optimisee pour performance.
 find_king_position(Board, Player, Row, Col) :-
     ground(Board), ground(Player),
-    is_list(Board), length(Board, 8),
+    is_list(Board), board_size(Size), length(Board, Size),
     member(Player, [white, black]),
     (Player = white -> KingPiece = 'K' ; KingPiece = 'k'),
     find_king_on_board(Board, KingPiece, 8, Row, Col).
