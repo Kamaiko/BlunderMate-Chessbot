@@ -245,15 +245,8 @@ is_king_in_check(Board, Player) :-
     opposite_player(Player, Opponent),
     can_player_attack_square(Board, Opponent, KingRow, KingCol).
 
-% find_king_position(+Board, +Player, -Row, -Col)
-% Trouve la position du roi du joueur
-find_king_position(Board, Player, Row, Col) :-
-    (   Player = white -> KingSymbol = 'K'
-    ;   KingSymbol = 'k'
-    ),
-    between(1, 8, Row),
-    between(1, 8, Col),
-    get_piece(Board, Row, Col, KingSymbol), !.
+% NOTE: find_king_position/4 est definie dans board.pl (version robuste avec validation)
+% Redefinition supprimee pour eviter conflit
 
 % can_player_attack_square(+Board, +Player, +TargetRow, +TargetCol)
 % Vérifie si le joueur peut attaquer une case donnée

@@ -110,7 +110,7 @@ choose_ai_move(GameState, BestMove) :-
 choose_ai_move_safe(GameState, Player, BestMove) :-
     % Utiliser génération limitée de coups au lieu de timeout
     catch(
-        minimax_ab(GameState, Player, 2, BestMove, _Value),  % Profondeur 2 normale
+        negamax_ab(GameState, Player, 2, BestMove, _Value),  % Profondeur 2 normale
         Error,
         (   write('IA erreur - coup de sécurité: '), write(Error), nl,
             choose_emergency_move(GameState, Player, BestMove)
@@ -170,10 +170,10 @@ choose_emergency_move(GameState, Player, BestMove) :-
 
 % minimax_ab(+GameState, +Player, +Depth, -BestMove, -BestValue)
 % ALPHA-BETA PRUNING IMPLÉMENTÉ - Négamax avec élagage
-minimax_ab(GameState, Player, 0, [], Value) :-
+negamax_ab(GameState, Player, 0, [], Value) :-
     evaluate_pure_reference(GameState, Player, Value), !.
 
-minimax_ab(GameState, Player, Depth, BestMove, BestValue) :-
+negamax_ab(GameState, Player, Depth, BestMove, BestValue) :-
     Depth > 0,
     generate_moves_simple(GameState, Player, Moves),
     (   Moves = [] ->
@@ -186,7 +186,7 @@ minimax_ab(GameState, Player, Depth, BestMove, BestValue) :-
 
 % Ancien minimax pour compatibilité - REDIRECTION VERS ALPHA-BETA
 minimax_simple_ref(GameState, Player, Depth, BestMove, BestValue) :-
-    minimax_ab(GameState, Player, Depth, BestMove, BestValue).
+    negamax_ab(GameState, Player, Depth, BestMove, BestValue).
 
 % ab_search(+Moves, +GameState, +Player, +Depth, +Alpha, +Beta, +BestMoveAcc, +BestValueAcc, -BestMove, -BestValue)  
 % Recherche alpha-beta avec elagage - coeur de l'algorithme negamax
@@ -197,7 +197,7 @@ ab_search([[FromRow,FromCol,ToRow,ToCol]|RestMoves], GameState, Player, Depth, A
     NewGameState = game_state(_, NextPlayer, _, _, _),
     NewDepth is Depth - 1,
     _NewAlpha is -Beta, _NewBeta is -Alpha,
-    minimax_ab(NewGameState, NextPlayer, NewDepth, _, OpponentValue),
+    negamax_ab(NewGameState, NextPlayer, NewDepth, _, OpponentValue),
     Value is -OpponentValue,
     
     (   Value > BestValueAcc ->
@@ -297,8 +297,8 @@ evaluate_mobility_fast(GameState, Player, MobilityValue) :-
     
     % Compter pièces développées (cavaliers et fous hors rang de base)
     (   Player = white ->
-        BaseRank = 1, DevelopedRanks = [2,3,4,5,6,7,8]
-    ;   BaseRank = 8, DevelopedRanks = [1,2,3,4,5,6,7]
+        _BaseRank = 1, DevelopedRanks = [2,3,4,5,6,7,8]
+    ;   _BaseRank = 8, DevelopedRanks = [1,2,3,4,5,6,7]
     ),
     
     % Compter cavaliers et fous développés
@@ -374,15 +374,36 @@ piece_type_from_symbol('k', king) :- !.
 % =============================================================================
 
 % evaluate_piece_safety(+GameState, +Player, -SafetyValue)
-% DESACTIVE : Retourne toujours 0 pour des raisons de performance
-% Note : is_square_attacked/4 EST implemente dans game.pl mais couteux ici
+% REACTIVE : Detection simple des pieces non defendues (hanging pieces)
+% Version optimisee pour detecter uniquement les pieces de valeur elevee exposees
 evaluate_piece_safety(GameState, Player, SafetyValue) :-
-    SafetyValue = 0.
+    GameState = game_state(Board, _, _, _, _),
+    
+    % Detecter pieces precieuses (Dame, Tours, Fous, Cavaliers) non defendues
+    findall(PieceValue, (
+        between(1, 8, Row),
+        between(1, 8, Col),
+        get_piece(Board, Row, Col, Piece),
+        piece_belongs_to_player(Piece, Player),
+        valuable_piece(Piece, PieceValue), % Seulement pieces >300 points
+        opposite_player(Player, Opponent),
+        is_square_attacked(Board, Row, Col, Opponent), % Piece attaquee
+        \+ is_piece_defended(GameState, Row, Col, Player) % Non defendue
+    ), HangingValues),
+    
+    sum_list(HangingValues, TotalLoss),
+    SafetyValue is -TotalLoss. % Negatif = mauvais pour le joueur
+
+% valuable_piece(+Piece, -Value) - Seulement pieces precieuses
+valuable_piece('Q', 900). valuable_piece('q', 900).
+valuable_piece('R', 500). valuable_piece('r', 500).  
+valuable_piece('B', 330). valuable_piece('b', 330).
+valuable_piece('N', 320). valuable_piece('n', 320).
 
 % is_piece_defended(+GameState, +Row, +Col, +DefendingPlayer)
 % Version simplifiée : considère toute pièce attaquée comme NON défendue  
 % (approche conservatrice pour éviter blunders - détecte tous hanging pieces)
-is_piece_defended(GameState, Row, Col, DefendingPlayer) :-
+is_piece_defended(_GameState, _Row, _Col, _DefendingPlayer) :-
     % Pour l'instant, aucune pièce attaquée n'est considérée comme défendue
     % Ceci garantit la détection de tous les hanging pieces (très conservateur)
     fail.
@@ -404,7 +425,7 @@ evaluate_tactical_safety(GameState, Player, SafetyValue) :-
 % Évaluation basique de sécurité du roi : pénalise roi exposé (proportionnel aux valeurs pièces)
 evaluate_king_safety_basic(GameState, Player, KingSafety) :-
     GameState = game_state(Board, _, MoveCount, _, _),
-    find_king_position(Board, Player, KingRow, KingCol),
+    find_king_position(Board, Player, KingRow, _KingCol),
     
     % Position initiale du roi selon la couleur
     (   Player = white ->

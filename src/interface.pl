@@ -319,7 +319,7 @@ handle_player_turn(UnifiedGameState, Player, human, NewUnifiedGameState) :-
 
 handle_player_turn(UnifiedGameState, Player, ai, NewUnifiedGameState) :-
     % Tour de l'IA - genere un coup automatiquement
-    write('IA reflechit ('), translate_player(Player, PlayerFR), write(PlayerFR), write(', minimax alpha-beta)...'), nl,
+    write('IA reflechit ('), translate_player(Player, PlayerFR), write(PlayerFR), write(', negamax alpha-beta)...'), nl,
     extract_game_state(UnifiedGameState, GameState),
     get_time(StartTime),
     choose_ai_move(GameState, AIMove),
