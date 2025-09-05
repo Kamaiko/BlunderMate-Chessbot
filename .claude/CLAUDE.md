@@ -20,7 +20,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Quick Context
 - **Project**: Chess AI in Prolog - University AI course (IFT-2003)
 - **Current Phase**: Phase 3 ✅ COMPLÈTE + Code Quality ✅ MAJOR CLEANUP TERMINÉ (21 Jan 2025)
-- **Status**: ⚠️ 2 BUGS CRITIQUES PERSISTENT - Interface loop + piece_safety désactivée  
+- **Status**: ⚠️ Interface loop **POSSIBLEMENT RÉSOLU** + piece_safety désactivée  
 - **Architecture**: 5-module design + nouveau plan architectural evaluation.pl défini
 - **Code Quality**: 🟢 EXCELLENT - Code mort éliminé, systèmes consolidés, constantes nommées
 - **Performance**: 1-4 secondes/coup acceptable, évaluation cohérente [EVAL] (+blanc/-noir)
@@ -175,13 +175,19 @@ swipl tests/tests.pl
 
 ## AI Implementation Status (Phase 3) - ⚠️ FONCTIONNELLE AVEC BUG CRITIQUE
 
-✅ **IA NÉGAMAX + ALPHA-BETA FONCTIONNELLE**
+⚠️ **IA NÉGAMAX + ALPHA-BETA AVEC PROBLÈMES OUVERTURE**
 - **Algorithme**: Négamax avec élagage alpha-beta, profondeur 2 stable
-- **Tri MVV-LVA**: Most Valuable Victim - Least Valuable Attacker + limitation 25 coups
 - **PSQT**: Piece-Square Tables ChessProgramming.org intégrées  
 - **Évaluation**: Matériel + PSQT (piece safety désactivée temporairement)
 - **Interface**: Scores cohérents `[EVAL] Position: X (+blanc/-noir)`
 - **Performance**: 1-4 secondes/coup acceptable pour profondeur 2
+
+### 🔬 **AUDIT ARCHITECTURAL REQUIS (2025-01-05)**
+- **🚨 Problèmes multiples identifiés** : Dame prématurée, blunders tactiques, recaptures ignorées
+- **🔧 Corrections ponctuelles insuffisantes** : Logique conditionnelle ne résout pas les causes profondes
+- **❌ ARCHITECTURE À REVOIR** : Pipeline génération→tri→évaluation vs standards moteurs d'échecs
+- **🔍 AUDIT NÉCESSAIRE** : Context7 + analyse complète composants IA (génération, évaluation, anti-blunders)
+- **📋 Status** : TASK ARCH-2 - Audit complet architecture IA prioritaire
 
 ### ❌ BUG CRITIQUE NON RÉSOLU (Janvier 2025)
 - **🐛 Interface Loop**: ❌ **PERSISTE** - Corrections code quality insuffisantes  
@@ -283,7 +289,7 @@ opening_move([d2,d4], [d7,d6]).   % Moderne pour d4
 
 ## Critical Project Files  
 - **🚨 Bug Report**: [docs/BUG_REPORT_ENTERPRISE.md](../docs/BUG_REPORT_ENTERPRISE.md) - Bug critique interface détaillé
-- **📋 Tasks**: [docs/TASKS.md](../docs/TASKS.md) - Roadmap structuré Phase 3 finalisation
+- **📋 Tasks**: [docs/TASKS.md](../docs/TASKS.md) - **PRIORITÉ IMMÉDIATE** : TASK ARCH-2 Audit architectural IA complet
 - **📊 Plan**: [docs/plan.md](../docs/plan.md) - Découverte critique intégrée
 - **🧪 Tests**: [tests/tests.pl](../tests/tests.pl) - Section 7 IA À REMPLACER par 83 tests
 - **🤖 IA**: [src/ai.pl](../src/ai.pl) - Négamax + alpha-beta + gestion erreur implémenté

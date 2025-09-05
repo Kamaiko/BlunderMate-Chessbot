@@ -1,117 +1,85 @@
-# 🚨 PROLOG CHESS GAME - TASKS & DEVELOPMENT ROADMAP
+# 🚨 PROLOG CHESS GAME - DEVELOPMENT TASKS
 
-## 📊 **PROJECT STATUS OVERVIEW (Mise à jour 2025-01-21)**
+## 📊 **STATUS ACTUEL**
 
-- **Current Phase**: Phase 3 ✅ Complete (Negamax + Alpha-Beta AI)
-- **Code Quality**: 🟢 **MAJOR IMPROVEMENTS COMPLETED** - Code mort éliminé, systèmes consolidés
-- **Critical Status**: ❌ **2 BUGS CRITIQUES PERSISTENT** - Interface loop + Piece safety désactivée
-- **Architecture**: 5-module design + nouveau plan architectural evaluation.pl
-
----
-
-## ✅ **TERMINÉ (2025-01-21)**
-
-**Code Quality Cleanup Session**
-- Code mort éliminé (~50 lignes)
-- Systèmes valeurs pièces consolidés (3 → 1)
-- Fonctions utilitaires consolidées (8 wrappers → 1)
-- Messages interface obsolètes supprimés
-- Cases vides standardisées
-- Constantes nommées ajoutées
-- Documentation corrigée
+- **Phase**: IA Négamax + Alpha-Beta fonctionnelle (profondeur 2)
+- **Architecture**: 5 modules + evaluation.pl centralisé  
+- **Problèmes critiques**: Dame prématurée, blunders tactiques, ~~interface loop~~ **POSSIBLEMENT RÉSOLU**
 
 ---
 
-## ❌ **BUGS CRITIQUES PERSISTANTS (PRIORITÉ IMMÉDIATE)**
+## 🚨 **PROBLÈMES IDENTIFIÉS**
 
-### **🔥 TASK 0.1 : Interface Loop Bug** ❌
-- **Problème** : Boucle infinie sur séquence `d2d4` → `c1g5` → `g5e7`
-- **Status** : Non résolu malgré cleanup code
-- **Impact** : Mode IA inutilisable sur certains mouvements
-- **Effort** : Investigation requise (30-60 min)
+### **Comportement IA Problématique**
+- **Dame sort trop tôt** en ouverture (violations principes échiquéens)
+- **Blunders tactiques** : capture sans évaluer défense
+- **Ignore recaptures critiques** au profit développement excessif
+- **Hanging pieces** non détectées
 
-### **🤖 TASK 1.1 : Piece Safety Evaluation** ❌
-- **Problème** : `evaluate_piece_safety` hardcodé à 0
+### **Analyse Technique**
+- `generate_opening_moves` inclut tous coups dame dans "OtherMoves"
+- **Aucune évaluation captures** pendant 15 premiers coups
+- **Pipeline IA** nécessite audit vs standards moteurs professionnels
+
+---
+
+## 🔬 **PRIORITÉ IMMÉDIATE - TASK ARCH-2**
+
+### **Audit Complet Architecture IA Moteur**
+
+**Objectif** : Analyse approfondie vs standards moteurs d'échecs professionnels
+
+#### **PHASE A : Research Context7** 
+- Standards génération coups, tri, évaluation, anti-blunders
+- Benchmarks Stockfish, moteurs modernes
+
+#### **PHASE B : Audit Architecture Actuelle**
+- Pipeline `generate_moves_simple` → `order_moves` → `negamax_ab`
+- Modules `ai.pl` et `evaluation.pl`
+- Focus : détection blunders, sécurité pièces, captures
+
+#### **PHASE C : Gap Analysis & Plan Implémentation**  
+- Identification composants manquants
+- Roadmap anti-blunders → évaluation → optimisations
+- **Effort** : 90-120 min
+
+---
+
+## 📋 **TÂCHES PRIORITAIRES IDENTIFIÉES**
+
+### **🔬 PRIORITÉ 1 : TASK ARCH-2 - Audit Architectural**
+- **Objectif** : Analyse pipeline IA vs standards moteurs d'échecs professionnels
+- **Context7 Research** : Standards génération, tri, évaluation, anti-blunders
+- **Audit Modules** : `ai.pl`, `evaluation.pl`, pipeline complet
+- **Deliverable** : Gap analysis + roadmap implémentation structuré
+- **Effort** : 90-120 min
+
+### **✅ TASK DEBUG-1 - Interface Loop Bug** ⚠️ **POSSIBLEMENT RÉSOLU**
+- **Problème** : Freeze sur `d2d4` → `c1g5` → `g5e7` 
+- **🎉 UPDATE** : Bishop e7 jouable après restructurations récentes
+- **Status** : **TESTS VALIDATION REQUIS** - confirmation résolution nécessaire
+- **Protocole Test** : Séquence multiple `d2d4` → `c1g5` → `g5e7` + variantes
+- **Effort** : 15-30 min tests systématiques
+
+### **🤖 PRIORITÉ 2 : TASK SAFETY-1 - Piece Safety Decision**
+- **Problème** : `evaluate_piece_safety` désactivé → blunders tactiques
+- **Options** : Activer/Supprimer/Intégrer audit architectural
 - **Impact** : IA sacrifie pièces vs pions défendus
-- **Location** : `src/ai.pl:340`
-- **Décision** : Activer implémentation OU supprimer
-- **Effort** : 30-45 minutes
+- **Location** : `src/evaluation.pl`
+- **Effort** : 30-45 min
 
----
+### **🎯 PRIORITÉ 3 : TASK BEHAVIOR-1 - IA Ouverture**
+- **Problèmes** : Dame prématurée, ignore recaptures, hanging pieces
+- **Analyse** : `generate_opening_moves` inclut tous coups dame
+- **Solution** : Dépendante résultats TASK ARCH-2
+- **Status** : En attente audit architectural
 
-## 🏗️ **NOUVEAU PLAN ARCHITECTURAL (PRIORITÉ HAUTE)**
+### **🧪 PRIORITÉ 4 : TASK VALIDATION-1 - Tests Systématiques Interface**
+- **Objectif** : Confirmer résolution bug interface loop g5e7
+- **Protocole** :
+  - Tests séquence `d2d4` → `c1g5` → `g5e7` (5+ répétitions)
+  - Variantes ouverture menant au même type capture
+  - Tests robustesse 3-5 parties complètes IA vs Humain
+- **Success Criteria** : Aucun freeze, transitions états fluides
+- **Effort** : 20-30 min tests manuels
 
-### **🎯 TASK ARCH-1 : Restructuration Module Évaluation**
-
-**Problème identifié** :
-- `evaluate_pure_reference` et fonctions d'évaluation dans `ai.pl` (mauvaise séparation)
-- `psqt_tables.pl` contient seulement tables PSQT (sous-utilisé)
-- Mélange logique IA vs logique évaluation
-
-**Solution architecturale** :
-
-#### **PHASE A : Renommer Module (15 min)**
-1. **Renommer** : `psqt_tables.pl` → `evaluation.pl`
-2. **Justification** : Module devient responsable de TOUTE l'évaluation (pas seulement PSQT)
-
-#### **PHASE B : Déplacer Code Évaluation (30 min)**  
-3. **Déplacer de `ai.pl` vers `evaluation.pl`** :
-   - `evaluate_pure_reference/3` → `evaluate_position/3` (nom plus représentatif)
-   - `count_material_standard/3`
-   - `evaluate_psqt_total/3` 
-   - `evaluate_piece_safety/3`
-   - `evaluate_mobility_fast/3`
-   - Toutes fonctions support évaluation
-
-#### **PHASE C : Mise à Jour Imports (15 min)**
-4. **Mettre à jour imports** dans tous les modules :
-   - `ai.pl` : `:- [evaluation].` au lieu de `:- [psqt_tables].`
-   - `game.pl` : Ajouter `:- [evaluation].` pour `display_position_score`
-   - Tests de non-régression
-
-**Avantages architecturaux** :
-- ✅ **Séparation claire** : `ai.pl` = algorithmes, `evaluation.pl` = évaluations
-- ✅ **Cohérence modulaire** : Un module par responsabilité
-- ✅ **Maintenabilité** : Évaluation centralisée et extensible  
-- ✅ **Réutilisabilité** : Évaluation utilisable par IA + interface + tests
-
-**Total estimé** : 60 minutes
-
----
-
-## 📋 **PRIORITÉS DE DÉVELOPPEMENT**
-
-### **🔴 IMMÉDIAT (Semaine courante)**
-1. **TASK 0.1** : Résoudre bug interface loop (investigation approfondie)
-2. **TASK 1.1** : Décision piece_safety (activer ou supprimer)  
-3. **TASK ARCH-1** : Restructuration module évaluation
-
-### **🟡 COURT TERME (2 semaines)**
-4. Tests robustesse après changements architecturaux
-5. Documentation architecture mise à jour (CLAUDE.md)
-6. Optimisations performance si nécessaire
-
----
-
-## 🎯 **CRITÈRES DE SUCCÈS**
-
-### **Bugs Critiques Résolus**
-- [ ] Séquence `d2d4` → `c1g5` → `g5e7` se termine sans freeze
-- [ ] IA évaluation tactique cohérente (pas de sacrifices aberrants)
-
-### **Architecture Propre**  
-- [ ] Module `evaluation.pl` centralisé et fonctionnel
-- [ ] Séparation claire algorithmes IA vs évaluations
-- [ ] Tests passent après restructuration
-
-### **Qualité Code Maintenue**
-- [x] Code mort éliminé ✅
-- [x] Systèmes consolidés ✅  
-- [x] Constantes nommées ✅
-- [x] Fonctions cohérentes ✅
-
----
-
-## 📊 **BILAN TECHNIQUE**
-
-**Bilan** : Code quality amélioré, 2 bugs critiques + architecture restent

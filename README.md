@@ -1,23 +1,22 @@
-# Prolog Chess Game
+# ♟️ Prolog Chess Game
 
-Jeu d'échecs complet en Prolog avec Intelligence Artificielle - Projet universitaire IFT-2003.
-
-## Démarrage Rapide
+**Jeu d'échecs complet avec Intelligence Artificielle** - Projet universitaire IFT-2003
 
 ```bash
 swipl go.pl
 ```
 
-## Architecture
+## 🏗️ Architecture
 
-**5 modules principaux** :
-- **pieces.pl** : Règles de mouvement des pièces
-- **board.pl** : Gestion plateau 8x8, coordonnées, affichage
-- **game.pl** : États de jeu, validation coups, détection échec/mat
-- **interface.pl** : Interface utilisateur française
-- **ai.pl** : Intelligence artificielle négamax + alpha-beta
+**6 modules principaux** :
+- **pieces.pl** : Règles de mouvement des pièces d'échecs
+- **board.pl** : Représentation plateau 8x8, coordonnées, affichage ASCII
+- **game.pl** : Gestion états de jeu, validation coups, détection échec/mat
+- **interface.pl** : Interface utilisateur française professionnelle
+- **ai.pl** : Algorithme négamax avec élagage alpha-beta
+- **evaluation.pl** : Évaluation position (matériel + PSQT + sécurité pièces)
 
-## Installation & Tests
+## ⚡ Installation & Tests
 
 ```bash
 # Lancer le jeu (inclut option tests dans le menu)
@@ -27,35 +26,53 @@ swipl go.pl
 swipl -t run_tests -s tests/tests.pl
 ```
 
-## Fonctionnalités
+## 🎮 Fonctionnalités
 
 ### Jeu d'Échecs Complet
-- Toutes les pièces et règles standard
-- Promotion automatique des pions
-- Détection échec, mat et pat
-- Interface française intuitive
+✅ Toutes les pièces et règles standard  
+✅ Promotion automatique des pions en dame  
+✅ Détection échec, mat et pat  
+✅ Interface française professionnelle  
+✅ Validation robuste des coups  
 
-### Intelligence Artificielle
-- Algorithme négamax avec élagage alpha-beta
-- Profondeur de recherche : 2 niveaux
-- Performance : 1-4 secondes par coup
+### Intelligence Artificielle (Phase 3)
+🧠 **Algorithme négamax** avec élagage alpha-beta  
+📊 **Évaluation PSQT** (Piece-Square Tables standards)  
+⚡ **Performance** : 1-4 secondes par coup (profondeur 2)  
+🎯 **Tri MVV-LVA** : Most Valuable Victim - Least Valuable Attacker
 
-## Usage
+## 🎯 Usage
 
-- **Format des coups** : `e2e4` (notation algébrique)
-- **Coordonnées** : colonnes a-h, rangées 1-8
-- **Commandes** : `aide`, `menu`, `quitter`, `sortir`
+```
+Format des coups    : e2e4 (notation algébrique)
+Coordonnées        : colonnes a-h, rangées 1-8
+Commandes          : aide, menu, quitter, sortir
+```
 
-## Compatibilité
+### Modes de Jeu
+- **Humain vs Humain** : Partie locale à deux joueurs
+- **Humain vs IA** : Affrontez l'intelligence artificielle
 
-- **SWI-Prolog** 9.x+ requis
-- **OS** : Windows, Linux, macOS
+## 💻 Compatibilité
 
-## Documentation
+| Requirement | Version |
+|-------------|---------|
+| **SWI-Prolog** | 9.x+ |
+| **OS** | Windows, Linux, macOS |
 
-- **Guide développeur** : [.claude/CLAUDE.md](.claude/CLAUDE.md)
-- **Spécifications** : [docs/PRD.md](docs/PRD.md)
-- **État d'avancement** : [docs/TASKS.md](docs/TASKS.md)
+## 📚 Documentation
+
+| Document | Description |
+|----------|-------------|
+| [📖 Guide Développeur](.claude/CLAUDE.md) | Architecture, conventions, debugging |
+| [📋 État d'Avancement](docs/TASKS.md) | Tâches prioritaires et bugs actifs |
+| [🐛 Bug Report](docs/BUG_REPORT_ENTERPRISE.md) | Analyses détaillées des problèmes |
 
 ---
-**Projet Universitaire IFT-2003** • **Intelligence Artificielle en Prolog**
+<div align="center">
+
+**🎓 Projet Universitaire IFT-2003** • **🤖 Intelligence Artificielle en Prolog**
+
+*Phase 3 Complète - IA Négamax + Alpha-Beta Fonctionnelle*
+
+</div>

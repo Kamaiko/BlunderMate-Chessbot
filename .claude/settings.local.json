@@ -27,7 +27,8 @@
       "Bash(timeout:*)",
       "Bash(git add:*)",
       "Read(/C:\\DevTools\\Projects\\PrologChessGame_Clean/**)",
-      "Read(/C:\\DevTools\\Projects\\PrologChessGame_Clean\\.claude/**)"
+      "Read(/C:\\DevTools\\Projects\\PrologChessGame_Clean\\.claude/**)",
+      "mcp__context7__resolve-library-id"
     ],
     "deny": [
       "mcp__playwright__*"

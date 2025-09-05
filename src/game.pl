@@ -13,7 +13,7 @@
 
 :- [pieces].
 :- [board].
-:- [psqt_tables].
+:- [evaluation].
 
 % =============================================================================
 % SECTION 1 : STRUCTURE DE L'ETAT DU JEU
