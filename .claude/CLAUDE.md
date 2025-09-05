@@ -20,7 +20,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Quick Context
 - **Project**: Chess AI in Prolog - University AI course (IFT-2003)
 - **Current Phase**: Phase 3 ✅ COMPLÈTE - IA négamax + alpha-beta fonctionnelle
-- **Status**: ⚠️ Bug critique identifié et corrigé - Code review complet effectué
+- **Status**: ⚠️ Bug critique PERSISTE - Code quality amélioré mais bug interface non résolu
 - **Architecture**: 5-module design (pieces/board/game/interface/ai) + psqt_tables.pl  
 - **Performance**: 1-4 secondes/coup acceptable, évaluation cohérente [EVAL] (+blanc/-noir)
 - **Documentation**: Bug report complet, suite tests IA, guide architecture disponibles
@@ -181,12 +181,16 @@ swipl tests/tests.pl
 - **Interface**: Scores cohérents `[EVAL] Position: X (+blanc/-noir)`
 - **Performance**: 1-4 secondes/coup acceptable pour profondeur 2
 
-### ✅ BUG CRITIQUE RÉSOLU (Janvier 2025)
-- **🐛 Interface Loop**: ✅ **CORRIGÉ** - Empty square bug dans `ai.pl:754`
-- **📍 Root Cause**: `generate_regular_moves` vérifiait seulement `Piece \= '.'` mais pas `' '`
-- **🔧 Correction Appliquée**: Remplacé par `\+ is_empty_square(Piece)`
-- **📋 Status**: Bug report complet dans `docs/BUG_REPORT_ENTERPRISE.md`
-- **🎯 Résultat**: Séquence `d2d4`, `c1g5`, `g5e7` ne devrait plus causer freeze
+### ❌ BUG CRITIQUE NON RÉSOLU (Janvier 2025)
+- **🐛 Interface Loop**: ❌ **PERSISTE** - Corrections code quality insuffisantes  
+- **📍 Root Cause**: Plus complexe que empty square handling - cause réelle inconnue
+- **🔧 Corrections Appliquées** (n'ont pas résolu le bug):
+  - `generate_regular_moves`: `Piece \= '.'` → `\+ is_empty_square(Piece)`
+  - Suppression duplicate `find_king_position/4`
+  - Correction singleton variables 
+  - Réactivation `piece_safety` evaluation
+- **📋 Status Bug**: **UNRESOLVED** - Interface loop reproductible à 100%
+- **🎯 Réalité**: Séquence `d2d4`, `c1g5`, `g5e7` cause toujours freeze complet
 
 ### 🔍 ANALYSE QUALITÉ CODE COMPLÈTE (Janvier 2025)
 
@@ -302,7 +306,7 @@ opening_move([d2,d4], [d7,d6]).   % Moderne pour d4
 - ✅ **Performance issues** documentés (boucles imbriquées inefficaces)
 
 ### **Status Projet**
-- **Bug critique**: ✅ RÉSOLU - Boucle infinie `g5e7` corrigée
+- **Bug critique**: ❌ PERSISTE - Boucle infinie `g5e7` non résolue
 - **Code quality**: 📋 DOCUMENTÉ - Roadmap améliorations structuré  
 - **Tests IA**: 📚 PLANIFIÉS - 83 tests remplacent 2 actuels
 - **Architecture**: 🏗️ DOCUMENTÉE - Guide développeurs complet

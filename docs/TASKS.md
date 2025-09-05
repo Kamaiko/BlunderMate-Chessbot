@@ -3,7 +3,7 @@
 ## 📊 **PROJECT STATUS OVERVIEW**
 
 - **Current Phase**: Phase 3 ✅ Complete (Negamax + Alpha-Beta AI)
-- **Critical Status**: ⚠️ **INTERFACE LOOP BUG RESOLVED** according to CLAUDE.md but **NEEDS VERIFICATION**
+- **Critical Status**: ❌ **INTERFACE LOOP BUG PERSISTS** - Code quality fixes applied but core bug unresolved
 - **Code Quality**: 🔴 **MULTIPLE CRITICAL ISSUES** identified requiring immediate attention
 - **Architecture**: 5-module design stable, comprehensive documentation created
 
@@ -11,13 +11,16 @@
 
 ## ⚠️ **PRIORITY 0: CRITICAL BUG VERIFICATION (IMMEDIATE)**
 
-### 🔥 **TASK 0.1: Verify Interface Loop Bug Fix**
-- **Status**: ✅ **REPORTEDLY FIXED** (per CLAUDE.md) - **NEEDS CONFIRMATION**
-- **Location**: `src/ai.pl:754`
-- **Root Cause**: Empty square handling in move generation
-- **Fix Applied**: `Piece \= '.'` → `\+ is_empty_square(Piece)`
-- **Test Sequence**: `d2d4` → `c1g5` → `g5e7` (previously caused infinite loop)
-- **Priority**: **HIGHEST** - Verify this sequence no longer freezes interface
+### 🔥 **TASK 0.1: Interface Loop Bug - UNRESOLVED** ❌
+- **Status**: ❌ **UNRESOLVED** - Multiple fixes applied but bug persists
+- **Location**: Interface/IA integration (deeper than initially thought)
+- **Problem**: Infinite loop on `g5e7` AND `c3b4` moves - 100% reproducible
+- **Fixes Attempted**: 
+  - ✅ `ai.pl:754`: `Piece \= '.'` → `\+ is_empty_square(Piece)` 
+  - ✅ Duplicate function removal, singleton fixes
+  - ✅ Piece safety reactivation
+- **Current State**: **Interface freeze persists** on specific move sequences
+- **Priority**: **HIGHEST** - Major blocking issue for IA vs Human mode
 - **Effort**: 15 minutes
 - **Acceptance**: Human vs AI game completes sequence without loop
 
