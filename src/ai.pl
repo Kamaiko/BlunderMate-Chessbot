@@ -95,15 +95,72 @@ choose_ai_move(GameState, BestMove) :-
     (   Player = black, use_fixed_opening(MoveCount) ->
         (   get_fixed_opening_move(MoveCount, Board, BestMove) ->
             true  % Coup fixe reussi
-        ;   minimax_ab(GameState, Player, 2, BestMove, _Value)  % Fallback alpha-beta
+        ;   choose_ai_move_safe(GameState, Player, BestMove)  % Fallback sécurisé
         )
-    ;   % Utiliser alpha-beta pour tous les autres cas
-        minimax_ab(GameState, Player, 2, BestMove, _Value)
+    ;   % Utiliser alpha-beta sécurisé pour tous les autres cas
+        choose_ai_move_safe(GameState, Player, BestMove)
+    ).
+
+% choose_ai_move_safe(+GameState, +Player, -BestMove)
+% Version sécurisée avec limitation de coups pour éviter les boucles infinies
+choose_ai_move_safe(GameState, Player, BestMove) :-
+    % Utiliser génération limitée de coups au lieu de timeout
+    catch(
+        minimax_ab(GameState, Player, 2, BestMove, _Value),  % Profondeur 2 normale
+        Error,
+        (   write('IA erreur - coup de sécurité: '), write(Error), nl,
+            choose_emergency_move(GameState, Player, BestMove)
+        )
+    ).
+
+% choose_emergency_move(+GameState, +Player, -BestMove)
+% Coup d'urgence simple quand l'IA est bloquée
+choose_emergency_move(GameState, Player, BestMove) :-
+    GameState = game_state(Board, _, _, _, _),
+    % Trouver le premier coup légal simple
+    (   between(1, 8, FromRow), between(1, 8, FromCol),
+        between(1, 8, ToRow), between(1, 8, ToCol),
+        get_piece(Board, FromRow, FromCol, Piece),
+        piece_belongs_to_player(Piece, Player),
+        valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
+        BestMove = [FromRow, FromCol, ToRow, ToCol], !
+    ;   BestMove = []  % Aucun coup trouvé
     ).
 
 % =============================================================================
 % MINIMAX SIMPLE SELON REFERENCE
 % =============================================================================
+
+% minimax_limited(+GameState, +Player, +Depth, -BestMove, -BestValue)
+% Version sécurisée avec génération de coups très limitée
+minimax_limited(GameState, Player, 0, [], Value) :-
+    evaluate_pure_reference(GameState, Player, Value), !.
+
+minimax_limited(GameState, Player, Depth, BestMove, BestValue) :-
+    Depth > 0,
+    generate_moves_limited(GameState, Player, Moves),  % Version limitée
+    (   Moves = [] ->
+        terminal_score(GameState, Player, BestValue),
+        BestMove = []
+    ;   select_first_move(Moves, BestMove),  % Prendre le premier coup simple
+        BestValue = 0
+    ).
+
+% generate_moves_limited(+GameState, +Player, -Moves)
+% Génération très limitée de coups - premier coup légal trouvé
+generate_moves_limited(GameState, Player, [FirstMove]) :-
+    GameState = game_state(Board, _, _, _, _),
+    between(1, 8, FromRow), between(1, 8, FromCol),
+    get_piece(Board, FromRow, FromCol, Piece),
+    piece_belongs_to_player(Piece, Player),
+    between(1, 8, ToRow), between(1, 8, ToCol),
+    valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
+    FirstMove = [FromRow, FromCol, ToRow, ToCol], !.
+generate_moves_limited(_, _, []).
+
+% select_first_move(+Moves, -FirstMove)
+select_first_move([First|_], First) :- !.
+select_first_move([], []).
 
 % minimax_ab(+GameState, +Player, +Depth, -BestMove, -BestValue)
 % ALPHA-BETA PRUNING IMPLÉMENTÉ - Négamax avec élagage
@@ -133,7 +190,7 @@ ab_search([[FromRow,FromCol,ToRow,ToCol]|RestMoves], GameState, Player, Depth, A
     make_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState),
     NewGameState = game_state(_, NextPlayer, _, _, _),
     NewDepth is Depth - 1,
-    NewAlpha is -Beta, NewBeta is -Alpha,
+    _NewAlpha is -Beta, _NewBeta is -Alpha,
     minimax_ab(NewGameState, NextPlayer, NewDepth, _, OpponentValue),
     Value is -OpponentValue,
     

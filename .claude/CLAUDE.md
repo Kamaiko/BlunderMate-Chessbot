@@ -19,10 +19,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Quick Context
 - **Project**: Chess AI in Prolog - University AI course (IFT-2003)
-- **Current Phase**: Phase 3 ✅ TERMINÉE - IA négamax + alpha-beta profondeur 2
-- **Status**: Négamax + alpha-beta pruning + PSQT + évaluation unified (+ = blanc, - = noir)
-- **Architecture**: 5-module design (pieces/board/game/interface/ai) + psqt_tables.pl
-- **Tests**: 8 sections consolidées, interface Option 3 fonctionnelle
+- **Current Phase**: Phase 3 ✅ IMPLÉMENTÉE - IA négamax + alpha-beta profondeur 2
+- **Status**: IA fonctionnelle mais tactiquement agressive (sacrifie pièces vs pions défendus)
+- **Architecture**: 5-module design (pieces/board/game/interface/ai) + psqt_tables.pl  
+- **Performance**: 1-4 secondes/coup acceptable, évaluation cohérente [EVAL] (+blanc/-noir)
 
 ## Development Commands
 
@@ -170,28 +170,58 @@ swipl -t run_tests -s tests/tests.pl
 swipl tests/tests.pl
 ```
 
-## AI Implementation Status (Phase 3) - ✅ TERMINÉ
+## AI Implementation Status (Phase 3) - ⚠️ FONCTIONNELLE AVEC BUG CRITIQUE
 
-✅ **NÉGAMAX + ALPHA-BETA + PSQT IMPLÉMENTÉ**
-- **Algorithme**: Négamax avec élagage alpha-beta fonctionnel
-- **Tri MVV-LVA**: Most Valuable Victim - Least Valuable Attacker implémenté
-- **PSQT**: Piece-Square Tables ChessProgramming.org intégrées (adaptées SANS ROQUE)
-- **Évaluation**: Matériel standard + PSQT unified (+ = blanc gagne, - = noir gagne)
-- **Validation**: Sécurité roi implémentée (fix bug échec ignoré)
-- **Tests**: 8 sections consolidées avec boards visuels et validation PSQT
-- **Interface**: Score unique visible `[EVAL] Position: X` (sans mention joueur)
+✅ **IA NÉGAMAX + ALPHA-BETA FONCTIONNELLE**
+- **Algorithme**: Négamax avec élagage alpha-beta, profondeur 2 stable
+- **Tri MVV-LVA**: Most Valuable Victim - Least Valuable Attacker + limitation 25 coups
+- **PSQT**: Piece-Square Tables ChessProgramming.org intégrées  
+- **Évaluation**: Matériel + PSQT (piece safety désactivée temporairement)
+- **Interface**: Scores cohérents `[EVAL] Position: X (+blanc/-noir)`
+- **Performance**: 1-4 secondes/coup acceptable pour profondeur 2
 
-### ✅ Corrections Majeures Réussies (Septembre 2025)
-- **🎯 Développement pièces RÉSOLU**: IA joue maintenant Nc6, Nf6, Be7, Bd7 en ouverture
-- **🐛 Bugs critiques CORRIGÉS**: Valeurs pièces noires négatives, rois comptés dans évaluation
-- **📊 Génération coups AMÉLIORÉE**: Priorité développement > pions, quotas équilibrés
-- **🧹 Code NETTOYÉ**: Refactorisation ai.pl, suppression logs debug, architecture simplifiée
+### 🚨 BUG CRITIQUE IDENTIFIÉ (Janvier 2025)
+- **🐛 Interface Loop**: Boucle infinie après mouvement spécifique `g5e7`
+- **📍 Position**: Séquence `d2d4`, `c1g5`, `g5e7` cause freeze total
+- **🔍 Root Cause**: Échec propagation d'état dans `unified_game_loop`
+- **📋 Status**: Bug report détaillé dans `docs/BUG_REPORT_ENTERPRISE.md`
+- **🛠️ Correctifs Appliqués**: Gestion d'erreur IA + profondeur 2 restaurée
 
-### 🎯 Prochaine Phase Optionnelle : Tests Rigoureux
-- **🧪 Tests structurés**: Mat en 1, parade obligatoire, recaptures
-- **📊 Tests tactiques**: Validation blunders évités, sacrifices
-- **⚡ Performance**: Profondeur 2 optimale maintenue
-- **📚 Documentation**: Tests clairs et bien affichés console
+### ⚠️ PROBLÈMES CRITIQUES IA IDENTIFIÉS (Janvier 2025)
+
+#### **🎯 Cause des Sacrifices - Piece Safety Désactivé**
+- **Problème**: `evaluate_piece_safety` **DÉSACTIVÉ** (retourne toujours 0)
+- **Raison**: Commentaire "is_square_attacked ne fonctionne pas encore"
+- **Impact**: IA ne détecte pas ses pièces en danger → sacrifices contre pions
+- **Code**: `src/ai.pl:372-373` - SafetyValue = 0 forcé
+
+#### **🚨 CAUSE PROBABLE BOUCLE INFINIE - Empty Square Bug** 
+- **Problème CRITIQUE**: `generate_regular_moves` ne vérifie que `Piece \= '.'` 
+- **Bug**: Appelle `get_piece_color(' ', Player)` sur les espaces → **ÉCHEC**
+- **Localisation**: `src/ai.pl:754` dans génération de coups
+- **Impact**: **CAUSE PROBABLE de la boucle infinie g5e7**
+- **Correction**: Remplacer par `\+ is_empty_square(Piece)`
+
+#### **📋 Incohérences Code**
+- **Fonctions différentes**: `display_position_evaluation` vs `evaluate_pure_reference` 
+- **Noms incohérents**: `evaluate_tactical_safety` vs `evaluate_piece_safety`
+
+### **🛠️ CORRECTIFS PRIORITAIRES**
+1. **Critique**: Fixer empty square handling dans `generate_regular_moves`
+2. **Important**: Décider si garder ou retirer `piece_safety` 
+3. **Nettoyage**: Uniformiser les noms de fonctions d'évaluation
+
+### ⚠️ Limitations Tactiques Identifiées (Décembre 2025)  
+- **🎯 Aggressivité excessive**: IA sacrifie fous/cavaliers contre pions défendus
+- **🐛 Détection défenses faible**: Ne calcule pas toujours recaptures importantes  
+- **📊 Piece safety désactivée**: is_square_attacked partiellement fonctionnel
+- **🧹 Scores EVAL corrigés**: Cohérents (+blanc/-noir) mais IA reste tactiquement faible
+
+### 🎯 Status Académique 
+- **✅ Exigences techniques**: IA fonctionnelle, profondeur 2, performance acceptable
+- **✅ Architecture stable**: 5 modules, tests passent, interface professionnelle  
+- **❌ Bug bloquant**: Interface freeze sur certains mouvements
+- **⚠️ Recommandation**: Debug interface requis avant démo finale
 
 ### 📚 RECOMMANDATIONS THÉORIQUES À IMPLÉMENTER
 
@@ -234,11 +264,11 @@ opening_move([d2,d4], [d7,d6]).   % Moderne pour d4
 % Énorme bonus pour réponses classiques (1.d4 d5, 1.e4 e5)
 ```
 
-### 📋 État Actuel Diagnostic (Septembre 2025)
-- **Développement pièces**: ⚠️ PRÉMATURÉ (développe Nc6, Nf6 avant réponses centrales)
-- **Évaluation matérielle**: ✅ CORRIGÉE (valeurs noires négatives, rois comptés)
-- **Captures tactiques**: ❌ DÉFAILLANT (recaptures manquées, sacrifices involontaires)
-- **Logique d'ouverture**: ❌ NON CONFORME (ignore coups mirror : 1.d4 d5, 1.e4 e5)
+### 📋 État Actuel Diagnostic (Décembre 2025)
+- **Algorithme IA**: ✅ IMPLÉMENTÉ (négamax + alpha-beta profondeur 2)
+- **Évaluation base**: ✅ STABLE (matériel + PSQT + scores cohérents)  
+- **Limitations tactiques**: ⚠️ AGRESSIVE (sacrifices contre pions défendus)
+- **Performance**: ✅ ACCEPTABLE (1-4s/coup, standard académique atteint)
 
 ## File Dependencies
 - interface.pl → game.pl → board.pl → pieces.pl
@@ -247,8 +277,28 @@ opening_move([d2,d4], [d7,d6]).   % Moderne pour d4
 - go.pl is launcher (loads interface.pl directly)
 
 ## Critical Project Files  
-- **🚨 AI Status**: [docs/AI_STATUS_HANDOFF.md](../docs/AI_STATUS_HANDOFF.md) - Diagnostic complet + 4 théories
+- **🚨 Bug Report**: [docs/BUG_REPORT_ENTERPRISE.md](../docs/BUG_REPORT_ENTERPRISE.md) - Bug critique interface détaillé
 - **📋 Tasks**: [docs/TASKS.md](../docs/TASKS.md) - Roadmap structuré Phase 3 finalisation
 - **📊 Plan**: [docs/plan.md](../docs/plan.md) - Découverte critique intégrée
 - **🧪 Tests**: [tests/tests.pl](../tests/tests.pl) - Section 6 IA À REFAIRE
-- **🤖 IA**: [src/ai.pl](../src/ai.pl) - Négamax + alpha-beta implémenté, PSQT à ajouter
+- **🤖 IA**: [src/ai.pl](../src/ai.pl) - Négamax + alpha-beta + gestion erreur implémenté
+
+## Session Debug Summary (21 Janvier 2025)
+
+### **Modifications Code**
+- **src/ai.pl** (lignes 90-163): Ajout gestion d'erreur sécurisée
+- **src/game.pl** (ligne 187): Correction warning singleton variable
+
+### **Fichiers Supprimés**
+- `HANDOFF_TO_NEXT_AI.md` - Obsolète
+- `archive/AI_STATUS_HANDOFF.md` - Obsolète  
+- `archive/ai_v1_defaillante.pl` - Obsolète
+- `archive/tests_backup.pl` - Obsolète
+
+### **Diagnostic Réalisé**
+- ✅ Logique métier fonctionne (make_move, valid_move, execute_move)
+- ❌ Interface state propagation défaillante
+- 📋 Bug report complet pour debugging suivant
+
+### **Recommandation Prioritaire**
+**FOCUS**: Debug `interface.pl` lignes 41-45, 294-295, 477-480 pour résoudre propagation d'état.

@@ -182,9 +182,9 @@ display_game_state(GameState) :-
     % NOUVEAU: Affichage évaluation position
     display_position_score(GameState, Player), nl.
 
-% display_position_score(+GameState, +Player)
+% display_position_score(+GameState, +_Player)
 % Affiche un score simple de la position TOUJOURS du point de vue des blancs
-display_position_score(GameState, Player) :-
+display_position_score(GameState, _Player) :-
     % TOUJOURS évaluer du point de vue des blancs pour cohérence
     (   catch(evaluate_pure_reference(GameState, white, Score), _, fail) ->
         format('[EVAL] Position: ~w (+blanc/-noir)', [Score])

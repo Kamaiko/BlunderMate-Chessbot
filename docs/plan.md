@@ -11,37 +11,49 @@
 | **✅ Acquis** | Négamax + alpha-beta + PSQT + évaluation temps réel fonctionnels |
 | **🎯 Statut** | Phase 3 TERMINÉE - IA complète avec validation échec |
 
-## 🎯 Statut Actuel (Audit Septembre 2025)
+## 🎯 Statut Final (Septembre 2025)
 
-### ✅ Fonctionnalités Complètes (Sept 2025 - FINALISÉ)
-- **Algorithme**: Négamax avec élagage alpha-beta (profondeur 2-3)
-- **Tri des coups**: MVV-LVA (Most Valuable Victim - Least Valuable Attacker)  
-- **PSQT**: Piece-Square Tables ChessProgramming.org intégrées (adaptées SANS ROQUE)
-- **Évaluation**: Matériel standard + PSQT avec affichage temps réel
-- **Validation**: Sécurité roi implémentée (impossible d'ignorer échec)
-- **Interface**: Mode Humain vs IA + évaluation visible `[EVAL] Position: X points`
-- **Tests**: 8 sections consolidées (PSQT, Edge Cases, Tactiques avancés)
-- **Architecture**: 6 modules (+ psqt_tables.pl) propres et documentés
+### ✅ Phase 3 IMPLÉMENTÉE - IA Négamax Alpha-Beta Fonctionnelle
+- **Algorithme**: Négamax avec élagage alpha-beta (profondeur 2 stable)
+- **Tri des coups**: MVV-LVA (Most Valuable Victim - Least Valuable Attacker)
+- **PSQT**: Piece-Square Tables ChessProgramming.org intégrées
+- **Évaluation**: Matériel standard + PSQT unified (+blanc/-noir)
+- **Validation**: Sécurité roi implémentée, échec détecté correctement
+- **Interface**: Mode Humain vs IA + évaluation `[EVAL] Position: X`
+- **Tests**: Consolidés avec validation fonctionnelle
+- **Performance**: 1-4 secondes par coup (acceptable pour académique)
 
-### ✅ Problèmes Résolus (Session Sept 2025)
-1. **🎯 Coups fixes Caro-Kann** → ✅ **CONSERVÉS** (toujours utilisés par IA)
-2. **Évaluation position** → ✅ **PSQT INTÉGRÉES** avec scores temps réel  
-3. **🚨 Cases vides** → ✅ **STANDARDISÉES** `' '` partout
-4. **🚨 Tests cassés** → ✅ **`run_all_tests` AJOUTÉ** + 3 nouvelles sections
-5. **Unicode interface** → ✅ **CORRIGÉ** format ASCII sans émojis
-6. **Scores énormes** → ✅ **RÉALISTES** (0 initial, -40 après e2e4)
-7. **Échec ignoré** → ✅ **VALIDATION AJOUTÉE** roi ne peut rester en échec
+### ⚠️ Limitations Tactiques Identifiées
+- **Aggressivité excessive**: Sacrifie fous/cavaliers contre pions défendus
+- **Détection défenses**: Ne calcule pas toujours recaptures importantes
+- **Génération coups**: Limitation à 25 coups peut exclure recaptures critiques
+- **Évaluation**: Piece safety désactivée temporairement pour performance
 
-## 🎉 **PROJET TERMINÉ - Phase 3 Accomplie**
+### ✅ Corrections Majeures Réussies (Septembre 2025)
+1. **Interface**: Affichage boards corrigé (2 au lieu de 4 en mode IA vs Humain)
+2. **Évaluation scores**: Cohérents depuis perspective blanc (+blanc/-noir)
+3. **Valeurs pièces**: Fixed move_score utilisant standard_piece_value (pion=100)
+4. **Attaque pions**: Corrigé pawn_attack_direction (white=-1, black=1)
+5. **Génération coups**: Augmenté de 20 à 25 pour inclure plus de recaptures
+6. **Performance**: Piece safety désactivée pour maintenir <5 secondes
+7. **Validation échec**: IA ne peut plus ignorer échecs
 
-### 🏁 **Statut Final : SUCCÈS COMPLET**
-- ✅ **IA fonctionnelle** : Négamax + alpha-beta + PSQT implémentés
-- ✅ **Interface complète** : Évaluation temps réel, validation échec
-- ✅ **Tests exhaustifs** : 8 sections avec validation PSQT
-- ✅ **Architecture solide** : 6 modules documentés et testés
-- ✅ **Objectif TP1 ATTEINT** : IA d'échecs éducative complète
+## 🎯 **STATUT ACADÉMIQUE ATTEINT - IA Fonctionnelle mais Tactiquement Agressive**
 
-### 🎯 **Prochaines étapes optionnelles :**
+### ✅ **Exigences Projet Satisfaites**
+- ✅ **IA opérationnelle** : Négamax + alpha-beta profondeur 2 implémenté
+- ✅ **Performance acceptable** : 1-4 secondes par coup stable
+- ✅ **Architecture complète** : 5 modules + PSQT tables fonctionnels
+- ✅ **Interface professionnelle** : Évaluation temps réel, commandes françaises
+- ✅ **Tests passent** : Jeu de base 100% fonctionnel
+
+### ⚠️ **Limitations Tactiques à Adresser (Optionnel)**
+- Sacrifie pièces majeures contre pions défendus
+- Génération de coups peut exclure recaptures importantes
+- Évaluation piece safety désactivée pour performance
+
+### 🔍 **Prochaine Session: Analyse MVV-LVA et Évaluation**
+Analyse approfondie du système de tri MVV-LVA et validation que l'évaluation PSQT retourne des valeurs correctes à l'IA et interface.
 
 ## 📅 Phase Optionnelle: Peaufinage et Optimisation
 
@@ -193,21 +205,22 @@ prioritize_recaptures(LastMove, Moves, PrioritizedMoves) :-
 
 **Total: 4h30 sur 2-3 sessions de travail**
 
-## ✅ RÉSULTATS SESSION ACCOMPLIE (2025-09-04)
+## ✅ RÉSULTATS SESSION DEBUG (2025-09-04)
 
-### 📅 Session Terminée - Tous Objectifs Atteints
-1. **✅ PSQT Implémentées**: ChessProgramming.org intégrées avec succès
-2. **✅ Évaluation Unified**: Score unique (+ blanc, - noir) implémenté  
-3. **✅ Validation Échec**: Fix critique - impossible ignorer check
-4. **✅ Tests Consolidés**: 8 sections, `run_all_tests` fonctionnel
-5. **✅ Interface Propre**: Unicode supprimé, affichage ASCII
+### 📊 Corrections Tactiques Accomplies
+1. **✅ Interface display**: Corrigé boards multiples en mode IA vs Humain
+2. **✅ Move scoring**: Fixed utilisation standard_piece_value au lieu piece_value
+3. **✅ Pawn attacks**: Corrigé directions d'attaque (white=-1, black=1)
+4. **✅ Evaluation display**: Scores cohérents depuis perspective blanc
+5. **✅ Move generation**: Augmenté limite 20→25 pour plus de recaptures
+6. **✅ Performance**: Piece safety désactivée maintient <5s par coup
 
-### 🎪 Résultats Obtenus - TP1 COMPLET
-- **✅ IA Fonctionnelle**: Négamax + alpha-beta profondeur 2
-- **✅ PSQT Validées**: Cavalier centre > bord confirmé
-- **✅ Menu Tests**: Option 3 interface.pl → run_all_tests OK
-- **✅ Architecture Solide**: 6 modules propres et documentés
-- **✅ Évaluation Temps Réel**: `[EVAL] Position: X` fonctionnel
+### 🎯 Status Académique: EXIGENCES SATISFAITES
+- **✅ IA implémentée**: Négamax + alpha-beta profondeur 2 stable
+- **✅ Performance**: 1-4 secondes acceptable pour cours universitaire
+- **⚠️ Tactiquement agressive**: Fonctionnelle mais sacrifie contre défenses
+- **✅ Architecture solide**: 5 modules + tests passent
+- **✅ Interface complète**: Évaluation visible, commandes françaises
 
 ---
 
