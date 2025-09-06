@@ -12,7 +12,7 @@ swipl go.pl
 - **pieces.pl** : Règles de mouvement des pièces d'échecs
 - **board.pl** : Représentation plateau 8x8, coordonnées, affichage ASCII
 - **game.pl** : Gestion états de jeu, validation coups, détection échec/mat
-- **interface.pl** : Interface utilisateur française professionnelle
+- **interface.pl** : Interface utilisateur
 - **ai.pl** : Algorithme négamax avec élagage alpha-beta
 - **evaluation.pl** : Évaluation position (matériel + PSQT + sécurité pièces)
 
@@ -32,7 +32,7 @@ swipl -t run_tests -s tests/tests.pl
 ✅ Toutes les pièces et règles standard  
 ✅ Promotion automatique des pions en dame  
 ✅ Détection échec, mat et pat  
-✅ Interface française professionnelle  
+✅ Interface utilisateur complète  
 ✅ Validation robuste des coups  
 
 ### Intelligence Artificielle (Phase 3)
