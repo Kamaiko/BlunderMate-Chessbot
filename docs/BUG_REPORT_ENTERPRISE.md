@@ -139,4 +139,131 @@ Mouvement joue: g5e7
 - `src/evaluation.pl` - Évaluation centralisée
 - Pipeline génération → tri → négamax
 
-**Status** : Document nettoyé, focus sur actions prioritaires pour résolution systémique.
+---
+
+## 🔍 **EVALUATION MODULE ANALYSIS**
+
+### **is_piece_defended/4 - Conservative Fail** ⚠️ **CRITIQUE**
+- **Location**: `src/evaluation.pl:307-310`
+- **Issue**: Systematic `fail.` → all attacked pieces considered hanging
+- **Impact**: Over-conservative evaluation, blocks legitimate sacrifices
+- **Status**: Intentional conservative approach, needs real defense detection
+
+### **evaluate_position/3 - Incomplete Integration** 📊 **PARTIELLEMENT EXACT**
+- **Current**: Material + PSQT + Safety (lines 199-214)
+- **Missing**: Mobility, center control, king safety modules exist but unused
+- **Available unused**: `evaluate_piece_development/3`, `evaluate_move_count/3`, `evaluate_king_safety_basic/3`
+- **Recommendation**: Integrate complete evaluation pipeline
+
+### **PSQT Calibration Risk** ⚠️ **VALID CONCERN**
+- **Issue**: PSQT values added directly to material values
+- **Risk**: Potential double counting or over-weighting pieces
+- **Location**: `evaluate_position/3` combines both without calibration
+- **Needs**: Verification PSQT tables are calibrated with current `piece_value/2`
+
+### **piece_type_from_symbol/2 - Verbose Implementation** 🔧 **OPTIMIZATION**
+- **Current**: 12 clauses with cuts (lines 260-271)
+- **Optimization opportunity**: Map via lowercase normalization
+- **Impact**: Minor performance, code clarity improvement
+
+### **King Safety Implementation** ✅ **DIAGNOSTIC ERROR**
+- **Correction**: `evaluate_king_safety_basic/3` exists but unused in main evaluation
+- **Location**: Available in evaluation.pl but not integrated
+
+**Status** : Evaluation module analysis complete, priorities identified for architectural audit.
+
+---
+
+## 🚨 **ANALYSE ALGORITHME IA - DÉFAUTS CRITIQUES**
+
+### **Élagage Alpha-Beta CASSÉ** ❌ **DÉFAUT CRITIQUE**
+- **Localisation** : `src/ai.pl:169-170`
+- **Problème** : `_NewAlpha` et `_NewBeta` calculés mais **JAMAIS UTILISÉS**
+- **Code** : `negamax_ab(NewGameState, NextPlayer, NewDepth, _, OpponentValue)` 
+- **Impact** : **AUCUN ÉLAGAGE RÉEL** - algorithme négamax sans alpha-beta
+- **Performance** : Ralentissement exponentiel, explique les 1-4s par coup
+
+### **Gestion Couleurs - Non-Standard** ⚠️ **CHOIX DESIGN**
+- **Actuel** : Utilise chaînes `white`/`black` au lieu de numérique `+1/-1`
+- **Impact** : Logique négation plus complexe vs pattern NegaMax standard
+- **Évaluation** : Utilise conditionnels `Player = white ->` au lieu de `Color * Evaluation`
+- **Statut** : Fonctionne mais non-standard, plus difficile à optimiser
+
+### **Tri des Coups - Implémentation CORRECTE** ✅ **BON**
+- **Implémentation** : MVV-LVA (Most Valuable Victim - Least Valuable Attacker)
+- **Localisation** : `order_moves/4` avec `move_score/4` 
+- **Fonctionnalités** : Captures priorisées, keysort_desc approprié
+- **Qualité** : Suit les bonnes pratiques des moteurs d'échecs
+
+### **Gestion Positions Terminales - BASIQUE** ✅ **FONCTIONNEL**
+- **Échec et mat** : Retourne -100000 (négatif correct)
+- **Pat** : Retourne 0 (neutre correct)
+- **Localisation** : `terminal_score/3` lignes 190-194
+- **Statut** : Implémentation minimale mais fonctionnelle
+
+### **Recherche Quiescence - MANQUANTE** ❌ **LACUNE MAJEURE**
+- **Problème** : Pas d'extension recherche tactique aux nœuds feuilles  
+- **Impact** : Effet horizon, évaluation tactique défaillante
+- **Standard** : Devrait prolonger recherche pour captures/échecs
+- **Explique** : Dame prématurée, blunders tactiques
+
+### **Comparaison Bonnes Pratiques**
+```prolog
+% ❌ NOTRE CODE (CASSÉ)
+_NewAlpha is -Beta, _NewBeta is -Alpha,
+negamax_ab(NewGameState, NextPlayer, NewDepth, _, OpponentValue)
+
+% ✅ STANDARD CORRECT
+negamax(NewState, NextDepth, -Beta, -Alpha, OpponentColor, Score0)
+```
+
+**Statut** : Analyse algorithme IA révèle défaut critique implémentation alpha-beta nécessitant correction immédiate pour performance.
+
+---
+
+## 📊 **ANALYSE SYSTÈME TRI MVV-LVA - LACUNES IDENTIFIÉES**
+
+### **MVV-LVA Base - Implémentation CORRECTE** ✅ **BON**
+- **Localisation** : `move_score/4` lignes 212-222
+- **Formule** : `AbsTargetVal - AbsAttackerVal + 1000` (correct)
+- **Tri décroissant** : `keysort_desc` fonctionnel
+- **Captures prioritaires** : Score 1000+ vs coups neutres 0
+
+### **Détection Défense - MANQUANTE** ❌ **LACUNE CRITIQUE**
+- **Problème** : Pas de vérification `is_square_attacked` après capture
+- **Impact** : IA fait captures perdantes (Dame vs Pion défendu)
+- **Théorie manquée** : Score ajusté `Value(victim) - Value(attacker)` si défendue
+- **Exemple blunder** : Prend Dame (900) avec Tour (500) → Dame défendue par Pion (100) → Perte nette -400
+
+### **Promotions - NON PRIORISÉES** ❌ **LACUNE TACTIQUE**  
+- **Problème** : Promotions pion traitées comme coups neutres (Score = 0)
+- **Impact** : Promotions ignorées vs captures mineures
+- **Standard attendu** : Score élevé ~90 pour promotion Dame
+- **Conséquence** : Occasions promotion ratées, fins de partie défaillantes
+
+### **Échecs - NON PRIORISÉS** ❌ **LACUNE TACTIQUE**
+- **Problème** : Aucune détection `is_in_check` dans scoring coups
+- **Impact** : Échecs forçants ignorés dans tri
+- **Standard attendu** : Score modéré ~50 pour échecs
+- **Conséquence** : Combinaisons tactiques manquées
+
+### **Comparaison Théorie vs Implémentation**
+```prolog
+% ❌ NOTRE CODE (SIMPLE)
+Score is AbsTargetVal - AbsAttackerVal + 1000
+
+% ✅ THÉORIE COMPLÈTE  
+adjust_capture_score(Board, Player, Move, BaseScore, AdjustedScore) :-
+    simulate_move(Board, Move, NewBoard),
+    ( is_square_attacked(NewBoard, ToRow, ToCol, Opponent) ->
+        AdjustedScore is BaseScore - AttackerValue  % Défendue
+    ; AdjustedScore = BaseScore                     % Sûre
+    ).
+```
+
+### **Impact sur Blunders Tactiques**
+- **Root cause** : Tri basique sans analyse défense
+- **Explique** : Dame prématurée, captures perdantes
+- **Priorité** : Implémentation détection défense = réduction blunders immédiats
+
+**Statut** : Système tri MVV-LVA fonctionnel mais incomplet - détection défense manquante explique blunders tactiques majeurs.

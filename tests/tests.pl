@@ -25,7 +25,7 @@
 :- consult('../src/board').
 :- consult('../src/game').
 :- consult('../src/ai').
-:- consult('../src/psqt_tables').
+:- consult('../src/evaluation').
 
 % =============================================================================
 % UTILITAIRES TESTS

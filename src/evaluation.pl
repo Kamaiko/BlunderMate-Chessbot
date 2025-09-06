@@ -313,9 +313,9 @@ is_piece_defended(_GameState, _Row, _Col, _DefendingPlayer) :-
 % ÉVALUATION MOBILITÉ
 % =============================================================================
 
-% evaluate_mobility_fast(+GameState, +Player, -MobilityValue)
-% Mobilité rapide : compte pièces développées (approximation)
-evaluate_mobility_fast(GameState, Player, MobilityValue) :-
+% evaluate_piece_development(+GameState, +Player, -DevelopmentValue)
+% Évalue le développement des pièces : compte cavaliers/fous hors rang de base
+evaluate_piece_development(GameState, Player, DevelopmentValue) :-
     GameState = game_state(Board, _, _, _, _),
     
     % Compter pièces développées (cavaliers et fous hors rang de base)
@@ -334,7 +334,7 @@ evaluate_mobility_fast(GameState, Player, MobilityValue) :-
     ), DevelopedPieces),
     
     length(DevelopedPieces, DevelopedCount),
-    MobilityValue is DevelopedCount * 10.  % Bonus modéré par pièce développée
+    DevelopmentValue is DevelopedCount * 10.  % Bonus modéré par pièce développée
 
 % =============================================================================
 % ÉVALUATIONS TACTIQUES AVANCÉES
@@ -389,12 +389,12 @@ evaluate_king_safety_basic(GameState, Player, KingSafety) :-
 % FONCTIONS DE SUPPORT ÉVALUATION
 % =============================================================================
 
-% evaluate_piece_mobility(+GameState, +Player, -MobilityValue)
-% Évalue la mobilité globale des pièces
-evaluate_piece_mobility(GameState, Player, MobilityValue) :-
+% evaluate_move_count(+GameState, +Player, -MoveCountValue)
+% Évalue la mobilité par comptage des coups légaux possibles
+evaluate_move_count(GameState, Player, MoveCountValue) :-
     generate_moves_simple(GameState, Player, Moves),
     length(Moves, MoveCount),
-    MobilityValue is MoveCount.  % Plus de coups = meilleure mobilité
+    MoveCountValue is MoveCount.  % Plus de coups = meilleure mobilité
 
 % =============================================================================
 % COMPATIBILITY LAYER - RÉFÉRENCES ANCIENNES

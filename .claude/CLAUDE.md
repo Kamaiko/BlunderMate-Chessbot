@@ -87,14 +87,14 @@ game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces)
 ```
 
 ### Key Predicates
-- `valid_move/5`: Core movement validation (robust input validation)
-- `make_move/5`: Move execution with state update and promotion handling
+- `valid_move/6`: Core movement validation (robust input validation)
+- `make_move/6`: Move execution with state update and promotion handling
 - `parse_algebraic_move/5`: Convert "e2e4" format
 - `display_game_state/1`: ASCII board display
 - `place_piece_optimized/5`: High-performance board operations (AI-ready)
 - `is_promotion_move/3`: Automatic pawn promotion detection (Phase 2 ✅)
 - `is_checkmate/2`: Complete checkmate detection system
-- `check_path_clear/7`: Path validation with recursion protection
+- `check_path_clear/7,8`: Path validation with recursion protection (7: main, 8: depth-limited)
 
 ## Prolog Development Guidelines
 
