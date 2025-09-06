@@ -2,7 +2,9 @@
 
 ## 📋 **VUE D'ENSEMBLE SYSTÈME**
 
-Ce jeu d'échecs Prolog implémente une architecture modulaire en 5 couches avec une IA négamax complète. Le système est conçu pour être éducatif, maintenable et extensible.
+Ce jeu d'échecs Prolog implémente une architecture modulaire en 6 couches avec une IA négamax. Le système est conçu pour être éducatif, maintenable et extensible.
+
+⚠️ **ÉTAT ACTUEL** : IA fonctionnelle avec lacunes identifiées (alpha-beta défaillant, MVV-LVA incomplet) - voir TASKS.md pour roadmap d'amélioration.
 
 ### **🎯 Objectif Pédagogique**
 - Démonstration d'IA d'échecs en Prolog
@@ -10,7 +12,7 @@ Ce jeu d'échecs Prolog implémente une architecture modulaire en 5 couches avec
 - Architecture modulaire propre et extensible
 - Code éducatif niveau universitaire
 
-## 🔧 **ARCHITECTURE 5 MODULES**
+## 🔧 **ARCHITECTURE 6 MODULES**
 
 ```
 ┌─────────────────────────────────────────────────┐
@@ -46,6 +48,14 @@ Ce jeu d'échecs Prolog implémente une architecture modulaire en 5 couches avec
 │  • Conversions coordonnées                     │
 │  • Affichage ASCII et utilitaires             │
 │  • Gestion état plateau                       │
+└─────────────────┬───────────────────────────────┘
+                  │
+┌─────────────────▼───────────────────────────────┐
+│               EVALUATION.PL                     │
+│          Évaluation Position Centralisée        │
+│  • Matériel + PSQT + Sécurité pièces          │
+│  • Mobilité et développement (non intégrés)   │
+│  • Interface évaluation unifiée               │
 └─────────────────────────────────────────────────┘
 
        ┌─────────────────────────────────┐
@@ -124,10 +134,10 @@ P/p (Pion), R/r (Tour), N/n (Cavalier), B/b (Fou), Q/q (Dame), K/k (Roi)
 
 % Architecture IA :
 choose_ai_move/2         % Interface principale IA
-minimax_ab/5             % Négamax avec alpha-beta
-evaluate_pure_reference/3 % Évaluation position complète
+negamax_ab/5             % Négamax (alpha-beta cassé - voir TASKS.md)
+evaluate_position/3       % Évaluation position centralisée
 generate_moves_simple/3   % Génération coups légaux
-order_moves/4            % Tri MVV-LVA
+order_moves/4            % Tri MVV-LVA basique (détection défense manquante)
 
 % Paramètres configurable :
 Profondeur : 2 niveaux (configurable)
@@ -163,6 +173,22 @@ place_piece_optimized/5  % Modification optimisée
 • Standards académiques reconnus
 ```
 
+## ⚠️ **PROBLÈMES CONNUS & ROADMAP**
+
+### **🚨 Défauts Critiques Identifiés**
+- **Alpha-Beta Cassé** : Variables calculées mais jamais utilisées dans `negamax_ab/5` (lignes 169-170)
+- **MVV-LVA Incomplet** : Détection défense manquante cause blunders tactiques
+- **Modules Non-Intégrés** : `evaluate_piece_development/3`, `evaluate_move_count/3` existent mais inutilisés
+- **Captures Tronquées** : Limite `ai_move_limit(25)` coupe séquences tactiques
+
+### **📋 Roadmap Prioritaire**
+1. **Alpha-Beta Fix** : Passer `-Beta, -Alpha` à l'appel récursif (45-60min)
+2. **MVV-LVA Défense** : Ajouter `is_square_attacked` après simulation (60-90min)  
+3. **Mobilité Integration** : Intégrer fonctions mobilité existantes (30-45min)
+4. **Quiescence Search** : Extension recherche tactique (90-120min)
+
+*Voir `docs/TASKS.md` pour détails complets et `docs/BUG_REPORT_ENTERPRISE.md` pour analyse technique.*
+
 ## 🔄 **FLOW DE DONNÉES PRINCIPAL**
 
 ### **1. Démarrage Application**
@@ -181,7 +207,7 @@ start_human_game/0 → init_unified_game_state(human, human)
 ```
 start_ai_game/0 → init_unified_game_state(human, ai)
 → unified_game_loop/1 → handle_player_turn(ai)
-→ choose_ai_move/2 → minimax_ab/5 → evaluate_pure_reference/3
+→ choose_ai_move/2 → negamax_ab/5 → evaluate_position/3
 ```
 
 ### **4. Validation Coup**
@@ -243,8 +269,8 @@ handle_player_turn(UnifiedGameState, Player, ai, NewState).
 4. **board.pl** : Ajouter symbole affichage
 
 ### **Modifier Algorithme IA**
-1. **Profondeur** : Changer paramètre dans `minimax_ab/5`
-2. **Évaluation** : Modifier `evaluate_pure_reference/3`
+1. **Profondeur** : Changer paramètre dans `negamax_ab/5`
+2. **Évaluation** : Modifier `evaluate_position/3`
 3. **Tri coups** : Ajuster `order_moves/4`
 4. **Tests** : Valider avec suite tests AI
 

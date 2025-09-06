@@ -64,7 +64,8 @@ Commandes          : aide, menu, quitter, sortir
 
 | Document | Description |
 |----------|-------------|
-| [📖 Guide Développeur](.claude/CLAUDE.md) | Architecture, conventions, debugging |
+| [🏗️ Architecture Guide](docs/ARCHITECTURE_GUIDE_DEVELOPERS.md) | Architecture système, flow de données, roadmap |
+| [📖 Guide Développeur](.claude/CLAUDE.md) | Conventions, prédicats clés, debugging |
 | [📋 État d'Avancement](docs/TASKS.md) | Tâches prioritaires et bugs actifs |
 | [🐛 Bug Report](docs/BUG_REPORT_ENTERPRISE.md) | Analyses détaillées des problèmes |
 
