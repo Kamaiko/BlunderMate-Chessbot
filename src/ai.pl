@@ -249,18 +249,85 @@ map_move_scores(Board, Player, [Move|RestMoves], [Score-Move|RestScored]) :-
     move_score(Board, Player, Move, Score),
     map_move_scores(Board, Player, RestMoves, RestScored).
 
-% move_score(+Board, +Player, +Move, -Score)
-% Score MVV-LVA basique pour captures - LACUNE: détection défense manquante
-move_score(Board, _Player, [FromRow, FromCol, ToRow, ToCol], Score) :-
+% make_move_simulation(+Board, +FromRow, +FromCol, +ToRow, +ToCol, -NewBoard)
+% Simule un coup sans modifier GameState complet (optimisé pour move_score)
+% Utilisé pour détection défense après capture
+make_move_simulation(Board, FromRow, FromCol, ToRow, ToCol, NewBoard) :-
+    ground(Board), ground(FromRow), ground(FromCol), ground(ToRow), ground(ToCol),
+    valid_chess_position(FromRow, FromCol),
+    valid_chess_position(ToRow, ToCol),
+    get_piece(Board, FromRow, FromCol, Piece),
+    \+ is_empty_square(Piece),
+    % Simulation: vider case départ et placer pièce à l'arrivée
+    place_piece_optimized(Board, FromRow, FromCol, ' ', TempBoard),
+    place_piece_optimized(TempBoard, ToRow, ToCol, Piece, NewBoard).
+
+% move_score_with_defense(+Board, +Player, +Move, -Score)
+% Score MVV-LVA avec détection défense - NOUVEAU SYSTÈME COMPLET
+move_score_with_defense(Board, Player, [FromRow, FromCol, ToRow, ToCol], Score) :-
     get_piece(Board, ToRow, ToCol, TargetPiece),
     (   \+ is_empty_square(TargetPiece) ->
+        % CAPTURE: Calculer score base MVV-LVA
         get_piece(Board, FromRow, FromCol, AttackingPiece),
         piece_value(TargetPiece, TargetVal),
         piece_value(AttackingPiece, AttackerVal),
         AbsTargetVal is abs(TargetVal),
         AbsAttackerVal is abs(AttackerVal),
-        Score is AbsTargetVal - AbsAttackerVal + 1000  % MVV-LVA basique - TODO: ajouter détection défense
-    ;   Score = 0  % Coup non-capture
+        BaseScore is AbsTargetVal - AbsAttackerVal + 1000,
+        
+        % DÉTECTION DÉFENSE après simulation coup
+        (   make_move_simulation(Board, FromRow, FromCol, ToRow, ToCol, NewBoard),
+            opposite_player(Player, Opponent),
+            is_square_attacked(NewBoard, ToRow, ToCol, Opponent) ->
+            % Défendue: ajuster score négativement (perte probable)
+            AdjustedScore is BaseScore - AbsAttackerVal,
+            Score = AdjustedScore
+        ;   % Sûre: score base inchangé
+            Score = BaseScore
+        )
+    ;   % NON-CAPTURE: score neutre
+        Score = 0
+    ).
+
+% move_score(+Board, +Player, +Move, -Score)  
+% Score MVV-LVA AMÉLIORÉ avec détection défense + promotions + échecs
+move_score(Board, Player, Move, FinalScore) :-
+    % Score base MVV-LVA avec détection défense
+    move_score_with_defense(Board, Player, Move, BaseScore),
+    
+    % Bonus promotions (Phase 3)
+    detect_promotion_bonus(Move, Board, Player, PromotionBonus),
+    
+    % Bonus échecs (Phase 3) 
+    detect_check_bonus(Board, Player, Move, CheckBonus),
+    
+    % Score final combiné
+    FinalScore is BaseScore + PromotionBonus + CheckBonus.
+
+% detect_promotion_bonus(+Move, +Board, +Player, -Bonus)
+% Détecte si le coup est une promotion et attribue bonus élevé
+detect_promotion_bonus([FromRow, FromCol, ToRow, _ToCol], Board, Player, Bonus) :-
+    get_piece(Board, FromRow, FromCol, Piece),
+    (   % Pion blanc atteignant 8e rangée
+        (Piece = 'P', Player = white, ToRow = 8) ->
+        Bonus = 90
+    ;   % Pion noir atteignant 1ère rangée  
+        (Piece = 'p', Player = black, ToRow = 1) ->
+        Bonus = 90
+    ;   % Pas une promotion
+        Bonus = 0
+    ).
+
+% detect_check_bonus(+Board, +Player, +Move, -Bonus)
+% Détecte si le coup donne échec et attribue bonus modéré
+detect_check_bonus(Board, Player, [FromRow, FromCol, ToRow, ToCol], Bonus) :-
+    (   % Simuler le coup et tester si opponent en échec
+        make_move_simulation(Board, FromRow, FromCol, ToRow, ToCol, NewBoard),
+        opposite_player(Player, Opponent),
+        is_in_check(game_state(NewBoard, Opponent, 0, ongoing, []), Opponent) ->
+        Bonus = 50  % Score échec forçant
+    ;   % Pas un échec
+        Bonus = 0
     ).
 
 % keysort_desc(+Pairs, -SortedDesc)

@@ -302,12 +302,13 @@ valuable_piece('B', 330). valuable_piece('b', 330).
 valuable_piece('N', 320). valuable_piece('n', 320).
 
 % is_piece_defended(+GameState, +Row, +Col, +DefendingPlayer)
-% Version simplifiée : considère toute pièce attaquée comme NON défendue  
-% (approche conservatrice pour éviter blunders - détecte tous hanging pieces)
-is_piece_defended(_GameState, _Row, _Col, _DefendingPlayer) :-
-    % Pour l'instant, aucune pièce attaquée n'est considérée comme défendue
-    % Ceci garantit la détection de tous les hanging pieces (très conservateur)
-    fail.
+% CORRECTION CRITIQUE: Implémente vraie détection défense via is_square_attacked
+% Remplace approche conservatrice fail systématique par vérification fonctionnelle
+is_piece_defended(GameState, Row, Col, DefendingPlayer) :-
+    ground(GameState), ground(Row), ground(Col), ground(DefendingPlayer),
+    valid_chess_position(Row, Col),
+    GameState = game_state(Board, _, _, _, _),
+    is_square_attacked(Board, Row, Col, DefendingPlayer).
 
 % =============================================================================
 % ÉVALUATION MOBILITÉ
