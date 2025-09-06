@@ -47,21 +47,14 @@
 
 ## 📋 **TÂCHES PRIORITAIRES IDENTIFIÉES**
 
-### **🚨 PRIORITÉ 1 : TASK ALPHA-BETA - Correction Élagage Alpha-Beta**
-- **Problème** : `_NewAlpha` et `_NewBeta` calculés mais jamais utilisés dans appel récursif
-- **Localisation** : `src/ai.pl:169-170`
-- **Impact** : **AUCUN ÉLAGAGE RÉEL** - ralentissement exponentiel (1-4s/coup)
-- **Solution** : Passer `-Beta, -Alpha` à l'appel `negamax_ab` récursif
-- **Effort** : 45-60 min (correction + tests)
-
-### **🔍 PRIORITÉ 2 : TASK MVV-LVA - Détection Défense Captures**
+### **🔍 PRIORITÉ 1 : TASK MVV-LVA - Détection Défense Captures**
 - **Problème** : Pas de vérification `is_square_attacked` après capture
 - **Impact** : IA fait captures perdantes (Dame vs Pion défendu)
 - **Localisation** : `move_score/4` ligne 212-222
 - **Solution** : Ajouter simulation coup + détection défense
 - **Effort** : 60-90 min (implémentation + tests)
 
-### **⚔️ PRIORITÉ 2.5 : TASK CAPTURES-FORCÉES - Inclusion Captures/Recaptures**
+### **⚔️ PRIORITÉ 2 : TASK CAPTURES-FORCÉES - Inclusion Captures/Recaptures**
 - **Problème** : Limite `ai_move_limit(25)` coupe séquences tactiques critiques
 - **Impact** : Séquences Capture→Recapture→Re-recapture tronquées
 - **Localisation** : `generate_regular_moves/3` ligne 351-353

@@ -176,13 +176,6 @@ Mouvement joue: g5e7
 
 ## 🚨 **ANALYSE ALGORITHME IA - DÉFAUTS CRITIQUES**
 
-### **Élagage Alpha-Beta CASSÉ** ❌ **DÉFAUT CRITIQUE**
-- **Localisation** : `src/ai.pl:169-170`
-- **Problème** : `_NewAlpha` et `_NewBeta` calculés mais **JAMAIS UTILISÉS**
-- **Code** : `negamax_ab(NewGameState, NextPlayer, NewDepth, _, OpponentValue)` 
-- **Impact** : **AUCUN ÉLAGAGE RÉEL** - algorithme négamax sans alpha-beta
-- **Performance** : Ralentissement exponentiel, explique les 1-4s par coup
-
 ### **Gestion Couleurs - Non-Standard** ⚠️ **CHOIX DESIGN**
 - **Actuel** : Utilise chaînes `white`/`black` au lieu de numérique `+1/-1`
 - **Impact** : Logique négation plus complexe vs pattern NegaMax standard
@@ -207,17 +200,6 @@ Mouvement joue: g5e7
 - **Standard** : Devrait prolonger recherche pour captures/échecs
 - **Explique** : Dame prématurée, blunders tactiques
 
-### **Comparaison Bonnes Pratiques**
-```prolog
-% ❌ NOTRE CODE (CASSÉ)
-_NewAlpha is -Beta, _NewBeta is -Alpha,
-negamax_ab(NewGameState, NextPlayer, NewDepth, _, OpponentValue)
-
-% ✅ STANDARD CORRECT
-negamax(NewState, NextDepth, -Beta, -Alpha, OpponentColor, Score0)
-```
-
-**Statut** : Analyse algorithme IA révèle défaut critique implémentation alpha-beta nécessitant correction immédiate pour performance.
 
 ---
 
