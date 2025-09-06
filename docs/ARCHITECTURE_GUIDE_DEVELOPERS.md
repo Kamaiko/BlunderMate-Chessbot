@@ -19,20 +19,20 @@ Ce jeu d'échecs Prolog implémente une architecture modulaire en 6 couches avec
 │                  INTERFACE.PL                   │
 │           Interface Utilisateur Française       │
 │  • Menu principal et navigation                 │
-│  • Boucle de jeu unifiée humain/IA             │
-│  • Gestion commandes et validation entrée      │
+│  • Boucle de jeu unifiée humain/IA              │
+│  • Gestion commandes et validation entrée       │
 └──────────────────────┬──────────────────────────┘
                        │
 ┌──────────────────────▼──────────────────────────┐
 │                   GAME.PL                       │
 │              Logique Métier Échecs              │
-│  • États de jeu et transitions                 │
-│  • Validation coups et règles                  │
-│  • Détection échec/mat/pat                     │
-│  • Gestion captures et promotion               │
+│  • États de jeu et transitions                  │
+│  • Validation coups et règles                   │
+│  • Détection échec/mat/pat                      │
+│  • Gestion captures et promotion                │
 └───────────┬─────────────────┬───────────────────┘
             │                 │
-┌───────────▼─────────┐  ┌────▼──────────────────────┐
+┌───────────▼─────────┐  ┌────▼────────────────── ────┐
 │     PIECES.PL       │  │         AI.PL              │
 │   Règles Pièces     │  │  Intelligence Artificielle │
 │ • Mouvements        │  │ • Négamax + Alpha-Beta     │
@@ -43,19 +43,19 @@ Ce jeu d'échecs Prolog implémente une architecture modulaire en 6 couches avec
 ┌───────────▼─────────────────▼───────────────────────┐
 │                  BOARD.PL                           │
 │              Représentation Plateau                 │
-│  • Structure 8x8 et manipulation                   │
-│  • Conversions coordonnées                         │
-│  • Affichage ASCII et utilitaires                 │
-│  • Gestion état plateau                           │
+│  • Structure 8x8 et manipulation                    │
+│  • Conversions coordonnées                          │
+│  • Affichage ASCII et utilitaires                   │
+│  • Gestion état plateau                             │
 └─────────────────────┬───────────────────────────────┘
                       │
 ┌─────────────────────▼───────────────────────────────┐
 │                 EVALUATION.PL                       │
 │        Évaluation Position + PSQT Intégrées         │
-│  • Matériel + PSQT ChessProgramming.org            │
-│  • Sécurité pièces (anti-blunders)                │
-│  • Mobilité et développement (disponibles)         │
-│  • Interface évaluation unifiée                   │
+│  • Matériel + PSQT ChessProgramming.org             │
+│  • Sécurité pièces (anti-blunders)                  │
+│  • Mobilité et développement (disponibles)          │
+│  • Interface évaluation unifiée                     │
 └─────────────────────────────────────────────────────┘
 ```
 
