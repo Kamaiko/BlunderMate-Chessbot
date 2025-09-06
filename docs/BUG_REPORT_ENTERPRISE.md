@@ -96,7 +96,7 @@
 ### **Console Output Observé**
 ```
 Mouvement joue: g5e7
-IA reflechit (noir, minimax alpha-beta)...
+IA reflechit (noir, negamax alpha-beta)...
 Mouvement joue: g5e7
 [Répété indéfiniment]
 ```

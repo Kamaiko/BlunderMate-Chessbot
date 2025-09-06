@@ -628,7 +628,7 @@ test_alpha_beta_consistency :-
     
     write('[INFO] Position 1: Milieu Complexe'), nl,
     write('[FEN ] r2q1rk1/ppp2ppp/2np1n2/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQR1K1 w - - 0 1'), nl,
-    write('[TEST] minimax(depth=2) = alpha_beta(depth=2)'), nl, nl,
+    write('[TEST] negamax(depth=2) = alpha_beta(depth=2)'), nl, nl,
     
     write('[INFO] Position 2: Position Tactique'), nl,
     write('[FEN ] r1bq1rk1/pp3ppp/2np1n2/2b1p3/2B1P3/2NP1Q2/PPP2PPP/R1B1R1K1 b - - 0 1'), nl,

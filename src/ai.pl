@@ -194,7 +194,7 @@ terminal_score(GameState, Player, Score) :-
     ).
 
 % order_moves(+GameState, +Player, +Moves, -OrderedMoves)
-% Tri des coups : captures (MVV-LVA) d'abord, puis autres
+% Tri des coups : captures (MVV-LVA basique) d'abord, puis autres - INCOMPLET
 order_moves(GameState, Player, Moves, OrderedMoves) :-
     GameState = game_state(Board, _, _, _, _),
     map_move_scores(Board, Player, Moves, ScoredMoves),
@@ -208,7 +208,7 @@ map_move_scores(Board, Player, [Move|RestMoves], [Score-Move|RestScored]) :-
     map_move_scores(Board, Player, RestMoves, RestScored).
 
 % move_score(+Board, +Player, +Move, -Score)
-% Score MVV-LVA pour captures avec valeurs standard correctes
+% Score MVV-LVA basique pour captures - LACUNE: détection défense manquante
 move_score(Board, _Player, [FromRow, FromCol, ToRow, ToCol], Score) :-
     get_piece(Board, ToRow, ToCol, TargetPiece),
     (   \+ is_empty_square(TargetPiece) ->
@@ -217,7 +217,7 @@ move_score(Board, _Player, [FromRow, FromCol, ToRow, ToCol], Score) :-
         piece_value(AttackingPiece, AttackerVal),
         AbsTargetVal is abs(TargetVal),
         AbsAttackerVal is abs(AttackerVal),
-        Score is AbsTargetVal - AbsAttackerVal + 1000  % MVV-LVA avec valeurs absolues
+        Score is AbsTargetVal - AbsAttackerVal + 1000  % MVV-LVA basique - TODO: ajouter détection défense
     ;   Score = 0  % Coup non-capture
     ).
 
