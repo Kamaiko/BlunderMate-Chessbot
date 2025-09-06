@@ -113,13 +113,60 @@
 - **Résolution** : Corrections codes antérieures ont résolu le bug
 - **Effort** : Résolu (monitoring continu recommandé)
 
-### **🚨 TASK NOUVELLE - MVV-LVA DEBUG CRITIQUE** ⚠️ **IMMÉDIAT**
-- **Découverte** : Détection défense **illusion complète** - bug paramètre couleur
-- **Bug critique** : `is_square_attacked(Board, Row, Col, Opponent)` au lieu de `Player`
-- **Impact** : IA ne détecte JAMAIS défenses réelles → Blunders tactiques persistent
-- **Actions immédiates** :
-  1. Fix paramètre couleur dans move_score_with_defense/4
-  2. Créer tests authentiques défense (positions réelles)
-  3. Valider vraie réduction blunders après correction
-- **Effort** : 30-45 min (correction + validation authentique)
+### **🚨 TASK MVV-LVA DEBUG CRITIQUE - MISE À JOUR 2025-09-06** ⚠️ **BLUNDER PERSIST**
+
+#### **DÉCOUVERTE INITIALE** ✅ (Corrigée partiellement)
+- **Bug paramètre couleur** : `Opponent` → `Player` dans ai.pl:281 ✅ CORRIGÉ
+- **Tests isolés** : Passent maintenant authentiquement ✅ VALIDÉ
+- **Scores MVV-LVA** : Défense détectée (-700 vs +600) ✅ FONCTIONNEL
+
+#### **🚨 NOUVELLE DÉCOUVERTE CRITIQUE** ❌ **PROBLÈME PERSISTE**
+- **Date** : 2025-09-06 (Jeu réel test)
+- **Evidence** : IA blunder dame a5→a2 au coup 5 malgré "correction"
+- **Réalité** : Tests isolés ≠ Comportement jeu réel
+- **Impact** : Blunders tactiques persistent en partie réelle
+
+#### **HYPOTHÈSES ROOT CAUSE RESTANT**
+1. **Pipeline incomplet** : Détection défense bypass dans generate_moves
+2. **Limitation coups** : ai_move_limit(25) coupe analyses tactiques
+3. **Contexte ouverture** : generate_opening_moves ignore MVV-LVA ?
+4. **Autre bug logique** : Problème dans order_moves ou negamax_ab
+
+#### **ACTIONS CRITIQUES REQUISES**
+1. **ANALYSE PIPELINE COMPLET** : Tracer coup a5→a2 dans jeu réel
+2. **DEBUG GENERATE_OPENING_MOVES** : Vérifier si MVV-LVA appliqué en ouverture
+3. **VALIDATION NÉGAMAX** : S'assurer que tri MVV-LVA respecté par IA
+4. **TESTS INTÉGRATION** : Tests jeu réel, pas seulement isolés
+
+#### **🚨 NOUVELLE OBSERVATION CRITIQUE - ÉVALUATION ERRATIQUE** (2025-09-06)
+- **Evidence** : Évaluation +60 → -1045 après Dame d8→a5 (swing -1105 points!)
+- **Problème** : IA voit Dame a5 comme "excellent coup" malgré exposition dangereuse
+- **Incohérence** : Coup tactiquement mauvais = meilleur score évaluation
+- **Hypothèse** : `evaluate_position` défaillante, `piece_safety` non fonctionnelle
+
+**STATUS** : **BUG ÉVALUATION GLOBALE** - Problème plus large que MVV-LVA isolé
+
+---
+
+## 🎯 **PLAN D'INTERVENTION EFFICACE - PRIORITÉ CRITIQUE**
+
+### **PHASE 1: AUDIT ÉVALUATION (60 min)**
+1. **DEBUG evaluate_position** - Tracer évaluation coup Dame d8→a5
+   - Composants: Matériel, PSQT, Sécurité pièces
+   - Identifier pourquoi +60 → -1045 swing
+2. **ANALYSER piece_safety** - Vérifier si Dame exposée détectée
+   - Test position Dame a5 : is_square_attacked fonctionnel ?
+3. **AUDIT detect_check_bonus** - Bonus échec trop élevé ?
+
+### **PHASE 2: CORRECTION CIBLÉE (45 min)**
+1. **FIX évaluation incohérente** - Corriger composant défaillant
+2. **VALIDATION piece_safety** - Activer détection hanging pieces
+3. **ÉQUILIBRAGE bonus** - Ajuster check_bonus vs piece_safety
+
+### **PHASE 3: TESTS INTÉGRATION (30 min)** 
+1. **TEST position Dame a5** - Vérifier évaluation corrigée
+2. **PARTIE COMPLÈTE** - Valider IA évite blunders Dame prématurée
+3. **RÉGRESSION** - S'assurer autres fonctions intactes
+
+**EFFORT TOTAL** : 135 min - **IMPACT** : Élimination blunders tactiques IA
 

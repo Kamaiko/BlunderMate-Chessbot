@@ -277,8 +277,7 @@ move_score_with_defense(Board, Player, [FromRow, FromCol, ToRow, ToCol], Score) 
         
         % DÉTECTION DÉFENSE après simulation coup
         (   make_move_simulation(Board, FromRow, FromCol, ToRow, ToCol, NewBoard),
-            opposite_player(Player, Opponent),
-            is_square_attacked(NewBoard, ToRow, ToCol, Opponent) ->
+            is_square_attacked(NewBoard, ToRow, ToCol, Player) ->
             % Défendue: ajuster score négativement (perte probable)
             AdjustedScore is BaseScore - AbsAttackerVal,
             Score = AdjustedScore

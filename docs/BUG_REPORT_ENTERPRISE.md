@@ -15,11 +15,41 @@
 - **Status** : **TESTS SUPPLÉMENTAIRES REQUIS** - validation séquence complète nécessaire
 - **Next Actions** : Tests multiples pour confirmer résolution définitive
 
-### **2. Piece Safety Désactivée**
-- **Location** : `src/evaluation.pl` (ex `src/ai.pl:372-373`)
-- **Problème** : `evaluate_piece_safety` hardcodé retourne 0
-- **Impact** : IA sacrifie pièces vs pions défendus (blunders tactiques)
-- **Status** : Fonction existe mais désactivée - décision requise
+### **2. MVV-LVA Détection Défense** 🚨 **CRITIQUE - MISE À JOUR 2025-09-06**
+
+#### **BUG INITIAL** ✅ **PARTIELLEMENT RÉSOLU**
+- **Location** : `src/ai.pl:281` (move_score_with_defense)
+- **Problème** : Paramètre couleur inversé `Opponent` → `Player`
+- **Correction** : Appliquée 2025-09-06 
+- **Tests isolés** : ✅ PASSENT - Dame×défendu (-700) vs Dame×libre (+600)
+
+#### **🚨 NOUVELLE DÉCOUVERTE CRITIQUE** ❌ **PROBLÈME PERSISTE**
+- **Evidence** : IA blunder dame a5→a2 coup 5 en jeu réel malgré "correction"
+- **Réalité** : Tests isolés ≠ Comportement gameplay réel
+- **Impact** : Blunders tactiques persistent en parties
+
+#### **HYPOTHÈSES ROOT CAUSE RÉELLE**
+1. **Pipeline bypass** : MVV-LVA ignoré dans generate_opening_moves ?
+2. **Limitation coups** : ai_move_limit(25) tronque analyse tactique
+3. **Négamax ignore tri** : order_moves appelé mais résultat non respecté
+4. **Autre bug logique** : Problème plus profond dans pipeline IA
+
+**STATUS RÉEL** : Bug plus complexe que paramètre couleur - Investigation pipeline complet requise
+
+#### **🚨 OBSERVATION ÉVALUATION ERRATIQUE** (2025-09-06)
+- **Evidence gameplay** : Évaluation +60 → -1045 après Dame d8→a5 (swing -1105!)
+- **Incohérence critique** : Coup tactiquement mauvais = meilleur score évaluation  
+- **Problème identifié** : IA voit Dame exposée a5 comme "excellent coup"
+- **Root cause probable** : `evaluate_position` défaillante, `piece_safety` non fonctionnelle
+
+### **3. Évaluation Position Défaillante** 🚨 **NOUVEAU - CRITIQUE**
+- **Location** : `src/evaluation.pl` (evaluate_position/3)
+- **Problème** : Évaluation erratique, swings inexpliqués -1000+ points
+- **Evidence** : Dame prématurée a5 évaluée comme "excellent coup"
+- **Impact** : IA privilégie coups tactiquement perdants
+- **Hypothèse** : Composants évaluation (matériel/PSQT/sécurité) déséquilibrés
+
+**STATUS CRITIQUE** : Bug évaluation globale - Problème plus large que MVV-LVA isolé
 
 ---
 

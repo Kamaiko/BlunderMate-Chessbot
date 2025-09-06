@@ -12,6 +12,163 @@ Ce jeu d'échecs Prolog implémente une architecture modulaire en 6 couches avec
 - Architecture modulaire propre et extensible
 - Code éducatif niveau universitaire
 
+## 🚨 **ANALYSE CRITIQUE MVV-LVA - BUG PARAMÈTRE COULEUR**
+
+**Date**: 2025-09-06  
+**Découverte**: Détection défense MVV-LVA **complètement non fonctionnelle**  
+**Bug**: Paramètre couleur inversé dans `move_score_with_defense/4`  
+
+### **🔍 PIPELINE MVV-LVA COMPLET**
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                    CHAÎNE CRITIQUE MVV-LVA                          │
+└──────────────────────────────────────────────────────────────────────┘
+
+1. generate_moves_simple(GameState, Player, Moves)
+   └─→ ai.pl:352 - Génère tous coups possibles
+
+2. order_moves(GameState, Player, Moves, OrderedMoves)  
+   └─→ ai.pl:240 - Trie coups par score MVV-LVA
+   
+3. map_move_scores(Board, Player, Moves, ScoredMoves)
+   └─→ ai.pl:248 - Applique move_score/4 à chaque coup
+   
+4. move_score(Board, Player, Move, FinalScore)
+   └─→ ai.pl:294 - Score final = Base + Promotions + Échecs
+   
+5. move_score_with_defense(Board, Player, Move, BaseScore) 🚨 BUG ICI
+   └─→ ai.pl:267 - PROBLÈME CRITIQUE ligne 281
+```
+
+### **🐛 BUG CRITIQUE IDENTIFIÉ**
+
+**Fichier**: `src/ai.pl:281`  
+**Problème**: Paramètre couleur **inversé** dans détection défense
+
+```prolog
+% ACTUEL (INCORRECT) - Ligne 281
+is_square_attacked(NewBoard, ToRow, ToCol, Opponent) ->
+
+% CORRECTION REQUISE  
+is_square_attacked(NewBoard, ToRow, ToCol, Player) ->
+```
+
+### **📊 ANALYSE IMPACT BUG**
+
+**LOGIQUE ATTENDUE:**
+- Après capture simulée, vérifier si **joueur actuel peut défendre** la case
+- Si case défendue → Réduire score (capture risquée)
+
+**LOGIQUE ACTUELLE (BUG):**
+- Vérifier si **adversaire attaque** la case après capture
+- Toujours false car adversaire ne peut pas attaquer sa propre case
+- Détection défense **jamais active** → Scores MVV-LVA basiques seulement
+
+**CONSÉQUENCE:**
+- Tests passaient par accident (différences valeurs pièces)
+- IA ne détecte jamais défenses réelles
+- Blunders tactiques persistent (Dame vs pion défendu)
+
+### **🔗 RELATIONS CRITIQUES INTER-MODULES MVV-LVA**
+
+```
+AI.PL (Tri coups)
+├─→ move_score_with_defense/4
+    ├─→ make_move_simulation/6 (board.pl - simulation plateau)
+    └─→ is_square_attacked/4 🚨 (game.pl - détection attaque)
+        └─→ opposite_player/2 🚨 (pieces.pl - conversion couleur)
+            
+EVALUATION.PL (Évaluation sécurité)  
+├─→ evaluate_piece_safety/3
+    └─→ is_piece_defended/4 ✅ (CORRIGÉ)
+        └─→ is_square_attacked/4 (game.pl - même problème potentiel)
+
+GAME.PL (Détection attaque)
+├─→ is_square_attacked/4 - INTERFACE PUBLIQUE
+    ├─→ opposite_player/2 (inversion couleur INTERNE)
+    └─→ square_attacked_by_any_piece/4 (logique attaque)
+```
+
+### **⚠️ ZONES À RISQUE IDENTIFIÉES**
+
+1. **USAGE PARAMETER Player vs Opponent** - ai.pl:281 🚨
+   ```prolog
+   % PATTERN RISQUÉ partout dans le code
+   opposite_player(Player, Opponent),
+   is_square_attacked(..., Opponent)  % ← Vérifier si cohérent
+   ```
+
+2. **DOUBLE INVERSION COULEUR** - game.pl:464 + ai.pl:280
+   ```prolog
+   % game.pl fait déjà: opposite_player(DefendingPlayer, AttackingPlayer)
+   % ai.pl fait aussi: opposite_player(Player, Opponent)
+   % = Double inversion = retour à la couleur originale!
+   ```
+
+3. **SEMANTIC CONFUSION** - DefendingPlayer vs AttackingPlayer
+   ```prolog
+   % is_square_attacked(Board, Row, Col, DefendingPlayer)
+   % Nom suggère "qui défend" mais implemente "qui est attaqué"
+   ```
+
+### **🔍 AUDIT COMPLET USAGES is_square_attacked**
+
+**ANALYSE**: 4 usages dans le code base - 3 CORRECTS, 1 BUG CRITIQUE
+
+#### **✅ USAGE CORRECT #1** - game.pl:456 (Détection échec)
+```prolog
+% CONTEXTE: is_in_check/2 - vérifie si Player en échec
+find_king_position(Board, Player, KingRow, KingCol),
+is_square_attacked(Board, KingRow, KingCol, Player).
+
+% LOGIQUE: "Est-ce que Player est attaqué?" = CORRECT
+% is_square_attacked fait: opposite_player(Player, AttackingPlayer)
+% = Cherche si adversaire attaque le roi de Player
+```
+
+#### **✅ USAGE CORRECT #2** - evaluation.pl:291 (Pièces exposées)  
+```prolog
+% CONTEXTE: evaluate_piece_safety/3 - pièces hanging
+opposite_player(Player, Opponent),
+is_square_attacked(Board, Row, Col, Opponent), % Piece attaquée
+
+% LOGIQUE: "Est-ce que pièce de Opponent est attaquée par Player?" = CORRECT  
+% Paramètre Opponent = pièce appartient à Opponent
+% is_square_attacked fait: opposite_player(Opponent, Player)
+% = Cherche si Player attaque la pièce de Opponent
+```
+
+#### **✅ USAGE CORRECT #3** - evaluation.pl:311 (Détection défense)
+```prolog  
+% CONTEXTE: is_piece_defended/4 - pièce défendue
+is_square_attacked(Board, Row, Col, DefendingPlayer).
+
+% LOGIQUE: "Est-ce que DefendingPlayer peut attaquer/défendre cette case?" = CORRECT
+% DefendingPlayer = celui qui défend
+% is_square_attacked fait: opposite_player(DefendingPlayer, AttackingPlayer)  
+% Mais nom trompeur - cherche en fait si DefendingPlayer attaque la case
+```
+
+#### **🚨 USAGE INCORRECT #4** - ai.pl:281 (MVV-LVA défense)
+```prolog
+% CONTEXTE: move_score_with_defense/4 - capture défendue?
+opposite_player(Player, Opponent),
+is_square_attacked(NewBoard, ToRow, ToCol, Opponent) ->
+
+% LOGIQUE VOULUE: "Après capture, Player peut-il défendre la case?"
+% LOGIQUE ACTUELLE: "Après capture, Opponent attaque-t-il la case?"
+% PROBLÈME: Opponent ne peut pas attaquer sa propre case après capture!
+% CORRECTION: Utiliser Player au lieu de Opponent
+```
+
+### **📋 RECOMMANDATIONS CORRECTIONS**
+
+1. **IMMÉDIAT**: Fix ai.pl:281 `Opponent` → `Player` 
+2. **CLARIFICATION**: Renommer is_square_attacked → is_square_attacked_by_opponent
+3. **TESTS**: Valider tous usages après correction
+4. **DOCUMENTATION**: Clarifier sémantique de chaque usage
+
 ## 🔧 **ARCHITECTURE 6 MODULES**
 
 ```

@@ -585,8 +585,8 @@ setup_multi_capture_board_black([
     ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
     ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
     ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', '.', 'q', '.', '.', '.', '.'],  % Dame noire en d5 
-    ['.', '.', 'B', 'Q', 'R', '.', '.', '.'],  % Fou(330), Dame(900), Tour(500) blancs
+    ['.', '.', '.', 'q', '.', '.', '.', '.'],  % Dame noire en d5
+    ['.', '.', 'B', 'Q', 'R', '.', '.', '.'],  % Fou c4(330), Dame d4(900), Tour e4(500)
     ['.', '.', '.', '.', '.', '.', '.', '.'],
     ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
     ['R', 'N', 'B', '.', 'K', '.', 'N', 'R']
@@ -630,16 +630,16 @@ test_mvv_lva_defense_detection_black :-
 % Position CRITIQUE: Dame noire d4 face à BLUNDER classique  
 % - Pion blanc d3 défendu par pion c2 (PIÈGE!)
 % - Tour blanche g4 libre (MEILLEUR CHOIX)
-% - AJOUT ROIS pour cohérence position
+% - POSITION SIMPLIFIÉE avec rois seulement
 setup_defended_pawn_blunder_board([
-    ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],  % Ajout dame + rois
-    ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'], 
+    ['.', '.', '.', '.', 'k', '.', '.', '.'],  % Roi noir seulement
+    ['.', '.', '.', '.', '.', '.', '.', '.'], 
     ['.', '.', '.', '.', '.', '.', '.', '.'],
     ['.', '.', '.', '.', '.', '.', '.', '.'],
     ['.', '.', '.', 'q', '.', '.', 'R', '.'],  % Dame noire d4, Tour blanche g4 (LIBRE)
     ['.', '.', '.', 'P', '.', '.', '.', '.'],  % Pion blanc d3 (APPÂT défendu)
     ['.', '.', 'P', '.', '.', '.', '.', '.'],  % Pion blanc c2 (DÉFEND d3) 
-    ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']   % Ajout pièces blanches + roi
+    ['.', '.', '.', '.', 'K', '.', '.', '.']   % Roi blanc seulement
 ]).
 
 % Test 3: Promotions priorisees - IA NOIRE

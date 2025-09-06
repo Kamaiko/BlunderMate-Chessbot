@@ -172,7 +172,7 @@ swipl -t run_tests -s tests/tests.pl
 swipl tests/tests.pl
 ```
 
-## AI Implementation Status (Phase 3) - ✅ ALPHA-BETA FONCTIONNEL
+## AI Implementation Status (Phase 3) - ⚠️ **DEBUG CRITIQUE MVV-LVA**
 
 ✅ **IA NÉGAMAX + ALPHA-BETA OPTIMISÉE**
 - **Algorithme**: Négamax avec élagage alpha-beta opérationnel, profondeur 2
@@ -181,23 +181,39 @@ swipl tests/tests.pl
 - **Interface**: Scores cohérents `[EVAL] Position: X (+blanc/-noir)`
 - **Performance**: Quasi-instantanée (0.00s/coup), élagage fonctionnel
 
-### 🔬 **TÂCHES PRIORITAIRES RESTANTES**
-- **🎯 Comportement tactique** : Dame prématurée, blunders tactiques, recaptures ignorées
-- **🔧 Détection défense** : MVV-LVA sans vérification `is_square_attacked`
-- **⚔️ Captures forcées** : Inclure toutes captures même au-delà limite 25 coups
-- **🔍 TASK ARCH-2** : Audit architectural vs standards moteurs professionnels
-- **📋 Status** : PRIORITÉ 1 - Task MVV-LVA détection défense captures
+### 🚨 **DÉCOUVERTE CRITIQUE - MVV-LVA DEBUG** (2025-09-06)
+- **🎯 Détection défense** : **ILLUSION COMPLÈTE** - Bug paramètre couleur critique
+- **Bug identifié** : `is_square_attacked(Board, Row, Col, Opponent)` → Teste mauvaise couleur
+- **Impact** : IA ne détecte JAMAIS défenses réelles → Blunders tactiques persistent
+- **Tests faux positifs** : Passent par accident (différence valeur pièces seulement)
+- **Status critique** : **DEBUG ACTIF** - Correction paramètre Player vs Opponent requise
 
-### ❌ BUG CRITIQUE NON RÉSOLU (Janvier 2025)
-- **🐛 Interface Loop**: ❌ **PERSISTE** - Corrections code quality insuffisantes  
-- **📍 Root Cause**: Plus complexe que empty square handling - cause réelle inconnue
-- **🔧 Corrections Appliquées** (n'ont pas résolu le bug):
-  - `generate_regular_moves`: `Piece \= '.'` → `\+ is_empty_square(Piece)`
-  - Suppression duplicate `find_king_position/4`
-  - Correction singleton variables 
-  - Réactivation `piece_safety` evaluation
-- **📋 Status Bug**: **UNRESOLVED** - Interface loop reproductible à 100%
-- **🎯 Réalité**: Séquence `d2d4`, `c1g5`, `g5e7` cause toujours freeze complet
+### 🔬 **TÂCHES PRIORITAIRES CRITIQUES**
+- **🚨 IMMÉDIAT** : Fix bug couleur dans move_score_with_defense/4 (30 min)
+- **⚔️ Captures forcées** : Inclure toutes captures même au-delà limite 25 coups  
+- **🔍 TASK ARCH-2** : Audit architectural vs standards moteurs professionnels
+- **📋 Status** : **DEBUG CRITIQUE EN COURS** - Détection défense non fonctionnelle
+
+### ✅ **INTERFACE LOOP BUG RÉSOLU** (Septembre 2025)
+- **🎉 Status**: **RÉSOLU** - Plus de freeze observés lors multiples sessions tests
+- **📍 Validation**: Séquence `d2d4`, `c1g5`, `g5e7` jouable sans problème
+- **🔧 Résolution**: Corrections codes antérieures ont éliminé le bug
+- **📋 Monitoring**: Tests sessions MVV-LVA confirment stabilité interface
+
+### 🚨 **BUG MVV-LVA CRITIQUE** - MISE À JOUR (Septembre 2025)  
+
+#### **PARTIE 1: BUG PARAMÈTRE COULEUR** ✅ **PARTIELLEMENT RÉSOLU**
+- **🐛 Bug initial**: `is_square_attacked(Board, Row, Col, Opponent)` paramètre inversé
+- **🔧 Correction appliquée**: `Opponent` → `Player` dans ai.pl:281 (2025-09-06)
+- **✅ Tests isolés**: Détection défense fonctionne (Dame×défendu -700 vs +600)
+
+#### **🚨 PARTIE 2: DÉCOUVERTE CRITIQUE GAMEPLAY** ❌ **PROBLÈME PERSISTE**
+- **📍 Evidence**: IA blunder dame a5→a2 coup 5 en jeu réel malgré correction
+- **🎯 Réalité**: Tests isolés passent ≠ Comportement jeu réel
+- **📋 Status**: **INVESTIGATION PIPELINE COMPLET REQUISE**
+- **🔍 Hypothèses**: generate_opening_moves bypass MVV-LVA, limitation coups, ou autre bug
+
+**CONCLUSION**: Bug plus complexe que paramètre couleur - Blunders persistent en partie réelle
 
 ### 🔍 ANALYSE QUALITÉ CODE COMPLÈTE (Janvier 2025)
 
@@ -217,8 +233,9 @@ swipl tests/tests.pl
 ### 🎯 Status Académique 
 - **✅ Exigences techniques**: IA fonctionnelle, profondeur 2, performance acceptable
 - **✅ Architecture stable**: 6 modules, tests passent, interface professionnelle  
-- **❌ Bug bloquant**: Interface freeze sur certains mouvements
-- **⚠️ Recommandation**: Debug interface requis avant démo finale
+- **✅ Interface stable**: Bug loop résolu, plus de freeze observés
+- **🚨 Bug critique MVV-LVA**: Détection défense non fonctionnelle (paramètre couleur)
+- **⚠️ Recommandation**: Fix bug détection défense pour éliminer blunders tactiques
 
 ### 📚 RECOMMANDATIONS THÉORIQUES À IMPLÉMENTER
 
@@ -281,9 +298,9 @@ opening_move([d2,d4], [d7,d6]).   % Moderne pour d4
 - go.pl is launcher (loads interface.pl directly)
 
 ## Critical Project Files  
-- **🚨 Bug Report**: [docs/BUG_REPORT_ENTERPRISE.md](../docs/BUG_REPORT_ENTERPRISE.md) - Bug critique interface détaillé
-- **📋 Tasks**: [docs/TASKS.md](../docs/TASKS.md) - **PRIORITÉ IMMÉDIATE** : TASK ARCH-2 Audit architectural IA complet
-- **📊 Plan**: [docs/plan.md](../docs/plan.md) - Découverte critique intégrée
-- **🧪 Tests**: [tests/tests.pl](../tests/tests.pl) - Section 7 IA À REMPLACER par 83 tests
-- **🤖 IA**: [src/ai.pl](../src/ai.pl) - Négamax + alpha-beta + gestion erreur implémenté
+- **🚨 MVV-LVA Plan**: [docs/MVV_LVA_IMPLEMENTATION_PLAN.md](../docs/MVV_LVA_IMPLEMENTATION_PLAN.md) - Plan détection défense + découvertes critiques
+- **📋 Tasks**: [docs/TASKS.md](../docs/TASKS.md) - **PRIORITÉ CRITIQUE** : Debug MVV-LVA paramètre couleur  
+- **📊 Bug Report**: [docs/BUG_REPORT_ENTERPRISE.md](../docs/BUG_REPORT_ENTERPRISE.md) - Archive interface loop résolu
+- **🧪 Tests**: [tests/tests.pl](../tests/tests.pl) - Section 7B MVV-LVA (tests faux positifs identifiés)
+- **🤖 IA**: [src/ai.pl](../src/ai.pl) - Négamax + alpha-beta + MVV-LVA avec bug couleur critique
 
