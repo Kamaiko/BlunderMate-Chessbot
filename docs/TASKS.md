@@ -1,10 +1,12 @@
 # 🚨 PROLOG CHESS GAME - DEVELOPMENT TASKS
 
-## 📊 **STATUS ACTUEL**
+## 📊 **STATUS ACTUEL** ⚠️ **DEBUG CRITIQUE**
 
 - **Phase**: IA Négamax + Alpha-Beta fonctionnelle (profondeur 2)
 - **Architecture**: 5 modules + evaluation.pl centralisé  
-- **Problèmes critiques**: Dame prématurée, blunders tactiques, ~~interface loop~~ **POSSIBLEMENT RÉSOLU**
+- **DÉCOUVERTE CRITIQUE**: Détection défense MVV-LVA **non fonctionnelle** (bug couleur)
+- **Problèmes**: Dame prématurée, **blunders tactiques NON résolus** (détection illusion)
+- **Interface loop**: ✅ **RÉSOLU** (plus de freeze observés)
 
 ---
 
@@ -47,12 +49,13 @@
 
 ## 📋 **TÂCHES PRIORITAIRES IDENTIFIÉES**
 
-### **🔍 PRIORITÉ 1 : TASK MVV-LVA - Détection Défense Captures**
-- **Problème** : Pas de vérification `is_square_attacked` après capture
-- **Impact** : IA fait captures perdantes (Dame vs Pion défendu)
-- **Localisation** : `move_score/4` ligne 212-222
-- **Solution** : Ajouter simulation coup + détection défense
-- **Effort** : 60-90 min (implémentation + tests)
+### **🚨 PRIORITÉ 1 : TASK MVV-LVA - DEBUG CRITIQUE** ⚠️ **EN COURS**
+- **DÉCOUVERTE CHOC** : Implémentation défense **non fonctionnelle** (bug couleur)
+- **Tests faux positifs** : Passent par accident (différence valeur pièces) 
+- **BUG IDENTIFIÉ** : `is_square_attacked(NewBoard, ToRow, ToCol, Opponent)` → Mauvaise couleur
+- **CORRECTION REQUISE** : Paramètre Player au lieu de Opponent dans move_score_with_defense
+- **Status** : **DEBUG ACTIF** - Fix bug couleur + tests authentiques
+- **Effort restant** : 30-45 min (correction + validation)
 
 ### **⚔️ PRIORITÉ 2 : TASK CAPTURES-FORCÉES - Inclusion Captures/Recaptures**
 - **Problème** : Limite `ai_move_limit(25)` coupe séquences tactiques critiques
@@ -103,19 +106,20 @@
 - **Localisation** : `src/evaluation.pl`
 - **Effort** : 30-45 min
 
-### **✅ TASK DEBUG-1 - Interface Loop Bug** ⚠️ **POSSIBLEMENT RÉSOLU**
+### **⚠️ TASK DEBUG-1 - Interface Loop Bug** ✅ **RÉSOLU**
 - **Problème** : Freeze sur `d2d4` → `c1g5` → `g5e7` 
-- **🎉 UPDATE** : Bishop e7 jouable après restructurations récentes
-- **Statut** : **TESTS VALIDATION REQUIS** - confirmation résolution nécessaire
-- **Protocole Test** : Séquence multiple `d2d4` → `c1g5` → `g5e7` + variantes
-- **Effort** : 15-30 min tests systématiques
+- **✅ STATUS** : Bishop e7 jouable, pas de freeze observé lors tests MVV-LVA
+- **Validation** : Tests multiples sessions sans problème interface
+- **Résolution** : Corrections codes antérieures ont résolu le bug
+- **Effort** : Résolu (monitoring continu recommandé)
 
-### **🧪 PRIORITÉ 7 : TASK VALIDATION-1 - Tests Systématiques Interface**
-- **Objectif** : Confirmer résolution bug interface loop g5e7
-- **Protocole** :
-  - Tests séquence `d2d4` → `c1g5` → `g5e7` (5+ répétitions)
-  - Variantes ouverture menant au même type capture
-  - Tests robustesse 3-5 parties complètes IA vs Humain
-- **Critères succès** : Aucun freeze, transitions états fluides
-- **Effort** : 20-30 min tests manuels
+### **🚨 TASK NOUVELLE - MVV-LVA DEBUG CRITIQUE** ⚠️ **IMMÉDIAT**
+- **Découverte** : Détection défense **illusion complète** - bug paramètre couleur
+- **Bug critique** : `is_square_attacked(Board, Row, Col, Opponent)` au lieu de `Player`
+- **Impact** : IA ne détecte JAMAIS défenses réelles → Blunders tactiques persistent
+- **Actions immédiates** :
+  1. Fix paramètre couleur dans move_score_with_defense/4
+  2. Créer tests authentiques défense (positions réelles)
+  3. Valider vraie réduction blunders après correction
+- **Effort** : 30-45 min (correction + validation authentique)
 

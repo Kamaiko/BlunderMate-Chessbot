@@ -278,16 +278,28 @@ swipl -t run_tests -s tests/tests.pl
 
 ## 📊 MÉTRIQUES SUCCÈS
 
-### **Avant Correction** (État actuel)
+### **Avant Correction** (État initial)
 - `is_piece_defended/4`: Fail systématique ❌
 - IA: Dame prématurée, captures perdantes ❌
 - Tests MVV-LVA: Inexistants ❌
 
-### **Après Correction** (Objectif)
-- `is_piece_defended/4`: Détection fonctionnelle ✅
-- IA: Captures sûres privilégiées ✅
-- Tests MVV-LVA: 4 tests section 7b ✅
-- Blunders tactiques: Réduction significative ✅
+### **ÉTAT ACTUEL** ⚠️ **DÉCOUVERTE CRITIQUE**
+- `is_piece_defended/4`: Corrigé ✅
+- `move_score_with_defense/4`: **BUG COULEUR CRITIQUE** ❌
+- Tests MVV-LVA: **2/4 faux positifs** ❌
+- Détection défense: **ILLUSION - Ne fonctionne pas** ❌
+
+### **DÉCOUVERTE CHOC - 2025-09-06**
+**Tests passaient par ACCIDENT** :
+- Score 200 = MVV-LVA basique Pion(100)-Dame(900)+1000
+- Score 600 = MVV-LVA basique Tour(500)-Dame(900)+1000  
+- **AUCUNE détection défense active** - Bug paramètre couleur
+
+### **Objectif Réel** (Post-fix bug couleur)
+- Bug couleur corrigé dans move_score_with_defense ✅
+- Tests authentiques avec vraie détection défense ✅
+- IA: Évite réellement captures défendues ✅
+- Blunders tactiques: Réduction effective ✅
 
 ---
 
@@ -319,11 +331,31 @@ swipl -t run_tests -s tests/tests.pl
 
 ---
 
-## 🎯 IMPACT ATTENDU
+## 🚨 **ÉTAT CRITIQUE - DÉCOUVERTES 2025-09-06**
 
-Cette implémentation résoudra **directement** les problèmes critiques identifiés:
-- ✅ **Blunders tactiques** (captures perdantes éliminées)
-- ✅ **Dame prématurée** (promotions priorisées)  
-- ✅ **Hanging pieces** (détection défense fonctionnelle)
+### **RÉALITÉ DÉCOUVERTE :**
+- **Tests faux positifs** : Passent par accident (différence valeur pièces)  
+- **Détection défense non fonctionnelle** : Bug paramètre couleur critique
+- **is_square_attacked bug** : Teste mauvaise couleur dans move_score_with_defense
 
-**ROOT CAUSE CORRIGÉE** → **IA tactiquement cohérente**
+### **BUG CRITIQUE IDENTIFIÉ :**
+```prolog
+% ERREUR (ai.pl:281) - Teste si OPPONENT attaque au lieu de PLAYER défend
+is_square_attacked(NewBoard, ToRow, ToCol, Opponent) 
+
+% CORRECTION REQUISE  
+is_square_attacked(NewBoard, ToRow, ToCol, Player)
+```
+
+### **PROCHAINES ACTIONS CRITIQUES :**
+1. **Fix bug couleur** dans move_score_with_defense/4 (PRIORITÉ 1)
+2. **Réécrire tests** avec positions authentiques défense  
+3. **Valider** vraie réduction blunders tactiques
+4. **Confirmer** IA évite réellement captures défendues
+
+### **IMPACT RÉEL ATTENDU** (Post-correction) :
+- ✅ **Détection défense fonctionnelle** (après fix bug)
+- ✅ **Blunders tactiques éliminés** (vraie validation requise)  
+- ✅ **Tests authentiques** (positions défense réelles)
+
+**STATUS** : **DEBUG CRITIQUE EN COURS** → Correction bug couleur → Validation authentique
