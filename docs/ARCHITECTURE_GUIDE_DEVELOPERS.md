@@ -21,49 +21,42 @@ Ce jeu d'échecs Prolog implémente une architecture modulaire en 6 couches avec
 │  • Menu principal et navigation                 │
 │  • Boucle de jeu unifiée humain/IA             │
 │  • Gestion commandes et validation entrée      │
-└────────────────┬────────────────────────────────┘
-                 │
-┌────────────────▼────────────────────────────────┐
+└──────────────────────┬──────────────────────────┘
+                       │
+┌──────────────────────▼──────────────────────────┐
 │                   GAME.PL                       │
 │              Logique Métier Échecs              │
 │  • États de jeu et transitions                 │
 │  • Validation coups et règles                  │
 │  • Détection échec/mat/pat                     │
 │  • Gestion captures et promotion               │
-└─────────┬──────────────┬─────────────────────────┘
-          │              │
-┌─────────▼──────┐  ┌───▼──────────────────────────┐
-│   PIECES.PL    │  │           AI.PL               │
-│ Règles Pièces  │  │    Intelligence Artificielle │
-│ • Mouvements   │  │  • Négamax + Alpha-Beta      │
-│ • Validation   │  │  • Évaluation PSQT           │
-│ • Types        │  │  • Génération coups          │
-└─────────┬──────┘  │  • Tri MVV-LVA               │
-          │         └───┬──────────────────────────┘
-          │             │
-┌─────────▼─────────────▼─────────────────────────┐
-│                  BOARD.PL                       │
-│              Représentation Plateau             │
-│  • Structure 8x8 et manipulation               │
-│  • Conversions coordonnées                     │
-│  • Affichage ASCII et utilitaires             │
-│  • Gestion état plateau                       │
-└─────────────────┬───────────────────────────────┘
-                  │
-┌─────────────────▼───────────────────────────────┐
-│               EVALUATION.PL                     │
-│          Évaluation Position Centralisée        │
-│  • Matériel + PSQT + Sécurité pièces          │
-│  • Mobilité et développement (non intégrés)   │
-│  • Interface évaluation unifiée               │
-└─────────────────────────────────────────────────┘
-
-       ┌─────────────────────────────────┐
-       │         PSQT_TABLES.PL          │
-       │     Tables Évaluation PSQT      │
-       │  • Valeurs positionnelles       │
-       │  • Standards ChessProgramming   │
-       └─────────────────────────────────┘
+└───────────┬─────────────────┬───────────────────┘
+            │                 │
+┌───────────▼─────────┐  ┌────▼──────────────────────┐
+│     PIECES.PL       │  │         AI.PL              │
+│   Règles Pièces     │  │  Intelligence Artificielle │
+│ • Mouvements        │  │ • Négamax + Alpha-Beta     │
+│ • Validation        │  │ • Génération coups         │
+│ • Types             │  │ • Tri MVV-LVA              │
+└───────────┬─────────┘  └────┬───────────────────────┘
+            │                 │
+┌───────────▼─────────────────▼───────────────────────┐
+│                  BOARD.PL                           │
+│              Représentation Plateau                 │
+│  • Structure 8x8 et manipulation                   │
+│  • Conversions coordonnées                         │
+│  • Affichage ASCII et utilitaires                 │
+│  • Gestion état plateau                           │
+└─────────────────────┬───────────────────────────────┘
+                      │
+┌─────────────────────▼───────────────────────────────┐
+│                 EVALUATION.PL                       │
+│        Évaluation Position + PSQT Intégrées         │
+│  • Matériel + PSQT ChessProgramming.org            │
+│  • Sécurité pièces (anti-blunders)                │
+│  • Mobilité et développement (disponibles)         │
+│  • Interface évaluation unifiée                   │
+└─────────────────────────────────────────────────────┘
 ```
 
 ## 📂 **STRUCTURE FICHIERS ET RESPONSABILITÉS**
@@ -164,13 +157,14 @@ get_piece/4             % Accès sécurisé cases
 place_piece_optimized/5  % Modification optimisée
 ```
 
-### **6. 📊 PSQT_TABLES.PL - Données Évaluation**
+### **6. 📊 EVALUATION.PL - Évaluation Centralisée + PSQT**
 ```prolog
-% Tables positionnelles ChessProgramming.org
-• Valeurs par type de pièce et position
-• Bonus développement et contrôle centre  
-• Compatible avec négamax (perspective joueur)
-• Standards académiques reconnus
+% Module évaluation complète avec PSQT intégrées
+• Tables positionnelles ChessProgramming.org intégrées
+• Évaluation matérielle + positionnelle combinée
+• Sécurité pièces (anti-blunders) - temporairement désactivée
+• Mobilité et développement (disponibles mais non intégrés)
+• Interface évaluation unifiée pour IA
 ```
 
 ## ⚠️ **PROBLÈMES CONNUS & ROADMAP**
@@ -291,7 +285,7 @@ handle_player_turn(UnifiedGameState, Player, ai, NewState).
 ## 📈 **MÉTRIQUES QUALITÉ ACTUELLES**
 
 ### **Complexité**
-- **Modules** : 5 + 1 données
+- **Modules** : 6 modules intégrés
 - **Lignes code** : ~2000 lignes Prolog
 - **Fonctions >20 lignes** : 8 (à refactoriser)
 - **Profondeur max** : 4 niveaux imbrication
