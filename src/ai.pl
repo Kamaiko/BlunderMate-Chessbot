@@ -115,7 +115,7 @@ choose_ai_move(GameState, BestMove) :-
 choose_ai_move_safe(GameState, Player, BestMove) :-
     % Utiliser génération limitée de coups au lieu de timeout
     catch(
-        (negamax_depth(Depth), negamax_ab(GameState, Player, Depth, BestMove, _Value)),
+        (negamax_depth(Depth), negamax_ab(GameState, Player, Depth, -1.0Inf, 1.0Inf, BestMove, _Value)),
         Error,
         (   write('IA erreur - coup de sécurité: '), write(Error), nl,
             choose_emergency_move(GameState, Player, BestMove)
@@ -140,19 +140,36 @@ choose_emergency_move(GameState, Player, BestMove) :-
 % NÉGAMAX ALPHA-BETA - ALGORITHME IA PRINCIPAL
 % =============================================================================
 
-% negamax_ab(+GameState, +Player, +Depth, -BestMove, -BestValue)
+% negamax_ab(+GameState, +Player, +Depth, +Alpha, +Beta, -BestMove, -BestValue)
 % NÉGAMAX AVEC ÉLAGAGE ALPHA-BETA - Algorithme de recherche principal
-negamax_ab(GameState, Player, 0, [], Value) :-
+
+% negamax_ab_with_stats(+GameState, +Player, +Depth, +Alpha, +Beta, -BestMove, -BestValue, +NodesIn, -NodesOut)
+% VERSION TEST - Même algorithme mais avec comptage des nœuds explorés pour validation élagage
+negamax_ab_with_stats(GameState, Player, 0, _Alpha, _Beta, [], Value, NodesIn, NodesOut) :-
+    NodesOut is NodesIn + 1,
     evaluate_pure_reference(GameState, Player, Value), !.
 
-negamax_ab(GameState, Player, Depth, BestMove, BestValue) :-
+negamax_ab_with_stats(GameState, Player, Depth, Alpha, Beta, BestMove, BestValue, NodesIn, NodesOut) :-
+    Depth > 0,
+    NodesCount1 is NodesIn + 1,  % Compter ce nœud
+    generate_moves_simple(GameState, Player, Moves),
+    (   Moves = [] ->
+        terminal_score(GameState, Player, BestValue),
+        BestMove = [],
+        NodesOut = NodesCount1
+    ;   order_moves(GameState, Player, Moves, OrderedMoves),
+        ab_search_with_stats(OrderedMoves, GameState, Player, Depth, Alpha, Beta, none, -1.0Inf, BestMove, BestValue, NodesCount1, NodesOut)
+    ).
+negamax_ab(GameState, Player, 0, _Alpha, _Beta, [], Value) :-
+    evaluate_pure_reference(GameState, Player, Value), !.
+
+negamax_ab(GameState, Player, Depth, Alpha, Beta, BestMove, BestValue) :-
     Depth > 0,
     generate_moves_simple(GameState, Player, Moves),
     (   Moves = [] ->
         terminal_score(GameState, Player, BestValue),
         BestMove = []
     ;   order_moves(GameState, Player, Moves, OrderedMoves),
-        Alpha is -1.0Inf, Beta is 1.0Inf,
         ab_search(OrderedMoves, GameState, Player, Depth, Alpha, Beta, none, -1.0Inf, BestMove, BestValue)
     ).
 
@@ -166,8 +183,7 @@ ab_search([[FromRow,FromCol,ToRow,ToCol]|RestMoves], GameState, Player, Depth, A
     make_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState),
     NewGameState = game_state(_, NextPlayer, _, _, _),
     NewDepth is Depth - 1,
-    _NewAlpha is -Beta, _NewBeta is -Alpha,
-    negamax_ab(NewGameState, NextPlayer, NewDepth, _, OpponentValue),
+    negamax_ab(NewGameState, NextPlayer, NewDepth, -Beta, -Alpha, _, OpponentValue),
     Value is -OpponentValue,
     
     (   Value > BestValueAcc ->
@@ -183,6 +199,32 @@ ab_search([[FromRow,FromCol,ToRow,ToCol]|RestMoves], GameState, Player, Depth, A
     (   NewAlpha2 >= Beta ->
         BestMove = NewBestMove, BestValue = NewBestValue  % Coupure beta
     ;   ab_search(RestMoves, GameState, Player, Depth, NewAlpha2, Beta, NewBestMove, NewBestValue, BestMove, BestValue)
+    ).
+
+% ab_search_with_stats(+Moves, +GameState, +Player, +Depth, +Alpha, +Beta, +BestMoveAcc, +BestValueAcc, -BestMove, -BestValue, +NodesIn, -NodesOut)  
+% VERSION TEST - ab_search avec comptage nœuds et traces de coupures alpha-beta
+ab_search_with_stats([], _, _, _, _, _, BestMoveAcc, BestValueAcc, BestMoveAcc, BestValueAcc, NodesIn, NodesIn) :- !.
+
+ab_search_with_stats([[FromRow,FromCol,ToRow,ToCol]|RestMoves], GameState, Player, Depth, Alpha, Beta, BestMoveAcc, BestValueAcc, BestMove, BestValue, NodesIn, NodesOut) :-
+    make_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState),
+    NewGameState = game_state(_, NextPlayer, _, _, _),
+    NewDepth is Depth - 1,
+    negamax_ab_with_stats(NewGameState, NextPlayer, NewDepth, -Beta, -Alpha, _, OpponentValue, NodesIn, NodesCount1),
+    Value is -OpponentValue,
+    
+    (   Value > BestValueAcc ->
+        NewAlpha2 is max(Alpha, Value),
+        NewBestMove = [FromRow,FromCol,ToRow,ToCol],
+        NewBestValue = Value
+    ;   NewAlpha2 = Alpha,
+        NewBestMove = BestMoveAcc,
+        NewBestValue = BestValueAcc
+    ),
+    
+    % ÉLAGAGE ALPHA-BETA
+    (   NewAlpha2 >= Beta ->
+        BestMove = NewBestMove, BestValue = NewBestValue, NodesOut = NodesCount1  % Coupure beta - pas de récursion
+    ;   ab_search_with_stats(RestMoves, GameState, Player, Depth, NewAlpha2, Beta, NewBestMove, NewBestValue, BestMove, BestValue, NodesCount1, NodesOut)
     ).
 
 % terminal_score(+GameState, +Player, -Score)
@@ -244,7 +286,7 @@ generate_moves_simple(GameState, Player, Moves) :-
     GameState = game_state(_, _, MoveCount, _, _),
     (   MoveCount =< 15 ->
         % Phase d'ouverture : captures importantes + développement équilibré
-        generate_opening_moves_tactical(GameState, Player, Moves)
+        generate_opening_moves(GameState, Player, Moves)
     ;   % Phase milieu/finale : génération standard avec tri MVV-LVA
         generate_regular_moves(GameState, Player, Moves)
     ).
