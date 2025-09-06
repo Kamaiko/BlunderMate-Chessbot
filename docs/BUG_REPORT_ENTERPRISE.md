@@ -51,6 +51,24 @@
 
 **STATUS CRITIQUE** : Bug évaluation globale - Problème plus large que MVV-LVA isolé
 
+#### **🎯 CLARIFICATION SÉQUENCE PROBLÈME** (2025-09-06)
+- **Correction importante** : Dame sort prématurément mais **pas en danger immédiat**
+- **Blunder réel** : Survient **coup suivant** avec Dame exposée faisant capture défendue
+- **Implication** : **Deux problèmes séparés et indépendants** identifiés
+
+### **4. Évaluation Développement Défaillante** 🆕 **NOUVEAU PROBLÈME**
+- **Location** : `src/evaluation.pl` + `src/ai.pl` (scoring ouverture)
+- **Problème** : IA privilégie sortie Dame > développement Cavaliers/Fous
+- **Evidence** : Dame sort prématurément (sûre mais stratégiquement mauvaise)
+- **Impact** : Violations principes d'ouverture classiques
+- **Solution** : Ajuster scoring pour favoriser développement pièces mineures
+
+### **📊 ANALYSE FINALE - DOUBLE ROOT CAUSE**
+1. **PROBLÈME PRÉVENTION** : Évaluation développement → Dame sort trop tôt
+2. **PROBLÈME LIMITATION** : Détection défense sélective → Blunders si Dame exposée
+
+**STATUS RÉVISÉ** : **DOUBLE ROOT CAUSE CONFIRMÉE** - Approche bicéphale requise
+
 ---
 
 ## 🔍 **PROBLÈMES IA IDENTIFIÉS**

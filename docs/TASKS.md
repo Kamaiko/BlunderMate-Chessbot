@@ -170,3 +170,36 @@
 
 **EFFORT TOTAL** : 135 min - **IMPACT** : Élimination blunders tactiques IA
 
+---
+
+
+## 🎯 **CLARIFICATION SÉQUENCE PROBLÈME** (2025-09-06)
+
+### **📍 CORRECTION ANALYSE UTILISATEUR**
+**Précision importante** : Dame sort prématurément mais **pas en danger immédiat**  
+**Blunder réel** : Survient **coup suivant** avec Dame exposée faisant capture défendue
+
+### **🔗 DOUBLE ROOT CAUSE CONFIRMÉE**
+
+#### **PROBLÈME A : ÉVALUATION DÉVELOPPEMENT DÉFAILLANTE** 
+- **Séquence** : IA privilégie sortie Dame > développement Cavaliers/Fous
+- **Impact** : Dame prématurée (position sûre mais stratégiquement mauvaise)
+- **Solution** : Ajuster scoring ouverture pour favoriser développement pièces mineures
+
+#### **PROBLÈME B : DÉTECTION DÉFENSE DÉFAILLANTE**
+- **Séquence** : Dame exposée → IA fait capture défendue → Blunder
+- **Impact** : Pertes matérielles, captures matériel même protégé par pions
+- **Solution** : Debug système détection défense global
+
+### **🎯 STRATÉGIE BICÉPHALE PROCHAINE SESSION**
+**Deux axes indépendants** requérant corrections séparées :
+1. **AXE PRÉVENTION** : Évaluation développement (éviter Dame prématurée)
+2. **AXE LIMITATION DÉGÂTS** : Détection défense (éviter blunders si Dame sort)
+
+### **❓ DÉCISION STRATÉGIQUE REQUISE**
+**Question prochaine session** : Ordre priorité pour impact maximal ?
+- Option A : Développement d'abord (prévenir problème) 
+- Option B : Détection défense d'abord (limiter dégâts)
+
+**STATUS** : **DOUBLE ROOT CAUSE** - Approche bicéphale planifiée
+

@@ -359,3 +359,56 @@ is_square_attacked(NewBoard, ToRow, ToCol, Player)
 - ✅ **Tests authentiques** (positions défense réelles)
 
 **STATUS** : **DEBUG CRITIQUE EN COURS** → Correction bug couleur → Validation authentique
+
+---
+
+## 🚨 **MISE À JOUR CRITIQUE - 2025-09-06** 
+
+### **PARTIE 1: CORRECTION BUG PARAMÈTRE COULEUR** ✅ **APPLIQUÉE**
+- **Changement**: ai.pl:281 `Opponent` → `Player` 
+- **Résultat**: Tests isolés fonctionnels (-700 vs +600)
+- **Cleanup**: Variable singleton éliminée
+- **Status**: ✅ **CORRECTION TECHNIQUE RÉUSSIE**
+
+### **PARTIE 2: RÉALITÉ JEU** ❌ **PROBLÈME PERSISTE**
+- **Evidence**: Dame blunder a5→a2 coup 5 malgré correction
+- **Évaluation erratique**: +60 → -1045 swing inexpliqué  
+- **Conclusion**: Tests isolés ≠ Comportement gameplay réel
+
+**STATUS FINAL**: **BUG DÉTECTION DÉFENSE GLOBAL** - Investigation système complet requise
+
+---
+
+## 🎯 **CLARIFICATION UTILISATEUR - SÉQUENCE PROBLÈME** (2025-09-06)
+
+### **📍 CORRECTION ANALYSE CAUSALE**
+**Utilisateur précise** : Dame sort prématurément mais n'est **pas en danger immédiat**  
+**Blunder** : Survient au **coup suivant** quand Dame fait capture défendue
+
+### **🔗 SÉQUENCE RÉELLE IDENTIFIÉE**
+1. **Coup N** : IA sort Dame prématurément (sûre mais mauvais développement)
+2. **Coup N+1** : IA fait blunder avec cette Dame exposée (capture défendue)
+
+### **📊 ANALYSE RÉVISÉE - DEUX PROBLÈMES SÉPARÉS**
+
+#### **PROBLÈME #1 : ÉVALUATION DÉVELOPPEMENT DÉFAILLANTE**
+- **Cause** : IA ne comprend pas développer Cavaliers/Fous > sortir Dame
+- **Impact** : Dame sort trop tôt en ouverture  
+- **Solution** : Ajuster scoring ouverture/développement
+
+#### **PROBLÈME #2 : DÉTECTION DÉFENSE DÉFAILLANTE**
+- **Cause** : Système détection défense global non fonctionnel
+- **Impact** : IA capture matériel même protégé par pions
+- **Solution** : Debug système détection défense complet
+
+### **🎯 STRATÉGIE RÉVISÉE - DEUX AXES INDÉPENDANTS**
+Les problèmes nécessitent **corrections indépendantes** :
+- **AXE 1 - PRÉVENTION** : Évaluation développement → IA sort moins Dame
+- **AXE 2 - LIMITATION DÉGÂTS** : Détection défense → Moins blunders si Dame sort
+
+### **📋 DÉCISION PROCHAINE SESSION**
+**Question stratégique** : Ordre priorité pour impact maximal ?
+1. Développement d'abord (prévenir sorties Dame) ?
+2. Détection défense d'abord (limiter blunders) ?
+
+**STATUS** : **DOUBLE ROOT CAUSE CONFIRMÉE** - Stratégie bicéphale requise prochaine session
