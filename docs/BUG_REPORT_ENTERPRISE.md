@@ -1,7 +1,7 @@
 # BUG REPORT - Interface Loop & IA Issues
 
-**Priority**: RÉSOLU  
-**Status**: MAJEURE AMÉLIORATION - Détection défense corrigée  
+**Priority**: STABLE  
+**Status**: BUGS CRITIQUES RÉSOLUS - Détection défense fonctionnelle  
 **Date**: 2025-09-07  
 
 ---
