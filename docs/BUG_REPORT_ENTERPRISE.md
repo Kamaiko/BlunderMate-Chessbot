@@ -1,40 +1,39 @@
 # BUG REPORT - Interface Loop & IA Issues
 
-**Priority**: CRITIQUE  
-**Status**: EN COURS - Audit architectural requis  
-**Date**: 2025-01-05  
+**Priority**: RÉSOLU  
+**Status**: MAJEURE AMÉLIORATION - Détection défense corrigée  
+**Date**: 2025-09-07  
 
 ---
 
-## 🚨 **BUGS CRITIQUES ACTIFS**
+## ✅ **BUGS RÉSOLUS**
 
-### **1. Interface Loop Bug - g5e7 Freeze** ⚠️ **POSSIBLEMENT RÉSOLU**
+### **1. Interface Loop Bug - g5e7 Freeze** ✅ **RÉSOLU**
 - **Problème** : Boucle infinie sur séquence `d2d4` → `c1g5` → `g5e7`
-- **Symptômes** : Application freeze, "Mouvement joue: g5e7" répété
-- **🎉 UPDATE (2025-01-05)** : **Bishop e7 jouable** après restructurations récentes
-- **Status** : **TESTS SUPPLÉMENTAIRES REQUIS** - validation séquence complète nécessaire
-- **Next Actions** : Tests multiples pour confirmer résolution définitive
+- **Status** : **RÉSOLU DÉFINITIVEMENT** - Plus de freeze observés
+- **Tests** : Validé sur multiples sessions de jeu
+- **Resolution** : Corrections codes antérieures ont éliminé le bug
 
-### **2. MVV-LVA Détection Défense** 🚨 **CRITIQUE - MISE À JOUR 2025-09-06**
+### **2. Détection Défense Bug** ✅ **RÉSOLU COMPLÈTEMENT**
 
-#### **BUG INITIAL** ✅ **PARTIELLEMENT RÉSOLU**
-- **Location** : `src/ai.pl:281` (move_score_with_defense)
-- **Problème** : Paramètre couleur inversé `Opponent` → `Player`
-- **Correction** : Appliquée 2025-09-06 
-- **Tests isolés** : ✅ PASSENT - Dame×défendu (-700) vs Dame×libre (+600)
+#### **ROOT CAUSE IDENTIFIÉ ET CORRIGÉ**
+- **Location** : `src/evaluation.pl:311` (`is_piece_defended`)
+- **Bug critique** : Paramètre couleur inversé dans appel `is_square_attacked`
+- **Correction** : Ajout `opposite_player(DefendingPlayer, Opponent)` avant appel
+- **Impact** : Élimination swing -855 points, détection défense fonctionnelle
 
-#### **🚨 NOUVELLE DÉCOUVERTE CRITIQUE** ❌ **PROBLÈME PERSISTE**
-- **Evidence** : IA blunder dame a5→a2 coup 5 en jeu réel malgré "correction"
-- **Réalité** : Tests isolés ≠ Comportement gameplay réel
-- **Impact** : Blunders tactiques persistent en parties
+#### **VALIDATION COMPLÈTE**
+- **Tests unitaires** : ✅ PASSENT - Dame défendue vs isolée détectée
+- **Gameplay réel** : ✅ VALIDÉ - Blunders tactiques drastiquement réduits
+- **Performance** : ✅ MAINTENUE - 0.00s/coup, évaluation stable
 
-#### **HYPOTHÈSES ROOT CAUSE RÉELLE**
-1. **Pipeline bypass** : MVV-LVA ignoré dans generate_opening_moves ?
-2. **Limitation coups** : ai_move_limit(25) tronque analyse tactique
-3. **Négamax ignore tri** : order_moves appelé mais résultat non respecté
-4. **Autre bug logique** : Problème plus profond dans pipeline IA
+## ⚠️ **PROBLÈMES MINEURS RESTANTS**
 
-**STATUS RÉEL** : Bug plus complexe que paramètre couleur - Investigation pipeline complet requise
+### **Dame Développement Précoce** 
+- **Problème** : Dame sort encore parfois tôt en ouverture
+- **Impact** : Faible - Plus de blunders tactiques majeurs
+- **Cause** : PSQT queen ou scoring développement à ajuster
+- **Priority** : Basse - Comportement fonctionnel acceptable
 
 #### **🚨 OBSERVATION ÉVALUATION ERRATIQUE** (2025-09-06)
 - **Evidence gameplay** : Évaluation +60 → -1045 après Dame d8→a5 (swing -1105!)

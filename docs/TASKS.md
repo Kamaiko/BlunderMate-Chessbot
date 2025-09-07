@@ -1,53 +1,52 @@
 # 🚨 PROLOG CHESS GAME - DEVELOPMENT TASKS
 
-## 📊 **STATUS ACTUEL** ⚠️ **DEBUG CRITIQUE**
+## 📊 **STATUS ACTUEL** ✅ **MAJEURE AMÉLIORATION**
 
 - **Phase**: IA Négamax + Alpha-Beta fonctionnelle (profondeur 2)
-- **Architecture**: 5 modules + evaluation.pl centralisé  
-- **DÉCOUVERTE CRITIQUE**: Détection défense MVV-LVA **non fonctionnelle** (bug couleur)
-- **Problèmes**: Dame prématurée, **blunders tactiques NON résolus** (détection illusion)
-- **Interface loop**: ✅ **RÉSOLU** (plus de freeze observés)
+- **Architecture**: 6 modules + evaluation.pl centralisé
+- **Détection défense**: ✅ **CORRIGÉE** (bug paramètre couleur résolu)
+- **Évaluation**: ✅ **STABLE** (plus de swing -855 points)
+- **Blunders**: 🔄 **RÉDUITS** (détection défense fonctionnelle)
+- **Interface**: ✅ **STABLE** (plus de freeze observés)
 
 ---
 
 ## 🚨 **PROBLÈMES IDENTIFIÉS**
+- ⚠️ **Dame fait encore blunders** : Malgré correction détection défense, comportement non optimal persiste
+- ⚠️ **Évaluation tactique incomplète** : Quiescence search manquante, tri MVV-LVA perfectible
+- ⚠️ **Logique opening/endgame** : `generate_opening_moves` à analyser vs standards professionnels
+- ⚠️ **Composants évaluation** : Mobilité, contrôle centre non optimisés
 
-### **Comportement IA Problématique**
-- **Dame sort trop tôt** en ouverture (violations principes échiquéens)
-- **Blunders tactiques** : capture sans évaluer défense
-- **Ignore recaptures critiques** au profit développement excessif
-- **Hanging pieces** non détectées
-
-### **Analyse Technique**
-- `generate_opening_moves` inclut tous coups dame dans "OtherMoves"
-- **Aucune évaluation captures** pendant 15 premiers coups
-- **Pipeline IA** nécessite audit vs standards moteurs professionnels
+### **Analyse Technique Actuelle**
+- **Détection défense** : Fonctionnelle après correction bug
+- **Pipeline IA** : `generate_moves` → `order_moves` → `negamax_ab` opérationnel
+- **Évaluation** : Matériel + PSQT + piece_safety intégrés
 
 ---
 
-## 🔬 **PRIORITÉ IMMÉDIATE - TASK ARCH-2**
+## 🎯 **PROCHAINES ÉTAPES PRIORITAIRES**
 
-### **Audit Complet Architecture IA Moteur**
+### **TASK UI-1 : Interface Revamp (frontend-designer)**
+- **Objectif** : Moderniser interface menu et jeu IA vs Humain
+- **Agent** : frontend-designer
+- **Effort** : 60-90 min
 
-**Objectif** : Analyse approfondie vs standards moteurs d'échecs professionnels
+### **TASK AI-2 : Optimisation Comportement Dame**
+- **Problème** : Dame fait encore blunders tactiques malgré amélioration majeure
+- **Solutions** : Améliorer évaluation tactique SANS modifier PSQT (tables restent intactes)
+  - Quiescence search pour extension recherche tactique
+  - Optimisation tri MVV-LVA et détection
+  - Analyse composants évaluation (mobilité, centre)
+- **Effort** : 60-90 min
 
-#### **PHASE A : Research Context7** 
-- Standards génération coups, tri, évaluation, anti-blunders
-- Benchmarks Stockfish, moteurs modernes
-
-#### **PHASE B : Audit Architecture Actuelle**
-- Pipeline `generate_moves_simple` → `order_moves` → `negamax_ab`
-- Modules `ai.pl` et `evaluation.pl`
-- Focus : détection blunders, sécurité pièces, captures
-
-#### **PHASE C : Gap Analysis & Plan Implémentation**  
-- Identification composants manquants
-- Roadmap anti-blunders → évaluation → optimisations
-- **Effort** : 90-120 min
+### **TASK TESTS-1 : Restructuration Tests**
+- **Objectif** : Grouper tests par catégories (Core Engine, AI System, Reliability)
+- **Approche** : Runners groupés minimaux (5 min vs 60 min restructuration complète)
+- **Effort** : 5-10 min
 
 ---
 
-## 📋 **TÂCHES PRIORITAIRES IDENTIFIÉES**
+## 📋 **TÂCHES HISTORIQUES (COMPLÉTÉES/ARCHIVÉES)**
 
 ### **🚨 PRIORITÉ 1 : TASK MVV-LVA - DEBUG CRITIQUE** ⚠️ **EN COURS**
 - **DÉCOUVERTE CHOC** : Implémentation défense **non fonctionnelle** (bug couleur)
@@ -71,12 +70,11 @@
 - **Explique** : Dame prématurée, blunders tactiques
 - **Effort** : 90-120 min (nouvelle fonction)
 
-### **🔬 PRIORITÉ 4 : TASK ARCH-2 - Audit Architectural** 
-- **Objectif** : Analyse pipeline IA vs standards moteurs d'échecs professionnels
-- **Context7 Research** : Standards génération, tri, évaluation, anti-blunders
-- **Audit Modules** : `ai.pl`, `evaluation.pl`, pipeline complet
-- **Deliverable** : Gap analysis + roadmap implémentation structuré
-- **Effort** : 90-120 min
+### **🔍 TASK AI-3 : Analyse generate_opening_moves**
+- **Problème** : Logique opening vs endgame (ligne 353-355 ai.pl) - approche à valider
+- **Question** : Division coups opening/endgame conforme aux standards moteurs professionnels ?
+- **Analyse requise** : In-depth analysis fonction + alternatives standards
+- **Effort** : 45-60 min (research + analyse)
 
 ### **📊 PRIORITÉ 5 : TASK MOBILITÉ - Intégration Évaluation Mobilité**  
 - **Problème** : `evaluate_piece_development/3` et `evaluate_move_count/3` existent mais **non utilisés**

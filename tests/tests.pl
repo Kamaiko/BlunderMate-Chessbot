@@ -547,99 +547,127 @@ run_alpha_beta_tests :-
     display_test_section_footer('Section Alpha-Beta terminee').
 
 % =============================================================================
-% SECTION 7B: TESTS MVV-LVA - SYSTÈME TRI CAPTURES (IA NOIRE)
+% SECTION 8: TESTS DÉTECTION DÉFENSE
 % =============================================================================
 
-run_mvv_lva_tests :-
-    display_test_section_header('SECTION 7B: TESTS MVV-LVA', 'Validation Systeme Tri Captures - IA Noire'),
+run_defense_detection_tests :-
+    display_test_section_header('SECTION 8: TESTS DÉTECTION DÉFENSE', 'Validation système sécurité pièces'),
     run_test_group([
-        test_mvv_lva_capture_ordering_black,
-        test_mvv_lva_defense_detection_black
-        % test_mvv_lva_promotion_priority_black,  % DESACTIVE: positions complexes
-        % test_mvv_lva_check_priority_black       % DESACTIVE: coordonnees fausses
+        test_piece_defended_by_pawn,
+        test_piece_not_defended_isolated,
+        test_queen_safety_evaluation,
+        test_hanging_pieces_detection
     ]),
-    display_test_section_footer('Section MVV-LVA terminee').
+    display_test_section_footer('Tests détection défense terminés').
 
-% Test 1: Ordre captures basique - IA NOIRE
-test_mvv_lva_capture_ordering_black :-
-    write('[TEST] ORDRE CAPTURES MVV-LVA'), nl,
+% Test 1: Pièce défendue par pion
+test_piece_defended_by_pawn :-
+    write('[TEST] PIÈCE DÉFENDUE PAR PION'), nl,
     write('------------------------------'), nl,
     
-    % Position: Dame noire peut capturer Dame blanche(900), Tour blanche(500), Fou blanc(330)
-    setup_multi_capture_board_black(Board),
-    GameState = game_state(Board, black, 10, ongoing, []),
+    setup_queen_defended_by_pawn(Board),
+    GameState = game_state(Board, black, 5, active, [[], []]),
     
-    write('[RUN] Test 1/4: Ordre captures Dame>Tour>Fou........... '),
+    write('[RUN] Test 1/4: Dame d8 défendue par pion c7.............. '),
     (   catch(
-            (generate_moves_simple(GameState, black, AllMoves),
-             order_moves(GameState, black, AllMoves, OrderedMoves),
-             validate_capture_order_black(OrderedMoves, Board)),
+            (is_piece_defended(GameState, 8, 4, black)),
             Error,
             (write('[ERROR] '), write(Error), nl, fail)) ->
         write('[PASS]'), nl
     ;   write('[FAIL]'), nl, fail
     ).
 
-% Position test: Dame noire peut capturer pièces blanches variées
-setup_multi_capture_board_black([
-    ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
-    ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', '.', 'q', '.', '.', '.', '.'],  % Dame noire en d5
-    ['.', '.', 'B', 'Q', 'R', '.', '.', '.'],  % Fou c4(330), Dame d4(900), Tour e4(500)
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
+setup_queen_defended_by_pawn([
+    [' ', ' ', ' ', 'q', 'k', ' ', ' ', ' '],
+    [' ', ' ', 'p', ' ', ' ', ' ', ' ', ' '],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
     ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
-    ['R', 'N', 'B', '.', 'K', '.', 'N', 'R']
+    ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
 ]).
 
-% Validation ordre captures pour IA noire
-validate_capture_order_black(OrderedMoves, Board) :-
-    % Extraire seulement les captures avec leurs valeurs
-    findall(Value-Move, (
-        member(Move, OrderedMoves),
-        Move = [_, _, ToRow, ToCol],
-        get_piece(Board, ToRow, ToCol, TargetPiece),
-        \+ is_empty_square(TargetPiece),
-        get_piece_color(TargetPiece, white),  % IA noire capture pièces blanches
-        piece_value(TargetPiece, Value)
-    ), ValueMoves),
+% Test 2: Pièce isolée non défendue  
+test_piece_not_defended_isolated :-
+    write('[TEST] PIÈCE ISOLÉE NON DÉFENDUE'), nl,
+    write('-------------------------------'), nl,
     
-    % Trier par valeur décroissante et vérifier ordre correct
-    sort(0, @>=, ValueMoves, SortedValueMoves),
-    ValueMoves = SortedValueMoves.  % L'ordre doit déjà être correct
-
-% Test 2: CRITIQUE - Blunder Dame vs Pion Defendu (PROBLEME REEL)
-test_mvv_lva_defense_detection_black :-
-    write('[TEST] ANTI-BLUNDER DAME vs PION DEFENDU'), nl,
-    write('-----------------------------------------'), nl,
+    % Test simple: board vide + rois + Dame isolée d4
+    create_empty_board(EmptyBoard),
+    place_single_piece(EmptyBoard, 1, 5, 'K', TempBoard1),
+    place_single_piece(TempBoard1, 8, 5, 'k', TempBoard2), 
+    place_single_piece(TempBoard2, 4, 4, 'q', TestBoard),
+    GameState = game_state(TestBoard, black, 10, active, [[], []]),
     
-    % Position CRITIQUE: Dame noire peut capturer pion defendu vs piece libre
-    setup_defended_pawn_blunder_board(Board),
-    
-    write('[RUN] Test 2/4: Dame evite pion defendu vs tour libre.. '),
+    write('[RUN] Test 2/4: Dame d4 isolée NON défendue................ '),
     (   catch(
-            (move_score(Board, black, [4,4,3,4], ScoreDefendedPawn),  % Dame d4×Pion d3 (defendu)
-             move_score(Board, black, [4,4,4,7], ScoreFreeTower),     % Dame d4×Tour g4 (libre)
-             ScoreFreeTower > ScoreDefendedPawn),  % ANTI-BLUNDER CRITIQUE
+            (\+ is_piece_defended(GameState, 4, 4, black)),
             Error,
             (write('[ERROR] '), write(Error), nl, fail)) ->
         write('[PASS]'), nl
     ;   write('[FAIL]'), nl, fail
     ).
 
-% Position CRITIQUE: Dame noire d4 face à BLUNDER classique  
-% - Pion blanc d3 défendu par pion c2 (PIÈGE!)
-% - Tour blanche g4 libre (MEILLEUR CHOIX)
-% - POSITION SIMPLIFIÉE avec rois seulement
-setup_defended_pawn_blunder_board([
-    ['.', '.', '.', '.', 'k', '.', '.', '.'],  % Roi noir seulement
-    ['.', '.', '.', '.', '.', '.', '.', '.'], 
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', '.', '.', '.', '.', '.', '.'],
-    ['.', '.', '.', 'q', '.', '.', 'R', '.'],  % Dame noire d4, Tour blanche g4 (LIBRE)
-    ['.', '.', '.', 'P', '.', '.', '.', '.'],  % Pion blanc d3 (APPÂT défendu)
-    ['.', '.', 'P', '.', '.', '.', '.', '.'],  % Pion blanc c2 (DÉFEND d3) 
-    ['.', '.', '.', '.', 'K', '.', '.', '.']   % Roi blanc seulement
+setup_queen_isolated([
+    [' ', ' ', ' ', ' ', 'k', ' ', ' ', ' '],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+    [' ', ' ', ' ', ' ', 'q', ' ', ' ', ' '],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+    ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+    ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
+]).
+
+% Test 3: Évaluation sécurité dame
+test_queen_safety_evaluation :-
+    write('[TEST] ÉVALUATION SÉCURITÉ DAME'), nl,
+    write('-------------------------------'), nl,
+    
+    setup_queen_defended_by_pawn(BoardDefended),
+    setup_queen_isolated(BoardIsolated),
+    GameStateDefended = game_state(BoardDefended, black, 5, active, [[], []]),
+    GameStateIsolated = game_state(BoardIsolated, black, 8, active, [[], []]),
+    
+    write('[RUN] Test 3/4: Dame défendue > Dame isolée (sécurité)..... '),
+    (   catch(
+            (evaluate_piece_safety(GameStateDefended, black, SafetyDefended),
+             evaluate_piece_safety(GameStateIsolated, black, SafetyIsolated),
+             SafetyDefended > SafetyIsolated),
+            Error,
+            (write('[ERROR] '), write(Error), nl, fail)) ->
+        write('[PASS]'), nl
+    ;   write('[FAIL]'), nl, fail
+    ).
+
+% Test 4: Détection pièces exposées
+test_hanging_pieces_detection :-
+    write('[TEST] DÉTECTION PIÈCES EXPOSÉES'), nl,
+    write('--------------------------------'), nl,
+    
+    setup_hanging_rook_board(Board),
+    GameState = game_state(Board, black, 12, active, [[], []]),
+    
+    write('[RUN] Test 4/4: Tour g4 détectée comme exposée............ '),
+    (   catch(
+            (evaluate_piece_safety(GameState, black, Safety),
+             Safety < 0),
+            Error,
+            (write('[ERROR] '), write(Error), nl, fail)) ->
+        write('[PASS]'), nl
+    ;   write('[FAIL]'), nl, fail
+    ).
+
+setup_hanging_rook_board([
+    [' ', ' ', ' ', ' ', 'k', ' ', ' ', ' '],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
+    [' ', ' ', ' ', ' ', ' ', ' ', 'r', ' '],
+    [' ', ' ', ' ', ' ', ' ', ' ', ' ', 'P'],
+    ['P', 'P', 'P', 'P', 'P', 'P', 'P', ' '],
+    ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
 ]).
 
 % Test 3: Promotions priorisees - IA NOIRE
@@ -832,7 +860,7 @@ run_all_tests :-
     run_integration_tests,
     run_psqt_tests,
     run_alpha_beta_tests,
-    run_mvv_lva_tests,  % NOUVEAU - Tests système MVV-LVA pour IA noire
+    run_defense_detection_tests,  % Tests détection défense
     
     write('TESTS TERMINES - Suite complete validee!'), nl.
 

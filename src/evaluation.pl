@@ -308,7 +308,9 @@ is_piece_defended(GameState, Row, Col, DefendingPlayer) :-
     ground(GameState), ground(Row), ground(Col), ground(DefendingPlayer),
     valid_chess_position(Row, Col),
     GameState = game_state(Board, _, _, _, _),
-    is_square_attacked(Board, Row, Col, DefendingPlayer).
+    % CORRECTION CRITIQUE: Inverser parametre couleur - is_square_attacked teste adversaire
+    opposite_player(DefendingPlayer, Opponent), 
+    is_square_attacked(Board, Row, Col, Opponent).
 
 % =============================================================================
 % ÉVALUATION MOBILITÉ
