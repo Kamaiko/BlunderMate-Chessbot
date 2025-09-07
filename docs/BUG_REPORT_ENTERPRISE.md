@@ -1,8 +1,39 @@
 # BUG REPORT - Interface Loop & IA Issues
 
-**Priority**: STABLE  
-**Status**: BUGS CRITIQUES RÉSOLUS - Détection défense fonctionnelle  
+**Priority**: 🚨 **CRITIQUE ARCHITECTURAL**  
+**Status**: ROOT CAUSE IDENTIFIÉ - Architecture non-standard cause blunders  
 **Date**: 2025-09-07  
+
+---
+
+## 🚨 **DÉCOUVERTE CRITIQUE - ROOT CAUSE ARCHITECTURAL** (2025-09-07)
+
+### **🔍 ANALYSE ARCHITECTURE COMPLETE**
+**ROOT CAUSE IDENTIFIÉ** : Notre séparation `generate_opening_moves` vs `generate_regular_moves` est **architecturalement défaillante** et court-circuite la sécurité MVV-LVA.
+
+**PROBLÈME SYSTÉMIQUE** :
+```
+💀 OUVERTURE (coups 1-15):  generate_opening_moves → AUCUN tri MVV-LVA → Dame blunders
+✅ STANDARD (coups 16+):   generate_regular_moves → order_moves → Sécurité fonctionnelle
+```
+
+### **🏛️ STANDARDS PROFESSIONNELS VIOLÉS**
+**Recherche Context7** révèle que **Stockfish, python-chess, chessops** utilisent :
+- **UNE SEULE fonction génération** avec sécurité MVV-LVA appliquée partout
+- **Opening books séparés** (format Polyglot) pour coups théoriques
+- **JAMAIS de court-circuit sécurité** selon phase de jeu
+
+**Notre approche** est non-standard et explique pourquoi **Dame fait blunders en ouverture** mais pas en milieu/fin de partie.
+
+### **📍 LOCALISATION PRÉCISE DU BUG**
+- **Fichier** : `src/ai.pl`
+- **Fonction** : `generate_opening_moves` ligne 439
+- **Problème** : `take_first_n_simple(AllMoves, Limit, Moves)` sans `order_moves`
+- **Comparaison** : `generate_regular_moves` ligne 460 applique `order_moves` correctement
+
+### **⚙️ SOLUTIONS IDENTIFIÉES**
+1. **OPTION B - Quick Fix** : Ajouter `order_moves` à `generate_opening_moves` (15 min)
+2. **OPTION A - Standards Professionnels** : Architecture unifiée comme moteurs pros (2-3h)
 
 ---
 

@@ -20,10 +20,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Quick Context
 - **Project**: Chess AI in Prolog - University AI course (IFT-2003)
 - **Current Phase**: Phase 3 ✅ COMPLÈTE - IA négamax + alpha-beta optimisée
-- **Status**: ✅ **STABLE** - Bug détection défense résolu, évaluation fonctionnelle
+- **Status**: 🚨 **ROOT CAUSE IDENTIFIÉ** - Architecture opening/regular bypasse sécurité MVV-LVA
 - **Architecture**: 6-module design (pieces/board/game/interface/ai/evaluation)
 - **Performance**: Quasi-instantanée (0.00s/coup), évaluation cohérente [EVAL] (+blanc/-noir)
-- **Documentation**: TASKS.md et BUG_REPORT.md mis à jour (2025-09-07)
+- **Branche sécurisée**: `feature/ai-v3-unified-architecture` créée pour refactoring
+- **Solutions**: Option B (quick fix 15 min) + Option A (refactoring 3h)
+- **Documentation**: AI_V3_REFACTORING_PLAN.md détaille les deux approches (2025-09-07)
 
 ## Development Commands
 
@@ -214,10 +216,11 @@ swipl go.pl  # Test manual - Option 2: IA vs Humain
 - **Impact**: Blunders tactiques éliminés, évaluation stable
 
 ### 📚 **DOCUMENTATION ACTUELLE**
-- **TASKS.md**: Statut projet + prochaines étapes (mis à jour 2025-09-07)
-- **BUG_REPORT_ENTERPRISE.md**: Bugs résolus + problèmes mineurs restants
+- **TASKS.md**: Statut projet + solutions Option A/B détaillées (mis à jour 2025-09-07)
+- **BUG_REPORT_ENTERPRISE.md**: Root cause architectural identifié (mis à jour 2025-09-07)
+- **AI_V3_REFACTORING_PLAN.md**: Plan complet Option A (refactoring) + Option B (quick fix)
 - **ARCHITECTURE_GUIDE_DEVELOPERS.md**: Guide complet nouveaux développeurs
-- **MVV_LVA_IMPLEMENTATION_PLAN.md**: Plan détection défense (historique)
+- **MVV_LVA_IMPLEMENTATION_PLAN.md**: ⚠️ OBSOLÈTE - archivé (2025-09-07)
 
 
 ### ✅ **ÉTAT ACTUEL IA** (Septembre 2025)

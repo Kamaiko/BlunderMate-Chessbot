@@ -1,48 +1,176 @@
 # 🚨 PROLOG CHESS GAME - DEVELOPMENT TASKS
 
-## 📊 **STATUS ACTUEL** ✅ **MAJEURE AMÉLIORATION**
+## 📊 **STATUS ACTUEL** 🚨 **ROOT CAUSE ARCHITECTURAL IDENTIFIÉ**
 
 - **Phase**: IA Négamax + Alpha-Beta fonctionnelle (profondeur 2)
 - **Architecture**: 6 modules + evaluation.pl centralisé
-- **Détection défense**: ✅ **CORRIGÉE** (bug paramètre couleur résolu)
-- **Évaluation**: ✅ **STABLE** (plus de swing -855 points)
-- **Blunders**: 🔄 **RÉDUITS** (détection défense fonctionnelle)
+- **ROOT CAUSE**: ✅ **IDENTIFIÉ** - Séparation opening/regular court-circuite sécurité MVV-LVA
+- **Détection défense**: ✅ **CORRIGÉE** en phase standard (coups 16+)
+- **Blunders Dame**: 🚨 **PERSISTENT** - Seulement en ouverture (coups 1-15)
 - **Interface**: ✅ **STABLE** (plus de freeze observés)
+- **Branche sécurisée**: ✅ **CRÉÉE** (`feature/ai-v3-unified-architecture`)
 
 ---
 
-## 🚨 **PROBLÈMES IDENTIFIÉS**
-- ⚠️ **Dame fait encore blunders** : Malgré correction détection défense, comportement non optimal persiste
-- ⚠️ **Évaluation tactique incomplète** : Quiescence search manquante, tri MVV-LVA perfectible
-- ⚠️ **Logique opening/endgame** : `generate_opening_moves` à analyser vs standards professionnels
-- ⚠️ **Composants évaluation** : Mobilité, contrôle centre non optimisés
+## 🚨 **ROOT CAUSE ARCHITECTURAL IDENTIFIÉ** (2025-09-07)
 
-### **Analyse Technique Actuelle**
-- **Détection défense** : Fonctionnelle après correction bug
-- **Pipeline IA** : `generate_moves` → `order_moves` → `negamax_ab` opérationnel
-- **Évaluation** : Matériel + PSQT + piece_safety intégrés
+### **🔍 PROBLÈME SYSTÉMIQUE**
+**Architecture non-standard** : `generate_opening_moves` vs `generate_regular_moves` court-circuite sécurité MVV-LVA durant les 15 premiers coups.
+
+```
+💀 OUVERTURE (coups 1-15):  generate_opening_moves → AUCUN order_moves → Dame blunders
+✅ STANDARD (coups 16+):   generate_regular_moves → order_moves → Sécurité MVV-LVA
+```
+
+### **🏛️ STANDARDS PROFESSIONNELS**
+**Context7 Research** : Stockfish, python-chess, chessops utilisent :
+- **UNE fonction génération** avec sécurité partout
+- **Opening books séparés** (Polyglot) pour théorie
+- **JAMAIS de court-circuit sécurité**
 
 ---
 
-## 🎯 **PROCHAINES ÉTAPES PRIORITAIRES**
+## ⚡ **SOLUTIONS STRUCTURÉES - PLAN D'ACTION**
 
-### **TASK UI-1 : Interface Revamp (frontend-designer)**
-- **Objectif** : Moderniser interface menu et jeu IA vs Humain
-- **Agent** : frontend-designer
-- **Effort** : 60-90 min
+### **🚀 OPTION B - QUICK FIX (IMMÉDIAT)** 
+**Objectif** : Sécuriser Dame immédiatement sans refactoring majeur
+**Temps** : 15-20 minutes
+**Risque** : Minimal
 
-### **TASK AI-2 : Optimisation Comportement Dame**
-- **Problème** : Dame fait encore blunders tactiques malgré amélioration majeure
-- **Solutions** : Améliorer évaluation tactique SANS modifier PSQT (tables restent intactes)
-  - Quiescence search pour extension recherche tactique
-  - Optimisation tri MVV-LVA et détection
-  - Analyse composants évaluation (mobilité, centre)
-- **Effort** : 60-90 min
+#### **B.1 - Correction Critique** (5 min)
+```prolog
+% FICHIER: src/ai.pl ligne 439
+% AVANT (DANGEREUX)
+take_first_n_simple(AllMoves, Limit, Moves).
 
-### **TASK TESTS-1 : Restructuration Tests**
-- **Objectif** : Grouper tests par catégories (Core Engine, AI System, Reliability)
-- **Approche** : Runners groupés minimaux (5 min vs 60 min restructuration complète)
-- **Effort** : 5-10 min
+% APRÈS (SÉCURISÉ) 
+order_moves(GameState, Player, AllMoves, OrderedMoves),
+take_first_n_simple(OrderedMoves, Limit, Moves).
+```
+
+#### **B.2 - Nettoyage Double Tri** (5 min)  
+```prolog
+% FICHIER: src/ai.pl ligne 460 - Supprimer double appel
+% generate_regular_moves ne fait plus order_moves (fait par negamax_ab)
+ai_move_limit(Limit), take_first_n_simple(AllMoves, Limit, Moves).
+```
+
+#### **B.3 - Tests Validation** (10 min)
+- Test Dame en ouverture (coups 1-5)
+- Vérifier captures défendues détectées
+- Partie complète validation
+
+---
+
+### **🏛️ OPTION A - ARCHITECTURE PROFESSIONNELLE (FUTURE)**
+**Objectif** : Refactoring complet vers standards Stockfish/python-chess
+**Temps** : 2-3 heures  
+**Risque** : Modéré (branche sécurisée créée)
+
+#### **A.1 - Unification Génération Coups** (60 min)
+```prolog
+% REMPLACEMENT COMPLET 
+generate_moves_unified(GameState, Player, Moves) :-
+    generate_all_legal_moves(GameState, Player, AllMoves),
+    order_moves(GameState, Player, AllMoves, OrderedMoves),
+    get_move_limit(Limit), take_first_n_simple(OrderedMoves, Limit, Moves).
+```
+
+#### **A.2 - Opening Book Séparé** (45 min - OPTIONNEL)
+```prolog
+% NOUVEAU FICHIER: opening_book.pl
+opening_theory_move(MoveCount, BoardPattern, Move).
+get_theory_move(Board, MoveCount, Move).
+```
+
+#### **A.3 - Pipeline Simplifié** (30 min)
+```prolog
+% negamax_ab appelle directement generate_moves_unified
+% Plus de double tri, architecture propre
+```
+
+#### **A.4 - Tests Complets + Validation** (45 min)
+- Tests régression complets
+- Comparaison performance IA v2 vs v3
+- Validation comportement identique/amélioré
+
+---
+
+## 🎯 **RECOMMANDATION STRATÉGIQUE STRUCTURÉE**
+
+### **🚀 PHASE 1 - SÉCURISATION IMMÉDIATE (RECOMMANDÉ)**
+**OPTION B - Quick Fix sur branche master**
+
+**Pourquoi commencer par Option B :**
+- ✅ **Résolution immédiate** des blunders Dame (15 min)
+- ✅ **Risque minimal** - Une seule ligne changée
+- ✅ **Validation rapide** - Test comportement immédiat
+- ✅ **Code stable** - Garde architecture existante fonctionnelle
+
+**Processus détaillé :**
+```bash
+# 1. S'assurer d'être sur master
+git branch  # Vérifier branche actuelle
+
+# 2. Appliquer Option B (15 min)
+# Modifier src/ai.pl ligne 439
+# Tests validation comportement Dame
+
+# 3. Commit sécurisation
+git add src/ai.pl
+git commit -m "fix: Add MVV-LVA ordering to opening moves - resolves queen blunders"
+
+# 4. Tests validation complets
+swipl go.pl  # Test parties Dame sécurisée
+```
+
+### **🏛️ PHASE 2 - ARCHITECTURE PROFESSIONNELLE (FUTURE)**  
+**OPTION A - Refactoring sur branche feature**
+
+**Quand procéder à Option A :**
+- ✅ **Après validation Option B** - Dame sécurisée fonctionnelle
+- ✅ **Si souhaité** - Migration vers standards professionnels
+- ✅ **Temps disponible** - 2-3h session dédiée
+
+**Processus sécurisé :**
+```bash
+# 1. Basculer vers branche développement
+git checkout feature/ai-v3-unified-architecture
+
+# 2. Appliquer Option A (2-3h)
+# Refactoring architecture complet
+
+# 3. Tests complets branche
+# Validation IA v3 vs IA v2
+
+# 4. Merge si satisfait
+git checkout master
+git merge feature/ai-v3-unified-architecture
+```
+
+### **📊 MATRICE DÉCISION**
+
+| Critère | Option B (Quick) | Option A (Refactoring) |
+|---------|------------------|------------------------|
+| **Temps** | ⭐⭐⭐ 15 min | 🔸 2-3 heures |
+| **Risque** | ✅ Minimal | ⚠️ Modéré |
+| **Impact** | ✅ Résout blunders | ⭐ Standards pros |
+| **Maintenance** | ⚠️ Architecture mixte | ✅ Architecture propre |
+| **Tests** | ✅ Simple | 🔸 Complets requis |
+
+### **🎯 DÉCISION RECOMMANDÉE**
+
+**SÉQUENTIEL - OPTION B PUIS A (SI SOUHAITÉ)**
+
+1. **IMMÉDIAT** : Option B pour sécuriser Dame (15 min)
+2. **VALIDATION** : Tests parties, confirmation résolution blunders
+3. **FUTUR** : Option A si migration standards professionnels souhaitée
+
+**Avantages approche séquentielle :**
+- Problème critique résolu rapidement
+- Option A devient non-urgente (choix architectural)
+- Code fonctionnel entre les deux phases
+- Possibilité d'arrêter après Option B si satisfait
 
 ---
 

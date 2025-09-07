@@ -1,9 +1,17 @@
+# ⚠️ OBSOLÈTE - ARCHIVÉ (2025-09-07)
+
+**STATUT**: REMPLACÉ par AI_V3_REFACTORING_PLAN.md  
+**ROOT CAUSE RÉEL**: Architecture opening/regular court-circuite MVV-LVA  
+**SOLUTIONS ACTUELLES**: Option A (refactoring) + Option B (quick fix)  
+
+---
+
 # 🎯 PLAN IMPLÉMENTATION MVV-LVA - DÉTECTION DÉFENSE
 
 **Date**: 2025-09-06  
-**Priorité**: CRITIQUE  
-**Effort estimé**: 90-120 minutes  
-**Objectif**: Corriger détection défense manquante dans système MVV-LVA  
+**Priorité**: ~~CRITIQUE~~ OBSOLÈTE  
+**Effort estimé**: ~~90-120 minutes~~ N/A  
+**Objectif**: ~~Corriger détection défense manquante dans système MVV-LVA~~ RÉSOLU  
 
 ---
 
