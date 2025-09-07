@@ -221,20 +221,20 @@ negamax_ab_with_stats(GameState, Player, Depth, Alpha, Beta, BestMove, BestValue
 
 ---
 
-### 🧮 **PHASE 4 - AJUSTEMENT ÉVALUATION** (15 min)
+### 🧮 **PHASE 4 - AJUSTEMENTS DÉPENDANCES** (20 min)
 
-#### **4.1 - Mobilité Cohérente** (15 min)
+#### **4.1 - Mobilité Cohérente** (10 min)
 ```prolog
-% evaluation.pl ligne 398 - Ajustement
+% evaluation.pl ligne 398 - MODIFICATION OBLIGATOIRE
+% AVANT (obsolète après refactoring)
 evaluate_move_count(GameState, Player, MoveCountValue) :-
-    % OPTION 1 : Utiliser generate_moves_unified (cohérent)
-    generate_moves_unified(GameState, Player, Moves),
+    generate_moves_simple(GameState, Player, Moves),
     length(Moves, MoveCount),
     MoveCountValue is MoveCount.
 
-% ALTERNATIVE : Fonction mobilité dédiée (plus efficace)
-evaluate_move_count_fast(GameState, Player, MoveCountValue) :-
-    % Génération rapide sans tri pour comptage seulement
+% APRÈS - Option recommandée (plus efficace)
+evaluate_move_count(GameState, Player, MoveCountValue) :-
+    % Génération dédiée mobilité (pas de tri MVV-LVA inutile)
     GameState = game_state(Board, _, _, _, _),
     findall(1, (
         between(1, 8, FromRow), between(1, 8, FromCol),
@@ -244,6 +244,16 @@ evaluate_move_count_fast(GameState, Player, MoveCountValue) :-
         valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol)
     ), CountList),
     length(CountList, MoveCountValue).
+```
+
+#### **4.2 - Compatibility Layer** (10 min)  
+```prolog
+% AJOUT ai.pl - Transition sécurisée
+% Garder generate_moves_simple comme alias pendant tests
+generate_moves_simple(GameState, Player, Moves) :-
+    generate_moves_unified(GameState, Player, Moves).
+    
+% Suppression après validation complète Phase 7
 ```
 
 ---
@@ -385,12 +395,12 @@ git commit -m "fix: correction issue X"
 | 1 - Préparation | 15 min | ⚠️ Setup | git checkout master |
 | 2 - Fonctions Core | 45 min | 🚨 CRITIQUE | git reset --soft HEAD~1 |
 | 3 - Intégration | 20 min | 🚨 CRITIQUE | Restaurer negamax_ab original |
-| 4 - Évaluation | 15 min | ⚠️ Modéré | Rollback evaluation.pl |
+| 4 - Dépendances | 20 min | ⚠️ Modéré | Rollback evaluation.pl |
 | 5 - Tests | 30 min | ✅ Validation | - |
 | 6 - Nettoyage | 20 min | 🧹 Cosmétique | git stash |
 | 7 - Validation | 15 min | ✅ Final | - |
 
-**TOTAL ESTIMÉ** : **2h40 - 3h00**
+**TOTAL AJUSTÉ** : **2h45 - 3h05**
 
 ---
 
