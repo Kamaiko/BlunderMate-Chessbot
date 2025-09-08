@@ -60,8 +60,8 @@ swipl go.pl
 **Références techniques :**
 - ¹ Négamax : [Chess Programming Wiki](https://www.chessprogramming.org/Negamax) • [Lichess GitHub](https://github.com/lichess-org/lila)
 - ² Alpha-Beta : [Chess Programming Wiki](https://www.chessprogramming.org/Alpha-Beta)
-- ³ PSQT : [ChessProgramming.org](https://www.chessprogramming.org/Piece-Square_Tables) 
-- ⁴ MVV-LVA : [ChessProgramming.org](https://www.chessprogramming.org/MVV-LVA)
+- ³ PSQT : [Chess Programming Wiki](https://www.chessprogramming.org/Piece-Square_Tables) 
+- ⁴ MVV-LVA : [Chess Programming Wiki](https://www.chessprogramming.org/MVV-LVA)
 - 🤖 **Développé avec** [Claude Code](https://claude.ai/code)
 
 ## 🎮 Usage
