@@ -16,11 +16,36 @@
 
 ## 🎯 **PROCHAINES TÂCHES PRIORITAIRES**
 
-### **🚨 TÂCHE IMMÉDIATE - FIX BLUNDERS DAME**
-- [ ] **Exécuter MINIMAL_FIX_PLAN_CORRECTED.md** (15 min)
-  - Modification atomique src/ai.pl lignes 439+460
-  - Tests validation complets avec rollback points
-  - **Résultat**: Dame blunders éliminés définitivement
+### **✅ FIXES PARTIELS COMPLÉTÉS** 
+- [x] **Dame développement précoce** : Exclusion OtherMoves ouverture
+- [x] **Logique défense inversée** : Correction is_piece_defended  
+- [x] **Détection pion** : Fix square_attacked_by_pawn toutes diagonales
+
+### **🚨 TÂCHES CRITIQUES IDENTIFIÉES - SECTION 10 GAME.PL**
+
+#### **🔴 PRIORITÉ 1 : FIX DÉTECTION ATTAQUE SLIDING PIECES** (30-45 min)
+- [ ] **Compléter `check_sliding_attack_recursive`** (game.pl:509-523)
+  - Ajouter logique "pièce alliée bloque attaque"
+  - Restructurer conditionnels complets
+  - **Impact** : Fou/Dame/Tour détection fonctionnelle
+
+#### **🔴 PRIORITÉ 2 : FIX CUT PRÉMATURÉ** (15-20 min)  
+- [ ] **Corriger `square_attacked_by_any_piece`** (game.pl:470-475)
+  - Supprimer cut `), !.` OU restructurer logique
+  - Permettre test cavalier/pion/roi après échec sliding
+  - **Impact** : Détection attaque complète tous types
+
+#### **🔶 PRIORITÉ 3 : REVUE LITTÉRATURE STRUCTURE** (20-30 min)
+- [ ] **Analyse Context7 section 10 game.pl** (détection attaques échecs)  
+  - Rechercher meilleures pratiques moteurs d'échecs professionnels
+  - Valider structure actuelle vs standards (Stockfish, python-chess)
+  - Identifier optimisations minimalistes nécessaires projet
+  - **Impact** : Architecture détection attaque optimale
+
+#### **🔶 PRIORITÉ 4 : CLEANUP CODE MORT** (5 min)
+- [ ] **Supprimer `pawn_attack_column_offset`** (game.pl:563-566)
+  - Fonction inutilisée après fix diagonales
+  - **Impact** : Code propre maintenance
 
 ### **🎓 FINALISATION PROJET ACADÉMIQUE** 
 

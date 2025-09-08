@@ -420,7 +420,8 @@ generate_opening_moves(GameState, Player, Moves) :-
         get_piece(Board, FromRow, FromCol, Piece),
         \+ is_empty_square(Piece),
         get_piece_color(Piece, Player),
-        member(Piece, ['R','r','Q','q','K','k']),
+        % FIX CRITIQUE: Dame exclue d'ouverture pour respecter principes développement
+        member(Piece, ['R','r','K','k']),  % DAME SUPPRIMÉE: évite sortie prématurée
         between(1, 8, ToRow),
         between(1, 8, ToCol),
         valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol)
@@ -436,7 +437,9 @@ generate_opening_moves(GameState, Player, Moves) :-
     append(Priority1, LimitedSupport, Priority2),
     append(Priority2, OtherMoves, AllMoves),
     
-    ai_opening_moves(Limit), take_first_n_simple(AllMoves, Limit, Moves).
+    % FIX CRITIQUE: Ajouter MVV-LVA sécurité pour éliminer dame blunders ouverture
+    order_moves(GameState, Player, AllMoves, OrderedMoves),
+    ai_opening_moves(Limit), take_first_n_simple(OrderedMoves, Limit, Moves).
 
 % generate_regular_moves(+GameState, +Player, -Moves)  
 % Génération standard avec tri MVV-LVA AVANT limitation
@@ -457,8 +460,8 @@ generate_regular_moves(GameState, Player, Moves) :-
     ), AllMoves),
     
     % CRITIQUE: Trier AVANT de limiter - AUGMENTÉ à 25 pour recaptures importantes
-    order_moves(GameState, Player, AllMoves, OrderedMoves),
-    ai_move_limit(Limit), take_first_n_simple(OrderedMoves, Limit, Moves).
+    % OPTIMISATION: Suppression double tri (déjà fait dans opening_moves)
+    ai_move_limit(Limit), take_first_n_simple(AllMoves, Limit, Moves).
 
 % SUPPRIMÉ: take_first_N_simple wrappers - consolidés vers take_first_n_simple/3
 

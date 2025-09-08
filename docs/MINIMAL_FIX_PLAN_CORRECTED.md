@@ -384,4 +384,39 @@ fi
 
 ---
 
-**STATUS**: ✅ **PLAN CORRIGÉ FINAL** - Toutes corrections ultra-think appliquées, prêt pour exécution sécurisée immédiate
+---
+
+## 🚨 **DIAGNOSTIC CRITIQUE SUPPLÉMENTAIRE** (2025-09-08 POST-IMPLEMENTATION)
+
+### **✅ FIXES APPLIQUÉS AVEC SUCCÈS**
+1. ✅ **Dame développement précoce** : Exclusion OtherMoves ouverture (ai.pl:423)
+2. ✅ **Logique défense inversée** : Correction is_piece_defended (evaluation.pl:312) 
+3. ✅ **Détection pion diagonales** : Fix square_attacked_by_pawn toutes directions (game.pl:549)
+
+### **🚨 ROOT CAUSE IDENTIFIÉE - SECTION 10 GAME.PL**
+
+**PROBLÈME CRITIQUE #1: `check_sliding_attack_recursive` INCOMPLÈTE**
+- **Localisation** : game.pl:509-523
+- **Problème** : Gestion incomplète cas "pièce alliée bloque attaque"  
+- **Impact** : Fou/Dame/Tour attaques NON détectées → IA hang pièces
+- **Fix requis** : Compléter logique conditionnelle ligne 519-523
+
+**PROBLÈME CRITIQUE #2: CUT PRÉMATURÉ `square_attacked_by_any_piece`**
+- **Localisation** : game.pl:470-475  
+- **Problème** : `), !.` empêche backtracking si sliding_pieces échoue
+- **Impact** : Cavalier/Pion/Roi jamais testés après échec sliding
+- **Fix requis** : Supprimer cut OU restructurer logique
+
+**PROBLÈME MINEUR #3: CODE MORT**
+- **Localisation** : game.pl:563-566 `pawn_attack_column_offset`  
+- **Problème** : Fonction inutilisée après fix diagonales
+- **Fix requis** : Suppression cleanup
+
+### **📊 IMPACT VALIDATION**
+- **Tests utilisateur** : IA continue "hanging" fous malgré fixes partiels
+- **Root cause confirmée** : Détection attaque fondamentalement cassée
+- **Prochaine phase** : Fix section 10 OU documentation limitations
+
+---
+
+**STATUS FINAL**: 🔴 **PROBLÈMES CRITIQUES IDENTIFIÉS** - Fixes partiels appliqués, détection attaque nécessite refonte section 10

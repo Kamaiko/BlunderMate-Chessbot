@@ -545,7 +545,8 @@ knight_attack_offset( 2, -1).  knight_attack_offset( 2,  1).
 % Verifie les attaques de pion (diagonales uniquement).
 square_attacked_by_pawn(Board, Row, Col, AttackingPlayer) :-
     pawn_attack_direction(AttackingPlayer, RowOffset),
-    pawn_attack_column_offset(ColOffset),
+    % FIX CRITIQUE: Tester TOUTES les diagonales explicitement (-1 ET +1)
+    (   ColOffset = -1 ; ColOffset = 1),  % Test diagonale gauche ET droite
     PawnRow is Row + RowOffset,
     PawnCol is Col + ColOffset,
     valid_chess_position(PawnRow, PawnCol),

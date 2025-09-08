@@ -20,8 +20,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Quick Context
 - **Project**: Chess AI in Prolog - University AI course (IFT-2003)
 - **Date remise**: 20 octobre 2025 (9h00) - Rapport PDF + Code Prolog
-- **Current Phase**: Finalisation académique - Fix technique + rapport structuré  
-- **Status**: ✅ **95% COMPLÉTÉ** - Objectifs apprentissage validés, fix technique prêt
+- **Current Phase**: Diagnostic critique post-fix - Détection attaque défaillante identifiée
+- **Status**: 🔴 **85% COMPLÉTÉ** - Fixes partiels appliqués, problèmes critiques section 10 identifiés
 - **Architecture**: 6-module design (pieces/board/game/interface/ai/evaluation)
 - **Performance**: Quasi-instantanée (0.00s/coup), évaluation cohérente [EVAL] (+blanc/-noir)
 - **Fix minimal**: MINIMAL_FIX_PLAN_CORRECTED.md (modification atomique 2 lignes ai.pl)
@@ -224,18 +224,20 @@ swipl go.pl  # Test manual - Option 2: IA vs Humain
 - **MVV_LVA_IMPLEMENTATION_PLAN.md**: ⚠️ OBSOLÈTE - archivé (2025-09-07)
 
 
-### ✅ **ÉTAT ACTUEL IA** (Septembre 2025)
-- **🎯 Détection défense**: ✅ FONCTIONNELLE (bug résolu)
-- **📊 Piece safety**: ✅ ACTIVE et corrigée
-- **🧹 Évaluation**: ✅ STABLE (+blanc/-noir cohérent)
-- **⚠️ Limitation mineure**: Dame développement occasionnellement précoce
+### 🔴 **ÉTAT ACTUEL IA** (Septembre 2025 - POST-DIAGNOSTIC)
+- **✅ Dame développement précoce**: FIXÉ (exclusion OtherMoves ouverture)
+- **✅ Logique défense inversée**: CORRIGÉE (is_piece_defended)  
+- **✅ Détection pion diagonales**: FIXÉE (toutes directions testées)
+- **🚨 PROBLÈME CRITIQUE**: Détection attaque sliding pieces défaillante (section 10)
+- **🚨 IMPACT**: IA continue "hanging" fous/dames/tours malgré fixes partiels
 
-### 🎯 **STATUS PROJET FINAL**
+### 🔴 **STATUS PROJET ACTUEL**
 - **✅ Exigences techniques**: IA fonctionnelle, profondeur 2, performance optimale
 - **✅ Architecture stable**: 6 modules, tests passent, interface professionnelle  
-- **✅ Bugs critiques**: Tous résolus (interface loop + détection défense)
-- **✅ Tests modernisés**: Section détection défense ajoutée
-- **⚠️ Améliorations mineures**: Dame développement + interface revamp possibles
+- **🔴 Bug critique identifié**: check_sliding_attack_recursive incomplète (game.pl:509-523)
+- **🔴 Bug critique identifié**: Cut prématuré square_attacked_by_any_piece (game.pl:470-475)
+- **🔴 Impact utilisateur**: IA met pièces en danger sans détection attaque appropriée
+- **⚠️ Fixes partiels appliqués**: 3/5 problèmes résolus, détection attaque nécessite refonte
 
 ### 📚 RECOMMANDATIONS THÉORIQUES À IMPLÉMENTER
 
