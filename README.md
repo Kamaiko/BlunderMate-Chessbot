@@ -1,6 +1,6 @@
 <div align="center">
 
-# ♟️ Prolog Chess Game
+# ♟️ Prolog Game AI
 
 **Joueur intelligent d'échecs avec techniques de recherche heuristique**
 
