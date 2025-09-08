@@ -23,24 +23,24 @@
 
 ### **🚨 TÂCHES CRITIQUES IDENTIFIÉES - SECTION 10 GAME.PL**
 
-#### **🔴 PRIORITÉ 1 : FIX DÉTECTION ATTAQUE SLIDING PIECES** (30-45 min)
-- [ ] **Compléter `check_sliding_attack_recursive`** (game.pl:509-523)
-  - Ajouter logique "pièce alliée bloque attaque"
-  - Restructurer conditionnels complets
-  - **Impact** : Fou/Dame/Tour détection fonctionnelle
-
-#### **🔴 PRIORITÉ 2 : FIX CUT PRÉMATURÉ** (15-20 min)  
-- [ ] **Corriger `square_attacked_by_any_piece`** (game.pl:470-475)
-  - Supprimer cut `), !.` OU restructurer logique
-  - Permettre test cavalier/pion/roi après échec sliding
-  - **Impact** : Détection attaque complète tous types
-
-#### **🔶 PRIORITÉ 3 : REVUE LITTÉRATURE STRUCTURE** (20-30 min)
+#### **🔶 PRIORITÉ 1 : REVUE LITTÉRATURE STRUCTURE** (20-30 min)
 - [ ] **Analyse Context7 section 10 game.pl** (détection attaques échecs)  
   - Rechercher meilleures pratiques moteurs d'échecs professionnels
   - Valider structure actuelle vs standards (Stockfish, python-chess)
   - Identifier optimisations minimalistes nécessaires projet
   - **Impact** : Architecture détection attaque optimale
+
+#### **🔴 PRIORITÉ 2 : FIX DÉTECTION ATTAQUE SLIDING PIECES** (30-45 min)
+- [ ] **Compléter `check_sliding_attack_recursive`** (game.pl:509-523)
+  - Ajouter logique "pièce alliée bloque attaque"
+  - Restructurer conditionnels complets
+  - **Impact** : Fou/Dame/Tour détection fonctionnelle
+
+#### **🔴 PRIORITÉ 3 : FIX CUT PRÉMATURÉ** (15-20 min)  
+- [ ] **Corriger `square_attacked_by_any_piece`** (game.pl:470-475)
+  - Supprimer cut `), !.` OU restructurer logique
+  - Permettre test cavalier/pion/roi après échec sliding
+  - **Impact** : Détection attaque complète tous types
 
 #### **🔶 PRIORITÉ 4 : CLEANUP CODE MORT** (5 min)
 - [ ] **Supprimer `pawn_attack_column_offset`** (game.pl:563-566)
