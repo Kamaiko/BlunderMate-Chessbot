@@ -26,7 +26,7 @@ swipl go.pl
 # 3. Tests du système
 ```
 
-> **Note** : Interface française complète avec détection automatique échec/mat/pat
+> **Note** : Interface complète avec détection automatique échec/mat/pat
 
 ## 🏗️ Architecture
 
@@ -35,7 +35,7 @@ swipl go.pl
 <tr><td><code>pieces.pl</code></td><td>♟️ Règles de mouvement des pièces</td></tr>
 <tr><td><code>board.pl</code></td><td>🏁 Représentation plateau 8×8, affichage ASCII</td></tr>
 <tr><td><code>game.pl</code></td><td>⚖️ Gestion états, validation coups, échec/mat/pat</td></tr>
-<tr><td><code>interface.pl</code></td><td>🖥️ Interface utilisateur française</td></tr>
+<tr><td><code>interface.pl</code></td><td>🖥️ Interface utilisateur</td></tr>
 <tr><td><code>ai.pl</code></td><td>🧠 Algorithme négamax avec élagage alpha-beta</td></tr>
 <tr><td><code>evaluation.pl</code></td><td>🎯 Heuristiques de recherche (matériel + PSQT + sécurité)</td></tr>
 </table>
@@ -46,7 +46,7 @@ swipl go.pl
 - ✅ **Toutes les pièces** et règles officielles FIDE
 - ✅ **Promotion automatique** des pions (→ dame)
 - ✅ **Détection complète** échec, mat et pat
-- ✅ **Interface française** professionnelle
+- ✅ **Interface** professionnelle
 
 ### 🤖 Intelligence Artificielle
 
