@@ -20,12 +20,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Quick Context
 - **Project**: Chess AI in Prolog - University AI course (IFT-2003)
 - **Current Phase**: Phase 3 ✅ COMPLÈTE - IA négamax + alpha-beta optimisée
-- **Status**: 🚨 **ROOT CAUSE IDENTIFIÉ** - Architecture opening/regular bypasse sécurité MVV-LVA
+- **Status**: ✅ **FIX MINIMAL PRÊT** - Plan MINIMAL_FIX_PLAN_CORRECTED.md 15min avec sécurité maximale
 - **Architecture**: 6-module design (pieces/board/game/interface/ai/evaluation)
 - **Performance**: Quasi-instantanée (0.00s/coup), évaluation cohérente [EVAL] (+blanc/-noir)
-- **Branche sécurisée**: `feature/ai-v3-unified-architecture` créée pour refactoring
-- **Solutions**: Option B (quick fix 15 min) + Option A (refactoring 3h)
-- **Documentation**: AI_V3_REFACTORING_PLAN.md détaille les deux approches (2025-09-07)
+- **Fix minimal**: MINIMAL_FIX_PLAN_CORRECTED.md (modification atomique 2 lignes ai.pl)
+- **Timeline**: 15 minutes précises avec 5 rollback points sécurisés
+- **Documentation**: Plans obsolètes supprimés, MINIMAL_FIX_PLAN_CORRECTED.md final (2025-09-08)
 
 ## Development Commands
 
