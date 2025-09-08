@@ -19,8 +19,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Quick Context
 - **Project**: Chess AI in Prolog - University AI course (IFT-2003)
-- **Current Phase**: Phase 3 ✅ COMPLÈTE - IA négamax + alpha-beta optimisée
-- **Status**: ✅ **STABLE** - Bug détection défense résolu, évaluation fonctionnelle
+- **Current Phase**: Phase 3 ✅ COMPLÈTE - Root cause identifié, plan AI V3 prêt
+- **Status**: ✅ **DÉCOUVERTE CRITIQUE** - Bug architectural opening moves identifié, solution structurée
 - **Architecture**: 6-module design (pieces/board/game/interface/ai/evaluation)
 - **Performance**: Quasi-instantanée (0.00s/coup), évaluation cohérente [EVAL] (+blanc/-noir)
 - **Documentation**: TASKS.md et BUG_REPORT.md mis à jour (2025-09-07)
@@ -103,7 +103,15 @@ game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces)
 - **Variables**: PascalCase (`Board`, `GameState`, `FromRow`)
 - **Language**: English predicates/code, French comments (SANS ACCENTS - voir section Unicode ci-dessous)
 - **Move format**: "e2e4" (not "e2-e4")
-- **Git commits**: TOUJOURS en français - ce projet se déroule entièrement en français (commentaires, documentation, commits)
+- **Git commits**: **OBLIGATOIRE FRANCAIS** - Format académique sans accents:
+  ```
+  feat: Implementation generate_moves_unified selon standards professionnels
+  fix: Correction bug architectural opening moves bypass MVV-LVA  
+  docs: Mise a jour plan refactoring AI V3 complet
+  test: Validation architecture unifiee apres refactoring
+  ```
+- **Commentaires code**: FRANCAIS sans accents (compatibilité terminaux Windows)
+- **Agent suivant**: DOIT respecter standards français académiques
 
 ### Critical Validation Patterns (ENHANCED ✅)
 ```prolog
@@ -189,17 +197,17 @@ swipl go.pl  # Test manual - Option 2: IA vs Humain
 - **Interface**: Scores cohérents `[EVAL] Position: X (+blanc/-noir)`
 - **Performance**: Quasi-instantanée (0.00s/coup), élagage fonctionnel
 
-### ✅ **BUG DÉTECTION DÉFENSE RÉSOLU** (2025-09-07)
-- **🎯 Root cause identifié** : Bug paramètre couleur dans `is_piece_defended` (evaluation.pl:311)
-- **🔧 Correction appliquée** : Ajout `opposite_player()` avant appel `is_square_attacked`
-- **✅ Impact résolu** : Plus de swing -855 points, détection défense fonctionnelle
-- **✅ Tests validés** : Pièce défendue vs isolée correctement détectée
-- **✅ Gameplay validé** : Blunders tactiques drastiquement réduits
+### ✅ **ROOT CAUSE ARCHITECTURAL IDENTIFIÉ** (2025-09-08)
+- **🎯 Découverte critique** : `generate_opening_moves` bypass MVV-LVA sécurité (ai.pl:351-358)
+- **🔧 Plan solution** : AI V3 refactoring vers standards professionnels unifié
+- **✅ Recherche standards** : Context7 analysis Stockfish/python-chess patterns
+- **✅ Branch sécurisé** : `feature/ai-v3-unified-architecture` créé
+- **✅ Plan détaillé** : AI_V3_REFACTORING_PLAN.md (7 phases, 3h15 effort)
 
-### 🎯 **PROCHAINES OPTIMISATIONS**
-- **⚠️ Dame développement précoce** : Sort encore parfois tôt (impact mineur)
-- **🔧 Interface revamp** : Modernisation menu et interface jeu (frontend-designer)
-- **📋 Tests restructuration** : Groupement par catégories logiques
+### 🎯 **PROCHAINE PHASE : AI V3 IMPLEMENTATION**
+- **🔧 Architecture unifiée** : Refactoring vers generate_moves_unified standard professionnel
+- **⚡ Solution immédiate** : Option B 15-min fix disponible si urgence
+- **📋 Plan complet** : 7 phases documentées, rollback granulaire sécurisé
 
 ### ✅ **TOUS BUGS CRITIQUES RÉSOLUS** (Septembre 2025)
 
@@ -207,11 +215,11 @@ swipl go.pl  # Test manual - Option 2: IA vs Humain
 - **Status**: Plus de freeze observés sur séquence `d2d4` → `c1g5` → `g5e7`
 - **Validation**: Tests multiples sessions confirment stabilité
 
-#### **Détection Défense Bug** ✅ **RÉSOLU COMPLÈTEMENT**
-- **Root cause**: Bug paramètre couleur dans `evaluation.pl:311` (`is_piece_defended`)
-- **Correction**: `opposite_player(DefendingPlayer, Opponent)` avant `is_square_attacked`
-- **Validation complète**: Tests unitaires + gameplay réel confirment fonctionnement
-- **Impact**: Blunders tactiques éliminés, évaluation stable
+#### **Bug Architectural Opening Moves** ✅ **IDENTIFIÉ ET PLANIFIÉ**
+- **Root cause**: `generate_opening_moves` bypass MVV-LVA pendant coups 1-15 (ai.pl:351-358)
+- **Architecture défaillante**: Séparation opening/regular non-standard vs moteurs professionnels
+- **Solution**: Refactoring vers `generate_moves_unified` pattern Stockfish/python-chess
+- **Impact**: Élimination définitive blunders dame ouverture, architecture moderne
 
 ### 📚 **DOCUMENTATION ACTUELLE**
 - **TASKS.md**: Statut projet + prochaines étapes (mis à jour 2025-09-07)
@@ -221,17 +229,17 @@ swipl go.pl  # Test manual - Option 2: IA vs Humain
 
 
 ### ✅ **ÉTAT ACTUEL IA** (Septembre 2025)
-- **🎯 Détection défense**: ✅ FONCTIONNELLE (bug résolu)
-- **📊 Piece safety**: ✅ ACTIVE et corrigée
-- **🧹 Évaluation**: ✅ STABLE (+blanc/-noir cohérent)
-- **⚠️ Limitation mineure**: Dame développement occasionnellement précoce
+- **🎯 Root cause**: ✅ IDENTIFIÉ (architectural opening moves bypass)
+- **📊 Solution**: ✅ PLANIFIÉE (AI V3 unified architecture)
+- **🧹 Standards**: ✅ RECHERCHÉS (Stockfish/python-chess patterns)
+- **⚠️ Limitation**: Dame blunders coups 1-15 seulement (hors coups 16+)
 
-### 🎯 **STATUS PROJET FINAL**
-- **✅ Exigences techniques**: IA fonctionnelle, profondeur 2, performance optimale
-- **✅ Architecture stable**: 6 modules, tests passent, interface professionnelle  
-- **✅ Bugs critiques**: Tous résolus (interface loop + détection défense)
-- **✅ Tests modernisés**: Section détection défense ajoutée
-- **⚠️ Améliorations mineures**: Dame développement + interface revamp possibles
+### 🎯 **STATUS PROJET ACTUEL**
+- **✅ Root cause identifié**: Bug architectural opening moves (ai.pl:351-358)
+- **✅ Solution planifiée**: AI V3 refactoring complet (7 phases, 3h15)
+- **✅ Standards recherchés**: Stockfish/python-chess patterns via Context7
+- **✅ Branch sécurisé**: feature/ai-v3-unified-architecture créé
+- **🎯 Phase suivante**: Implementation AI V3 selon AI_V3_REFACTORING_PLAN.md
 
 ### 📚 RECOMMANDATIONS THÉORIQUES À IMPLÉMENTER
 
@@ -274,18 +282,18 @@ opening_move([d2,d4], [d7,d6]).   % Moderne pour d4
 % Énorme bonus pour réponses classiques (1.d4 d5, 1.e4 e5)
 ```
 
-### 📋 État Actuel Diagnostic (Décembre 2025)
-- **Algorithme IA**: ✅ OPTIMISÉ (négamax + alpha-beta profondeur 2, élagage fonctionnel)
-- **Évaluation base**: ✅ STABLE (matériel + PSQT + scores cohérents)  
-- **Limitations tactiques**: ⚠️ AGRESSIVE (sacrifices contre pions défendus)
-- **Performance**: ✅ OPTIMALE (0.00s/coup, élagage alpha-beta opérationnel)
+### 📋 État Actuel Diagnostic (Septembre 2025)
+- **Root cause**: ✅ IDENTIFIÉ (generate_opening_moves architectural flaw)
+- **Solution**: ✅ PLANIFIÉE (AI V3 unified architecture refactoring)
+- **Performance**: ✅ OPTIMALE (0.00s/coup, algorithme stable)
+- **Limitation**: ⚠️ Dame blunders coups 1-15 uniquement (bypass MVV-LVA)
 
-### 🔮 **Optimisations Futures Identifiées**
-- **FEN Parser** : Implémenter parseur FEN pour tests positions spécifiques sans écrire des centaines de lignes
-- **Tests Tactiques** : Système de validation positions d'échecs (mat en 1, parades forcées)
-- **Quiescence Search** : Extension recherche tactique aux nœuds feuilles
-- **Transposition Tables** : Cache positions évaluées pour optimisation performance
-- **Opening Book** : Base réponses théoriques pour éviter dame prématurée
+### 🔮 **Plan AI V3 - Architecture Moderne**
+- **generate_moves_unified** : Refactoring vers pattern Stockfish/python-chess
+- **Unified security** : MVV-LVA appliqué partout (opening + regular moves)
+- **Constants cleanup** : Suppression ai_opening_moves/ai_development_limit
+- **Professional standards** : Architecture conforme moteurs professionnels
+- **Rollback granulaire** : 7 phases sécurisées avec validation continue
 
 ## File Dependencies
 - interface.pl → game.pl → board.pl → pieces.pl
