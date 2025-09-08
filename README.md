@@ -58,7 +58,7 @@ swipl go.pl
 | **Temps de réponse** | Temps réel | < 1 seconde/coup |
 
 **Références techniques :**
-- ¹ Négamax : [Chess Programming Wiki](https://www.chessprogramming.org/Negamax) • [Lichess GitHub](https://github.com/lichess-org/lila/tree/master/modules/analyse/src/main/AnalyseApi.scala)
+- ¹ Négamax : [Chess Programming Wiki](https://www.chessprogramming.org/Negamax) • [Lichess GitHub](https://github.com/lichess-org/lila)
 - ² Alpha-Beta : [Chess Programming Wiki](https://www.chessprogramming.org/Alpha-Beta)
 - ³ PSQT : [ChessProgramming.org](https://www.chessprogramming.org/Piece-Square_Tables) 
 - ⁴ MVV-LVA : [ChessProgramming.org](https://www.chessprogramming.org/MVV-LVA)
