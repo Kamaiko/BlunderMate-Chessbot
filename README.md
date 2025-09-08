@@ -1,78 +1,63 @@
-# ♟️ Prolog Chess Game
+# Prolog Chess Game
 
-**Jeu d'échecs complet avec Intelligence Artificielle** - Projet universitaire IFT-2003
+**Joueur intelligent d'échecs avec techniques de recherche heuristique**  
+*Projet IFT-2003 - Intelligence Artificielle - Université Laval*
+
+## Installation & Lancement
 
 ```bash
 swipl go.pl
 ```
 
-## 🏗️ Architecture
+## Architecture
 
-**6 modules principaux** :
-- **pieces.pl** : Règles de mouvement des pièces d'échecs
-- **board.pl** : Représentation plateau 8x8, coordonnées, affichage ASCII
-- **game.pl** : Gestion états de jeu, validation coups, détection échec/mat
-- **interface.pl** : Interface utilisateur
+**6 modules Prolog** :
+- **pieces.pl** : Règles de mouvement des pièces
+- **board.pl** : Représentation plateau 8x8, affichage ASCII
+- **game.pl** : Gestion états, validation coups, échec/mat/pat
+- **interface.pl** : Interface utilisateur française
 - **ai.pl** : Algorithme négamax avec élagage alpha-beta
-- **evaluation.pl** : Évaluation position (matériel + PSQT + sécurité pièces)
+- **evaluation.pl** : Heuristiques de recherche (matériel + PSQT + sécurité)
 
-## ⚡ Installation & Tests
+## Fonctionnalités
+
+### Jeu d'Échecs Standard
+- Toutes les pièces et règles officielles
+- Promotion automatique des pions
+- Détection échec, mat et pat
+- Interface française complète
+
+### Intelligence Artificielle
+- **Algorithme** : Négamax avec élagage alpha-beta (profondeur 2)
+- **Heuristiques** : Matériel + Piece-Square Tables + sécurité pièces  
+- **Tri des coups** : MVV-LVA (Most Valuable Victim - Least Valuable Attacker)
+- **Performance** : Temps réel (< 1 seconde/coup)
+
+## Usage
+
+```
+Format coups : e2e4 (notation algébrique)
+Coordonnées  : colonnes a-h, rangées 1-8
+Commandes    : aide, menu, quitter
+```
+
+**Modes disponibles :**
+- Humain vs Humain
+- Humain vs IA
+
+## Tests
 
 ```bash
-# Lancer le jeu (inclut option tests dans le menu)
-swipl go.pl
-
-# Tests directs en ligne de commande
 swipl -t run_tests -s tests/tests.pl
 ```
 
-## 🎮 Fonctionnalités
+## Prérequis
 
-### Jeu d'Échecs Complet
-✅ Toutes les pièces et règles standard  
-✅ Promotion automatique des pions en dame  
-✅ Détection échec, mat et pat  
-✅ Interface utilisateur complète  
-✅ Validation robuste des coups  
+- **SWI-Prolog** 9.x+
+- **OS** : Windows, Linux, macOS
 
-### Intelligence Artificielle (Phase 3)
-🧠 **Algorithme négamax** avec élagage alpha-beta  
-📊 **Évaluation PSQT** (Piece-Square Tables standards)  
-⚡ **Performance** : 1-4 secondes par coup (profondeur 2)  
-🎯 **Tri MVV-LVA** : Most Valuable Victim - Least Valuable Attacker
+## Documentation
 
-## 🎯 Usage
-
-```
-Format des coups    : e2e4 (notation algébrique)
-Coordonnées        : colonnes a-h, rangées 1-8
-Commandes          : aide, menu, quitter, sortir
-```
-
-### Modes de Jeu
-- **Humain vs Humain** : Partie locale à deux joueurs
-- **Humain vs IA** : Affrontez l'intelligence artificielle
-
-## 💻 Compatibilité
-
-| Requirement | Version |
-|-------------|---------|
-| **SWI-Prolog** | 9.x+ |
-| **OS** | Windows, Linux, macOS |
-
-## 📚 Documentation
-
-| Document | Description |
-|----------|-------------|
-| [🏗️ Architecture Guide](docs/ARCHITECTURE_GUIDE_DEVELOPERS.md) | Architecture système, flow de données, roadmap |
-| [📋 État d'Avancement](docs/TASKS.md) | Tâches prioritaires et bugs actifs |
-| [🐛 Bug Report](docs/BUG_REPORT_ENTERPRISE.md) | Analyses détaillées des problèmes |
-
----
-<div align="center">
-
-**🎓 Projet Universitaire IFT-2003** • **🤖 Intelligence Artificielle en Prolog**
-
-*Phase 3 Complète - IA Négamax + Alpha-Beta Fonctionnelle*
-
-</div>
+- [ARCHITECTURE_GUIDE_DEVELOPERS.md](docs/ARCHITECTURE_GUIDE_DEVELOPERS.md) - Architecture détaillée
+- [TASKS.md](docs/TASKS.md) - État d'avancement du projet
+- [PRD.md](docs/PRD.md) - Spécifications produit

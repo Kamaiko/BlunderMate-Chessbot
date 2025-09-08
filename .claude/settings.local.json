@@ -28,7 +28,12 @@
       "Bash(git add:*)",
       "Read(/C:\\DevTools\\Projects\\PrologChessGame_Clean/**)",
       "Read(/C:\\DevTools\\Projects\\PrologChessGame_Clean\\.claude/**)",
-      "mcp__context7__resolve-library-id"
+      "mcp__context7__resolve-library-id",
+      "Bash(if grep -i error syntax_check.log)",
+      "Bash(then echo \"ERREUR SYNTAXE DÉTECTÉE\")",
+      "Bash(else echo \"✅ Syntaxe OK - Continuing...\")",
+      "Bash(fi)",
+      "Bash(cat:*)"
     ],
     "deny": [
       "mcp__playwright__*"
