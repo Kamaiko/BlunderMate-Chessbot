@@ -52,15 +52,16 @@ swipl go.pl
 
 | Composante | Description | Performance |
 |------------|-------------|-------------|
-| **Algorithme** | Négamax + élagage Alpha-Beta¹ | Profondeur 2 |
-| **Heuristiques** | Matériel + PSQT² + sécurité pièces | 6 fonctions d'évaluation |
-| **Tri des coups** | MVV-LVA³ (Most Valuable Victim) | Élagage ~90% |
+| **Algorithme** | Négamax¹ + élagage Alpha-Beta² | Profondeur 2 |
+| **Heuristiques** | Matériel + PSQT³ + sécurité pièces | 6 fonctions d'évaluation |
+| **Tri des coups** | MVV-LVA⁴ (Most Valuable Victim) | Élagage ~90% |
 | **Temps de réponse** | Temps réel | < 1 seconde/coup |
 
 **Références techniques :**
-- ¹ Négamax : [Lichess.org](https://lichess.org/blog/WFvLpiQAACMA8e9D/learning-chess-the-hard-way) • [Chess Programming Wiki](https://www.chessprogramming.org/Negamax)
-- ² PSQT : [ChessProgramming.org](https://www.chessprogramming.org/Piece-Square_Tables) 
-- ³ MVV-LVA : [ChessProgramming.org](https://www.chessprogramming.org/MVV-LVA)
+- ¹ Négamax : [Chess Programming Wiki](https://www.chessprogramming.org/Negamax) • [Lichess GitHub](https://github.com/lichess-org/lila/tree/master/modules/analyse/src/main/AnalyseApi.scala)
+- ² Alpha-Beta : [Chess Programming Wiki](https://www.chessprogramming.org/Alpha-Beta)
+- ³ PSQT : [ChessProgramming.org](https://www.chessprogramming.org/Piece-Square_Tables) 
+- ⁴ MVV-LVA : [ChessProgramming.org](https://www.chessprogramming.org/MVV-LVA)
 - 🤖 **Développé avec** [Claude Code](https://claude.ai/code)
 
 ## 🎮 Usage
