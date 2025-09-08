@@ -52,10 +52,16 @@ swipl go.pl
 
 | Composante | Description | Performance |
 |------------|-------------|-------------|
-| **Algorithme** | Négamax + élagage Alpha-Beta | Profondeur 2 |
-| **Heuristiques** | Matériel + PSQT + sécurité pièces | 6 fonctions d'évaluation |
-| **Tri des coups** | MVV-LVA (Most Valuable Victim) | Élagage ~90% |
+| **Algorithme** | Négamax + élagage Alpha-Beta¹ | Profondeur 2 |
+| **Heuristiques** | Matériel + PSQT² + sécurité pièces | 6 fonctions d'évaluation |
+| **Tri des coups** | MVV-LVA³ (Most Valuable Victim) | Élagage ~90% |
 | **Temps de réponse** | Temps réel | < 1 seconde/coup |
+
+**Références techniques :**
+- ¹ Négamax : [Lichess.org](https://lichess.org/blog/WFvLpiQAACMA8e9D/learning-chess-the-hard-way) • [Chess Programming Wiki](https://www.chessprogramming.org/Negamax)
+- ² PSQT : [ChessProgramming.org](https://www.chessprogramming.org/Piece-Square_Tables) 
+- ³ MVV-LVA : [ChessProgramming.org](https://www.chessprogramming.org/MVV-LVA)
+- 🤖 **Développé avec** [Claude Code](https://claude.ai/code)
 
 ## 🎮 Usage
 
