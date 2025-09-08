@@ -1,4 +1,18 @@
-# 📋 TASKS - PROCHAINES ÉTAPES PROJET
+# 📋 TASKS - FINALISATION PROJET ACADÉMIQUE IFT-2003
+
+## 🎓 **PROJET - JOUEUR INTELLIGENT ÉCHECS**
+- **Cours**: IFT-2003 Intelligence Artificielle
+- **Objectif**: Développer joueur intelligent utilisant techniques recherche heuristique  
+- **Date remise**: 20 octobre 2025 (9h00) - Rapport PDF + Code Prolog
+- **Évaluation**: Modélisation (20%) + Implémentation (45%) + Résultats (25%) + Rapport (10%)
+
+### **🎯 OBJECTIFS APPRENTISSAGE VALIDÉS**
+- ✅ **Identifier problème IA**: Dame blunders architectural identifié et solution planifiée
+- ✅ **Analyser recherche espace états**: Négamax + Alpha-Beta implémentés fonctionnels  
+- ✅ **Choisir technique heuristique**: MVV-LVA + PSQT + Piece Safety adaptées échecs
+- ✅ **Implanter solution logique**: Architecture 6 modules Prolog, interface Humain vs IA
+
+---
 
 ## 🎯 **PROCHAINES TÂCHES PRIORITAIRES**
 
@@ -16,11 +30,29 @@
   - Confirmation heuristiques recherche opérationnelles 
   - Performance 0.00s/coup maintenue
 
-#### **📝 Documentation Académique**
-- [ ] **README académique** (15 min)
-  - Résumé algorithmes implémentés (Négamax, Alpha-Beta, MVV-LVA)
-  - Instructions exécution et tests
-  - Performance et architecture
+#### **📝 RAPPORT ACADÉMIQUE STRUCTURÉ**
+
+**1️⃣ MODÉLISATION PROBLÈME (20%)**
+- [ ] **État initial/final** (8 min): Position échecs → Mat/Pat, espace 10^43 positions
+- [ ] **Mouvements autorisés** (4 min): Règles échecs, validation coups légaux
+- [ ] **Techniques recherche** (3 min): Négamax profondeur 2, Alpha-Beta élagage
+
+**2️⃣ IMPLÉMENTATION + HEURISTIQUES (45%)**
+- [ ] **Code recherche** (15 min): Extraits negamax_ab/7, order_moves/4, evaluate_position/3
+- [ ] **Heuristiques détaillées** (20 min):
+  - MVV-LVA: Most Valuable Victim - Least Valuable Attacker
+  - PSQT: Piece-Square Tables optimisation positionnement
+  - Matériel: Pion=100, Cavalier=320, Fou=330, Tour=500, Dame=900, Roi=10000
+  - Défense: Détection pièces attaquées/défendues
+- [ ] **Guide utilisation** (10 min): Installation, exécution, format coups
+
+**3️⃣ RÉSULTATS + PERFORMANCE (25%)**
+- [ ] **Performance mesurée** (10 min): 0.00s/coup, 8 sections tests passent
+- [ ] **Validation efficacité** (10 min): Parties démo IA vs IA, comportement tactique
+- [ ] **Limites heuristique** (5 min): Horizon effect, opening book limitée
+
+**4️⃣ RAPPORT FINAL (10%)**
+- [ ] **Structure académique** (15 min): Page couverture, intro, conclusion, table matières
 
 #### **🧪 Tests Démonstration**
 - [ ] **Parties démonstration** (10 min)
@@ -61,17 +93,21 @@
 
 ---
 
-## 🕒 **TIMELINE RECOMMANDÉ**
+## 🕒 **TIMELINE FINALISATION ACADÉMIQUE**
 
-### **📅 SESSION ACTUELLE (30 min)**
-1. **Fix minimal** (15 min) - PRIORITÉ ABSOLUE
-2. **Tests validation** (10 min) 
-3. **Documentation mise à jour** (5 min)
+### **📅 SESSION TECHNIQUE IMMÉDIATE (30 min)**
+1. **Fix architectural** (15 min) - 😨 CRITIQUE pour validité heuristiques
+2. **Tests validation post-fix** (10 min) - Confirmé algorithmes fonctionnels
+3. **Parties démonstration** (5 min) - Capture logs pour rapport
 
-### **📅 FINALISATION PROJET (30 min)**
-1. **README académique** (15 min)
-2. **Parties démonstration** (10 min) 
-3. **Review finale** (5 min)
+### **📅 RÉDACTION RAPPORT (2h)**
+1. **Modélisation + Implémentation** (75 min) - Sections 1+2 de l'énoncé
+2. **Résultats + Discussion** (30 min) - Section 3 performance/limites
+3. **Structure finale** (15 min) - Section 4 présentation
+
+### **📅 FINALISATION (30 min)**
+1. **Relecture rapport** (20 min) - Vérification structure/contenu
+2. **Préparation fichiers** (10 min) - PDF + .pl pour remise
 
 ### **📅 AMÉLIORATIONS OPTIONNELLES** (si temps)
 - Interface revamp (30-60 min)
@@ -80,22 +116,26 @@
 
 ---
 
-## ✅ **CRITÈRES COMPLETION PROJET**
+## ✅ **LIVRABLES + CRITÈRES ÉVALUATION**
 
-### **🎯 EXIGENCES MINIMALES**
-- ✅ IA fonctionnelle (Négamax + Alpha-Beta)
-- ✅ Performance acceptable (0.00s/coup)
-- ✅ Interface stable française
-- [ ] **Dame blunders résolus** (fix minimal requis)
-- [ ] Tests passent
-- [ ] Documentation complète
+### **📄 LIVRABLES OBLIGATOIRES**
+- [ ] **Rapport PDF**: 4 sections selon énoncé (modélisation, implémentation, résultats, présentation)
+- [ ] **Code Prolog (.pl)**: Programme complet fonctionnel
+- [ ] **Démonstration**: IA vs Humain opérationnelle
 
-### **🏆 EXIGENCES EXCELLENTES**  
-- [ ] Architecture propre
-- [ ] Interface modernisée
-- [ ] Tests restructurés
-- [ ] Performance optimisée
-- [ ] Documentation académique complète
+### **🏆 CRITÈRES EXCELLENCE ACADÉMIQUE**
+- ✅ **Techniques recherche avancées**: Négamax + Alpha-Beta + profondeur adaptée
+- ✅ **Heuristiques sophistiquées**: MVV-LVA + PSQT + défense + matériel
+- ✅ **Performance démontrée**: Temps réel (0.00s/coup), comportement tactique
+- ✅ **Architecture modulaire**: 6 modules Prolog bien structurés
+- [ ] **Problème IA résolu**: Dame blunders éliminés (fix technique requis)
+- [ ] **Rapport académique**: Structure conforme + analyse approfondie
+
+### **✅ MINIMUM VIABLE PROJET**
+- ✅ IA joue contre humain fonctionnellement
+- ✅ Techniques recherche implémentées et expliquées
+- [ ] Rapport respecte structure énoncé
+- [ ] Code complet livré avec documentation
 
 ---
 

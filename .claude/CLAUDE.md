@@ -19,8 +19,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Quick Context
 - **Project**: Chess AI in Prolog - University AI course (IFT-2003)
-- **Current Phase**: Phase 3 ✅ COMPLÈTE - IA négamax + alpha-beta optimisée
-- **Status**: ✅ **FIX MINIMAL PRÊT** - Plan MINIMAL_FIX_PLAN_CORRECTED.md 15min avec sécurité maximale
+- **Date remise**: 20 octobre 2025 (9h00) - Rapport PDF + Code Prolog
+- **Current Phase**: Finalisation académique - Fix technique + rapport structuré  
+- **Status**: ✅ **95% COMPLÉTÉ** - Objectifs apprentissage validés, fix technique prêt
 - **Architecture**: 6-module design (pieces/board/game/interface/ai/evaluation)
 - **Performance**: Quasi-instantanée (0.00s/coup), évaluation cohérente [EVAL] (+blanc/-noir)
 - **Fix minimal**: MINIMAL_FIX_PLAN_CORRECTED.md (modification atomique 2 lignes ai.pl)
