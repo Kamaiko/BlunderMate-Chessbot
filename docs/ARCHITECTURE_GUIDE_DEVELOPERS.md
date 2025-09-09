@@ -458,3 +458,94 @@ handle_player_turn(UnifiedGameState, Player, ai, NewState).
 - **Vérifier** que les tests passent avant de commiter
 
 Ce guide fournit une base solide pour comprendre et étendre l'architecture du jeu d'échecs Prolog. La priorité est la clarté et la maintenabilité du code éducatif.
+
+---
+
+## 🚀 **OPTIMISATIONS FUTURES**
+
+### **🎯 Priorité Haute**
+
+#### **1. Répertoire d'Ouvertures**
+- **Objectif** : Implémenter une base de données d'ouvertures
+- **Fichier** : `src/opening_book.pl` (nouveau)
+- **Fonctionnalités** :
+  - Base de données PGN des ouvertures populaires
+  - Détection automatique de l'ouverture en cours
+  - Suggestions de coups théoriques
+  - Gestion des variantes d'ouverture
+
+#### **2. Consolidation Génération de Coups**
+- **Problème actuel** : `generate_opening_moves/3` et `generate_moves_simple/3` font des tâches similaires
+- **Solution** : Unifier en `generate_all_moves/3` avec paramètre de mode
+- **Bénéfices** : Réduction duplication, maintenance simplifiée
+- **Impact** : Refactoring majeur de `ai.pl`
+
+#### **3. Cache d'Évaluations**
+- **Objectif** : Éviter recalculs d'évaluations identiques
+- **Implémentation** : Table de hachage pour positions déjà évaluées
+- **Performance** : Gain significatif pour positions répétitives
+- **Fichier** : `src/cache.pl` (nouveau)
+
+### **🎯 Priorité Moyenne**
+
+#### **4. Quiescence Search**
+- **Objectif** : Recherche tactique étendue pour positions instables
+- **Algorithme** : Extension de `negamax_ab/7` avec recherche de captures
+- **Profondeur** : Variable selon la complexité tactique
+- **Impact** : Amélioration significative de la force de jeu
+
+#### **5. Système de Configuration**
+- **Problème actuel** : Valeurs hardcodées dans le code
+- **Solution** : Fichier `config/chess_config.pl`
+- **Paramètres** : Profondeur IA, limites de temps, valeurs PSQT
+- **Flexibilité** : Ajustement sans recompilation
+
+#### **6. Interface Graphique**
+- **Objectif** : Remplacer l'interface ASCII par une GUI
+- **Technologie** : SWI-Prolog avec XPCE ou interface web
+- **Fonctionnalités** : Échiquier visuel, historique des coups, analyse
+- **Fichier** : `src/gui.pl` (nouveau)
+
+### **🎯 Priorité Basse**
+
+#### **7. Moteur d'Analyse**
+- **Objectif** : Outils d'analyse de position
+- **Fonctionnalités** : Évaluation détaillée, suggestions de coups
+- **Interface** : Mode analyse séparé du jeu
+- **Fichier** : `src/analysis.pl` (nouveau)
+
+#### **8. Support Multi-Ouvertures**
+- **Problème actuel** : PSQT optimisé uniquement pour Caro-Kann
+- **Solution** : Système de tables PSQT modulaires
+- **Ouvertures** : Caro-Kann, Sicilienne, Française, etc.
+- **Sélection** : Automatique selon l'ouverture détectée
+
+#### **9. Sauvegarde/Chargement de Parties**
+- **Format** : Support PGN standard
+- **Fonctionnalités** : Sauvegarde, chargement, relecture
+- **Interface** : Commandes `save`, `load`, `replay`
+- **Fichier** : `src/pgn.pl` (nouveau)
+
+### **📋 Plan d'Implémentation**
+
+#### **Phase 1 (1-2 semaines)**
+1. Consolidation génération de coups
+2. Système de configuration
+3. Cache d'évaluations basique
+
+#### **Phase 2 (1 mois)**
+1. Répertoire d'ouvertures
+2. Quiescence search
+3. Support multi-ouvertures
+
+#### **Phase 3 (2-3 mois)**
+1. Interface graphique
+2. Moteur d'analyse
+3. Support PGN complet
+
+### **⚠️ Considérations Techniques**
+
+- **Compatibilité** : Maintenir la compatibilité avec l'interface actuelle
+- **Tests** : Chaque optimisation doit être testée avec `run_all_tests`
+- **Performance** : Mesurer l'impact sur les temps de réponse
+- **Documentation** : Mettre à jour ce guide à chaque modification majeure
