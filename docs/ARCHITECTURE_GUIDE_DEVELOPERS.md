@@ -4,7 +4,7 @@
 
 Ce jeu d'échecs Prolog implémente une architecture modulaire en 6 couches avec une IA négamax. Le système est conçu pour être éducatif, maintenable et extensible.
 
-⚠️ **ÉTAT ACTUEL** : IA fonctionnelle avec lacunes identifiées (alpha-beta défaillant, MVV-LVA incomplet) - voir TASKS.md pour roadmap d'amélioration.
+✅ **ÉTAT ACTUEL** : IA pleinement fonctionnelle sur commit 2ba7bef. Architecture stable, négamax + alpha-beta opérationnels. Optimisation tactique Caro-Kann en cours - voir TASKS.md.
 
 ### **🎯 Objectif Pédagogique**
 - Démonstration d'IA d'échecs en Prolog
@@ -12,11 +12,11 @@ Ce jeu d'échecs Prolog implémente une architecture modulaire en 6 couches avec
 - Architecture modulaire propre et extensible
 - Code éducatif niveau universitaire
 
-## 🚨 **ANALYSE CRITIQUE MVV-LVA - BUG PARAMÈTRE COULEUR**
+## 🎯 **OPTIMISATION ACTUELLE - DÉVELOPPEMENT CARO-KANN**
 
-**Date**: 2025-09-06  
-**Découverte**: Détection défense MVV-LVA **complètement non fonctionnelle**  
-**Bug**: Paramètre couleur inversé dans `move_score_with_defense/4`  
+**Date**: 2025-09-09  
+**Problème**: IA joue e7-e6 avant développement fou dame, sous-optimal tactiquement  
+**Status**: PSQT modifiées (f5=+20, e6=-15), solutions alternatives en développement  
 
 ### **🔍 PIPELINE MVV-LVA COMPLET**
 

@@ -152,6 +152,31 @@ check_path_clear(Board, Row, Col, ToRow, ToCol, RowDir, ColDir, Depth) :-
 3. Run `tests.pl` for validation
 4. Run full suite before commits
 
+### Code Cleanup & Implementation Best Practices
+
+#### **📋 RÈGLE CRITIQUE : NETTOYAGE POST-IMPLÉMENTATION**
+**Après chaque implémentation de fonctionnalité, TOUJOURS :**
+
+1. **Supprimer code obsolète** - Fonctions, variables, imports non utilisés
+2. **Nettoyer code debug** - Traces, prints temporaires, commentaires debug  
+3. **Vérifier cohérence** - S'assurer que tous les appels de fonction sont définis
+4. **Valider compilation** - `swipl -s file.pl -g "halt."` sans erreurs
+5. **Tester régression** - Suite de tests complète avant commit
+
+#### **Pattern de Nettoyage**
+```bash
+# Chercher code mort
+grep -r "% TODO\|% FIXME\|% DEBUG\|% TEMP" src/ --include="*.pl"
+
+# Chercher fonctions non définies  
+grep -r "predicate_name" src/ --include="*.pl"
+
+# Nettoyer traces debug
+grep -i "debug\|print\|writeln\|trace" src/ --include="*.pl"
+```
+
+**⚠️ JAMAIS laisser du code expérimental ou des bonus/malus éparpillés dans le codebase sans documentation claire.**
+
 ## Common Issues & Solutions
 
 ### Unicode & Terminal Compatibility ⚠️ **RÈGLE CRITIQUE**

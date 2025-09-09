@@ -7,177 +7,174 @@
 - **Évaluation**: Modélisation (20%) + Implémentation (45%) + Résultats (25%) + Rapport (10%)
 
 ### **🎯 OBJECTIFS APPRENTISSAGE VALIDÉS**
-- ✅ **Identifier problème IA**: Dame blunders architectural identifié et solution planifiée
+- ✅ **Identifier problème IA**: Ordre développement Caro-Kann identifié
 - ✅ **Analyser recherche espace états**: Négamax + Alpha-Beta implémentés fonctionnels  
-- ✅ **Choisir technique heuristique**: MVV-LVA + PSQT + Piece Safety adaptées échecs
-- ✅ **Implanter solution logique**: Architecture 6 modules Prolog, interface Humain vs IA
+- ✅ **Choisir technique heuristique**: MVV-LVA + PSQT + Move Ordering optimisés
+- ✅ **Implanter solution logique**: Architecture 6 modules Prolog, interface Humain vs IA stable
 
 ---
 
-## 🎯 **PROCHAINES TÂCHES PRIORITAIRES**
+## 🎯 **ÉTAT ACTUEL PROJET** (2025-09-09)
 
-### **✅ FIXES PARTIELS COMPLÉTÉS** 
-- [x] **Dame développement précoce** : Exclusion OtherMoves ouverture
-- [x] **Logique défense inversée** : Correction is_piece_defended  
-- [x] **Détection pion** : Fix square_attacked_by_pawn toutes diagonales
+### **✅ SYSTÈME IA FONCTIONNEL**
+- **Version stable**: Commit 2ba7bef (version ancienne mais stable)
+- **Performance**: Négamax depth 2, ~0.6s/coup, aucun crash
+- **Architecture**: 6 modules intégrés, tests passent
+- **Interface**: Française professionnelle, IA vs Humain opérationnel
 
-### **🚨 TÂCHES CRITIQUES IDENTIFIÉES - SECTION 10 GAME.PL**
+### **🚨 PROBLÈME TACTIQUE IDENTIFIÉ**
 
-#### **🔶 PRIORITÉ 1 : REVUE LITTÉRATURE STRUCTURE** (20-30 min)
-- [ ] **Analyse Context7 section 10 game.pl** (détection attaques échecs)  
-  - Rechercher meilleures pratiques moteurs d'échecs professionnels
-  - Valider structure actuelle vs standards (Stockfish, python-chess)
-  - Identifier optimisations minimalistes nécessaires projet
-  - **Impact** : Architecture détection attaque optimale
+#### **🔴 DÉVELOPPEMENT CARO-KANN SOUS-OPTIMAL**
+**Symptôme**: IA joue e7-e6 AVANT de développer fou dame, bloquant développement optimal
 
-#### **🔴 PRIORITÉ 2 : FIX DÉTECTION ATTAQUE SLIDING PIECES** (30-45 min)
-- [ ] **Compléter `check_sliding_attack_recursive`** (game.pl:509-523)
-  - Ajouter logique "pièce alliée bloque attaque"
-  - Restructurer conditionnels complets
-  - **Impact** : Fou/Dame/Tour détection fonctionnelle
+**Séquence problématique observée**:
+```
+1. d4 c6      ← Caro-Kann correct
+2. Nc3 d5     ← Structure correcte  
+3. Bf4 Nf6    ← Développement cavalier
+4. e3 e6      ← PROBLÈME: e6 précoce bloque fou c8
+```
 
-#### **🔴 PRIORITÉ 3 : FIX CUT PRÉMATURÉ** (15-20 min)  
-- [ ] **Corriger `square_attacked_by_any_piece`** (game.pl:470-475)
-  - Supprimer cut `), !.` OU restructurer logique
-  - Permettre test cavalier/pion/roi après échec sliding
-  - **Impact** : Détection attaque complète tous types
+**Séquence théorique optimale**:
+```
+1. d4 c6
+2. Nc3 d5  
+3. Bf4 Bf5    ← Fou "outside pawn chain" AVANT fermeture
+4. e3 e6      ← Maintenant acceptable
+```
 
-#### **🔶 PRIORITÉ 4 : CLEANUP CODE MORT** (5 min)
-- [ ] **Supprimer `pawn_attack_column_offset`** (game.pl:563-566)
-  - Fonction inutilisée après fix diagonales
-  - **Impact** : Code propre maintenance
-
-### **🎓 FINALISATION PROJET ACADÉMIQUE** 
-
-#### **📊 Validation Fonctionnelle**
-- [ ] **Tests complets post-fix** (10 min)
-  - Validation négamax + alpha-beta fonctionnels
-  - Confirmation heuristiques recherche opérationnelles 
-  - Performance 0.00s/coup maintenue
-
-#### **📝 RAPPORT ACADÉMIQUE STRUCTURÉ**
-
-**1️⃣ MODÉLISATION PROBLÈME (20%)**
-- [ ] **État initial/final** (8 min): Position échecs → Mat/Pat, espace 10^43 positions
-- [ ] **Mouvements autorisés** (4 min): Règles échecs, validation coups légaux
-- [ ] **Techniques recherche** (3 min): Négamax profondeur 2, Alpha-Beta élagage
-
-**2️⃣ IMPLÉMENTATION + HEURISTIQUES (45%)**
-- [ ] **Code recherche** (15 min): Extraits negamax_ab/7, order_moves/4, evaluate_position/3
-- [ ] **Heuristiques détaillées** (20 min):
-  - MVV-LVA: Most Valuable Victim - Least Valuable Attacker
-  - PSQT: Piece-Square Tables optimisation positionnement
-  - Matériel: Pion=100, Cavalier=320, Fou=330, Tour=500, Dame=900, Roi=10000
-  - Défense: Détection pièces attaquées/défendues
-- [ ] **Guide utilisation** (10 min): Installation, exécution, format coups
-
-**3️⃣ RÉSULTATS + PERFORMANCE (25%)**
-- [ ] **Performance mesurée** (10 min): 0.00s/coup, 8 sections tests passent
-- [ ] **Validation efficacité** (10 min): Parties démo IA vs IA, comportement tactique
-- [ ] **Limites heuristique** (5 min): Horizon effect, opening book limitée
-
-**4️⃣ RAPPORT FINAL (10%)**
-- [ ] **Structure académique** (15 min): Page couverture, intro, conclusion, table matières
-
-#### **🧪 Tests Démonstration**
-- [ ] **Parties démonstration** (10 min)
-  - 3-5 parties IA vs IA validation comportement
-  - Capture logs pour présentation académique
-
-### **🔧 AMÉLIORATIONS OPTIONNELLES** (si temps disponible)
-
-#### **🎨 Interface Modernisation** 
-- [ ] **Interface revamp** (30-60 min - optionnel)
-  - Menu modernisé
-  - Messages français améliorés
-  - Utiliser agent frontend-designer
-
-#### **📋 Tests Restructuration**
-- [ ] **Groupement tests logiques** (15 min - optionnel)  
-  - Core Engine (foundation, pieces, game)
-  - AI System (alpha-beta, defense, PSQT)
-  - Reliability (robustness, integration)
-
-#### **🔍 Opening Book Décision**
-- [ ] **Analyser opening book hardcodé** (5 min)
-  - Garder Caro-Kann actuel ou supprimer pour simplicité
-  - Décision utilisateur après fix minimal
-
-### **📊 OPTIMISATIONS FUTURES** (hors scope projet)
-
-#### **🧠 Algorithmes Avancés**
-- [ ] **Quiescence Search** (90+ min - future)
-  - Extension recherche tactique nœuds feuilles
-- [ ] **Transposition Tables** (60+ min - future)  
-  - Cache positions évaluées
-
-#### **📚 Standards Professionnels**
-- [ ] **Architecture unifiée** (3h - future)
-  - Migration vers standards Stockfish/python-chess
-  - Branch feature/ai-v3-unified-architecture disponible
+#### **🔧 TENTATIVES DE CORRECTION**
+- ✅ **PSQT tuning**: f5=+20, e6=-15 (partiellement efficace)
+- ❌ **early_e6_penalty**: Pénalité conditionnelle non effective (supprimée)
+- ⚠️ **Résultat**: IA évite Be6 mais joue encore e6 prématurément
 
 ---
 
-## 🕒 **TIMELINE FINALISATION ACADÉMIQUE**
+## 🔬 **HYPOTHÈSES & DIAGNOSTIC**
 
-### **📅 SESSION TECHNIQUE IMMÉDIATE (30 min)**
-1. **Fix architectural** (15 min) - 😨 CRITIQUE pour validité heuristiques
-2. **Tests validation post-fix** (10 min) - Confirmé algorithmes fonctionnels
-3. **Parties démonstration** (5 min) - Capture logs pour rapport
+### **🤔 POURQUOI NOS SOLUTIONS N'ONT PAS MARCHÉ**
 
-### **📅 RÉDACTION RAPPORT (2h)**
-1. **Modélisation + Implémentation** (75 min) - Sections 1+2 de l'énoncé
-2. **Résultats + Discussion** (30 min) - Section 3 performance/limites
-3. **Structure finale** (15 min) - Section 4 présentation
+#### **Hypothèse #1: Chemin d'évaluation différent**
+- e6 pourrait être évalué comme **capture** plutôt que **non-capture**
+- Notre bonus/malus dans `evaluate_non_capture_move` non appliqué
 
-### **📅 FINALISATION (30 min)**
-1. **Relecture rapport** (20 min) - Vérification structure/contenu
-2. **Préparation fichiers** (10 min) - PDF + .pl pour remise
+#### **Hypothèse #2: Ordre génération coups** 
+- `generate_moves_simple` pourrait prioriser pions avant pièces
+- Pions dans `SupportPawnMoves` évalués avant `DevelopmentMoves`
 
-### **📅 AMÉLIORATIONS OPTIONNELLES** (si temps)
-- Interface revamp (30-60 min)
-- Tests restructuration (15 min)
-- Opening book analyse (5 min)
+#### **Hypothèse #3: Priorité PSQT insuffisante**
+- Différentiel f5(+20) vs e6(-15) = 35 points peut-être insuffisant
+- Autres facteurs (développement, contrôle centre) dominent
+
+#### **Hypothèse #4: Profondeur négamax**
+- Depth 2 pourrait ne pas voir conséquences long terme
+- e6 semble bon sur horizon limité
 
 ---
 
-## ✅ **LIVRABLES + CRITÈRES ÉVALUATION**
+## 🎯 **PLAN PROCHAINE SÉANCE**
 
-### **📄 LIVRABLES OBLIGATOIRES**
-- [ ] **Rapport PDF**: 4 sections selon énoncé (modélisation, implémentation, résultats, présentation)
-- [ ] **Code Prolog (.pl)**: Programme complet fonctionnel
-- [ ] **Démonstration**: IA vs Humain opérationnelle
+### **🔍 PHASE 1: DIAGNOSTIC APPROFONDI (30 min)**
 
-### **🏆 CRITÈRES EXCELLENCE ACADÉMIQUE**
-- ✅ **Techniques recherche avancées**: Négamax + Alpha-Beta + profondeur adaptée
-- ✅ **Heuristiques sophistiquées**: MVV-LVA + PSQT + défense + matériel
-- ✅ **Performance démontrée**: Temps réel (0.00s/coup), comportement tactique
-- ✅ **Architecture modulaire**: 6 modules Prolog bien structurés
-- [ ] **Problème IA résolu**: Dame blunders éliminés (fix technique requis)
-- [ ] **Rapport académique**: Structure conforme + analyse approfondie
+#### **Test Debug Structuré**
+- [ ] **Test séquence spécifique**: `swipl go.pl, 2, d2d4, c1f4, b1c3, e2e3`
+- [ ] **Observer comportement IA**: Bf5 ou e6 après cette séquence
+- [ ] **Tracer évaluation**: Ajouter debug temporaire pour voir scores
 
-### **✅ MINIMUM VIABLE PROJET**
-- ✅ IA joue contre humain fonctionnellement
-- ✅ Techniques recherche implémentées et expliquées
-- [ ] Rapport respecte structure énoncé
-- [ ] Code complet livré avec documentation
+#### **Analyse Architecture Évaluation**
+- [ ] **Vérifier chemin e6**: Capture vs non-capture
+- [ ] **Examiner ordre génération**: Priorité pions vs pièces  
+- [ ] **Mesurer impact PSQT**: Scores relatifs f5 vs e6
+
+### **🔧 PHASE 2: SOLUTION CIBLÉE (45 min)**
+
+#### **Option A: Modification Ordre Génération**
+- [ ] **Ajuster `generate_moves_simple`**: DevelopmentMoves avant SupportPawnMoves
+- [ ] **Tester impact**: Validation séquence Caro-Kann
+
+#### **Option B: Bonus Développement Conditionnel**
+- [ ] **Implémenter dans `development_bonus`**: Bonus fou si e6 libre
+- [ ] **Éviter pénalités**: Approche positive vs négative
+
+#### **Option C: PSQT Ajustement Agressif**
+- [ ] **Amplifier différentiel**: f5=+40, e6=-30 (test)
+- [ ] **Observer changement comportement**
+
+### **🧪 PHASE 3: VALIDATION & TESTS (15 min)**
+- [ ] **Test séquence complète**: Validation ordre Caro-Kann correct
+- [ ] **Regression test**: S'assurer autres aspects IA intacts
+- [ ] **Performance check**: Maintenir ~0.6s/coup
+
+---
+
+## 🧪 **PLAN TEST ALGORITHME EXISTANT**
+
+### **📋 SUITE TESTS FONCTIONNELS**
+
+#### **Test 1: Stabilité Générale**
+```bash
+swipl -s tests/tests.pl -g "run_all_tests, halt."
+```
+- Valider les 8 sections de tests passent
+- S'assurer aucune régression architecture
+
+#### **Test 2: Performance IA**
+```bash
+swipl go.pl  # Option 2: IA vs Humain
+```
+- Mesurer temps de réponse (~0.6s acceptable)
+- Vérifier absence crashes sur 10+ coups
+- Valider interface française fonctionnelle
+
+#### **Test 3: Comportement Tactique**
+**Séquence de référence**: 
+```
+d2d4 -> c7c6
+b1c3 -> d7d5
+c1f4 -> [Observer choix IA]
+e2e3 -> [Observer développement]
+```
+
+**Critères de succès**:
+- ✅ IA développe fou c8 avant e6
+- ✅ Pas d'erreurs runtime
+- ✅ Scores évaluation cohérents
+
+### **🎯 TEST DEBUG SPÉCIFIQUE**
+**Commande exacte**: `swipl go.pl, option 2, d2d4, c1f4, b1c3, e2e3`
+**Objectif**: Vérifier si IA joue Bf5 dans cette position
+**Critère**: Fou noir doit aller en f5, pas en e6 ou ailleurs
+
+---
+
+## 📄 **LIVRABLES ACADÉMIQUES FINAUX**
+
+### **📝 RAPPORT ACADÉMIQUE** (Structure IFT-2003)
+- [ ] **Modélisation (20%)**: Négamax depth 2, Alpha-Beta, espace états échecs
+- [ ] **Implémentation (45%)**: PSQT, MVV-LVA, architecture 6-modules
+- [ ] **Résultats (25%)**: Performance ~0.6s/coup, comportement tactique
+- [ ] **Présentation (10%)**: Documentation structure, guide utilisation
+
+### **💻 CODE FINAL**
+- ✅ **Programme fonctionnel**: IA vs Humain stable (commit 2ba7bef)
+- ✅ **Architecture modulaire**: 6 modules Prolog propres
+- ✅ **Tests validation**: 8 sections passent
+- [ ] **Optimisation finale**: Ordre développement Caro-Kann
 
 ---
 
 ## 📂 **STATUS FICHIERS PROJET**
 
 ### **✅ DOCUMENTATION ACTUELLE**
-- ✅ `MINIMAL_FIX_PLAN_CORRECTED.md` - Plan exécution immédiate
-- ✅ `CRITICAL_ANALYSIS_REPORT.md` - Analyse algorithmes (branch feature)
-- ✅ `BUG_REPORT_ENTERPRISE.md` - Historique bugs résolus
-- ✅ `ARCHITECTURE_GUIDE_DEVELOPERS.md` - Guide développeurs
-- ✅ `TASKS.md` (ce fichier) - Liste tâches restantes
+- ✅ `TASKS.md` (ce fichier) - État projet mis à jour 2025-09-09
+- ✅ `ARCHITECTURE_GUIDE_DEVELOPERS.md` - Guide développeurs complet
+- ✅ `CLAUDE.md` - Instructions développement et conventions
 
-### **🗑️ FICHIERS SUPPRIMÉS** (nettoyage effectué)
-- ❌ `AI_V3_REFACTORING_PLAN.md` - Remplacé par plan corrected
-- ❌ `MVV_LVA_IMPLEMENTATION_PLAN.md` - Obsolète
-- ❌ `MINIMAL_FIX_PLAN_ULTRA_SECURE.md` - Version non-corrigée
+### **🔧 MODIFICATIONS RÉCENTES**
+- ✅ **PSQT bishop modifiées**: f5=+20, e6=-15 (evaluation.pl:70-71)
+- ❌ **early_e6_penalty supprimée**: Solution inefficace nettoyée
+- ✅ **Version stable**: Commit 2ba7bef confirmé fonctionnel
 
 ---
 
-**STATUS PROJET** : ✅ Prêt finalisation avec fix minimal comme dernière étape critique
+**STATUS PROJET** : ✅ IA fonctionnelle, optimisation tactique Caro-Kann en cours
