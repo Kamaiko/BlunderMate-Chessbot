@@ -174,7 +174,7 @@ Ce jeu d'échecs Prolog implémente une architecture modulaire en 6 couches avec
 | Depth 1    | 25            | 25          | 0%        |
 | **Depth 2 (défaut)** | **625** | **65** | **90%** |
 | | | | |
-| **Temps/coup** | **150s** | **3-4s** | **40x plus rapide** |
+| **Temps/coup** | **150s** | **0.5-1s** | **40x plus rapide** |
 
 ## 🎯 **SYSTÈME D'ÉVALUATION POSITIONNELLE**
 
