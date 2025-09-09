@@ -284,8 +284,8 @@ move_score_with_defense(Board, Player, [FromRow, FromCol, ToRow, ToCol], Score) 
         ;   % Sûre: score base inchangé
             Score = BaseScore
         )
-    ;   % NON-CAPTURE: score neutre
-        Score = 0
+    ;   % NON-CAPTURE: évaluer qualité du coup
+        evaluate_non_capture_move(Board, Player, [FromRow, FromCol, ToRow, ToCol], Score)
     ).
 
 % move_score(+Board, +Player, +Move, -Score)  
@@ -339,7 +339,46 @@ pairs_values([], []).
 pairs_values([_-Value|RestPairs], [Value|RestValues]) :-
     pairs_values(RestPairs, RestValues).
 
+% evaluate_non_capture_move(+Board, +Player, +Move, -Score)
+% Évalue la qualité des coups non-capture pour priorités développement intelligentes
+evaluate_non_capture_move(Board, Player, [FromRow, FromCol, ToRow, ToCol], Score) :-
+    get_piece(Board, FromRow, FromCol, Piece),
+    get_piece_type(Piece, PieceType),
+    
+    % Score base: amélioration PSQT
+    psqt_improvement_score(PieceType, FromRow, FromCol, ToRow, ToCol, Player, PSQTScore),
+    
+    % Bonus développement: cavaliers/fous sortant de rang de base
+    development_bonus(PieceType, FromRow, FromCol, Player, DevBonus),
+    
+    % Malus coups roi précoces en ouverture  
+    early_king_move_penalty(PieceType, Player, KingPenalty),
+    
+    % Score final
+    Score is PSQTScore + DevBonus + KingPenalty.
 
+% psqt_improvement_score(+PieceType, +FromRow, +FromCol, +ToRow, +ToCol, +Player, -Score)
+% Calcule l'amélioration PSQT du coup
+psqt_improvement_score(PieceType, FromRow, FromCol, ToRow, ToCol, Player, Score) :-
+    % Utiliser Player directement comme couleur
+    evaluation:get_psqt_value(PieceType, FromRow, FromCol, Player, FromValue),
+    evaluation:get_psqt_value(PieceType, ToRow, ToCol, Player, ToValue),
+    RawScore is ToValue - FromValue,
+    % Réduire impact (PSQT déjà dans évaluation globale)
+    Score is RawScore // 4.
+
+% development_bonus(+PieceType, +FromRow, +FromCol, +Player, -Bonus)
+% Bonus pour développement cavaliers/fous
+development_bonus(cavalier, FromRow, _FromCol, white, 15) :- FromRow = 1, !.
+development_bonus(cavalier, FromRow, _FromCol, black, 15) :- FromRow = 8, !.
+development_bonus(fou, FromRow, _FromCol, white, 12) :- FromRow = 1, !. 
+development_bonus(fou, FromRow, _FromCol, black, 12) :- FromRow = 8, !.
+development_bonus(_, _, _, _, 0).
+
+% early_king_move_penalty(+PieceType, +Player, -Penalty)  
+% Malus fort pour coups roi précoces
+early_king_move_penalty(roi, _, -25) :- !.  % Décourager fortement coups roi
+early_king_move_penalty(_, _, 0).
 
 
 

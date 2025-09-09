@@ -170,6 +170,12 @@ check_path_clear(Board, Row, Col, ToRow, ToCol, RowDir, ColDir, Depth) :-
 - **Trace debugging**: `trace.` then call predicate
 - **Unicode issues**: Check terminal compatibility, avoid Unicode characters
 
+### ⚠️ **RÈGLES CRITIQUES DE DÉVELOPPEMENT**
+- **❌ JAMAIS reconstituer board positions sans validation développeur**
+- **✅ TOUJOURS demander validation positions avant tests**
+- **📋 Reconstruction board = source d'erreurs constante**
+- **🎯 Focus sur logique/algorithmes plutôt que positions spécifiques**
+
 ### Before Committing
 ```bash
 # Full test suite validation (8 sections)

@@ -472,7 +472,7 @@ square_attacked_by_any_piece(Board, Row, Col, AttackingPlayer) :-
         square_attacked_by_knight(Board, Row, Col, AttackingPlayer) ;
         square_attacked_by_pawn(Board, Row, Col, AttackingPlayer) ;
         square_attacked_by_king(Board, Row, Col, AttackingPlayer)
-    ), !.
+    ).
 
 % square_attacked_by_sliding_pieces(+Board, +Row, +Col, +AttackingPlayer)
 % Verifie les attaques des pieces glissantes (tour, fou, dame).
@@ -520,8 +520,9 @@ check_sliding_attack_recursive(Board, Row, Col, AttackingPlayer, RowDir, ColDir,
         % Piece adverse trouvee - verifier si elle peut attaquer
         get_piece_type(Piece, PieceType),
         member(PieceType, PieceTypes)
+    ;   % Piece alliee rencontree - attaque bloquee  
+        fail
     ).
-    % Si piece alliee rencontree, l'attaque est bloquee (echec implicite)
 
 % square_attacked_by_knight(+Board, +Row, +Col, +AttackingPlayer)
 % Verifie les attaques de cavalier (mouvement en L).
@@ -560,10 +561,6 @@ square_attacked_by_pawn(Board, Row, Col, AttackingPlayer) :-
 pawn_attack_direction(white, -1).  % Pour trouver pion blanc attaquant, aller vers le bas
 pawn_attack_direction(black,  1).  % Pour trouver pion noir attaquant, aller vers le haut
 
-% pawn_attack_column_offset(-ColOffset)
-% Colonnes d'attaque diagonale des pions.
-pawn_attack_column_offset(-1).  % Diagonale gauche
-pawn_attack_column_offset( 1).  % Diagonale droite
 
 % square_attacked_by_king(+Board, +Row, +Col, +AttackingPlayer)
 % Verifie les attaques du roi (une case dans toutes les directions).

@@ -287,8 +287,7 @@ evaluate_piece_safety(GameState, Player, SafetyValue) :-
         get_piece(Board, Row, Col, Piece),
         piece_belongs_to_player(Piece, Player),
         valuable_piece(Piece, PieceValue), % Seulement pieces >300 points
-        opposite_player(Player, Opponent),
-        is_square_attacked(Board, Row, Col, Opponent), % Piece attaquee
+        is_square_attacked(Board, Row, Col, Player), % Piece attaquee par adversaire
         \+ is_piece_defended(GameState, Row, Col, Player) % Non defendue
     ), HangingValues),
     
@@ -308,8 +307,8 @@ is_piece_defended(GameState, Row, Col, DefendingPlayer) :-
     ground(GameState), ground(Row), ground(Col), ground(DefendingPlayer),
     valid_chess_position(Row, Col),
     GameState = game_state(Board, _, _, _, _),
-    % FIX CRITIQUE: Tester si DefendingPlayer peut défendre (pas si Opponent attaque)
-    is_square_attacked(Board, Row, Col, DefendingPlayer).
+    % FIX CRITIQUE: Tester si DefendingPlayer peut défendre (reprendre sur cette case)
+    square_attacked_by_any_piece(Board, Row, Col, DefendingPlayer).
 
 % =============================================================================
 % ÉVALUATION MOBILITÉ
