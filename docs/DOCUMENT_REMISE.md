@@ -1,52 +1,51 @@
-DOCUMENT_REMISE
-Rapport de Travail Pratique - Intelligence Artificielle
-IFT-2003 - Joueur Intelligent d'Échecs en Prolog
+# Rapport de Travail Pratique - Intelligence Artificielle
+## IFT-2003 - Joueur Intelligent d'Échecs en Prolog
 
-Étudiant : [Nom de l'étudiant]
-Date : Octobre 2025
-Université Laval
+**Étudiant** : [Nom de l'étudiant]  
+**Date** : Octobre 2025  
+**Université** : Université Laval
 
-═══════════════════════════════════════════════════════════════════════════════
+---
 
-TABLE DES MATIÈRES
+## Table des matières
 
-1. INTRODUCTION .......................................................... 2
-   1.1 Contexte et justification ......................................... 2
-   1.2 Objectifs du travail pratique ..................................... 2
-   1.3 Plan du rapport ................................................... 2
+1. [INTRODUCTION](#1-introduction)
+   - 1.1 [Contexte et justification](#11-contexte-et-justification)
+   - 1.2 [Objectifs du travail pratique](#12-objectifs-du-travail-pratique)
+   - 1.3 [Plan du rapport](#13-plan-du-rapport)
 
-2. MÉTHODOLOGIE ......................................................... 2
-   2.1 Matériel et outils utilisés ....................................... 2
-   2.2 Architecture du système ........................................... 3
-   2.3 Algorithmes implémentés ........................................... 3
-   2.4 Étapes de réalisation ............................................. 4
+2. [MÉTHODOLOGIE](#2-méthodologie)
+   - 2.1 [Architecture technique](#21-architecture-technique)
+   - 2.2 [Algorithmes implémentés](#22-algorithmes-implémentés)
+   - 2.3 [Pipeline de génération de coups](#23-pipeline-de-génération-de-coups)
+   - 2.4 [Validation et tests](#24-validation-et-tests)
 
-3. RÉSULTATS ............................................................ 4
-   3.1 Fonctionnalités implémentées ...................................... 4
-   3.2 Tests et validation ............................................... 5
-   3.3 Performance du système ............................................ 5
+3. [RÉSULTATS](#3-résultats)
+   - 3.1 [Fonctionnalités implémentées](#31-fonctionnalités-implémentées)
+   - 3.2 [Validation technique](#32-validation-technique)
+   - 3.3 [Performance et métriques](#33-performance-et-métriques)
 
-4. ANALYSE ET DISCUSSION ................................................. 5
-   4.1 Interprétation des résultats ...................................... 5
-   4.2 Limites identifiées ............................................... 5
-   4.3 Améliorations possibles ........................................... 6
+4. [ANALYSE ET DISCUSSION](#4-analyse-et-discussion)
+   - 4.1 [Bug critique identifié](#41-bug-critique-identifié)
+   - 4.2 [Performance et limites](#42-performance-et-limites)
+   - 4.3 [Optimisations techniques](#43-optimisations-techniques)
 
-5. CONCLUSION ........................................................... 6
-   5.1 Bilan du travail pratique ......................................... 6
-   5.2 Objectifs atteints ................................................ 6
-   5.3 Perspectives futures .............................................. 6
+5. [CONCLUSION](#5-conclusion)
+   - 5.1 [Bilan technique](#51-bilan-technique)
+   - 5.2 [Objectifs atteints](#52-objectifs-atteints)
+   - 5.3 [Contribution technique](#53-contribution-technique)
 
-6. RÉFÉRENCES BIBLIOGRAPHIQUES ........................................... 6
+6. [RÉFÉRENCES BIBLIOGRAPHIQUES](#6-références-bibliographiques)
 
-═══════════════════════════════════════════════════════════════════════════════
+---
 
-1. INTRODUCTION
+## 1. INTRODUCTION
 
-1.1 Contexte et justification
+### 1.1 Contexte et justification
 
 Ce travail pratique IFT-2003 implémente un moteur d'échecs intelligent en Prolog utilisant l'algorithme négamax avec élagage alpha-beta. L'approche déclarative de Prolog s'avère particulièrement efficace pour modéliser les règles complexes du jeu d'échecs et implémenter les algorithmes de recherche heuristique.
 
-1.2 Objectifs du travail pratique
+### 1.2 Objectifs du travail pratique
 
 - Implémentation complète d'un moteur d'échecs avec IA fonctionnelle
 - Architecture modulaire en 6 couches (pieces, board, game, ai, evaluation, interface)
@@ -54,31 +53,32 @@ Ce travail pratique IFT-2003 implémente un moteur d'échecs intelligent en Prol
 - Fonctions d'évaluation combinant matériel, PSQT et sécurité des pièces
 - Suite de tests automatisés (8 sections, 42 tests) validant l'implémentation
 
-1.3 Plan du rapport
+### 1.3 Plan du rapport
 
 Le rapport détaille l'architecture technique, les algorithmes implémentés, les résultats de performance, et identifie un bug critique dans la détection de défense affectant l'ordre de développement en ouverture Caro-Kann.
 
-2. MÉTHODOLOGIE
+---
 
-2.1 Architecture technique
+## 2. MÉTHODOLOGIE
+
+### 2.1 Architecture technique
 
 Le système utilise SWI-Prolog 9.x avec une architecture modulaire en 6 couches :
 
-• pieces.pl (365 lignes) : Règles de mouvement, validation trajectoires
-• board.pl (398 lignes) : Représentation 8×8, conversions coordonnées  
-• game.pl (674 lignes) : Logique métier, détection échec/mat/pat
-• ai.pl (519 lignes) : Négamax + alpha-beta, génération coups MVV-LVA
-• evaluation.pl (410 lignes) : PSQT ChessProgramming.org, sécurité pièces
-• interface.pl (550 lignes) : Interface française, gestion modes de jeu
+- **pieces.pl** (365 lignes) : Règles de mouvement, validation trajectoires
+- **board.pl** (398 lignes) : Représentation 8×8, conversions coordonnées  
+- **game.pl** (674 lignes) : Logique métier, détection échec/mat/pat
+- **ai.pl** (519 lignes) : Négamax + alpha-beta, génération coups MVV-LVA
+- **evaluation.pl** (410 lignes) : PSQT ChessProgramming.org, sécurité pièces
+- **interface.pl** (550 lignes) : Interface française, gestion modes de jeu
 
-2.2 Algorithmes implémentés
+### 2.2 Algorithmes implémentés
 
-*[DIAGRAMME NÉGAMAX + ALPHA-BETA INSÉRÉ ICI - Voir Figure 1]*
+*[Figure 1: Diagramme Négamax + Alpha-Beta]*
 
-═══════════════════════════════════════════════════════════════════════════════
+```
                     ALGORITHME NÉGAMAX AVEC ÉLAGAGE ALPHA-BETA
-                                  (Profondeur 2)
-═══════════════════════════════════════════════════════════════════════════════
+                                  (Profondeur 3)
 
                             NŒUD RACINE (MAX)
                           Joueur: NOIR | α=-∞ | β=+∞
@@ -145,123 +145,111 @@ Le système utilise SWI-Prolog 9.x avec une architecture modulaire en 6 couches 
             │                         │
             │  ✅ CHOIX: COUP B       │
             └─────────────────────────┘
+```
 
-═══════════════════════════════════════════════════════════════════════════════
-                              MÉCANISME D'ÉLAGAGE ALPHA-BETA
-═══════════════════════════════════════════════════════════════════════════════
+#### Mécanisme d'élagage Alpha-Beta
 
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          PRINCIPE DE COUPURE                               │
-│                                                                             │
-│    État actuel: α = +20 (meilleur trouvé pour MAX)                         │
-│                 β = +50 (pire accepté par MIN)                             │
-│                                                                             │
-│    Nouveau coup évalué: +60                                                │
-│                                                                             │
-│    ┌─────────────┐              ┌─────────────┐                            │
-│    │   TEST:     │   +60 ≥ +50  │   RÉSULTAT  │                            │
-│    │   α ≥ β ?   │      ✅       │             │                            │
-│    │             │              │ ✂️ COUPURE   │                            │
-│    │ +60 ≥ +50   │   CONDITION  │   ALPHA-BETA │                            │
-│    │             │   REMPLIE    │             │                            │
-│    │             │              │ Abandon des │                            │
-│    │             │              │ coups       │                            │
-│    │             │              │ restants    │                            │
-│    └─────────────┘              └─────────────┘                            │
-│                                                                             │
-│    ÉCONOMIE: 15 coups non évalués sur 25 = 60% de réduction               │
-└─────────────────────────────────────────────────────────────────────────────┘
+```
+                          PRINCIPE DE COUPURE
 
-═══════════════════════════════════════════════════════════════════════════════
-                               FONCTION D'ÉVALUATION
-═══════════════════════════════════════════════════════════════════════════════
+    État actuel: α = +20 (meilleur trouvé pour MAX)
+                 β = +50 (pire accepté par MIN)
 
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           COMPOSANTES D'ÉVALUATION                         │
-│                                                                             │
-│ ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐             │
-│ │   MATÉRIEL      │  │    POSITION     │  │   SÉCURITÉ      │             │
-│ │                 │  │                 │  │                 │             │
-│ │ • Pion: 100     │  │ • Tables PSQT   │  │ • Pièces        │             │
-│ │ • Cavalier: 320 │  │   (Piece-Square │  │   attaquées     │             │
-│ │ • Fou: 330      │  │   Tables)       │  │                 │             │
-│ │ • Tour: 500     │  │                 │  │ • Pièces        │             │
-│ │ • Dame: 900     │  │ • Centre        │  │   défendues     │             │
-│ │ • Roi: 10000    │  │   favorisé      │  │                 │             │
-│ │                 │  │                 │  │ • Malus pour    │             │
-│ │ Différence      │  │ • Développement │  │   pièces        │             │
-│ │ Blanc - Noir    │  │   pièces        │  │   exposées      │             │
-│ └─────────────────┘  └─────────────────┘  └─────────────────┘             │
-│         │                      │                      │                   │
-│         └──────────────────────┼──────────────────────┘                   │
-│                                │                                          │
-│                        SCORE FINAL                                        │
-│                   Matériel + Position + Sécurité                          │
-│                                                                            │
-│                    Perspective du joueur courant                          │
-│                   (positif = favorable, négatif = défavorable)            │
-└─────────────────────────────────────────────────────────────────────────────┘
+    Nouveau coup évalué: +60
 
-═══════════════════════════════════════════════════════════════════════════════
-                                 OPTIMISATIONS IMPLÉMENTÉES
-═══════════════════════════════════════════════════════════════════════════════
+    ┌─────────────┐              ┌─────────────┐
+    │   TEST:     │   +60 ≥ +50  │   RÉSULTAT  │
+    │   α ≥ β ?   │      ✅       │             │
+    │             │              │ ✂️ COUPURE   │
+    │ +60 ≥ +50   │   CONDITION  │   ALPHA-BETA │
+    │             │   REMPLIE    │             │
+    │             │              │ Abandon des │
+    │             │              │ coups       │
+    │             │              │ restants    │
+    └─────────────┘              └─────────────┘
 
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                            TRI DES COUPS (MVV-LVA)                         │
-│                                                                             │
-│  Ordre d'évaluation pour maximiser l'efficacité de l'élagage:              │
-│                                                                             │
-│  1️⃣ CAPTURES (par ordre décroissant de valeur)                            │
-│     • Dame capture Pion = Score élevé                                     │
-│     • Pion capture Dame = Score très élevé                                │
-│                                                                             │
-│  2️⃣ PROMOTIONS DE PIONS                                                   │
-│     • Transformation en Dame = +90 points                                  │
-│                                                                             │
-│  3️⃣ COUPS DONNANT ÉCHEC                                                   │
-│     • Attaque du roi adverse = +50 points                                  │
-│                                                                             │
-│  4️⃣ COUPS DE DÉVELOPPEMENT                                                │
-│     • Amélioration position selon tables PSQT                              │
-│                                                                             │
-│  5️⃣ COUPS NEUTRES                                                         │
-│     • Score basé uniquement sur l'amélioration positionnelle               │
-└─────────────────────────────────────────────────────────────────────────────┘
+    ÉCONOMIE: 15 coups non évalués sur 25 = 60% de réduction
+```
 
-═══════════════════════════════════════════════════════════════════════════════
-                               PERFORMANCES MESURÉES
-═══════════════════════════════════════════════════════════════════════════════
+#### Fonction d'évaluation
 
-┌─────────────────┬─────────────────┬─────────────────┬─────────────────┐
-│   PROFONDEUR    │  NŒUDS THÉORIE  │  NŒUDS RÉELS    │   RÉDUCTION     │
-│                 │  (sans élagage) │  (avec élagage) │                 │
-├─────────────────┼─────────────────┼─────────────────┼─────────────────┤
-│      Depth 1    │       25        │       25        │       0%        │
-│      Depth 2    │      625        │       65        │      90%        │
-│   Depth 3 (déf.)│     15625       │      195        │      98%        │
-│                 │                 │                 │                 │
-│   TEMPS/COUP    │     150s        │     3-4s        │     40x plus    │
-│                 │   (sans opt.)   │   (optimisé)    │     rapide      │
-└─────────────────┴─────────────────┴─────────────────┴─────────────────┘
+```
+                           COMPOSANTES D'ÉVALUATION
 
-Négamax avec élagage alpha-beta (profondeur 3) :
+ ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+ │   MATÉRIEL      │  │    POSITION     │  │   SÉCURITÉ      │
+ │                 │  │                 │  │                 │
+ │ • Pion: 100     │  │ • Tables PSQT   │  │ • Pièces        │
+ │ • Cavalier: 320 │  │   (Piece-Square │  │   attaquées     │
+ │ • Fou: 330      │  │   Tables)       │  │                 │
+ │ • Tour: 500     │  │                 │  │ • Pièces        │
+ │ • Dame: 900     │  │ • Centre        │  │   défendues     │
+ │ • Roi: 10000    │  │   favorisé      │  │                 │
+ │                 │  │                 │  │ • Malus pour    │
+ │ Différence      │  │ • Développement │  │   pièces        │
+ │ Blanc - Noir    │  │   pièces        │  │   exposées      │
+ └─────────────────┘  └─────────────────┘  └─────────────────┘
+         │                      │                      │
+         └──────────────────────┼──────────────────────┘
+                                │
+                        SCORE FINAL
+                   Matériel + Position + Sécurité
+
+                    Perspective du joueur courant
+                   (positif = favorable, négatif = défavorable)
+```
+
+#### Optimisations implémentées
+
+**Tri des coups (MVV-LVA)**
+
+Ordre d'évaluation pour maximiser l'efficacité de l'élagage:
+
+1. **CAPTURES** (par ordre décroissant de valeur)
+   - Dame capture Pion = Score élevé
+   - Pion capture Dame = Score très élevé
+
+2. **PROMOTIONS DE PIONS**
+   - Transformation en Dame = +90 points
+
+3. **COUPS DONNANT ÉCHEC**
+   - Attaque du roi adverse = +50 points
+
+4. **COUPS DE DÉVELOPPEMENT**
+   - Amélioration position selon tables PSQT
+
+5. **COUPS NEUTRES**
+   - Score basé uniquement sur l'amélioration positionnelle
+
+#### Performances mesurées
+
+| Profondeur | Nœuds théorie | Nœuds réels | Réduction |
+|------------|---------------|-------------|-----------|
+| Depth 1    | 25            | 25          | 0%        |
+| Depth 2    | 625           | 65          | 90%       |
+| **Depth 3 (défaut)** | **15625** | **195** | **98%** |
+| | | | |
+| **Temps/coup** | **150s** | **3-4s** | **40x plus rapide** |
+| | **(sans opt.)** | **(optimisé)** | |
+
+**Caractéristiques algorithmiques :**
 - Limite : 25 coups évalués par position
 - Tri MVV-LVA pour optimiser l'élagage (~98% de réduction)
 - Temps de réponse : ~3-4s/coup
 
-Fonction d'évaluation multi-composantes :
+**Fonction d'évaluation multi-composantes :**
 - Matériel : pion=100, cavalier=320, fou=330, tour=500, dame=900
 - PSQT : Tables positionnelles adaptées ChessProgramming.org
 - Sécurité : Détection pièces non défendues (anti-blunders)
 
-2.3 Pipeline de génération de coups
+### 2.3 Pipeline de génération de coups
 
-1. generate_moves_simple/3 : Génération adaptative (ouverture vs milieu)
-2. order_moves/4 : Tri MVV-LVA avec move_score/4
-3. move_score_with_defense/4 : Score base + détection défense
-4. negamax_ab/5 : Recherche avec élagage alpha-beta
+1. **generate_moves_simple/3** : Génération adaptative (ouverture vs milieu)
+2. **order_moves/4** : Tri MVV-LVA avec move_score/4
+3. **move_score_with_defense/4** : Score base + détection défense
+4. **negamax_ab/5** : Recherche avec élagage alpha-beta
 
-2.4 Validation et tests
+### 2.4 Validation et tests
 
 Suite de tests automatisés (8 sections) :
 - Tests fondamentaux : plateau, parsing, état
@@ -273,34 +261,36 @@ Suite de tests automatisés (8 sections) :
 - Tests alpha-beta : élagage
 - Tests défense : sécurité pièces
 
-3. RÉSULTATS
+---
 
-3.1 Fonctionnalités implémentées
+## 3. RÉSULTATS
+
+### 3.1 Fonctionnalités implémentées
 
 Système complet opérationnel :
-• Interface française avec menu moderne (2 modes : Humain vs Humain, IA vs Humain)
-• Détection automatique échec/mat/pat + promotion pions → dame
-• Notation algébrique standard (e2e4) avec validation complète
-• Affichage évaluation positionnelle temps réel
-• Gestion d'erreurs robuste avec messages contextuels
+- Interface française avec menu moderne (2 modes : Humain vs Humain, IA vs Humain)
+- Détection automatique échec/mat/pat + promotion pions → dame
+- Notation algébrique standard (e2e4) avec validation complète
+- Affichage évaluation positionnelle temps réel
+- Gestion d'erreurs robuste avec messages contextuels
 
-*[Capture d'écran insérée ici : Menu principal du jeu]*
+*[Capture d'écran : Menu principal du jeu]*
 
-3.2 Validation technique
+### 3.2 Validation technique
 
 Suite de tests automatisés (42 tests, 8 sections) :
-✓ Tests fondamentaux : plateau, parsing, état (100% passent)
-✓ Tests pièces : mouvements, règles spécifiques (100% passent)  
-✓ Tests échec/mat : détection optimisée (100% passent)
-✓ Tests robustesse : validation renforcée (100% passent)
-✓ Tests intégration : séquences de jeu (100% passent)
-✓ Tests PSQT : tables positionnelles (100% passent)
-✓ Tests alpha-beta : élagage (100% passent)
-✓ Tests défense : sécurité pièces (100% passent)
+- ✅ Tests fondamentaux : plateau, parsing, état (100% passent)
+- ✅ Tests pièces : mouvements, règles spécifiques (100% passent)  
+- ✅ Tests échec/mat : détection optimisée (100% passent)
+- ✅ Tests robustesse : validation renforcée (100% passent)
+- ✅ Tests intégration : séquences de jeu (100% passent)
+- ✅ Tests PSQT : tables positionnelles (100% passent)
+- ✅ Tests alpha-beta : élagage (100% passent)
+- ✅ Tests défense : sécurité pièces (100% passent)
 
-*[Capture d'écran insérée ici : Résultats des tests automatisés]*
+*[Capture d'écran : Résultats des tests automatisés]*
 
-3.3 Performance et métriques
+### 3.3 Performance et métriques
 
 Métriques de performance validées :
 - Temps de réponse IA : 3-4s/coup (profondeur 3)
@@ -309,13 +299,16 @@ Métriques de performance validées :
 - Stabilité : 0 crash sur 100+ coups testés
 - Architecture : 6 modules, ~2000 lignes Prolog
 
-*[Capture d'écran insérée ici : Partie en cours avec évaluation positionnelle]*
+*[Capture d'écran : Partie en cours avec évaluation positionnelle]*
 
-4. ANALYSE ET DISCUSSION
+---
 
-4.1 Bug critique identifié
+## 4. ANALYSE ET DISCUSSION
+
+### 4.1 Bug critique identifié
 
 Analyse approfondie révèle un bug critique dans ai.pl:281 :
+
 ```prolog
 % ACTUEL (INCORRECT)
 is_square_attacked(NewBoard, ToRow, ToCol, Opponent) ->
@@ -324,23 +317,23 @@ is_square_attacked(NewBoard, ToRow, ToCol, Opponent) ->
 is_square_attacked(NewBoard, ToRow, ToCol, Player) ->
 ```
 
-Impact : Détection défense jamais active → Scores MVV-LVA basiques → Blunders tactiques (ex: Caro-Kann e7-e6 prématuré au lieu de Bf5).
+**Impact** : Détection défense jamais active → Scores MVV-LVA basiques → Blunders tactiques (ex: Caro-Kann e7-e6 prématuré au lieu de Bf5).
 
-4.2 Performance et limites
+### 4.2 Performance et limites
 
-Forces du système :
+**Forces du système :**
 - Architecture modulaire maintenable (6 couches séparées)
-- Élagage alpha-beta efficace (~90% réduction)
+- Élagage alpha-beta efficace (~98% réduction)
 - Tests complets validant la cohérence
 - Interface utilisateur robuste
 
-Limitations identifiées :
-- Profondeur fixe (2 niveaux) pour maintenir 0.6s/coup
+**Limitations identifiées :**
+- Profondeur fixe (3 niveaux) pour maintenir 3-4s/coup
 - Absence roque/en passant (règles avancées)
 - Bug détection défense affectant choix tactiques
 - Pas de répertoire d'ouvertures
 
-4.3 Optimisations techniques
+### 4.3 Optimisations techniques
 
 Corrections prioritaires :
 1. Fix ai.pl:281 (Opponent → Player) pour détection défense
@@ -348,40 +341,44 @@ Corrections prioritaires :
 3. Cache d'évaluations pour performance
 4. Répertoire d'ouvertures Caro-Kann/Sicilienne
 
-5. CONCLUSION
+---
 
-5.1 Bilan technique
+## 5. CONCLUSION
+
+### 5.1 Bilan technique
 
 Implémentation réussie d'un moteur d'échecs complet en Prolog avec IA fonctionnelle. L'architecture modulaire (6 couches, ~2000 lignes) démontre l'efficacité de Prolog pour les problèmes de logique et de recherche heuristique.
 
-5.2 Objectifs atteints
+### 5.2 Objectifs atteints
 
-✓ Négamax + alpha-beta opérationnel (profondeur 3, 3-4s/coup)
-✓ Évaluation multi-composantes (matériel + PSQT + sécurité)
-✓ Interface française complète (2 modes de jeu)
-✓ Tests automatisés (42 tests, 8 sections, 100% passent)
-✓ Architecture maintenable et extensible
+- ✅ Négamax + alpha-beta opérationnel (profondeur 3, 3-4s/coup)
+- ✅ Évaluation multi-composantes (matériel + PSQT + sécurité)
+- ✅ Interface française complète (2 modes de jeu)
+- ✅ Tests automatisés (42 tests, 8 sections, 100% passent)
+- ✅ Architecture maintenable et extensible
 
-5.3 Contribution technique
+### 5.3 Contribution technique
 
 Le projet identifie et documente un bug critique dans la détection de défense (ai.pl:281) affectant les choix tactiques. Cette analyse approfondie démontre une compréhension technique solide des algorithmes de jeu et de leurs implémentations.
 
-6. RÉFÉRENCES BIBLIOGRAPHIQUES
+---
 
-[1] Russell, S. & Norvig, P. (2020). Artificial Intelligence: A Modern Approach. 4th Edition. Pearson.
+## 6. RÉFÉRENCES BIBLIOGRAPHIQUES
 
-[2] Chess Programming Wiki. (2025). Piece-Square Tables. https://www.chessprogramming.org/Piece-Square_Tables
+[1] Russell, S. & Norvig, P. (2020). *Artificial Intelligence: A Modern Approach*. 4th Edition. Pearson.
 
-[3] Chess Programming Wiki. (2025). Alpha-Beta Pruning. https://www.chessprogramming.org/Alpha-Beta
+[2] Chess Programming Wiki. (2025). *Piece-Square Tables*. https://www.chessprogramming.org/Piece-Square_Tables
 
-[4] Chess Programming Wiki. (2025). Negamax. https://www.chessprogramming.org/Negamax
+[3] Chess Programming Wiki. (2025). *Alpha-Beta Pruning*. https://www.chessprogramming.org/Alpha-Beta
 
-[5] Chess Programming Wiki. (2025). MVV-LVA. https://www.chessprogramming.org/MVV-LVA
+[4] Chess Programming Wiki. (2025). *Negamax*. https://www.chessprogramming.org/Negamax
+
+[5] Chess Programming Wiki. (2025). *MVV-LVA*. https://www.chessprogramming.org/MVV-LVA
 
 [6] SWI-Prolog Documentation. (2025). https://www.swi-prolog.org/
 
-[7] Bratko, I. (2012). Prolog Programming for Artificial Intelligence. 4th Edition. Addison-Wesley.
+[7] Bratko, I. (2012). *Prolog Programming for Artificial Intelligence*. 4th Edition. Addison-Wesley.
 
-═══════════════════════════════════════════════════════════════════════════════
+---
 
-Fin du document - 5 pages
+**Fin du document - 6 pages**
