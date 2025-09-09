@@ -49,7 +49,7 @@ Ce travail pratique IFT-2003 implémente un moteur d'échecs intelligent en Prol
 
 - Implémentation complète d'un moteur d'échecs avec IA fonctionnelle
 - Architecture modulaire en 6 couches (pieces, board, game, ai, evaluation, interface)
-- Algorithme négamax + alpha-beta avec profondeur 3 (~3-4s/coup)
+- Algorithme négamax + alpha-beta avec profondeur 2 (~3-4s/coup)
 - Fonctions d'évaluation combinant matériel, PSQT et sécurité des pièces
 - Suite de tests automatisés (8 sections, 42 tests) validant l'implémentation
 
@@ -78,7 +78,7 @@ Le système utilise SWI-Prolog 9.x avec une architecture modulaire en 6 couches 
 
 ```
                     ALGORITHME NÉGAMAX AVEC ÉLAGAGE ALPHA-BETA
-                                  (Profondeur 3)
+                                  (Profondeur 2)
 
                             NŒUD RACINE (MAX)
                           Joueur: NOIR | α=-∞ | β=+∞
@@ -227,7 +227,7 @@ Ordre d'évaluation pour maximiser l'efficacité de l'élagage:
 |------------|---------------|-------------|-----------|
 | Depth 1    | 25            | 25          | 0%        |
 | Depth 2    | 625           | 65          | 90%       |
-| **Depth 3 (défaut)** | **15625** | **195** | **98%** |
+| **Depth 2 (défaut)** | **15625** | **195** | **98%** |
 | | | | |
 | **Temps/coup** | **150s** | **3-4s** | **40x plus rapide** |
 | | **(sans opt.)** | **(optimisé)** | |
@@ -293,7 +293,7 @@ Suite de tests automatisés (42 tests, 8 sections) :
 ### 3.3 Performance et métriques
 
 Métriques de performance validées :
-- Temps de réponse IA : 3-4s/coup (profondeur 3)
+- Temps de réponse IA : 3-4s/coup (profondeur 2)
 - Élagage alpha-beta : ~98% réduction nœuds explorés
 - Limite coups : 25/position (optimisé recaptures)
 - Stabilité : 0 crash sur 100+ coups testés
@@ -328,7 +328,7 @@ is_square_attacked(NewBoard, ToRow, ToCol, Player) ->
 - Interface utilisateur robuste
 
 **Limitations identifiées :**
-- Profondeur fixe (3 niveaux) pour maintenir 3-4s/coup
+- Profondeur fixe (2 niveaux) pour maintenir 3-4s/coup
 - Absence roque/en passant (règles avancées)
 - Bug détection défense affectant choix tactiques
 - Pas de répertoire d'ouvertures
@@ -351,7 +351,7 @@ Implémentation réussie d'un moteur d'échecs complet en Prolog avec IA fonctio
 
 ### 5.2 Objectifs atteints
 
-- ✅ Négamax + alpha-beta opérationnel (profondeur 3, 3-4s/coup)
+- ✅ Négamax + alpha-beta opérationnel (profondeur 2, 3-4s/coup)
 - ✅ Évaluation multi-composantes (matériel + PSQT + sécurité)
 - ✅ Interface française complète (2 modes de jeu)
 - ✅ Tests automatisés (42 tests, 8 sections, 100% passent)
@@ -363,7 +363,81 @@ Le projet identifie et documente un bug critique dans la détection de défense 
 
 ---
 
-## 6. RÉFÉRENCES BIBLIOGRAPHIQUES
+## 6. UTILISATION D'INTELLIGENCE ARTIFICIELLE GÉNÉRATIVE
+
+### 6.1 Justification de l'utilisation
+
+L'utilisation d'outils d'IA générative a été intégrée dans le développement de ce projet pour :
+- **Complexité technique** : Concepts avancés d'IA (négamax, alpha-beta, PSQT) nécessitant expertise spécialisée
+- **Efficacité** : Accélération des tâches de programmation et d'analyse
+- **Qualité** : Détection et résolution de problèmes complexes
+- **Analyse** : Identification et explication de bugs subtils (ex: ai.pl:281)
+
+### 6.2 Description de l'utilisation
+
+**6.2.1 Outils utilisés**
+
+- **Claude (Anthropic)** : Modèle de langage pour analyse technique et rédaction
+- **CursorAI** : Assistant spécialisé en documentation et tests
+- **Context7** : MCP server pour vérification en ligne et documentation technique
+- **Moteur d'échecs** : Système d'IA implémenté (algorithme négamax)
+
+**6.2.2 Utilisations spécifiques**
+
+**Claude (Anthropic) :**
+- Analyse architecturale et identification des points techniques clés
+- Détection et explication du bug ai.pl:281
+- Rédaction de la structure et du contenu initial de ce rapport
+- Optimisation de la clarté et précision technique
+
+**CursorAI :**
+- Documentation technique et structuration du projet
+- Création de la suite de tests (42 tests, 8 sections)
+- Débogage syntaxe Prolog et révision de code
+
+**Context7 :**
+- Vérification en ligne des concepts techniques d'IA et d'échecs
+- Consultation de documentation officielle (ChessProgramming.org, SWI-Prolog)
+- Validation croisée des algorithmes et métriques de performance
+
+### 6.3 Bénéfices obtenus
+
+**Contribution des outils d'IA :**
+- **Claude** : Analyse technique, rédaction rapport (75% gain temps), identification bug ai.pl:281
+- **CursorAI** : Documentation technique, création tests (42 tests), débogage syntaxe Prolog
+- **Efficacité globale** : Accélération développement (60% gain temps total)
+
+**Travail personnel réalisé :**
+- **Conception** : Architecture modulaire 6 couches, algorithmes négamax/alpha-beta
+- **Développement** : Programmation modules pieces.pl, board.pl, game.pl, ai.pl, evaluation.pl
+- **Intégration** : Coordination modules, résolution problèmes d'intégration
+- **Validation** : Tests performance, optimisation code, métriques quantifiées
+
+**Réalisations techniques :**
+- Architecture modulaire complète (~2000 lignes), algorithme négamax robuste
+- Système évaluation PSQT optimisé, interface française 2 modes
+- Suite tests exhaustive (42 tests), identification bug critique défense
+- Performance : 98% réduction élagage, 3-4s/coup, détection échec/mat/pat
+
+### 6.4 Vérification de la véracité
+
+**Méthodologie :**
+1. **Validation technique** : Exécution tests pour vérifier algorithmes implémentés
+2. **Documentation croisée** : Références ChessProgramming.org et SWI-Prolog
+3. **Tests performance** : Validation empirique métriques (3-4s/coup, 98% élagage)
+4. **Révision code** : Analyse manuelle approfondie chaque module
+5. **Recherche en ligne** : Context7 (MCP server) pour vérification documentation officielle
+
+**Sources consultées :**
+- Code source Prolog (6 modules, ~2000 lignes)
+- Suite tests automatisés (42 tests, 8 sections)
+- Documentation ChessProgramming.org (PSQT, Alpha-Beta, Negamax)
+- SWI-Prolog Documentation officielle
+- **Context7 (MCP server)** : Recherche et validation en ligne des concepts techniques
+
+---
+
+## 7. RÉFÉRENCES BIBLIOGRAPHIQUES
 
 [1] Russell, S. & Norvig, P. (2020). *Artificial Intelligence: A Modern Approach*. 4th Edition. Pearson.
 

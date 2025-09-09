@@ -188,13 +188,13 @@ display_game_state(GameState) :-
 display_position_score(GameState, _Player) :-
     % TOUJOURS évaluer du point de vue des blancs pour cohérence
     (   catch(evaluate_pure_reference(GameState, white, Score), _, fail) ->
-        format('[EVAL] Position: ~w (+blanc/-noir)', [Score])
+        format('[EVAL] Position: ~w (+blanc/-noir)~n', [Score])
     ;   % Fallback: évaluation matérielle simple
         GameState = game_state(Board, _, _, _, _),
         count_material_simple(Board, white, WhiteMaterial),
         count_material_simple(Board, black, BlackMaterial),
         Score is WhiteMaterial - BlackMaterial,
-        format('[EVAL] Position: ~w (+blanc/-noir)', [Score])
+        format('[EVAL] Position: ~w (+blanc/-noir)~n', [Score])
     ).
 
 % count_material_simple(+Board, +Player, -MaterialValue)

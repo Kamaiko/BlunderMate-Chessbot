@@ -64,11 +64,10 @@ message(white_pieces_legend, 'Pieces blanches (majuscules): P=Pion, R=Tour, N=Ca
 message(black_pieces_legend, 'Pieces noires (minuscules): p=pion, r=tour, n=cavalier, b=fou, q=dame, k=roi').
 message(move_format_help, 'Format des mouvements: e2e4. (de e2 vers e4, n\'oubliez pas le point!)').
 message(move_instructions, 'Entrez les mouvements en notation algebrique (ex: e2e4)').
-message(game_commands, 'Commandes: menu (retour menu), sortir (quitter), aide (help)').
+message(game_commands, 'Commandes: menu (retour menu), quitter, aide (help)').
 message(current_player, 'Joueur actuel: ').
 message(move_count, 'Nombre de coups: ').
 message(game_finished, 'Partie terminee!').
-message(move_played, 'Mouvement joue: ').
 message(illegal_move, 'Mouvement illegal!').
 message(invalid_coordinates, 'Coordonnees invalides!').
 message(no_piece_at_position, 'Aucune piece de votre couleur a cette position!').
@@ -85,7 +84,6 @@ message(loading_tests, 'Chargement de tests/tests.pl...').
 message(tests_loaded_success, 'Tests charges avec succes. Execution de run_all_tests...').
 message(error_loading_tests, 'Erreur: Impossible de charger tests/tests.pl').
 message(ensure_file_exists, 'Veuillez vous assurer que le fichier existe et est accessible.').
-% SUPPRIMÉ: Messages obsolètes - IA entièrement implémentée et fonctionnelle
 
 % =============================================================================
 % SECTION 3 : UTILITAIRES D'AFFICHAGE ET INTERFACE
@@ -189,21 +187,26 @@ display_modern_menu :-
     
     write('    |'), draw_spaces(48), write('|'), nl,
     write('    '), draw_line(50, '='), nl,
+    nl,
     
-    % Options du menu
+    % Sections organisees du menu
+    write('--- MODES DE JEU ---'), nl,
+    write('1. Humain vs Humain'), nl,
+    write('2. Mode IA vs Humain'), nl,
     nl,
-    write('    1. Nouvelle partie Humain vs Humain'), nl,
-    write('    2. Mode IA vs Humain'), nl,
+    write('--- OUTILS ---'), nl,
+    write('3. Tests'), nl,
     nl,
-    write('    3. Tests'), nl,
+    write('--- INFORMATIONS ---'), nl,
+    write('4. Aide'), nl,
+    write('5. A Propos'), nl,
     nl,
-    write('    4. Aide'), nl,
-    write('    5. Quitter'), nl,
+    write('6. Quitter'), nl,
     nl,
     
     % Ligne de separation
     write('    '), draw_line(35, '-'), nl,
-    write('    Entrez votre choix (1-5): ').
+    write('Entrez votre choix (1-6): ').
 
 % read_menu_choice(-Choice)
 % Lit le choix du menu de maniere robuste.
@@ -211,7 +214,7 @@ read_menu_choice(Choice) :-
     catch(get_single_char(CharCode), _, CharCode = -1),
     (CharCode >= 0 ->
         char_code(Choice, CharCode)
-    ;   Choice = '5'  % Défaut: quitter si EOF ou erreur
+    ;   Choice = '6'  % Défaut: quitter si EOF ou erreur
     ),
     nl, nl.
 
@@ -246,15 +249,16 @@ process_choice('4') :-
     pause_and_return_menu.
 
 process_choice('5') :-
+    show_about,
+    pause_and_return_menu.
+
+process_choice('6') :-
     display_message_ln(goodbye),
     halt.
 
 process_choice(_) :-
     nl,
-    write('    '), draw_line(35, '-'), nl,
-    write('    CHOIX INVALIDE'), nl,
-    write('    '), draw_line(35, '-'), nl,
-    display_message_ln(invalid_choice),
+    write('CHOIX INVALIDE'), nl,
     pause_and_return_menu.
 
 % =============================================================================
@@ -309,7 +313,8 @@ unified_game_loop(UnifiedGameState) :-
 % Gere le tour d'un joueur selon son type (humain ou IA)
 handle_player_turn(UnifiedGameState, Player, human, NewUnifiedGameState) :-
     % Tour d'un joueur humain - utilise l'interface unifiee
-    write('Joueur '), translate_player(Player, PlayerFR), write(PlayerFR), write(' (tapez "aide")> '),
+    write('    '), draw_line(35, '-'), nl,
+    write('Entrez votre coup (ex: e2e4) ou \'aide\': '),
     read_player_input(Input),
     extract_game_state(UnifiedGameState, GameState),
     process_game_input(Input, GameState, NewGameState),
@@ -317,6 +322,7 @@ handle_player_turn(UnifiedGameState, Player, human, NewUnifiedGameState) :-
 
 handle_player_turn(UnifiedGameState, Player, ai, NewUnifiedGameState) :-
     % Tour de l'IA - genere un coup automatiquement
+    nl, nl,
     write('IA reflechit ('), translate_player(Player, PlayerFR), write(PlayerFR), write(', negamax alpha-beta)...'), nl,
     extract_game_state(UnifiedGameState, GameState),
     get_time(StartTime),
@@ -328,13 +334,14 @@ handle_player_turn(UnifiedGameState, Player, ai, NewUnifiedGameState) :-
         write('IA ne peut pas jouer - Fin de partie'), nl,
         NewUnifiedGameState = UnifiedGameState
     ;   AIMove = [FromRow, FromCol, ToRow, ToCol],
-        format('IA joue : ~w~w~w~w (~2f sec)~n', [FromRow, FromCol, ToRow, ToCol, Duration]),
+        coordinates_to_algebraic(FromRow, FromCol, ToRow, ToCol, MoveStr),
         make_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState),
         update_unified_game_state(UnifiedGameState, NewGameState, NewUnifiedGameState),
         % Afficher le board après le coup de l'IA en mode IA vs Humain
         opposite_player(Player, OpponentPlayer),
         get_player_type(UnifiedGameState, OpponentPlayer, OpponentType),
         (   OpponentType = human ->
+            format('IA joue : ~w (~2f sec)~n', [MoveStr, Duration]),
             nl, display_game_state(NewGameState)
         ;   true
         )
@@ -396,9 +403,6 @@ read_player_input(Input) :-
 % Lance une partie IA vs Humain.
 start_ai_game :-
     display_title_box('MODE IA vs HUMAIN'),
-    write('    L\'IA joue les noirs, vous jouez les blancs.'), nl,
-    write('    Profondeur IA: 2 (quasi-instantanee)'), nl,
-    write('    Commandes disponibles: aide, menu, sortir'), nl, nl,
     init_unified_game_state(human, ai, UnifiedGameState),
     unified_game_loop(UnifiedGameState).
 
@@ -428,14 +432,18 @@ dispatch_game_command(Input, GameState, NewGameState) :-
     process_move_command(Input, GameState, NewGameState).
 
 % Utilitaires de classification des commandes
-is_exit_command(Input) :- member(Input, ["quitter", "menu", "sortir", "quitter_jeu", quitter, menu, sortir, quitter_jeu]).
+is_exit_command(Input) :- member(Input, ["quitter", "menu", "quitter_jeu", quitter, menu, quitter_jeu]).
 is_help_command(Input) :- member(Input, ["aide", aide]).
 
 % handle_exit_command - Gestion unifiee des sorties
 handle_exit_command(Input) :-
-    member(Input, ["menu", "quitter", menu, quitter]),
+    member(Input, ["menu", menu]),
     display_message_ln(goodbye),
     main_menu, !.
+handle_exit_command(Input) :-
+    member(Input, ["quitter", "quitter_jeu", quitter, quitter_jeu]),
+    display_message_ln(goodbye),
+    halt, !.
 handle_exit_command(_) :-
     display_message_ln(goodbye),
     halt.
@@ -448,14 +456,12 @@ process_move_command(Input, GameState, NewGameState) :-
         NewGameState = GameState
     ).
 
-% SUPPRIMÉ: process_command_string - fonction wrapper inutilisée
-
 % display_invalid_input_error(+InputStr)
 % Affiche une erreur de format d'entree.
 display_invalid_input_error(InputStr) :-
     write('Format de mouvement invalide!'), nl,
     write('  Attendu: 4 caracteres comme "e2e4" (de e2 vers e4)'), nl,
-    write('  Ou: sortir, quitter, aide'), nl,
+    write('  Ou: quitter, aide'), nl,
     write('  Votre entree: '), write(InputStr), nl.
 
 % parse_move_input(+InputStr, -FromRow, -FromCol, -ToRow, -ToCol)
@@ -472,9 +478,7 @@ attempt_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState) :-
         (get_piece(Board, FromRow, FromCol, Piece),
          piece_belongs_to_player(Piece, Player) ->
             (make_move(GameState, FromRow, FromCol, ToRow, ToCol, TempGameState) ->
-                (coordinates_to_algebraic(FromRow, FromCol, ToRow, ToCol, MoveStr),
-                 display_message(move_played), write(MoveStr), nl, nl,
-                 NewGameState = TempGameState)
+                NewGameState = TempGameState
             ;   display_message_ln(illegal_move),
                 write('  Raison: Cette piece ne peut pas aller a cette position'), nl,
                 write('  Verifiez: Regles de mouvement, blocage du chemin, ou regles du jeu'), nl,
@@ -521,7 +525,7 @@ show_help :-
     write('    '), draw_line(35, '-'), nl,
     write('    aide        : Afficher cette aide'), nl,
     write('    menu        : Retour au menu principal'), nl,
-    write('    sortir      : Quitter le programme'), nl,
+    write('    quitter     : Quitter le programme'), nl,
     nl,
     
     write('    PIECES (notation ASCII)'), nl,
@@ -541,9 +545,39 @@ show_game_help :-
     write('    '), draw_line(40, '='), nl,
     
     write('    COUPS: e2e4 (de e2 vers e4)'), nl,
-    write('    COMMANDES: menu, sortir'), nl,
+    write('    COMMANDES: menu, quitter'), nl,
     write('    PIECES: P/p=Pion R/r=Tour N/n=Cavalier'), nl,
     write('            B/b=Fou Q/q=Dame K/k=Roi'), nl,
     
     write('    '), draw_line(40, '='), nl, nl.
+
+% show_about
+% Affiche les informations "A Propos" du projet.
+show_about :-
+    nl, nl,
+    % En-tete A Propos
+    draw_line(50, '='), nl,
+    write('|'), draw_spaces(48), write('|'), nl,
+    write('|'),
+    center_text('A PROPOS', 48),
+    write('|'), nl,
+    write('|'), draw_spaces(48), write('|'), nl,
+    draw_line(50, '='), nl,
+    nl,
+    
+    % Informations du projet
+    write('JEU D\'ECHECS PROLOG'), nl,
+    write('Projet universitaire IFT-2003'), nl,
+    write('Universite Laval'), nl,
+    nl,
+    write('Auteur: Patrick Patenaude'), nl,
+    write('Date: Octobre 2025'), nl,
+    nl,
+    write('CARACTERISTIQUES TECHNIQUES:'), nl,
+    write('- Moteur d\'echecs complet en Prolog'), nl,
+    write('- IA Negamax + Alpha-Beta (profondeur 2)'), nl,
+    write('- Architecture modulaire 6 couches'), nl,
+    write('- Interface francaise professionnelle'), nl,
+    write('- Suite de tests automatises'), nl,
+    nl.
 

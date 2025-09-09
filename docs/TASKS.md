@@ -1,198 +1,116 @@
-# 📋 TASKS - FINALISATION PROJET ACADÉMIQUE IFT-2003
+# 🎯 TODO LIST - PROLOG CHESS AI
 
-## 🎓 **PROJET - JOUEUR INTELLIGENT ÉCHECS**
+## 📋 **PRIORITÉS DÉVELOPPEMENT** (Par ordre d'importance)
+
+### **🔴 URGENT (Semaine courante)**
+- [ ] **TASK-1**: Activer `evaluate_piece_safety` (ai.pl) - 15 min
+  - Problème: Hardcodé à 0, IA laisse pièces en danger post-coup 15
+  - Impact: Bishop d6 blunder systématique en milieu de jeu
+  
+- [ ] **TASK-2**: Corriger transition ouverture→milieu (ai.pl:278) - 30 min
+  - Problème: Coupure brutale MoveCount=15, pas de protection graduelle
+  - Solution: Phase mixte coups 15-25 avec bonus défense pièces développées
+
+### **🟡 HAUTE PRIORITÉ (2 semaines)**
+- [ ] **TASK-3**: Interface revamp finalisation - 45 min
+  - Supprimer ligne pointillée basique ✅ FAIT
+  - Ajouter ligne esthétique ✅ FAIT
+  - Tests utilisateur final
+
+- [ ] **TASK-4**: Optimiser développement Caro-Kann - 45 min
+  - Problème: e6 précoce bloque fou c8
+  - Solution: Ajuster PSQT f5=+40, e6=-30 OU ordre génération
+  
+- [ ] **TASK-5**: Refactoring fonctions longues - 90 min
+  - `generate_opening_moves/3` (83 lignes) → 4 sous-fonctions
+  - `evaluate_position/3` (24 lignes) → extraire PSQT
+
+### **🟢 MOYEN TERME (3-4 semaines)**
+- [ ] **TASK-6**: Documentation finale académique - 120 min
+  - Rapport PDF IFT-2003 (Modélisation 20% + Implémentation 45%)
+  - Guide utilisation étudiant
+  
+- [ ] **TASK-7**: Optimisations performance avancées - 180 min
+  - Profondeur variable 2→3 pour menaces tactiques
+  - Quiescence search pour captures forcing
+
+---
+
+## 🚨 **BUGS CRITIQUES IDENTIFIÉS**
+
+### **BUG-1: Bishop d6 Blunder (Coup 18)**
+**Symptôme**: IA laisse bishop en danger systématiquement post-ouverture
+**Root Cause**: 
+- `evaluate_piece_safety` désactivée (retourne 0)
+- Transition brutale generate_opening_moves → generate_regular_moves
+- Aucune protection pièces développées en milieu de jeu
+
+**Solution immédiate**: TASK-1 + TASK-2
+
+### **BUG-2: Développement Caro-Kann sous-optimal**
+**Symptôme**: e6 joué avant Bf5, bloque développement fou dame
+**Séquence problématique**:
+```
+1. d4 c6  2. Nc3 d5  3. Bf4 Nf6  4. e3 e6 ← ERREUR: e6 trop tôt
+```
+**Séquence correcte**:
+```
+1. d4 c6  2. Nc3 d5  3. Bf4 Bf5 ← Fou AVANT e6  4. e3 e6
+```
+
+**Solution**: TASK-4
+
+---
+
+## ✅ **ÉTAT ACTUEL SYSTÈME**
+
+### **Fonctionnel ✅**
+- IA Négamax + Alpha-Beta profondeur 2 (performance 0.6s/coup)
+- Interface française professionnelle Humain vs IA
+- Architecture 6 modules stable (pieces/board/game/interface/ai/evaluation)
+- Tests automatisés 8 sections (tous passent)
+
+### **Problématique ❌**
+- Blunders tactiques post-coup 15 (transition phase)
+- Développement ouverture sous-optimal (Caro-Kann)
+- Code refactoring requis (fonctions >20 lignes)
+
+---
+
+## 🎓 **CONTEXTE ACADÉMIQUE**
 - **Cours**: IFT-2003 Intelligence Artificielle
-- **Objectif**: Développer joueur intelligent utilisant techniques recherche heuristique  
-- **Date remise**: 20 octobre 2025 (9h00) - Rapport PDF + Code Prolog
+- **Date remise**: 20 octobre 2025 (9h00)
+- **Livrables**: Rapport PDF + Code Prolog fonctionnel
 - **Évaluation**: Modélisation (20%) + Implémentation (45%) + Résultats (25%) + Rapport (10%)
 
-### **🎯 OBJECTIFS APPRENTISSAGE VALIDÉS**
-- ✅ **Identifier problème IA**: Ordre développement Caro-Kann identifié
-- ✅ **Analyser recherche espace états**: Négamax + Alpha-Beta implémentés fonctionnels  
-- ✅ **Choisir technique heuristique**: MVV-LVA + PSQT + Move Ordering optimisés
-- ✅ **Implanter solution logique**: Architecture 6 modules Prolog, interface Humain vs IA stable
+### **Objectifs apprentissage validés ✅**
+- ✅ Négamax + Alpha-Beta implémentés
+- ✅ MVV-LVA + PSQT + Move Ordering
+- ✅ Architecture modulaire Prolog
+- ✅ Interface Humain vs IA stable
 
 ---
 
-## 🎯 **ÉTAT ACTUEL PROJET** (2025-09-09)
+## 🧪 **TESTS VALIDATION**
 
-### **✅ SYSTÈME IA FONCTIONNEL**
-- **Version stable**: Commit 2ba7bef (version ancienne mais stable)
-- **Performance**: Négamax depth 2, ~0.6s/coup, aucun crash
-- **Architecture**: 6 modules intégrés, tests passent
-- **Interface**: Française professionnelle, IA vs Humain opérationnel
-
-### **🚨 PROBLÈME TACTIQUE IDENTIFIÉ**
-
-#### **🔴 DÉVELOPPEMENT CARO-KANN SOUS-OPTIMAL**
-**Symptôme**: IA joue e7-e6 AVANT de développer fou dame, bloquant développement optimal
-
-**Séquence problématique observée**:
-```
-1. d4 c6      ← Caro-Kann correct
-2. Nc3 d5     ← Structure correcte  
-3. Bf4 Nf6    ← Développement cavalier
-4. e3 e6      ← PROBLÈME: e6 précoce bloque fou c8
-```
-
-**Séquence théorique optimale**:
-```
-1. d4 c6
-2. Nc3 d5  
-3. Bf4 Bf5    ← Fou "outside pawn chain" AVANT fermeture
-4. e3 e6      ← Maintenant acceptable
-```
-
-#### **🔧 TENTATIVES DE CORRECTION**
-- ✅ **PSQT tuning**: f5=+20, e6=-15 (partiellement efficace)
-- ❌ **early_e6_penalty**: Pénalité conditionnelle non effective (supprimée)
-- ⚠️ **Résultat**: IA évite Be6 mais joue encore e6 prématurément
-
----
-
-## 🔬 **HYPOTHÈSES & DIAGNOSTIC**
-
-### **🤔 POURQUOI NOS SOLUTIONS N'ONT PAS MARCHÉ**
-
-#### **Hypothèse #1: Chemin d'évaluation différent**
-- e6 pourrait être évalué comme **capture** plutôt que **non-capture**
-- Notre bonus/malus dans `evaluate_non_capture_move` non appliqué
-
-#### **Hypothèse #2: Ordre génération coups** 
-- `generate_moves_simple` pourrait prioriser pions avant pièces
-- Pions dans `SupportPawnMoves` évalués avant `DevelopmentMoves`
-
-#### **Hypothèse #3: Priorité PSQT insuffisante**
-- Différentiel f5(+20) vs e6(-15) = 35 points peut-être insuffisant
-- Autres facteurs (développement, contrôle centre) dominent
-
-#### **Hypothèse #4: Profondeur négamax**
-- Depth 2 pourrait ne pas voir conséquences long terme
-- e6 semble bon sur horizon limité
-
----
-
-## 🎯 **PLAN PROCHAINE SÉANCE**
-
-### **🔍 PHASE 1: DIAGNOSTIC APPROFONDI (30 min)**
-
-#### **Test Debug Structuré**
-- [ ] **Test séquence spécifique**: `swipl go.pl, 2, d2d4, c1f4, b1c3, e2e3`
-- [ ] **Observer comportement IA**: Bf5 ou e6 après cette séquence
-- [ ] **Tracer évaluation**: Ajouter debug temporaire pour voir scores
-
-#### **Analyse Architecture Évaluation**
-- [ ] **Vérifier chemin e6**: Capture vs non-capture
-- [ ] **Examiner ordre génération**: Priorité pions vs pièces  
-- [ ] **Mesurer impact PSQT**: Scores relatifs f5 vs e6
-
-### **🔧 PHASE 2: SOLUTION CIBLÉE (45 min)**
-
-#### **Option A: Modification Ordre Génération**
-- [ ] **Ajuster `generate_moves_simple`**: DevelopmentMoves avant SupportPawnMoves
-- [ ] **Tester impact**: Validation séquence Caro-Kann
-
-#### **Option B: Bonus Développement Conditionnel**
-- [ ] **Implémenter dans `development_bonus`**: Bonus fou si e6 libre
-- [ ] **Éviter pénalités**: Approche positive vs négative
-
-#### **Option C: PSQT Ajustement Agressif**
-- [ ] **Amplifier différentiel**: f5=+40, e6=-30 (test)
-- [ ] **Observer changement comportement**
-
-### **🧪 PHASE 3: VALIDATION & TESTS (15 min)**
-- [ ] **Test séquence complète**: Validation ordre Caro-Kann correct
-- [ ] **Regression test**: S'assurer autres aspects IA intacts
-- [ ] **Performance check**: Maintenir ~0.6s/coup
-
----
-
-## 🧪 **PLAN TEST ALGORITHME EXISTANT**
-
-### **📋 SUITE TESTS FONCTIONNELS**
-
-#### **Test 1: Stabilité Générale**
+### **Test Régression** (avant toute modification)
 ```bash
 swipl -s tests/tests.pl -g "run_all_tests, halt."
 ```
-- Valider les 8 sections de tests passent
-- S'assurer aucune régression architecture
 
-#### **Test 2: Performance IA**
+### **Test Comportement IA**
 ```bash
 swipl go.pl  # Option 2: IA vs Humain
-```
-- Mesurer temps de réponse (~0.6s acceptable)
-- Vérifier absence crashes sur 10+ coups
-- Valider interface française fonctionnelle
-
-#### **Test 3: Comportement Tactique**
-**Séquence de référence**: 
-```
-d2d4 -> c7c6
-b1c3 -> d7d5
-c1f4 -> [Observer choix IA]
-e2e3 -> [Observer développement]
+# Séquence: d2d4, c1f4, b1c3, e2e3
+# Vérifier: IA joue Bf5 (pas e6 prématuré)
 ```
 
-**Critères de succès**:
-- ✅ IA développe fou c8 avant e6
-- ✅ Pas d'erreurs runtime
-- ✅ Scores évaluation cohérents
-
-### **🎯 TEST DEBUG SPÉCIFIQUE**
-**Commande exacte**: `swipl go.pl, option 2, d2d4, c1f4, b1c3, e2e3`
-**Objectif**: Vérifier si IA joue Bf5 dans cette position
-**Critère**: Fou noir doit aller en f5, pas en e6 ou ailleurs
+### **Test Performance**
+- Temps réponse ≤ 1s/coup
+- Aucun crash sur 20+ coups
+- Scores [EVAL] cohérents
 
 ---
 
-## 📄 **LIVRABLES ACADÉMIQUES FINAUX**
-
-### **📝 RAPPORT ACADÉMIQUE** (Structure IFT-2003)
-- [ ] **Modélisation (20%)**: Négamax depth 2, Alpha-Beta, espace états échecs
-- [ ] **Implémentation (45%)**: PSQT, MVV-LVA, architecture 6-modules
-- [ ] **Résultats (25%)**: Performance ~0.6s/coup, comportement tactique
-- [ ] **Présentation (10%)**: Documentation structure, guide utilisation
-
-### **💻 CODE FINAL**
-- ✅ **Programme fonctionnel**: IA vs Humain stable (commit 2ba7bef)
-- ✅ **Architecture modulaire**: 6 modules Prolog propres
-- ✅ **Tests validation**: 8 sections passent
-- [ ] **Optimisation finale**: Ordre développement Caro-Kann
-
----
-
-## 🔧 **TÂCHES REFACTORING - FONCTIONS LONGUES**
-
-### **📋 Fonctions >20 lignes identifiées**
-- **`generate_opening_moves/3`** (ai.pl:399-481) : 83 lignes - Diviser en sous-fonctions
-- **`evaluate_position/3`** (evaluation.pl:197-220) : 24 lignes - Extraire logique PSQT
-- **`evaluate_piece_development/3`** (evaluation.pl:317-338) : 22 lignes - Simplifier logique
-- **`ab_search_with_stats/11`** (ai.pl:206-228) : 23 lignes - Réduire complexité
-- **`generate_regular_moves/3`** (ai.pl:483-503) : 21 lignes - Optimiser génération
-
-### **🎯 Priorités Refactoring**
-1. **`generate_opening_moves/3`** - Diviser en 4 fonctions : développement, pions centraux, pions support, autres
-2. **`evaluate_position/3`** - Extraire calculs PSQT et sécurité en fonctions séparées
-3. **`ab_search_with_stats/11`** - Simplifier logique de comptage nœuds
-4. **`evaluate_piece_development/3`** - Réduire logique conditionnelle
-
----
-
-## 📂 **STATUS FICHIERS PROJET**
-
-### **✅ DOCUMENTATION ACTUELLE**
-- ✅ `TASKS.md` (ce fichier) - État projet mis à jour 2025-09-09
-- ✅ `ARCHITECTURE_GUIDE_DEVELOPERS.md` - Guide développeurs complet et mis à jour
-- ✅ `CLAUDE.md` - Instructions développement et conventions
-
-### **🔧 MODIFICATIONS RÉCENTES**
-- ✅ **PSQT bishop modifiées**: f5=+20, e6=-15 (evaluation.pl:70-71)
-- ❌ **early_e6_penalty supprimée**: Solution inefficace nettoyée
-- ✅ **Version stable**: Commit 2ba7bef confirmé fonctionnel
-- ✅ **Documentation mise à jour**: Sections obsolètes supprimées de ARCHITECTURE_GUIDE
-
----
-
-**STATUS PROJET** : ✅ IA fonctionnelle, documentation à jour, refactoring en cours
+**Dernière mise à jour**: 2025-01-09  
+**Status**: 🔴 2 bugs critiques - 🟡 Interface améliorée - ✅ Core IA fonctionnelle

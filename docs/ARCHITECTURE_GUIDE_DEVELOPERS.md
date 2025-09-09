@@ -385,7 +385,7 @@ handle_player_turn(UnifiedGameState, Player, ai, NewState).
 2. **Magic numbers** : Dimensions, limites hardcodées  
 3. **États multiples** : `game_state` vs `unified_game_state`
 4. **Responsabilités mixtes** : Fonctions trop complexes
-5. **Génération de coups fragmentée** : `generate_opening_moves/3` et `generate_moves_simple/3` font des tâches similaires mais séparées
+5. **Génération de coups fragmentée** : `generate_opening_moves/3` et `generate_regular_moves/3` font des tâches similaires mais séparées
 6. **Valeurs PSQT hardcodées** : Tables positionnelles optimisées spécifiquement pour Caro-Kann/Slav Defense (e6=-15, f5=+20) - problème d'extensibilité pour autres ouvertures
 
 
@@ -475,7 +475,7 @@ Ce guide fournit une base solide pour comprendre et étendre l'architecture du j
   - Gestion des variantes d'ouverture
 
 #### **2. Consolidation Génération de Coups**
-- **Problème actuel** : `generate_opening_moves/3` et `generate_moves_simple/3` font des tâches similaires
+- **Problème actuel** : `generate_opening_moves/3` et `generate_regular_moves/3` font des tâches similaires
 - **Solution** : Unifier en `generate_all_moves/3` avec paramètre de mode
 - **Bénéfices** : Réduction duplication, maintenance simplifiée
 - **Impact** : Refactoring majeur de `ai.pl`
