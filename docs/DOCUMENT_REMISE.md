@@ -143,7 +143,7 @@ Le système utilise SWI-Prolog 9.x avec une architecture modulaire en 6 couches 
             │   max(-55, +30, +10)    │
             │        = +30            │
             │                         │
-            │  ✅ CHOIX: COUP B       │
+            │    CHOIX: COUP B        │
             └─────────────────────────┘
 ```
 
@@ -159,9 +159,9 @@ Le système utilise SWI-Prolog 9.x avec une architecture modulaire en 6 couches 
 
     ┌─────────────┐              ┌─────────────┐
     │   TEST:     │   +60 ≥ +50  │   RÉSULTAT  │
-    │   α ≥ β ?   │      ✅       │             │
-    │             │              │ ✂️ COUPURE   │
-    │ +60 ≥ +50   │   CONDITION  │   ALPHA-BETA │
+    │   α ≥ β ?   │              │             │
+    │             │              │   COUPURE   │
+    │ +60 ≥ +50   │   CONDITION  │  ALPHA-BETA │
     │             │   REMPLIE    │             │
     │             │              │ Abandon des │
     │             │              │ coups       │
