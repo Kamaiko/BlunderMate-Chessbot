@@ -40,11 +40,11 @@ Ce jeu d'échecs Prolog implémente une architecture modulaire en 6 couches avec
 └─────────────────────────────────────────────────────────────┘
                                 │
 ┌─────────────────────────────────────────────────────────────┐
-│                    ÉVALUATION POSITIONNELLE                │
-│                     (evaluation.pl)                        │
-│  • Tables PSQT (Piece-Square Tables)                       │
-│  • Évaluation matérielle et positionnelle                  │
-│  • Sécurité des pièces                                     │
+│                    ÉVALUATION POSITIONNELLE                 │
+│                     (evaluation.pl)                         │
+│  • Tables PSQT (Piece-Square Tables)                        │
+│  • Évaluation matérielle et positionnelle                   │
+│  • Sécurité des pièces                                      │
 └─────────────────────────────────────────────────────────────┘
                                 │
 ┌─────────────────────────────────────────────────────────────┐
@@ -141,7 +141,7 @@ Ce jeu d'échecs Prolog implémente une architecture modulaire en 6 couches avec
             │   max(-55, +30, +10)    │
             │        = +30            │
             │                         │
-            │  ✅ CHOIX: COUP B      │
+            │     CHOIX: COUP B       │
             └─────────────────────────┘
 ```
 
@@ -157,9 +157,9 @@ Ce jeu d'échecs Prolog implémente une architecture modulaire en 6 couches avec
 
     ┌─────────────┐              ┌─────────────┐
     │   TEST:     │   +60 ≥ +50  │   RÉSULTAT  │
-    │   α ≥ β ?   │      ✅      │             │
+    │   α ≥ β ?   │              │             │
     │             │              │   COUPURE   │
-    │ +60 ≥ +50   │   CONDITION  │  ALPHA-BETA │
+    │ +60 ≥ +50   │  CONDITION   │  ALPHA-BETA │
     │             │   REMPLIE    │             │
     │             │              │ Abandon des │
     │             │              │ coups       │
