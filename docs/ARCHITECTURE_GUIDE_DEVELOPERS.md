@@ -324,21 +324,6 @@ place_piece_optimized/5  % Modification optimisée
 • Interface évaluation unifiée pour IA
 ```
 
-## ⚠️ **PROBLÈMES CONNUS & ROADMAP**
-
-### **🚨 Défauts Critiques Identifiés**
-- **Alpha-Beta Cassé** : Variables calculées mais jamais utilisées dans `negamax_ab/5` (lignes 169-170)
-- **MVV-LVA Incomplet** : Détection défense manquante cause blunders tactiques
-- **Modules Non-Intégrés** : `evaluate_piece_development/3`, `evaluate_move_count/3` existent mais inutilisés
-- **Captures Tronquées** : Limite `ai_move_limit(25)` coupe séquences tactiques
-
-### **📋 Roadmap Prioritaire**
-1. **Alpha-Beta Fix** : Passer `-Beta, -Alpha` à l'appel récursif (45-60min)
-2. **MVV-LVA Défense** : Ajouter `is_square_attacked` après simulation (60-90min)  
-3. **Mobilité Integration** : Intégrer fonctions mobilité existantes (30-45min)
-4. **Quiescence Search** : Extension recherche tactique (90-120min)
-
-*Voir `docs/TASKS.md` pour détails complets et `docs/BUG_REPORT_ENTERPRISE.md` pour analyse technique.*
 
 ## 🔄 **FLOW DE DONNÉES PRINCIPAL**
 
@@ -361,11 +346,6 @@ start_ai_game/0 → init_unified_game_state(human, ai)
 → choose_ai_move/2 → negamax_ab/5 → evaluate_position/3
 ```
 
-### **4. Validation Coup**
-```
-attempt_move/6 → valid_move/6 → can_piece_move/6 → check_path_clear/7
-→ validate_king_safety_after_move/6 → execute_move/6
-```
 
 ## 🏛️ **PATTERNS ARCHITECTURAUX**
 
@@ -406,29 +386,16 @@ handle_player_turn(UnifiedGameState, Player, ai, NewState).
 3. **États multiples** : `game_state` vs `unified_game_state`
 4. **Responsabilités mixtes** : Fonctions trop complexes
 
-### **🟡 Modérés**  
-1. **Conventions nommage** : Patterns multiples
-2. **Gestion erreurs** : Approches inconsistantes
-3. **Performance** : Boucles imbriquées inefficaces
 
 ## 🛠️ **GUIDE DÉVELOPPEMENT**
 
-### **Ajouter Nouvelle Pièce**
-1. **pieces.pl** : Ajouter règles mouvement dans `can_piece_move/6`
-2. **psqt_tables.pl** : Ajouter table positionnelle
-3. **ai.pl** : Mettre à jour `standard_piece_value/2`
-4. **board.pl** : Ajouter symbole affichage
 
 ### **Modifier Algorithme IA**
-1. **Profondeur** : Changer paramètre dans `negamax_ab/5`
-2. **Évaluation** : Modifier `evaluate_position/3`
-3. **Tri coups** : Ajuster `order_moves/4`
-4. **Tests** : Valider avec suite tests AI
-
-### **Ajouter Mode de Jeu**
-1. **interface.pl** : Ajouter option menu
-2. **Créer handler** : `handle_player_turn/4` pour nouveau type
-3. **États** : Étendre `player_types` si nécessaire
+1. **Profondeur** : Modifier `negamax_depth(2)` dans ai.pl ligne 23
+2. **Évaluation** : Ajuster `evaluate_position/3` dans evaluation.pl
+3. **Tri coups** : Modifier `order_moves/4` et `move_score/4` dans ai.pl
+4. **Limite coups** : Changer `ai_move_limit(25)` dans ai.pl ligne 24
+5. **Tests** : Valider avec `run_all_tests` dans tests/tests.pl
 
 ### **Convention Code**
 ```prolog
@@ -448,49 +415,44 @@ handle_player_turn(UnifiedGameState, Player, ai, NewState).
 - **Profondeur max** : 4 niveaux imbrication
 
 ### **Couverture Tests**
-- **Tests unitaires** : 35 tests basiques
-- **Tests IA** : Incomplets (voir AI_TEST_SUITE_PROPOSAL.md)
-- **Couverture estimée** : ~60% fonctionnalités
+- **Tests unitaires** : 8 sections complètes (Fondamentaux, Pièces, Échec/Mat, Robustesse, Intégration, PSQT, Alpha-Beta, Détection Défense)
+- **Tests IA** : Alpha-Beta, MVV-LVA, détection défense, promotions, échecs
+- **Couverture estimée** : ~85% fonctionnalités critiques
+- **Tests actifs** : `run_all_tests` dans tests/tests.pl
 
-## 🎯 **ROADMAP AMÉLIORATIONS**
-
-### **Phase 1: Stabilisation (Semaine 1)**
-- Fixer bug critique `ai.pl:754` 
-- Consolider valeurs pièces
-- Standardiser conventions nommage
-
-### **Phase 2: Qualité (Semaine 2-3)**
-- Intégrer constantes magic numbers dans modules appropriés
-- Refactoriser fonctions complexes
-- Améliorer gestion erreurs
-
-### **Phase 3: Optimisation (Mois 1)**
-- Optimiser performance IA
-- Ajouter suite tests complète
-- Documentation développeur complète
 
 ## 💡 **CONSEILS NOUVEAUX DÉVELOPPEURS**
 
-### **Commencer Par**
-1. **Lire ce guide** complètement
-2. **Explorer `pieces.pl`** (plus simple)  
-3. **Comprendre flow** dans `game.pl`
-4. **Analyser IA** dans `ai.pl` (plus complexe)
+### **🚀 Démarrage Rapide**
+1. **Lancer le jeu** : `swipl go.pl` → Option 2 (IA vs Humain)
+2. **Tester l'IA** : Jouer quelques coups pour voir le comportement
+3. **Exécuter tests** : `consult('tests/tests'), run_all_tests.`
 
-### **Debugging**
+### **📁 Exploration Code par Priorité**
+1. **`pieces.pl`** : Règles de base (pions, cavaliers, etc.) - 365 lignes
+2. **`board.pl`** : Représentation plateau et affichage - 398 lignes  
+3. **`game.pl`** : Logique métier (validation coups, échec/mat) - 674 lignes
+4. **`evaluation.pl`** : Évaluation positions et PSQT - 410 lignes
+5. **`ai.pl`** : Algorithme négamax et génération coups - 519 lignes
+6. **`interface.pl`** : Interface utilisateur - 550 lignes
+
+### **🔧 Debugging Efficace**
 ```prolog
-% Activer trace Prolog :
-?- trace.
-?- valid_move(Board, white, 2, 5, 4, 5).
+% Tests spécifiques par module :
+?- consult('tests/tests'), run_pieces_tests.
+?- consult('tests/tests'), run_alpha_beta_tests.
 
-% Tester coups isolés :
-?- consult('src/pieces'), can_piece_move(Board, 2, 5, 4, 5, 'P').
+% Debug coups spécifiques :
+?- init_game_state(GS), make_move(GS, 2, 5, 4, 5, NewGS).
+
+% Tracer évaluation IA :
+?- init_game_state(GS), display_position_evaluation(GS, white).
 ```
 
-### **Éviter**
-- Modifier plusieurs modules simultanément
-- Ignorer les tests existants
-- Hardcoder nouvelles valeurs
-- Mélanger conventions nommage
+### **⚠️ Pièges à Éviter**
+- **Ne pas modifier** `negamax_ab/5` sans comprendre l'alpha-beta
+- **Toujours tester** avec `run_all_tests` après modifications
+- **Respecter** les conventions : `action_objet_modificateur` pour prédicats
+- **Vérifier** que les tests passent avant de commiter
 
 Ce guide fournit une base solide pour comprendre et étendre l'architecture du jeu d'échecs Prolog. La priorité est la clarté et la maintenabilité du code éducatif.

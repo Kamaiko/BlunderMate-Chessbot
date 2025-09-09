@@ -163,18 +163,36 @@ e2e3 -> [Observer développement]
 
 ---
 
+## 🔧 **TÂCHES REFACTORING - FONCTIONS LONGUES**
+
+### **📋 Fonctions >20 lignes identifiées**
+- **`generate_opening_moves/3`** (ai.pl:399-481) : 83 lignes - Diviser en sous-fonctions
+- **`evaluate_position/3`** (evaluation.pl:197-220) : 24 lignes - Extraire logique PSQT
+- **`evaluate_piece_development/3`** (evaluation.pl:317-338) : 22 lignes - Simplifier logique
+- **`ab_search_with_stats/11`** (ai.pl:206-228) : 23 lignes - Réduire complexité
+- **`generate_regular_moves/3`** (ai.pl:483-503) : 21 lignes - Optimiser génération
+
+### **🎯 Priorités Refactoring**
+1. **`generate_opening_moves/3`** - Diviser en 4 fonctions : développement, pions centraux, pions support, autres
+2. **`evaluate_position/3`** - Extraire calculs PSQT et sécurité en fonctions séparées
+3. **`ab_search_with_stats/11`** - Simplifier logique de comptage nœuds
+4. **`evaluate_piece_development/3`** - Réduire logique conditionnelle
+
+---
+
 ## 📂 **STATUS FICHIERS PROJET**
 
 ### **✅ DOCUMENTATION ACTUELLE**
 - ✅ `TASKS.md` (ce fichier) - État projet mis à jour 2025-09-09
-- ✅ `ARCHITECTURE_GUIDE_DEVELOPERS.md` - Guide développeurs complet
+- ✅ `ARCHITECTURE_GUIDE_DEVELOPERS.md` - Guide développeurs complet et mis à jour
 - ✅ `CLAUDE.md` - Instructions développement et conventions
 
 ### **🔧 MODIFICATIONS RÉCENTES**
 - ✅ **PSQT bishop modifiées**: f5=+20, e6=-15 (evaluation.pl:70-71)
 - ❌ **early_e6_penalty supprimée**: Solution inefficace nettoyée
 - ✅ **Version stable**: Commit 2ba7bef confirmé fonctionnel
+- ✅ **Documentation mise à jour**: Sections obsolètes supprimées de ARCHITECTURE_GUIDE
 
 ---
 
-**STATUS PROJET** : ✅ IA fonctionnelle, optimisation tactique Caro-Kann en cours
+**STATUS PROJET** : ✅ IA fonctionnelle, documentation à jour, refactoring en cours
