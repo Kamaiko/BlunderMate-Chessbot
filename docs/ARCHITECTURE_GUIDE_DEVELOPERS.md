@@ -17,26 +17,26 @@ Ce jeu d'échecs Prolog implémente une architecture modulaire en 6 couches avec
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    INTERFACE UTILISATEUR                    │
-│                     (interface.pl)                         │
+│                     (interface.pl)                          │
 │  • Menu principal français                                  │
-│  • Gestion modes de jeu (Humain vs Humain, IA vs Humain)  │
-│  • Affichage plateau et messages                           │
+│  • Gestion modes de jeu (Humain vs Humain, IA vs Humain)    │
+│  • Affichage plateau et messages                            │
 └─────────────────────────────────────────────────────────────┘
                                 │
 ┌─────────────────────────────────────────────────────────────┐
-│                      LOGIQUE MÉTIER                        │
-│                       (game.pl)                            │
+│                      LOGIQUE MÉTIER                         │
+│                       (game.pl)                             │
 │  • Validation des coups                                     │
-│  • Détection échec/mat/pat                                 │
-│  • Gestion des états de jeu                                │
+│  • Détection échec/mat/pat                                  │
+│  • Gestion des états de jeu                                 │
 └─────────────────────────────────────────────────────────────┘
                                 │
 ┌─────────────────────────────────────────────────────────────┐
-│                    INTELLIGENCE ARTIFICIELLE               │
-│                        (ai.pl)                             │
-│  • Algorithme négamax + alpha-beta                         │
-│  • Génération et tri des coups (MVV-LVA)                   │
-│  • Prise de décision tactique                              │
+│                    INTELLIGENCE ARTIFICIELLE                │
+│                        (ai.pl)                              │
+│  • Algorithme négamax + alpha-beta                          │
+│  • Génération et tri des coups (MVV-LVA)                    │
+│  • Prise de décision tactique                               │
 └─────────────────────────────────────────────────────────────┘
                                 │
 ┌─────────────────────────────────────────────────────────────┐
@@ -48,19 +48,19 @@ Ce jeu d'échecs Prolog implémente une architecture modulaire en 6 couches avec
 └─────────────────────────────────────────────────────────────┘
                                 │
 ┌─────────────────────────────────────────────────────────────┐
-│                      RÈGLES DES PIÈCES                     │
-│                      (pieces.pl)                           │
-│  • Mouvements de chaque pièce                              │
-│  • Règles spéciales (promotion, échec)                     │
-│  • Validation des coups légaux                             │
+│                      RÈGLES DES PIÈCES                      │
+│                      (pieces.pl)                            │
+│  • Mouvements de chaque pièce                               │
+│  • Règles spéciales (promotion, échec)                      │
+│  • Validation des coups légaux                              │
 └─────────────────────────────────────────────────────────────┘
                                 │
 ┌─────────────────────────────────────────────────────────────┐
-│                    REPRÉSENTATION PLATEAU                  │
-│                      (board.pl)                            │
-│  • Échiquier 8×8                                           │
-│  • Conversions coordonnées                                 │
-│  • Manipulation des positions                              │
+│                    REPRÉSENTATION PLATEAU                   │
+│                      (board.pl)                             │
+│  • Échiquier 8×8                                            │
+│  • Conversions coordonnées                                  │
+│  • Manipulation des positions                               │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -141,7 +141,7 @@ Ce jeu d'échecs Prolog implémente une architecture modulaire en 6 couches avec
             │   max(-55, +30, +10)    │
             │        = +30            │
             │                         │
-            │  ✅ CHOIX: COUP B       │
+            │  ✅ CHOIX: COUP B      │
             └─────────────────────────┘
 ```
 
@@ -157,9 +157,9 @@ Ce jeu d'échecs Prolog implémente une architecture modulaire en 6 couches avec
 
     ┌─────────────┐              ┌─────────────┐
     │   TEST:     │   +60 ≥ +50  │   RÉSULTAT  │
-    │   α ≥ β ?   │      ✅       │             │
-    │             │              │ ✂️ COUPURE   │
-    │ +60 ≥ +50   │   CONDITION  │   ALPHA-BETA │
+    │   α ≥ β ?   │      ✅      │             │
+    │             │              │   COUPURE   │
+    │ +60 ≥ +50   │   CONDITION  │  ALPHA-BETA │
     │             │   REMPLIE    │             │
     │             │              │ Abandon des │
     │             │              │ coups       │
