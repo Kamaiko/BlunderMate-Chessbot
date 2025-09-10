@@ -18,49 +18,49 @@ Ce jeu d'échecs Prolog implémente une architecture modulaire en 6 couches avec
 ┌─────────────────────────────────────────────────────────────┐
 │                    INTERFACE UTILISATEUR                    │
 │                     (interface.pl)                          │
-│  • Menu principal français                                  │
-│  • Gestion modes de jeu (Humain vs Humain, IA vs Humain)    │
-│  • Affichage plateau et messages                            │
+│  • display_title_box() - Menu principal français            │
+│  • init_unified_game_state() - Modes de jeu                 │
+│  • display_message() - Affichage plateau et messages        │
 └─────────────────────────────────────────────────────────────┘
                                 │
 ┌─────────────────────────────────────────────────────────────┐
 │                      LOGIQUE MÉTIER                         │
 │                       (game.pl)                             │
-│  • Validation des coups                                     │
-│  • Détection échec/mat/pat                                  │
-│  • Gestion des états de jeu                                 │
+│  • valid_move() - Validation des coups                      │
+│  • is_in_check() - Détection échec/mat/pat                  │
+│  • make_move() - Gestion des états de jeu                   │
 └─────────────────────────────────────────────────────────────┘
                                 │
 ┌─────────────────────────────────────────────────────────────┐
 │                    INTELLIGENCE ARTIFICIELLE                │
 │                        (ai.pl)                              │
-│  • Algorithme négamax + alpha-beta                          │
-│  • Génération et tri des coups (MVV-LVA)                    │
-│  • Prise de décision tactique                               │
+│  • negamax_ab() - Algorithme négamax + alpha-beta           │
+│  • generate_structured_moves() - Génération coups MVV-LVA   │
+│  • choose_ai_move() - Prise de décision tactique            │
 └─────────────────────────────────────────────────────────────┘
                                 │
 ┌─────────────────────────────────────────────────────────────┐
 │                    ÉVALUATION POSITIONNELLE                 │
 │                     (evaluation.pl)                         │
-│  • Tables PSQT (Piece-Square Tables)                        │
-│  • Évaluation matérielle et positionnelle                   │
-│  • Sécurité des pièces                                      │
+│  • get_psqt_value() - Tables PSQT                           │
+│  • evaluate_position() - Évaluation matérielle/positionnelle│
+│  • evaluate_piece_safety() - Sécurité des pièces            │
 └─────────────────────────────────────────────────────────────┘
                                 │
 ┌─────────────────────────────────────────────────────────────┐
 │                      RÈGLES DES PIÈCES                      │
 │                      (pieces.pl)                            │
-│  • Mouvements de chaque pièce                               │
-│  • Règles spéciales (promotion, échec)                      │
-│  • Validation des coups légaux                              │
+│  • can_piece_move() - Mouvements de chaque pièce            │
+│  • piece_belongs_to_player() - Règles spéciales             │
+│  • get_piece_type() - Validation des coups légaux           │
 └─────────────────────────────────────────────────────────────┘
                                 │
 ┌─────────────────────────────────────────────────────────────┐
 │                    REPRÉSENTATION PLATEAU                   │
 │                      (board.pl)                             │
-│  • Échiquier 8×8                                            │
-│  • Conversions coordonnées                                  │
-│  • Manipulation des positions                               │
+│  • valid_chess_position() - Échiquier 8×8                   │
+│  • parse_algebraic_move() - Conversions coordonnées         │
+│  • position_to_algebraic() - Manipulation des positions     │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -99,6 +99,9 @@ Ce jeu d'échecs Prolog implémente une architecture modulaire en 6 couches avec
 ┌───────────────┐ ┌───────────────┐ ┌───────────────┐
 │  ÉVALUATION   │ │  ÉVALUATION   │ │  ÉVALUATION   │
 │   STATIQUE    │ │   STATIQUE    │ │   STATIQUE    │
+│               │ │               │ │               │
+│ evaluate_     │ │ evaluate_     │ │ evaluate_     │
+│ position()    │ │ position()    │ │ position()    │
 │               │ │               │ │               │
 │ Matériel:     │ │ Matériel:     │ │ Matériel:     │
 │ Blanc: 3900   │ │ Blanc: 3880   │ │ Blanc: 3900   │
@@ -200,10 +203,10 @@ Ce jeu d'échecs Prolog implémente une architecture modulaire en 6 couches avec
 ### **Fonction d'Évaluation Complète**
 
 ```prolog
-evaluate_position(Board, Player, Score) :-
-    material_value(Board, Player, MaterialScore),
-    positional_value(Board, Player, PositionalScore),
-    safety_value(Board, Player, SafetyScore),
+evaluate_position(GameState, Player, Score) :-
+    count_material_standard(GameState, Player, MaterialScore),
+    evaluate_psqt_total(GameState, Player, PositionalScore),
+    evaluate_piece_safety(GameState, Player, SafetyScore),
     Score is MaterialScore + PositionalScore + SafetyScore.
 ```
 
@@ -214,11 +217,11 @@ evaluate_position(Board, Player, Score) :-
 **MVV-LVA** : Most Valuable Victim - Least Valuable Attacker
 
 ```prolog
-move_score(Board, Player, Move, Score) :-
-    base_score(Move, BaseScore),
-    promotion_bonus(Move, PromotionBonus),
-    check_bonus(Board, Move, CheckBonus),
-    Score is BaseScore + PromotionBonus + CheckBonus.
+move_score(Board, Player, Move, FinalScore) :-
+    move_score_with_defense(Board, Player, Move, BaseScore),
+    detect_promotion_bonus(Move, Board, Player, PromotionBonus),
+    detect_check_bonus(Board, Player, Move, CheckBonus),
+    FinalScore is BaseScore + PromotionBonus + CheckBonus.
 ```
 
 ### **Ordre de Tri des Coups**
