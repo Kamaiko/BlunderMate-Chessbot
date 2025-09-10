@@ -1,8 +1,8 @@
 # RAPPORT DE REVUE DE CODE - PROLOG CHESS GAME
 ## PROJET UNIVERSITAIRE IA1 - NEGAMAX ALPHA-BETA
 
-**Date d'analyse :** 2025-01-09  
-**Version analysée :** 4.0 (Refactorisation complète)  
+**Date d'analyse :** 2025-09-10  
+**Version analysée :** 4.1 (Post-refactorisation MVV-LVA)  
 **Contexte :** Projet universitaire Intelligence Artificielle 1  
 **Objectif principal :** Implémentation negamax avec élagage alpha-beta  
 **Analyste :** Assistant IA spécialisé en analyse statique Prolog  
@@ -27,7 +27,7 @@ Le projet Prolog Chess Game est une implémentation solide pour un projet univer
 ### 2.1 Objectif Principal - NEGAMAX + ALPHA-BETA
 - **Implémentation correcte** : `negamax_ab/7` avec élagage alpha-beta fonctionnel
 - **Optimisations** : Tri MVV-LVA, détection défense, promotions prioritaires
-- **Performance** : Profondeur 2 avec élagage (lignes 186, 212 dans ai.pl)
+- **Performance** : Profondeur 2 avec élagage, 0.5-1.1s/coup
 - **Tests dédiés** : Section 7 pour valider l'élagage alpha-beta
 
 ### 2.2 Fonctionnalités Supplémentaires

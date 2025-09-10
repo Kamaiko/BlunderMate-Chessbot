@@ -70,13 +70,13 @@
 
 - **🖥️ Plateforme** : SWI-Prolog uniquement, interface console ASCII
 - **⚡ Performance** : Équilibre profondeur recherche vs temps réponse raisonnable  
-- **🏗️ Architecture** : 5 modules (pieces, board, game, interface, ai), tests automatisés
+- **🏗️ Architecture** : 6 modules (pieces, board, game, interface, ai, evaluation), tests automatisés
 
 ## 📈 Phases Développement
 
 - **Phase 1** : Architecture base et règles
 - **Phase 2** : Règles avancées et promotion  
-- **Phase 3** : IA négamax/alpha-beta *(Deadline: 20 oct 2025)*
+- **Phase 3** : IA négamax/alpha-beta *(Architecture MVV-LVA)*
 
 ## 🎯 Cas d'Usage Principaux
 

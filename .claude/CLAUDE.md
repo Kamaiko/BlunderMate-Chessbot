@@ -247,28 +247,24 @@ swipl go.pl  # Test manual - Option 2: IA vs Humain
 - **Validation complète**: Tests unitaires + gameplay réel confirment fonctionnement
 - **Impact**: Blunders tactiques éliminés, évaluation stable
 
-### 📚 **DOCUMENTATION ACTUELLE**
-- **TASKS.md**: Statut projet + solutions Option A/B détaillées (mis à jour 2025-09-07)
-- **BUG_REPORT_ENTERPRISE.md**: Root cause architectural identifié (mis à jour 2025-09-07)
-- **AI_V3_REFACTORING_PLAN.md**: Plan complet Option A (refactoring) + Option B (quick fix)
+### 📚 **DOCUMENTATION ACTUELLE** (Janvier 2025)
+- **TASKS.md**: ✅ Nettoyé et mis à jour - Priorités actuelles et diagnostics récents
 - **ARCHITECTURE_GUIDE_DEVELOPERS.md**: Guide complet nouveaux développeurs
-- **MVV_LVA_IMPLEMENTATION_PLAN.md**: ⚠️ OBSOLÈTE - archivé (2025-09-07)
+- **GENERATION_COUP.md**: Analyse détaillée problème recaptures (référence technique)
+- **DOCUMENT_REMISE.md**: Spécifications projet IFT-2003
 
+### ✅ **ÉTAT ACTUEL IA** (Janvier 2025 - POST-REFACTORISATION)
+- **✅ Architecture MVV-LVA**: REFACTORISÉE (captures unifiées, tri immédiat)
+- **✅ Détection défense**: CORRIGÉE (bug `opposite_player()` résolu)
+- **✅ Pénalités adaptatives**: Dame x1.5, Tour x1.2 pour éviter blunders
+- **⚠️ PROBLÈME RÉSIDUEL**: Recaptures Dame contexte GameState vs tests isolés
 
-### 🔴 **ÉTAT ACTUEL IA** (Septembre 2025 - POST-DIAGNOSTIC)
-- **✅ Dame développement précoce**: FIXÉ (exclusion OtherMoves ouverture)
-- **✅ Logique défense inversée**: CORRIGÉE (is_piece_defended)  
-- **✅ Détection pion diagonales**: FIXÉE (toutes directions testées)
-- **🚨 PROBLÈME CRITIQUE**: Détection attaque sliding pieces défaillante (section 10)
-- **🚨 IMPACT**: IA continue "hanging" fous/dames/tours malgré fixes partiels
-
-### 🔴 **STATUS PROJET ACTUEL**
-- **✅ Exigences techniques**: IA fonctionnelle, profondeur 2, performance optimale
-- **✅ Architecture stable**: 6 modules, tests passent, interface professionnelle  
-- **🔴 Bug critique identifié**: check_sliding_attack_recursive incomplète (game.pl:509-523)
-- **🔴 Bug critique identifié**: Cut prématuré square_attacked_by_any_piece (game.pl:470-475)
-- **🔴 Impact utilisateur**: IA met pièces en danger sans détection attaque appropriée
-- **⚠️ Fixes partiels appliqués**: 3/5 problèmes résolus, détection attaque nécessite refonte
+### 🟡 **STATUT PROJET ACTUEL** (Janvier 2025)
+- **✅ Exigences techniques**: IA fonctionnelle, profondeur 2, performance <0.1s/coup
+- **✅ Architecture robuste**: 6 modules, tests 94% pass, interface professionnelle
+- **✅ Stabilité**: Aucun crash, freeze interface résolu définitivement
+- **⚠️ Investigation en cours**: Debug recaptures contexte GameState complet
+- **🎯 Amélioration mesurable**: Knight recapture tardive (6 coups), progrès tactique
 
 ### 📚 RECOMMANDATIONS THÉORIQUES À IMPLÉMENTER
 

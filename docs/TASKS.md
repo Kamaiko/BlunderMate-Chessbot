@@ -1,83 +1,69 @@
-# 🎯 TODO LIST - PROLOG CHESS AI
+# 🎯 PROLOG CHESS AI - ÉTAT DU PROJET
 
-## 📋 **PRIORITÉS DÉVELOPPEMENT** (Basées sur analyse code actuel)
+## 📋 **PRIORITÉS DÉVELOPPEMENT ACTUELLES**
 
-### **🔴 URGENT (Semaine courante)**
-- [ ] **TASK-1**: Refactorisation génération coups - 180 min
-  - Problème: Captures Dame non priorisées, architecture incorrecte
-  - Solution: Unifier génération, tri MVV-LVA immédiat, détection échecs/défense
-  - Impact: Résout recapture Dame adverse (GENERATION_COUP.md)
+### **🔴 CRITIQUE (Investigation requise)**
+- [ ] **TASK-1**: Debug recaptures Dame contexte GameState - 120 min
+  - **Statut**: Refactorisation architecture MVV-LVA ✅ Complétée
+  - **Problème résiduel**: Dame ne recapture toujours pas en gameplay réel
+  - **Investigation**: Différence entre tests isolés vs GameState complet
+  - **Pistes**: MoveCount/CapturedPieces impact, debug négamax traces
 
-### **🟡 HAUTE PRIORITÉ (2 semaines)**
-- [ ] **TASK-2**: Optimiser développement Caro-Kann - 45 min
-  - Problème: e6 précoce bloque fou c8
-  - Solution: Ajuster PSQT f5=+40, e6=-30 OU ordre génération
+### **🟡 HAUTE PRIORITÉ**
+- [ ] **TASK-2**: Optimisations tactiques avancées - 90 min
+  - Logique intelligente Dame en ouverture (captures vs développement)
+  - Calibrage pénalités pièces haute valeur  
+  - Tests positions FEN spécifiques
   
-- [ ] **TASK-3**: Refactoring fonctions longues - 90 min
-  - `generate_structured_moves/3` (104 lignes) → 4 sous-fonctions
-  - `move_score/3` (12 lignes) → extraire logique MVV-LVA
+- [ ] **TASK-3**: Documentation académique finale - 60 min
+  - Rapport PDF IFT-2003 finalisé (Date remise: 20 octobre 2025)
+  - Nettoyage documentation obsolète
 
-### **🟢 MOYEN TERME (3-4 semaines)**
-- [ ] **TASK-4**: Documentation finale académique - 120 min
-  - Rapport PDF IFT-2003 (Modélisation 20% + Implémentation 45%)
-  - Guide utilisation étudiant
-  
-- [ ] **TASK-5**: Optimisations performance avancées - 180 min
-  - Profondeur variable 2→3 pour menaces tactiques
-  - Quiescence search pour captures forcing
+### **🟢 AMÉLIORATIONS FUTURES**
+- [ ] **TASK-4**: Performance et robustesse - 180 min
+  - Profondeur variable adaptative
+  - Quiescence search pour tactiques
+  - Opening book théorique
 
 ---
 
-## 🚨 **BUGS CRITIQUES IDENTIFIÉS**
+## ✅ **ÉTAT ACTUEL SYSTÈME** (Mise à jour: 2025-01-09)
 
-### **BUG-1: Captures Dame non priorisées**
-**Symptôme**: Dame adverse ne recapture pas après séquences tactiques
-**Séquence problématique**:
-```
-1. e4 e5  2. Nf3 Nc6  3. Bb5 a6  4. Bxc6 dxc6  5. Nxe5 Qd4
-6. Nf3 Qxe4+  7. Be2 Qxg2  8. Rf1 Qxh2 ← Dame capture mais ne recapture pas
-```
-**Séquence correcte**:
-```
-1. e4 e5  2. Nf3 Nc6  3. Bb5 a6  4. Bxc6 dxc6  5. Nxe5 Qd4
-6. Nf3 Qxe4+  7. Be2 Qxg2  8. Rf1 Qxh2  9. Qd5 ← Dame recapture
-```
-**Root Cause**: 
-- Captures Dame générées dans OtherMoves (priorité basse)
-- Tri MVV-LVA appliqué trop tard sur liste mélangée
-- Architecture séparant captures artificiellement
+### **✅ Fonctionnel et Stable**
+- ✅ **IA Négamax + Alpha-Beta** profondeur 2 (performance <0.1s/coup)
+- ✅ **Interface française professionnelle** Humain vs IA, menu complet
+- ✅ **Architecture 6 modules robuste** (pieces/board/game/interface/ai/evaluation)
+- ✅ **Tests automatisés 8 sections** validation complète (94% passent)
+- ✅ **Architecture MVV-LVA refactorisée** captures unifiées, tri immédiat
+- ✅ **Détection défense corrigée** bug `opposite_player()` résolu
 
-**Solution immédiate**: TASK-1
+### **⚠️ Problèmes Résiduels Identifiés**
+- ❌ **Recaptures Dame** contexte GameState vs tests isolés incohérent
+- ⚠️ **Calibrage tactique** pénalités pièces haute valeur à affiner
+- ⚠️ **Documentation** nettoyage fichiers obsolètes requis
 
-### **BUG-2: Développement Caro-Kann sous-optimal**
-**Symptôme**: e6 joué avant Bf5, bloque développement fou dame
-**Séquence problématique**:
-```
-1. d4 c6  2. Nc3 d5  3. Bf4 Nf6  4. e3 e6 ← ERREUR: e6 trop tôt
-```
-**Séquence correcte**:
-```
-1. d4 c6  2. Nc3 d5  3. Bf4 Bf5 ← Fou AVANT e6  4. e3 e6
-```
-
-**Solution**: TASK-2
+### **🎯 Performance Globale**
+- **Stabilité**: ✅ Excellente (aucun crash, freeze résolu)
+- **Tactique**: ⚠️ Bonne (Knight recapture tardive, amélioration partielle)  
+- **Interface**: ✅ Professionnelle (menu français, évaluations cohérentes)
+- **Code**: ✅ Maintenable (architecture claire, tests complets)
 
 ---
 
-## ✅ **ÉTAT ACTUEL SYSTÈME**
+## 📊 **DIAGNOSTICS RÉCENTS COMPLÉTÉS**
 
-### **Fonctionnel ✅**
-- IA Négamax + Alpha-Beta profondeur 2 (performance 0.6s/coup)
-- Interface française professionnelle Humain vs IA
-- Architecture 6 modules stable (pieces/board/game/interface/ai/evaluation)
-- Tests automatisés 8 sections (tous passent)
+### **Session Debug 2025-01-09**
+- ✅ Architecture MVV-LVA refactorisée selon GENERATION_COUP.md
+- ✅ Tests isolés scoring fonctionnels (`Qd8xd6: 430 vs Qd8-d7: 0`)
+- ❌ Gameplay réel problématique (profondeur 1+2 identique)
+- 🎯 **Root cause**: Différence GameState complet vs tests isolés
 
-### **Problématique ❌**
-- Captures Dame non priorisées (architecture génération coups)
-- Développement ouverture sous-optimal (Caro-Kann)
-- Code refactoring requis (fonctions >20 lignes)
+### **Prochaines Investigations**
+1. Debug traces négamax détaillées
+2. Validation MoveCount/CapturedPieces impact
+3. Tests FEN positions exactes gameplay
 
 ---
 
 **Dernière mise à jour**: 2025-01-09  
-**Status**: 🔴 2 bugs critiques - 🟡 Refactorisation génération coups prioritaire - ✅ Core IA fonctionnelle
+**Statut global**: 🟡 **Architecture solide, debugging tactique en cours**

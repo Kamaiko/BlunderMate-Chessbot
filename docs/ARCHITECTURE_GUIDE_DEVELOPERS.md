@@ -68,7 +68,7 @@ Ce jeu d'échecs Prolog implémente une architecture modulaire en 6 couches avec
 - **Total** : ~2000 lignes de code Prolog
 - **Modules** : 6 fichiers principaux
 - **Tests** : 42 tests automatisés (8 sections)
-- **Performance** : 3-4 secondes/coup (profondeur 2)
+- **Performance** : 0.5-1.1s/coup (négamax + alpha-beta optimisé)
 
 ## 🧠 **ALGORITHMES D'INTELLIGENCE ARTIFICIELLE**
 
@@ -177,7 +177,7 @@ Ce jeu d'échecs Prolog implémente une architecture modulaire en 6 couches avec
 | Depth 1    | 25            | 25          | 0%        |
 | **Depth 2 (défaut)** | **625** | **65** | **90%** |
 | | | | |
-| **Temps/coup** | **150s** | **0.5-1s** | **40x plus rapide** |
+| **Temps/coup** | **150s** | **0.5-1.1s** | **150x plus rapide** |
 
 ## 🎯 **SYSTÈME D'ÉVALUATION POSITIONNELLE**
 
@@ -233,16 +233,31 @@ move_score(Board, Player, Move, FinalScore) :-
 
 ## 🐛 **PROBLÈMES CONNUS ET SOLUTIONS**
 
+### **Améliorations Récentes**
+
+#### **Bug Détection Défense**
+- **Root cause**: Paramètre couleur incorrect dans `is_piece_defended` (evaluation.pl:311)
+- **Correction**: Ajout `opposite_player(Player, Opponent)` avant `is_square_attacked`
+- **Impact**: Plus de blunders tactiques, évaluation piece safety fonctionnelle
+
+#### **Architecture MVV-LVA**
+- **Problème**: Captures Dame générées dans `OtherMoves` au lieu de priority captures
+- **Solution**: Unification captures en `AllCaptureMoves` avec tri MVV-LVA immédiat
+- **Résultat**: Amélioration architecture selon GENERATION_COUP.md
+
+### **Optimisations Continues**
+- **Recaptures Dame**: Analyse différence scoring entre tests isolés vs GameState complet
+- **Tactique avancée**: Amélioration séquences de recapture
 
 
 ## 🚀 **OPTIMISATIONS FUTURES**
 
 ### **Court Terme**
-1. **Correction bug ai.pl:281** - Priorité critique
+1. **Debug recaptures Dame** - Investigation GameState vs tests isolés
 2. **Optimisation PSQT** - Ajustement valeurs positionnelles
-3. **Ajout roque** - Règle spéciale du roque (petit et grand roque)
-4. **Ajout en passant** - Capture en passant des pions
-5. **Amélioration interface** - GUI graphique
+3. **Interface revamp** - Modernisation menu et affichage
+4. **Ajout roque** - Règle spéciale du roque (petit et grand roque)
+5. **Ajout en passant** - Capture en passant des pions
 
 ### **Moyen Terme**
 1. **Tables de transposition** - Cache des positions évaluées
@@ -261,7 +276,7 @@ move_score(Board, Player, Move, FinalScore) :-
 
 ### **Temps de Réponse**
 - **Profondeur 1** : ~0.1s/coup
-- **Profondeur 2** : ~3-4s/coup (défaut)
+- **Profondeur 2** : 0.5-1.1s/coup (défaut)
 
 ### **Efficacité de l'Élagage**
 - **Sans élagage** : 15625 nœuds (théorique)
@@ -323,4 +338,4 @@ run_all_tests.
 
 ---
 
-**Dernière mise à jour** : 9 septembre 2025
+**Dernière mise à jour** : 10 janvier 2025

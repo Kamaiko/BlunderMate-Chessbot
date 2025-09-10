@@ -33,7 +33,8 @@
       "Bash(then echo \"ERREUR SYNTAXE DÉTECTÉE\")",
       "Bash(else echo \"✅ Syntaxe OK - Continuing...\")",
       "Bash(fi)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(del test_queen_recapture.pl)"
     ],
     "deny": [
       "mcp__playwright__*"
