@@ -380,7 +380,6 @@ L'utilisation d'outils d'IA générative a été intégrée dans le développeme
 - **Claude (Anthropic)** : Modèle de langage pour analyse technique et rédaction
 - **CursorAI** : Assistant spécialisé en documentation et tests
 - **Context7** : MCP server pour vérification en ligne et documentation technique
-- **Moteur d'échecs** : Système d'IA implémenté (algorithme négamax)
 
 **6.2.2 Utilisations spécifiques**
 
