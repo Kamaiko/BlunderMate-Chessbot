@@ -397,7 +397,7 @@ early_king_move_penalty(_, _, 0).
 generate_moves_simple(GameState, Player, Moves) :-
     % SOLUTION SIMPLE: Structure de priorisation pour TOUTE la partie
     % Tri MVV-LVA garanti, développement intelligent, restrictions adaptatives
-    generate_structured_moves(GameState, Player, Moves).
+    generate_unified_moves(GameState, Player, Moves).
 
 % generate_structured_moves(+GameState, +Player, -Moves)
 % Structure de priorisation intelligente pour toute la partie
@@ -526,8 +526,89 @@ generate_structured_moves(GameState, Player, Moves) :-
     % Pas de tri supplémentaire nécessaire - déjà optimisé
     ai_opening_moves(Limit), take_first_n_simple(AllMoves, Limit, Moves).
 
-% SUPPRIMÉ: generate_regular_moves - remplacée par generate_structured_moves 
-% pour toute la partie (tri MVV-LVA garanti + restrictions adaptatives)
+% =============================================================================
+% ARCHITECTURE UNIFIÉE - GÉNÉRATION DE COUPS (Phase 1 Refactoring)
+% =============================================================================
+
+% generate_unified_moves(+GameState, +Player, -Moves)
+% Architecture unifiée qui résout les recaptures manquées en:
+% 1. Générant TOUS les coups légaux d'un coup
+% 2. Classifiant tactiquement avec priorités cohérentes  
+% 3. Appliquant MVV-LVA immédiatement
+% 4. Éliminant les restrictions hardcodées défaillantes
+generate_unified_moves(GameState, Player, Moves) :-
+    GameState = game_state(Board, _, MoveCount, _, _),
+    
+    % ÉTAPE 1: Génération unifiée de TOUS les coups légaux
+    findall([FromRow, FromCol, ToRow, ToCol], (
+        between(1, 8, FromRow),
+        between(1, 8, FromCol),
+        get_piece(Board, FromRow, FromCol, Piece),
+        \+ is_empty_square(Piece),
+        get_piece_color(Piece, Player),
+        between(1, 8, ToRow),
+        between(1, 8, ToCol),
+        valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol)  % Déjà valide légalement
+    ), AllLegalMoves),
+    
+    % ÉTAPE 2: Classification tactique immédiate avec priorités
+    classify_moves_tactically(GameState, Player, AllLegalMoves, ClassifiedMoves),
+    
+    % ÉTAPE 3: Tri par priorité tactique (MVV-LVA intégré)
+    keysort_desc(ClassifiedMoves, SortedPairs),
+    pairs_values(SortedPairs, SortedMoves),
+    
+    % ÉTAPE 4: Limitation adaptative intelligente
+    adaptive_move_limit(MoveCount, Limit),
+    take_first_n_simple(SortedMoves, Limit, Moves).
+
+% classify_moves_tactically(+GameState, +Player, +Moves, -ClassifiedMoves)  
+% Classification unifiée par priorité tactique - résout les recaptures manquées
+classify_moves_tactically(_, _, [], []).
+classify_moves_tactically(GameState, Player, [Move|RestMoves], [Priority-Move|RestClassified]) :-
+    classify_single_move(GameState, Player, Move, Priority),
+    classify_moves_tactically(GameState, Player, RestMoves, RestClassified).
+
+% classify_single_move(+GameState, +Player, +Move, -Priority)
+% Classification par priorité: plus haut = plus prioritaire
+classify_single_move(GameState, Player, [FromRow, FromCol, ToRow, ToCol], Priority) :-
+    GameState = game_state(Board, _, _, _, _),
+    get_piece(Board, ToRow, ToCol, TargetPiece),
+    get_piece(Board, FromRow, FromCol, AttackingPiece),
+    
+    (   % 1. PROMOTION (priorité absolue)
+        is_promotion_move(Player, FromRow, ToRow) -> Priority = 1500
+    ;   % 2. CAPTURES MVV-LVA (INCLUT Qd8xd6 - résout le problème principal!)
+        \+ is_empty_square(TargetPiece) ->
+        piece_value(TargetPiece, TargetVal),
+        piece_value(AttackingPiece, AttackerVal),
+        AbsTargetVal is abs(TargetVal),
+        AbsAttackerVal is abs(AttackerVal),
+        (   AbsTargetVal >= 900 -> Priority = 1400  % Dame capturée
+        ;   AbsTargetVal >= 500 -> Priority = 1200  % Tour capturée
+        ;   AbsTargetVal >= 300 -> Priority = 1000  % Fou/Cavalier capturés ⭐ Qd8xd6 ici!
+        ;   Priority = 800   % Pion capturé
+        )
+    ;   % 3. DÉVELOPPEMENT INTELLIGENT (plus de restrictions géographiques!)
+        member(AttackingPiece, ['N','n','B','b']) -> Priority = 400
+    ;   member(AttackingPiece, ['P','p']) -> Priority = 300
+    ;   % 4. DAME/TOUR/ROI (plus de blocage rigide!)
+        Priority = 200
+    ).
+
+% adaptive_move_limit(+MoveCount, -Limit)
+% Limitations adaptatives intelligentes (remplace les restrictions hardcodées)
+adaptive_move_limit(MoveCount, Limit) :-
+    (   MoveCount =< 10 -> Limit = 25      % Ouverture: plus de choix tactiques
+    ;   MoveCount =< 20 -> Limit = 20      % Milieu: équilibré
+    ;   Limit = 15                         % Fin: plus focalisé
+    ).
+
+% NOTE: keysort_desc/2 et pairs_values/2 déjà définies plus haut dans le fichier
+
+% SUPPRIMÉ: generate_regular_moves - remplacée par generate_unified_moves 
+% SUPPRIMÉ: restrictions géographiques hardcodées qui bloquaient d6
+% SUPPRIMÉ: blocage rigide de la Dame pendant 6 coups
 
 % SUPPRIMÉ: take_first_N_simple wrappers - consolidés vers take_first_n_simple/3
 
