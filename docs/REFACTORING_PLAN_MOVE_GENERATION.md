@@ -1,8 +1,10 @@
 # 🔧 PLAN DE REFACTORING - ARCHITECTURE GÉNÉRATION DE COUPS
 
 **Date**: 2025-01-09  
-**Objectif**: Résoudre les recaptures manquées en unifiant l'architecture de génération de coups  
-**Problème critique**: Dame noire ne recapture pas Fou blanc sur d6 après séquence `d2d4→b1c3→c1f4→e2e3→f1d3→f4d6`
+**Statut**: ✅ **RÉSOLU PARTIELLEMENT** - 2025-01-10  
+**Objectif**: ~~Résoudre les recaptures manquées~~ ✅ RÉSOLU (problème coordonnées)  
+**Problème initial**: Dame noire ne recapture pas Fou blanc sur d6 après séquence `d2d4→b1c3→c1f4→e2e3→f1d3→f4d6`  
+**Root cause trouvée**: ✅ Confusion coordonnées Row=8,Col=4 vs Row=1,Col=4 pour Dame d8
 
 ---
 
@@ -226,5 +228,31 @@ Après implémentation complète:
 - [ ] **Performance**: Timing <0.1s maintenu
 - [ ] **Documentation**: Mise à jour CLAUDE.md et TASKS.md
 
-**Durée totale estimée**: 2 heures  
-**Impact**: Résolution définitive des recaptures manquées
+**Durée totale estimée**: ~~2 heures~~ **ÉVALUATION POST-IMPLÉMENTATION**  
+**Impact**: ~~Résolution définitive des recaptures manquées~~ ✅ RÉSOLU différemment
+
+---
+
+## 🎯 **RÉSULTATS POST-IMPLÉMENTATION** (2025-01-10)
+
+### **✅ IMPLÉMENTATIONS RÉALISÉES**
+- ✅ **Phase 1 complétée**: `generate_unified_moves/3` implémentée et fonctionnelle
+- ✅ **Phase 2 complétée**: `classify_moves_tactically/4` avec priorités MVV-LVA
+- ✅ **Phase 3 complétée**: Restrictions hardcodées supprimées
+- ✅ **Phase 4 partiellement**: Tests validation séquence critique réussis
+
+### **🎯 ROOT CAUSE DÉCOUVERTE**
+**Le problème N'ÉTAIT PAS architectural** mais dans la **convention coordonnées**:
+- `get_piece(Board, Row, Col)` utilise conversion `9-Row`
+- Dame d8 = **Row=8,Col=4** (pas Row=1,Col=4)
+- Recapture `Qd8xd6` = `[8,4,6,4]` fonctionne avec Priority=1000
+
+### **📋 ÉTAT ACTUEL**
+- ✅ **Architecture unifiée** fonctionne mais n'était pas nécessaire
+- ✅ **Recaptures Dame** résolues via correction coordonnées
+- ❌ **NOUVEAUX BUGS** découverts plus critiques (validation coups f2f3)
+
+### **🎯 RECOMMANDATIONS**
+1. **Garder architecture unifiée** (amélioration qualité code)
+2. **Focus nouveaux bugs critiques** (validation coups illégaux)
+3. **Marquer ce document** comme référence historique mais priorités changées
