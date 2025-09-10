@@ -388,20 +388,32 @@ early_king_move_penalty(_, _, 0).
 % generate_moves_simple(+GameState, +Player, -Moves)
 % Génération adaptative selon phase de jeu avec captures prioritaires
 generate_moves_simple(GameState, Player, Moves) :-
-    GameState = game_state(_, _, MoveCount, _, _),
-    (   MoveCount =< 15 ->
-        % Phase d'ouverture : captures importantes + développement équilibré
-        generate_opening_moves(GameState, Player, Moves)
-    ;   % Phase milieu/finale : génération standard avec tri MVV-LVA
-        generate_regular_moves(GameState, Player, Moves)
-    ).
+    % SOLUTION SIMPLE: Structure de priorisation pour TOUTE la partie
+    % Tri MVV-LVA garanti, développement intelligent, restrictions adaptatives
+    generate_structured_moves(GameState, Player, Moves).
 
-% generate_opening_moves(+GameState, +Player, -Moves)
-% Génération équilibrée pour l'ouverture - DÉVELOPPEMENT PRIORITAIRE
-generate_opening_moves(GameState, Player, Moves) :-
-    GameState = game_state(Board, _, _, _, _),
+% generate_structured_moves(+GameState, +Player, -Moves)
+% Structure de priorisation intelligente pour toute la partie
+% Tri MVV-LVA garanti + restrictions adaptatives selon MoveCount
+generate_structured_moves(GameState, Player, Moves) :-
+    GameState = game_state(Board, _, MoveCount, _, _),
     
-    % 1. DÉVELOPPEMENT PRIORITAIRE (cavaliers et fous AVANT tout)
+    % 0. CAPTURES PRIORITAIRES - TOUTES PIECES (priorité absolue)
+    findall([FromRow, FromCol, ToRow, ToCol], (
+        between(1, 8, FromRow),
+        between(1, 8, FromCol),
+        get_piece(Board, FromRow, FromCol, Piece),
+        \+ is_empty_square(Piece),
+        get_piece_color(Piece, Player),
+        between(1, 8, ToRow),
+        between(1, 8, ToCol),
+        valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
+        % CAPTURE: case destination non vide
+        get_piece(Board, ToRow, ToCol, TargetPiece),
+        \+ is_empty_square(TargetPiece)
+    ), CaptureMoves),
+    
+    % 1. DÉVELOPPEMENT PRIORITAIRE (cavaliers et fous AVANT tout)  
     findall([FromRow, FromCol, ToRow, ToCol], (
         between(1, 8, FromRow),
         between(1, 8, FromCol),
@@ -412,9 +424,11 @@ generate_opening_moves(GameState, Player, Moves) :-
         between(1, 8, ToRow),
         between(1, 8, ToCol),
         valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
-        % DÉVELOPPEMENTS NATURELS: c6, d6, e6, f6 pour cavaliers et fous
-        ToRow >= 3, ToRow =< 6,    % Rangs centraux
-        ToCol >= 3, ToCol =< 6     % Colonnes centrales
+        % DÉVELOPPEMENTS NATURELS: restrictions adaptatives selon phase
+        (   MoveCount =< 15 ->
+            (ToRow >= 3, ToRow =< 6, ToCol >= 3, ToCol =< 6)  % Ouverture: centraux seulement
+        ;   true  % Milieu/fin: aucune restriction géographique
+        )
     ), DevelopmentMoves),
     
     % Éliminer les doublons de développement
@@ -452,55 +466,41 @@ generate_opening_moves(GameState, Player, Moves) :-
         abs(ToRow - FromRow) =< 2  % 1 ou 2 cases maximum
     ), SupportPawnMoves),
     
-    % 4. AUTRES COUPS
+    % 4. AUTRES COUPS - SIMPLIFIÉ: toutes pièces non-développement
     findall([FromRow, FromCol, ToRow, ToCol], (
         between(1, 8, FromRow),
         between(1, 8, FromCol),
         get_piece(Board, FromRow, FromCol, Piece),
         \+ is_empty_square(Piece),
         get_piece_color(Piece, Player),
-        % FIX CRITIQUE: Dame exclue d'ouverture pour respecter principes développement
-        member(Piece, ['R','r','K','k']),  % DAME SUPPRIMÉE: évite sortie prématurée
+        % TRÈS SIMPLE: Dame après développement minimal (coup 6+)
+        (   MoveCount =< 6 ->
+            member(Piece, ['R','r','K','k'])      % Ouverture pure: pas de Dame  
+        ;   member(Piece, ['R','r','K','k','Q','q'])  % Dame active
+        ),
         between(1, 8, ToRow),
         between(1, 8, ToCol),
         valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol)
     ), OtherMoves),
     
-    % PRIORITÉ CORRECTE: DÉVELOPPEMENT EN PREMIER !
+    % PRIORITÉ AVEC CAPTURES: Captures → Développement → Pions → Autres
+    take_first_n_simple(CaptureMoves, 5, LimitedCaptures),  % 5 meilleures captures
     ai_development_limit(DevLimit), take_first_n_simple(UniqueDevelopment, DevLimit, PriorityDevelopment),
     take_first_n_simple(CentralPawnMoves, 3, LimitedCentral),
     take_first_n_simple(SupportPawnMoves, 4, LimitedSupport),
     
-    % ORDRE CORRECT: Développement d'abord, puis pions
-    append(PriorityDevelopment, LimitedCentral, Priority1),
-    append(Priority1, LimitedSupport, Priority2),
-    append(Priority2, OtherMoves, AllMoves),
+    % ORDRE OPTIMAL: Captures → Développement → Pions → Autres
+    append(LimitedCaptures, PriorityDevelopment, Priority1),
+    append(Priority1, LimitedCentral, Priority2),
+    append(Priority2, LimitedSupport, Priority3),
+    append(Priority3, OtherMoves, AllMoves),
     
     % FIX CRITIQUE: Ajouter MVV-LVA sécurité pour éliminer dame blunders ouverture
     order_moves(GameState, Player, AllMoves, OrderedMoves),
     ai_opening_moves(Limit), take_first_n_simple(OrderedMoves, Limit, Moves).
 
-% generate_regular_moves(+GameState, +Player, -Moves)  
-% Génération standard avec tri MVV-LVA AVANT limitation
-generate_regular_moves(GameState, Player, Moves) :-
-    GameState = game_state(Board, _, _, _, _),
-    
-    % Génération standard sans restrictions d'ouverture
-    findall([FromRow, FromCol, ToRow, ToCol], (
-        between(1, 8, FromRow),
-        between(1, 8, FromCol),
-        get_piece(Board, FromRow, FromCol, Piece),
-        % CORRECTION CRITIQUE : Verifier toute piece non-vide (' ' et '.' sont vides)
-        \+ is_empty_square(Piece),
-        get_piece_color(Piece, Player),
-        between(1, 8, ToRow),
-        between(1, 8, ToCol),
-        valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol)
-    ), AllMoves),
-    
-    % CRITIQUE: Trier AVANT de limiter - AUGMENTÉ à 25 pour recaptures importantes
-    % OPTIMISATION: Suppression double tri (déjà fait dans opening_moves)
-    ai_move_limit(Limit), take_first_n_simple(AllMoves, Limit, Moves).
+% SUPPRIMÉ: generate_regular_moves - remplacée par generate_structured_moves 
+% pour toute la partie (tri MVV-LVA garanti + restrictions adaptatives)
 
 % SUPPRIMÉ: take_first_N_simple wrappers - consolidés vers take_first_n_simple/3
 

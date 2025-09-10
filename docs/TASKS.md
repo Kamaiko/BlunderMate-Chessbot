@@ -1,36 +1,28 @@
 # 🎯 TODO LIST - PROLOG CHESS AI
 
-## 📋 **PRIORITÉS DÉVELOPPEMENT** (Par ordre d'importance)
+## 📋 **PRIORITÉS DÉVELOPPEMENT** (Basées sur analyse code actuel)
 
 ### **🔴 URGENT (Semaine courante)**
-- [ ] **TASK-1**: Activer `evaluate_piece_safety` (ai.pl) - 15 min
-  - Problème: Hardcodé à 0, IA laisse pièces en danger post-coup 15
-  - Impact: Bishop d6 blunder systématique en milieu de jeu
-  
-- [ ] **TASK-2**: Corriger transition ouverture→milieu (ai.pl:278) - 30 min
-  - Problème: Coupure brutale MoveCount=15, pas de protection graduelle
-  - Solution: Phase mixte coups 15-25 avec bonus défense pièces développées
+- [ ] **TASK-1**: Refactorisation génération coups - 180 min
+  - Problème: Captures Dame non priorisées, architecture incorrecte
+  - Solution: Unifier génération, tri MVV-LVA immédiat, détection échecs/défense
+  - Impact: Résout recapture Dame adverse (GENERATION_COUP.md)
 
 ### **🟡 HAUTE PRIORITÉ (2 semaines)**
-- [ ] **TASK-3**: Interface revamp finalisation - 45 min
-  - Supprimer ligne pointillée basique ✅ FAIT
-  - Ajouter ligne esthétique ✅ FAIT
-  - Tests utilisateur final
-
-- [ ] **TASK-4**: Optimiser développement Caro-Kann - 45 min
+- [ ] **TASK-2**: Optimiser développement Caro-Kann - 45 min
   - Problème: e6 précoce bloque fou c8
   - Solution: Ajuster PSQT f5=+40, e6=-30 OU ordre génération
   
-- [ ] **TASK-5**: Refactoring fonctions longues - 90 min
-  - `generate_opening_moves/3` (83 lignes) → 4 sous-fonctions
-  - `evaluate_position/3` (24 lignes) → extraire PSQT
+- [ ] **TASK-3**: Refactoring fonctions longues - 90 min
+  - `generate_structured_moves/3` (104 lignes) → 4 sous-fonctions
+  - `move_score/3` (12 lignes) → extraire logique MVV-LVA
 
 ### **🟢 MOYEN TERME (3-4 semaines)**
-- [ ] **TASK-6**: Documentation finale académique - 120 min
+- [ ] **TASK-4**: Documentation finale académique - 120 min
   - Rapport PDF IFT-2003 (Modélisation 20% + Implémentation 45%)
   - Guide utilisation étudiant
   
-- [ ] **TASK-7**: Optimisations performance avancées - 180 min
+- [ ] **TASK-5**: Optimisations performance avancées - 180 min
   - Profondeur variable 2→3 pour menaces tactiques
   - Quiescence search pour captures forcing
 
@@ -38,14 +30,24 @@
 
 ## 🚨 **BUGS CRITIQUES IDENTIFIÉS**
 
-### **BUG-1: Bishop d6 Blunder (Coup 18)**
-**Symptôme**: IA laisse bishop en danger systématiquement post-ouverture
+### **BUG-1: Captures Dame non priorisées**
+**Symptôme**: Dame adverse ne recapture pas après séquences tactiques
+**Séquence problématique**:
+```
+1. e4 e5  2. Nf3 Nc6  3. Bb5 a6  4. Bxc6 dxc6  5. Nxe5 Qd4
+6. Nf3 Qxe4+  7. Be2 Qxg2  8. Rf1 Qxh2 ← Dame capture mais ne recapture pas
+```
+**Séquence correcte**:
+```
+1. e4 e5  2. Nf3 Nc6  3. Bb5 a6  4. Bxc6 dxc6  5. Nxe5 Qd4
+6. Nf3 Qxe4+  7. Be2 Qxg2  8. Rf1 Qxh2  9. Qd5 ← Dame recapture
+```
 **Root Cause**: 
-- `evaluate_piece_safety` désactivée (retourne 0)
-- Transition brutale generate_opening_moves → generate_regular_moves
-- Aucune protection pièces développées en milieu de jeu
+- Captures Dame générées dans OtherMoves (priorité basse)
+- Tri MVV-LVA appliqué trop tard sur liste mélangée
+- Architecture séparant captures artificiellement
 
-**Solution immédiate**: TASK-1 + TASK-2
+**Solution immédiate**: TASK-1
 
 ### **BUG-2: Développement Caro-Kann sous-optimal**
 **Symptôme**: e6 joué avant Bf5, bloque développement fou dame
@@ -58,7 +60,7 @@
 1. d4 c6  2. Nc3 d5  3. Bf4 Bf5 ← Fou AVANT e6  4. e3 e6
 ```
 
-**Solution**: TASK-4
+**Solution**: TASK-2
 
 ---
 
@@ -71,11 +73,11 @@
 - Tests automatisés 8 sections (tous passent)
 
 ### **Problématique ❌**
-- Blunders tactiques post-coup 15 (transition phase)
+- Captures Dame non priorisées (architecture génération coups)
 - Développement ouverture sous-optimal (Caro-Kann)
 - Code refactoring requis (fonctions >20 lignes)
 
 ---
 
 **Dernière mise à jour**: 2025-01-09  
-**Status**: 🔴 2 bugs critiques - 🟡 Interface améliorée - ✅ Core IA fonctionnelle
+**Status**: 🔴 2 bugs critiques - 🟡 Refactorisation génération coups prioritaire - ✅ Core IA fonctionnelle
