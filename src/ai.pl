@@ -277,10 +277,17 @@ move_score_with_defense(Board, Player, [FromRow, FromCol, ToRow, ToCol], Score) 
         
         % DÉTECTION DÉFENSE après simulation coup
         (   make_move_simulation(Board, FromRow, FromCol, ToRow, ToCol, NewBoard),
-            is_square_attacked(NewBoard, ToRow, ToCol, Player) ->
-            % Défendue: ajuster score négativement (perte probable)
-            AdjustedScore is BaseScore - AbsAttackerVal,
-            Score = AdjustedScore
+            opposite_player(Player, Opponent),
+            is_square_attacked(NewBoard, ToRow, ToCol, Opponent) ->
+            % Attaquée par adversaire: pénalité sévère pour pièces de haute valeur
+            (   AbsAttackerVal >= 900 ->  % Dame
+                PenaltyScore is BaseScore - (AbsAttackerVal * 1.5)  % Pénalité 1.5x
+            ;   AbsAttackerVal >= 500 ->  % Tour
+                PenaltyScore is BaseScore - (AbsAttackerVal * 1.2)  % Pénalité 1.2x  
+            ;   % Pièces mineures: pénalité standard
+                PenaltyScore is BaseScore - AbsAttackerVal
+            ),
+            Score = PenaltyScore
         ;   % Sûre: score base inchangé
             Score = BaseScore
         )
@@ -394,11 +401,11 @@ generate_moves_simple(GameState, Player, Moves) :-
 
 % generate_structured_moves(+GameState, +Player, -Moves)
 % Structure de priorisation intelligente pour toute la partie
-% Tri MVV-LVA garanti + restrictions adaptatives selon MoveCount
+% Tri MVV-LVA garanti + recaptures Dame prioritaires
 generate_structured_moves(GameState, Player, Moves) :-
     GameState = game_state(Board, _, MoveCount, _, _),
     
-    % 0. CAPTURES PRIORITAIRES - TOUTES PIECES (priorité absolue)
+    % 0. CAPTURES PRIORITAIRES - TOUTES PIECES (y compris Dame)
     findall([FromRow, FromCol, ToRow, ToCol], (
         between(1, 8, FromRow),
         between(1, 8, FromCol),
@@ -411,9 +418,9 @@ generate_structured_moves(GameState, Player, Moves) :-
         % CAPTURE: case destination non vide
         get_piece(Board, ToRow, ToCol, TargetPiece),
         \+ is_empty_square(TargetPiece)
-    ), CaptureMoves),
+    ), AllCaptureMoves),
     
-    % 1. DÉVELOPPEMENT PRIORITAIRE (cavaliers et fous AVANT tout)  
+    % 1. DÉVELOPPEMENT PRIORITAIRE (cavaliers et fous AVANT tout, NON-captures seulement)  
     findall([FromRow, FromCol, ToRow, ToCol], (
         between(1, 8, FromRow),
         between(1, 8, FromCol),
@@ -424,6 +431,9 @@ generate_structured_moves(GameState, Player, Moves) :-
         between(1, 8, ToRow),
         between(1, 8, ToCol),
         valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
+        % ÉVITER DOUBLONS: seulement non-captures
+        get_piece(Board, ToRow, ToCol, TargetPiece),
+        is_empty_square(TargetPiece),
         % DÉVELOPPEMENTS NATURELS: restrictions adaptatives selon phase
         (   MoveCount =< 15 ->
             (ToRow >= 3, ToRow =< 6, ToCol >= 3, ToCol =< 6)  % Ouverture: centraux seulement
@@ -434,7 +444,7 @@ generate_structured_moves(GameState, Player, Moves) :-
     % Éliminer les doublons de développement
     remove_duplicates_simple(DevelopmentMoves, UniqueDevelopment),
     
-    % 2. PIONS CENTRAUX (d4, e4, d5, e5)
+    % 2. PIONS CENTRAUX (d4, e4, d5, e5, NON-captures seulement)
     findall([FromRow, FromCol, ToRow, ToCol], (
         between(1, 8, FromRow),
         between(1, 8, FromCol),
@@ -445,11 +455,14 @@ generate_structured_moves(GameState, Player, Moves) :-
         between(1, 8, ToRow),
         between(1, 8, ToCol),
         valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
+        % ÉVITER DOUBLONS: seulement non-captures
+        get_piece(Board, ToRow, ToCol, TargetPiece),
+        is_empty_square(TargetPiece),
         member(ToCol, [4,5]),  % Colonnes d et e
         member(ToRow, [4,5])   % Rangs 4 et 5
     ), CentralPawnMoves),
     
-    % 3. PIONS SUPPORT ÉLARGIS (c6, d6, e6, f6 - plus restrictif sur flancs)
+    % 3. PIONS SUPPORT ÉLARGIS (c6, d6, e6, f6, NON-captures seulement)
     findall([FromRow, FromCol, ToRow, ToCol], (
         between(1, 8, FromRow),
         between(1, 8, FromCol),
@@ -460,13 +473,16 @@ generate_structured_moves(GameState, Player, Moves) :-
         between(1, 8, ToRow),
         between(1, 8, ToCol),
         valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
+        % ÉVITER DOUBLONS: seulement non-captures
+        get_piece(Board, ToRow, ToCol, TargetPiece),
+        is_empty_square(TargetPiece),
         % ÉLARGI: Colonnes centrales c,d,e,f (pas seulement c,f)
         member(ToCol, [3,4,5,6]),  % c, d, e, f
         member(ToRow, [6,5]),      % 6e rang (noirs) ou 5e rang si nécessaire  
         abs(ToRow - FromRow) =< 2  % 1 ou 2 cases maximum
     ), SupportPawnMoves),
     
-    % 4. AUTRES COUPS - SIMPLIFIÉ: toutes pièces non-développement
+    % 4. AUTRES COUPS NON-CAPTURE - SIMPLIFIÉ: toutes pièces non-développement
     findall([FromRow, FromCol, ToRow, ToCol], (
         between(1, 8, FromRow),
         between(1, 8, FromCol),
@@ -480,24 +496,35 @@ generate_structured_moves(GameState, Player, Moves) :-
         ),
         between(1, 8, ToRow),
         between(1, 8, ToCol),
-        valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol)
+        valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
+        % EXCLURE LES CAPTURES (déjà traitées)
+        get_piece(Board, ToRow, ToCol, TargetPiece),
+        is_empty_square(TargetPiece)
     ), OtherMoves),
     
-    % PRIORITÉ AVEC CAPTURES: Captures → Développement → Pions → Autres
-    take_first_n_simple(CaptureMoves, 5, LimitedCaptures),  % 5 meilleures captures
+    % PRIORITÉ CAPTURES: Tri MVV-LVA immédiat sur TOUTES les captures
+    order_moves(GameState, Player, AllCaptureMoves, OrderedCaptures),
+    
+    % Limite adaptative des captures (recommandation 3.5)
+    (   MoveCount =< 10 -> CaptureLimit = 8
+    ;   MoveCount =< 20 -> CaptureLimit = 12  
+    ;   CaptureLimit = 15
+    ),
+    take_first_n_simple(OrderedCaptures, CaptureLimit, LimitedCaptures),
+    
+    % Limitation développement et pions
     ai_development_limit(DevLimit), take_first_n_simple(UniqueDevelopment, DevLimit, PriorityDevelopment),
     take_first_n_simple(CentralPawnMoves, 3, LimitedCentral),
     take_first_n_simple(SupportPawnMoves, 4, LimitedSupport),
     
-    % ORDRE OPTIMAL: Captures → Développement → Pions → Autres
+    % ORDRE OPTIMAL: Captures triées → Développement → Pions → Autres non-capture
     append(LimitedCaptures, PriorityDevelopment, Priority1),
     append(Priority1, LimitedCentral, Priority2),
     append(Priority2, LimitedSupport, Priority3),
     append(Priority3, OtherMoves, AllMoves),
     
-    % FIX CRITIQUE: Ajouter MVV-LVA sécurité pour éliminer dame blunders ouverture
-    order_moves(GameState, Player, AllMoves, OrderedMoves),
-    ai_opening_moves(Limit), take_first_n_simple(OrderedMoves, Limit, Moves).
+    % Pas de tri supplémentaire nécessaire - déjà optimisé
+    ai_opening_moves(Limit), take_first_n_simple(AllMoves, Limit, Moves).
 
 % SUPPRIMÉ: generate_regular_moves - remplacée par generate_structured_moves 
 % pour toute la partie (tri MVV-LVA garanti + restrictions adaptatives)
