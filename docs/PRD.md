@@ -43,7 +43,6 @@
 - **En Passant** : Capture spéciale pion adjacente
 - **Roque** : Validation roi/tour non bougés
 - **GUI** : Interface graphique
-- **Analyse** : Évaluation temps réel
 - **Niveaux difficulté** : Profondeur recherche configurable
 
 ## 🎮 Expérience Utilisateur
@@ -97,9 +96,3 @@
 - **CU-007** : Tests → Suite complète `swipl tests/tests.pl` 42/42 passent
 
 ---
-
-## 📚 Ressources & Documentation
-
-**📋 Roadmap détaillé** : [TASKS.md](TASKS.md)  
-**🛠️ Guide développeur** : [CLAUDE.md](../.claude/CLAUDE.md)  
-**👤 Guide utilisateur** : [README.md](../README.md)

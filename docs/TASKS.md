@@ -77,40 +77,5 @@
 
 ---
 
-## 🎓 **CONTEXTE ACADÉMIQUE**
-- **Cours**: IFT-2003 Intelligence Artificielle
-- **Date remise**: 20 octobre 2025 (9h00)
-- **Livrables**: Rapport PDF + Code Prolog fonctionnel
-- **Évaluation**: Modélisation (20%) + Implémentation (45%) + Résultats (25%) + Rapport (10%)
-
-### **Objectifs apprentissage validés ✅**
-- ✅ Négamax + Alpha-Beta implémentés
-- ✅ MVV-LVA + PSQT + Move Ordering
-- ✅ Architecture modulaire Prolog
-- ✅ Interface Humain vs IA stable
-
----
-
-## 🧪 **TESTS VALIDATION**
-
-### **Test Régression** (avant toute modification)
-```bash
-swipl -s tests/tests.pl -g "run_all_tests, halt."
-```
-
-### **Test Comportement IA**
-```bash
-swipl go.pl  # Option 2: IA vs Humain
-# Séquence: d2d4, c1f4, b1c3, e2e3
-# Vérifier: IA joue Bf5 (pas e6 prématuré)
-```
-
-### **Test Performance**
-- Temps réponse ≤ 1s/coup
-- Aucun crash sur 20+ coups
-- Scores [EVAL] cohérents
-
----
-
 **Dernière mise à jour**: 2025-01-09  
 **Status**: 🔴 2 bugs critiques - 🟡 Interface améliorée - ✅ Core IA fonctionnelle
