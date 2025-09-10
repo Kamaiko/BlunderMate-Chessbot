@@ -19,11 +19,6 @@
 ```bash
 # Démarrer le jeu d'échecs
 swipl go.pl
-
-# Le menu principal propose :
-# 1. Humain vs Humain
-# 2. Humain vs IA  
-# 3. Tests du système
 ```
 
 > **Note** : Interface complète avec détection automatique échec/mat/pat
@@ -44,9 +39,7 @@ swipl go.pl
 
 ### 🏆 Jeu d'Échecs Standard
 - ✅ **Toutes les pièces** et règles officielles FIDE
-- ✅ **Promotion automatique** des pions (→ dame)
 - ✅ **Détection complète** échec, mat et pat
-- ✅ **Interface** professionnelle
 
 ### 🤖 Intelligence Artificielle
 

@@ -510,11 +510,6 @@ show_help :-
     nl,
     
     % Sections d'aide
-    write('    PRINCIPE DU JEU'), nl,
-    write('    '), draw_line(35, '-'), nl,
-    write('    Jeu d\'echecs classique Humain vs Humain'), nl,
-    nl,
-    
     write('    FORMAT DES COUPS'), nl,
     write('    '), draw_line(35, '-'), nl,
     write('    Notation algebrique: e2e4 (de e2 vers e4)'), nl,
@@ -526,14 +521,6 @@ show_help :-
     write('    aide        : Afficher cette aide'), nl,
     write('    menu        : Retour au menu principal'), nl,
     write('    quitter     : Quitter le programme'), nl,
-    nl,
-    
-    write('    PIECES (notation ASCII)'), nl,
-    write('    '), draw_line(35, '-'), nl,
-    write('    Blanches: P=Pion R=Tour N=Cavalier'), nl,
-    write('              B=Fou  Q=Dame K=Roi'), nl,
-    write('    Noires:   p=pion r=tour n=cavalier'), nl,
-    write('              b=fou  q=dame k=roi'), nl,
     nl.
 
 % show_game_help
