@@ -10,6 +10,10 @@
 [![Platforms](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey?style=flat-square)]()
 [![AI Algorithm](https://img.shields.io/badge/AI-Negamax%20%7C%20Alpha--Beta-green?style=flat-square)]()
 
+<img src="docs/images/menu-principal.png" alt="Menu principal français" width="500">
+
+*Interface française professionnelle avec modes de jeu et outils intégrés*
+
 </div>
 
 ---
@@ -20,6 +24,11 @@
 # Démarrer le jeu d'échecs
 swipl go.pl
 ```
+
+<div align="center">
+  <img src="docs/images/partie-ia.png" alt="IA en action" width="600">
+  <p><em>IA Négamax Alpha-Beta en action : évaluation temps réel (+50 points blanc) avec plateau ASCII</em></p>
+</div>
 
 ## 🏗️ Architecture
 
@@ -41,6 +50,11 @@ swipl go.pl
 - ✅ **Détection complète** échec, mat et pat
 
 ### 🤖 Intelligence Artificielle
+
+<div align="center">
+  <img src="docs/images/test-performance.png" alt="Test de performance IA" width="400">
+  <p><em>Performance validée : 1.718 secondes pour analyse complète (profondeur 2)</em></p>
+</div>
 
 | Composante | Description | Performance |
 |------------|-------------|-------------|
