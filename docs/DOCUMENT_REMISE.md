@@ -230,10 +230,6 @@ Ordre d'évaluation pour maximiser l'efficacité de l'élagage:
 - Tri MVV-LVA pour optimiser l'élagage (~98% de réduction)
 - Temps de réponse : ~1.7s/coup
 
-**Fonction d'évaluation multi-composantes :**
-- Matériel : pion=100, cavalier=320, fou=330, tour=500, dame=900
-- PSQT : Tables positionnelles adaptées ChessProgramming.org
-- Sécurité : Détection pièces non défendues (anti-blunders)
 
 ### 2.3 Pipeline de génération de coups
 
