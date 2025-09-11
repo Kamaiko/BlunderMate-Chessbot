@@ -241,16 +241,22 @@ Après implémentation complète:
 - ✅ **Phase 3 complétée**: Restrictions hardcodées supprimées
 - ✅ **Phase 4 partiellement**: Tests validation séquence critique réussis
 
-### **🎯 ROOT CAUSE DÉCOUVERTE**
-**Le problème N'ÉTAIT PAS architectural** mais dans la **convention coordonnées**:
+### **🎯 ROOT CAUSE DÉCOUVERTE (INITIALE)**
+**Le problème recaptures spécifique** était dans la **convention coordonnées**:
 - `get_piece(Board, Row, Col)` utilise conversion `9-Row`
 - Dame d8 = **Row=8,Col=4** (pas Row=1,Col=4)
 - Recapture `Qd8xd6` = `[8,4,6,4]` fonctionne avec Priority=1000
 
-### **📋 ÉTAT ACTUEL**
-- ✅ **Architecture unifiée** fonctionne mais n'était pas nécessaire
-- ✅ **Recaptures Dame** résolues via correction coordonnées
-- ❌ **NOUVEAUX BUGS** découverts plus critiques (validation coups f2f3)
+### **❌ RÉGRESSION CRITIQUE DÉCOUVERTE (2025-01-10)**
+**NOUVEAUX BUGS SYSTÈME PLUS GRAVES** remettent en question fiabilité globale:
+- ❌ **Bug validation f2f3**: Coup illégal autorisé expose Roi échec diagonal
+- ❌ **Bug détection échec**: `is_square_attacked` défaillant pour Bishop h4→d3
+- ❌ **Implications**: Système validation fondamentalement compromis
+
+### **📋 ÉTAT ACTUEL RÉVISÉ**
+- ✅ **Recaptures Dame** résolues (problème spécifique coordonnées)
+- ❌ **SYSTÈME VALIDATION** défaillant (bugs critiques plus graves)
+- 🚨 **PRIORITÉ URGENTE**: Correction bugs validation avant optimisations
 
 ### **🎯 RECOMMANDATIONS**
 1. **Garder architecture unifiée** (amélioration qualité code)
