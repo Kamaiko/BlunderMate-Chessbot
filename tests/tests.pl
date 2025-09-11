@@ -47,7 +47,7 @@ test_ai_with_timeout(TestName, Goal, TimeoutSec) :-
             call(Goal),
             get_time(End),
             Duration is End - Start,
-            format(' [PASS] (~3f sec)', [Duration]), nl
+            write(' [PASS]'), nl
         )),
         Error,
         (format(' [TIMEOUT/ERROR: ~w]', [Error]), nl, fail)
@@ -58,7 +58,7 @@ test_rigorous(TestName, Goal, ValidationGoal) :-
     write('[RUN] '), write(TestName),
     get_time(Start),
     (   (call(Goal), call(ValidationGoal)) ->
-        (get_time(End), Duration is End - Start, format(' [PASS] (~3f sec)', [Duration]), nl)
+        (get_time(End), Duration is End - Start, write(' [PASS]'), nl)
     ;   (write(' [FAIL]'), nl, fail)
     ).
 
@@ -116,7 +116,7 @@ test_data_structures_rigorous :-
     write('-------------------------------------'), nl,
     
     test_rigorous(
-        'Test 1/1: GameState structure basique..............',
+        'Test 1/1: GameState structure basique...............',
         GS = game_state([], white, 0, active, [[], []]),
         (GS = game_state(Board, Player, MoveCount, Status, CapturedPieces),
          is_list(Board), atom(Player), integer(MoveCount),
@@ -129,7 +129,7 @@ test_algebraic_notation_complete :-
     write('-----------------------------------'), nl,
     
     test_rigorous(
-        'Test 1/3: Parse coups standards e2e4, d7d5.........',
+        'Test 1/3: Parse coups standards e2e4, d7d5..........',
         true,
         (parse_algebraic_move("e2e4", 2, 5, 4, 5),
          parse_algebraic_move("d7d5", 7, 4, 5, 4),
@@ -137,7 +137,7 @@ test_algebraic_notation_complete :-
     ),
     
     test_rigorous(
-        'Test 2/3: Rejet coups invalides z9z9, e9e1.........',
+        'Test 2/3: Rejet coups invalides z9z9, e9e1..........',
         true,
         (\+ parse_algebraic_move("z9z9", _, _, _, _),
          \+ parse_algebraic_move("e9e1", _, _, _, _),
@@ -145,7 +145,7 @@ test_algebraic_notation_complete :-
     ),
     
     test_rigorous(
-        'Test 3/3: Parsing positions limites a1, h8.........',
+        'Test 3/3: Parsing positions limites a1, h8..........',
         true,
         (parse_algebraic_move("a1b1", 1, 1, 1, 2),
          parse_algebraic_move("h7h8", 7, 8, 8, 8),
@@ -334,14 +334,14 @@ test_move_generation_complete :-
     init_game_state(GameState),
     
     test_rigorous(
-        'Test 1/4: Generation position initiale coups valides..',
-        generate_moves_simple(GameState, white, Moves),
+        'Test 1/4: Generation position initiale coups valides.',
+        generate_structured_moves_v2(GameState, white, Moves),
         (is_list(Moves), length(Moves, Count), Count >= 4)  % Au moins 4 coups
     ),
     
     test_rigorous(
         'Test 2/4: Format coups [FromR,FromC,ToR,ToC].........',
-        (generate_moves_simple(GameState, white, Moves), Moves = [FirstMove|_]),
+        (generate_structured_moves_v2(GameState, white, Moves), Moves = [FirstMove|_]),
         (FirstMove = [FromR, FromC, ToR, ToC],
          integer(FromR), integer(FromC), integer(ToR), integer(ToC),
          valid_chess_position(FromR, FromC),
@@ -349,8 +349,8 @@ test_move_generation_complete :-
     ),
     
     test_rigorous(
-        'Test 3/4: Tous coups generes sont legaux...........',
-        (generate_moves_simple(GameState, white, Moves),
+        'Test 3/4: Tous coups generes sont legaux............',
+        (generate_structured_moves_v2(GameState, white, Moves),
          GameState = game_state(Board, _, _, _, _)),
         forall(member([FromR, FromC, ToR, ToC], Moves),
                valid_move(Board, white, FromR, FromC, ToR, ToC))
@@ -366,8 +366,8 @@ test_move_generation_complete :-
     CaptureGS = game_state(CaptureBoard, white, 0, active, [[], []]),
     
     test_rigorous(
-        'Test 4/4: Generation inclut captures disponibles...',
-        generate_moves_simple(CaptureGS, white, CaptureMoves),
+        'Test 4/4: Generation inclut captures disponibles....',
+        generate_structured_moves_v2(CaptureGS, white, CaptureMoves),
         (member([4, 4, 4, 8], CaptureMoves),   % Capture tour
          member([4, 4, 6, 4], CaptureMoves))   % Capture pion
     ), nl.
@@ -388,7 +388,7 @@ test_move_ordering_optimized :-
     
     test_rigorous(
         'Test 1/3: Capture dame avant capture pion............',
-        (generate_moves_simple(TestGS, white, Moves),
+        (generate_structured_moves_v2(TestGS, white, Moves),
          order_moves(TestGS, white, Moves, OrderedMoves)),
         (OrderedMoves = [[4,4,4,8]|_])  % Capture dame en premier
     ),
@@ -403,7 +403,7 @@ test_move_ordering_optimized :-
     
     test_rigorous(
         'Test 3/3: Coups tranquilles apres captures...........',
-        (generate_moves_simple(TestGS, white, AllMoves),
+        (generate_structured_moves_v2(TestGS, white, AllMoves),
          order_moves(TestGS, white, AllMoves, [FirstMove|RestMoves])),
         (FirstMove = [4,4,4,8],  % Premier = capture dame
          member([1,1,1,2], RestMoves))  % Coups tranquilles apres
@@ -817,7 +817,7 @@ test_ai_performance_4th_move :-
     write('[TEST] PERFORMANCE 4E COUP IA'), nl,
     write('------------------------------'), nl,
     
-    write('[RUN] Test 1/1: Performance 4e coup IA.....'),  
+    write('[RUN] Test 1/1: Performance 4e coup IA..................'),  
     catch(
         (% Position fixe apres quelques coups (joueur actuel: noir)
          TestBoard = [

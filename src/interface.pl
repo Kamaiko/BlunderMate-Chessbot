@@ -57,6 +57,8 @@ get_player_type(unified_game_state(_, _, _, _, _, player_types(_, BlackType)), b
 message(invalid_choice, 'Choix invalide. Veuillez entrer 1, 2, 3, 4, 5, ou 6.').
 message(goodbye, 'Au revoir!').
 
+% Fin du fichier interface.pl
+
 % Messages de jeu
 message(game_title_human_vs_human, '=== PARTIE D\'ECHECS HUMAIN VS HUMAIN ===').
 message(legend_title, '=== LEGENDE DES PIECES ===').
@@ -256,6 +258,7 @@ process_choice('5') :-
 
 process_choice('6') :-
     display_message_ln(goodbye),
+    nl,
     halt.
 
 process_choice(_) :-

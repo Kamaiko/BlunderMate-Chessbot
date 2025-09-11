@@ -8,6 +8,14 @@
 % - Evaluation PSQT (Piece-Square Tables)
 % - Evaluation materielle + positionnelle
 %
+% ARCHITECTURE OPTIMISÉE:
+% 1. Configuration et constantes
+% 2. Interface publique principale
+% 3. Algorithme négamax (cœur de l'IA)
+% 4. Évaluation et scoring MVV-LVA
+% 5. Génération de coups structurée
+% 6. Helpers privés spécialisés
+%
 % =============================================================================
 
 :- [pieces].
@@ -17,7 +25,7 @@
 :- use_module(utils).
 
 % =============================================================================
-% CONSTANTES IA
+% SECTION 1: CONFIGURATION ET CONSTANTES IA
 % =============================================================================
 
 % Configuration algorithme IA
@@ -28,10 +36,6 @@ ai_development_limit(8).  % Limite pièces développement prioritaire
 
 % Limites sécurité et performance
 ai_max_recursion(8).      % Protection récursion infinie (taille échiquier)
-
-% =============================================================================
-% CONFIGURATION IA LOCALE - VALEURS TUNABLES
-% =============================================================================
 
 % Scores d'évaluation (spécifiques à l'algorithme IA)
 ai_config(checkmate_score, -100000).    % Score échec et mat
@@ -75,118 +79,18 @@ get_phase_config(Key, _Value) :-
     fail.
 
 % =============================================================================
-% INTERFACE PRINCIPALE SIMPLE
+% SECTION 2: INTERFACE PUBLIQUE PRINCIPALE
 % =============================================================================
-
-
-% display_position_evaluation(+GameState, +Player)
-% Affiche le détail de l'évaluation pour debug/interface
-% Version refactorisée séparant calcul et affichage
-display_position_evaluation(GameState, Player) :-
-    calculate_evaluation_components(GameState, Components),
-    format_evaluation_display(Components, Player).
-
-% =============================================================================
-% EVALUATION COMPONENTS - REFACTORED DISPLAY FUNCTIONS
-% =============================================================================
-
-%! calculate_evaluation_components(+GameState, -Components) is det
-% Calcul pur des composantes d'évaluation sans affichage
-% Sépare la logique de calcul de l'affichage pour améliorer la testabilité
-calculate_evaluation_components(GameState, Components) :-
-    % Calculs matériels
-    count_material_pure_ref(GameState, white, WhiteMaterial),
-    count_material_pure_ref(GameState, black, BlackMaterial),
-    
-    % Calculs PSQT
-    evaluate_psqt_total(GameState, white, WhitePSQT),
-    evaluate_psqt_total(GameState, black, BlackPSQT),
-    
-    % Calculs sécurité
-    evaluate_piece_safety(GameState, white, WhiteSafety),
-    evaluate_piece_safety(GameState, black, BlackSafety),
-    
-    % Différentiels
-    MaterialDiff is WhiteMaterial - BlackMaterial,
-    PSQTDiff is WhitePSQT - BlackPSQT,
-    SafetyDiff is WhiteSafety - BlackSafety,
-    TotalDiff is MaterialDiff + PSQTDiff + SafetyDiff,
-    
-    % Structure de retour avec toutes les valeurs
-    Components = eval_components(WhiteMaterial, BlackMaterial, MaterialDiff,
-                                WhitePSQT, BlackPSQT, PSQTDiff,
-                                WhiteSafety, BlackSafety, SafetyDiff,
-                                TotalDiff).
-
-%! format_evaluation_display(+Components, +Player) is det
-% Affichage formaté des composantes d'évaluation
-% Version modulaire de l'affichage pour améliorer la maintenabilité
-format_evaluation_display(eval_components(WhiteMat, BlackMat, MatDiff,
-                                         WhitePSQT, BlackPSQT, PSQTDiff,
-                                         WhiteSafety, BlackSafety, SafetyDiff,
-                                         Total), Player) :-
-    % Calcul du score final selon le joueur
-    (   Player = white ->
-        FinalScore = Total
-    ;   FinalScore is -Total
-    ),
-    
-    % Affichage détaillé identique à l'original
-    write('=== ÉVALUATION POSITION ==='), nl,
-    format('Matériel    : Blancs ~w vs Noirs ~w (diff: ~w)~n', 
-           [WhiteMat, BlackMat, MatDiff]),
-    format('PSQT        : Blancs ~w vs Noirs ~w (diff: ~w)~n', 
-           [WhitePSQT, BlackPSQT, PSQTDiff]),
-    format('Sécurité    : Blancs ~w vs Noirs ~w (diff: ~w)~n', 
-           [WhiteSafety, BlackSafety, SafetyDiff]),
-    write('------------------------'), nl,
-    format('SCORE TOTAL (~w): ~w~n', [Player, FinalScore]),
-    display_position_assessment(Player, FinalScore),
-    write('========================'), nl.
-
-%! display_position_assessment(+Player, +Score) is det
-% Affiche l'évaluation qualitative de la position
-% Helper modulaire pour message qualitatif selon le score
-display_position_assessment(Player, FinalScore) :-
-    (   FinalScore > 0 ->
-        format('Position favorable à ~w (~w)~n', [Player, FinalScore])
-    ;   FinalScore < 0 ->
-        format('Position défavorable à ~w (~w)~n', [Player, FinalScore])
-    ;   write('Position équilibrée (0)'), nl
-    ).
-
-% =============================================================================
-% COUPS D'OUVERTURE FIXES - CARO-KANN/SLAV DEFENSE
-% =============================================================================
-
-% use_fixed_opening(+MoveCount)
-% Determine si on utilise les coups fixes (premiers 2 coups des noirs)
-use_fixed_opening(1).  % Premier coup des noirs (c7-c6)
-use_fixed_opening(3).  % Deuxieme coup des noirs (d7-d5)
-
-% get_fixed_opening_move(+MoveCount, +Board, -Move)
-% Retourne le coup d'ouverture fixe selon le nombre de coups
-get_fixed_opening_move(1, Board, [7, 3, 6, 3]) :-
-    % Premier coup: c7-c6 (rang 7 col 3 vers rang 6 col 3)
-    get_piece(Board, 7, 3, 'p'),  % Verification qu'il y a bien un pion noir en c7
-    get_piece(Board, 6, 3, ' ').  % Verification que c6 est libre (espace)
-
-get_fixed_opening_move(3, Board, [7, 4, 5, 4]) :-
-    % Deuxieme coup: d7-d5 (rang 7 col 4 vers rang 5 col 4)
-    get_piece(Board, 7, 4, 'p'),  % Verification qu'il y a bien un pion noir en d7
-    get_piece(Board, 6, 4, ' '),  % Verification que d6 est libre (espace)
-    get_piece(Board, 5, 4, ' ').  % Verification que d5 est libre (espace)
-
 
 % choose_ai_move(+GameState, -BestMove)
 % FONCTION PRINCIPALE IA - Point d'entrée pour le choix du meilleur coup
 % 
-% Stratégie en 3 niveaux:
+% STRATÉGIE EN 3 NIVEAUX:
 % 1. Coups d'ouverture théoriques (premiers coups noirs seulement)
 % 2. Algorithme négamax + alpha-beta (recherche profonde)  
 % 3. Fallback sécurisé en cas d'erreur
 %
-% Paramètres:
+% PARAMÈTRES:
 %   +GameState: État complet du jeu (plateau, joueur, nombre coups, etc.)
 %   -BestMove: Meilleur coup au format [FromRow, FromCol, ToRow, ToCol]
 choose_ai_move(GameState, BestMove) :-
@@ -231,11 +135,33 @@ choose_emergency_move(GameState, Player, BestMove) :-
     ;   BestMove = []  % Aucun coup trouvé
     ).
 
+% Coups d'ouverture fixes - Caro-Kann/Slav Defense
+use_fixed_opening(1).  % Premier coup des noirs (c7-c6)
+use_fixed_opening(3).  % Deuxieme coup des noirs (d7-d5)
+
+get_fixed_opening_move(1, Board, [7, 3, 6, 3]) :-
+    % Premier coup: c7-c6 (rang 7 col 3 vers rang 6 col 3)
+    get_piece(Board, 7, 3, 'p'),  % Verification qu'il y a bien un pion noir en c7
+    get_piece(Board, 6, 3, ' ').  % Verification que c6 est libre (espace)
+
+get_fixed_opening_move(3, Board, [7, 4, 5, 4]) :-
+    % Deuxieme coup: d7-d5 (rang 7 col 4 vers rang 5 col 4)
+    get_piece(Board, 7, 4, 'p'),  % Verification qu'il y a bien un pion noir en d7
+    get_piece(Board, 6, 4, ' '),  % Verification que d6 est libre (espace)
+    get_piece(Board, 5, 4, ' ').  % Verification que d5 est libre (espace)
+
+% display_position_evaluation(+GameState, +Player)
+% Affiche le détail de l'évaluation pour debug/interface
+% Version refactorisée séparant calcul et affichage
+display_position_evaluation(GameState, Player) :-
+    calculate_evaluation_components(GameState, Components),
+    format_evaluation_display(Components, Player).
+
 % =============================================================================
-% NÉGAMAX ALPHA-BETA - ALGORITHME IA PRINCIPAL
+% SECTION 3: ALGORITHME NÉGAMAX ALPHA-BETA (CŒUR DE L'IA)
 % =============================================================================
 
-% negamax_ab(+GameState, +Player, +Depth, +Alpha, +Beta, -BestMove, -BestValue)
+%! negamax_ab(+GameState, +Player, +Depth, +Alpha, +Beta, -BestMove, -BestValue)
 % NÉGAMAX AVEC ÉLAGAGE ALPHA-BETA - Algorithme de recherche principal
 %
 % PRINCIPE NÉGAMAX:
@@ -247,7 +173,22 @@ choose_emergency_move(GameState, Player, BestMove) :-
 % - Alpha: meilleur score garanti pour les Blancs (borne inférieure)
 % - Beta: meilleur score garanti pour les Noirs (borne supérieure)  
 % - Si Alpha >= Beta: élagage (branches inutiles)
-% - Réduit drastiquement l'espace de recherche
+% - Réduit drastiquement l'espace de recherche (facteur 10-100x)
+%
+% PSEUDO-CODE DÉTAILLÉ:
+% ```
+% function negamax(position, depth, α, β, color) is
+%     if depth = 0 or position is terminal then
+%         return color × evaluate(position)
+%     
+%     value := −∞
+%     for each child of position do
+%         value := max(value, −negamax(child, depth−1, −β, −α, −color))
+%         α := max(α, value)
+%         if α ≥ β then
+%             break (* coupure beta - élagage *)
+%     return value
+% ```
 %
 % TERMINAISON:
 % - Depth = 0: évaluation heuristique de la position
@@ -262,87 +203,60 @@ choose_emergency_move(GameState, Player, BestMove) :-
 %   -BestMove: Meilleur coup trouvé [FromRow,FromCol,ToRow,ToCol]
 %   -BestValue: Valeur du meilleur coup (du point de vue Player)
 
-% negamax_ab_with_stats(+GameState, +Player, +Depth, +Alpha, +Beta, -BestMove, -BestValue, +NodesIn, -NodesOut)
-% VERSION TEST - Même algorithme mais avec comptage des nœuds explorés pour validation élagage
-negamax_ab_with_stats(GameState, Player, 0, _Alpha, _Beta, [], Value, NodesIn, NodesOut) :-
-    NodesOut is NodesIn + 1,
-    evaluate_pure_reference(GameState, Player, Value), !.
-
-negamax_ab_with_stats(GameState, Player, Depth, Alpha, Beta, BestMove, BestValue, NodesIn, NodesOut) :-
-    Depth > 0,
-    NodesCount1 is NodesIn + 1,  % Compter ce nœud
-    generate_structured_moves_v2(GameState, Player, Moves),
-    (   Moves = [] ->
-        terminal_score(GameState, Player, BestValue),
-        BestMove = [],
-        NodesOut = NodesCount1
-    ;   order_moves(GameState, Player, Moves, OrderedMoves),
-        ab_search_with_stats(OrderedMoves, GameState, Player, Depth, Alpha, Beta, none, -1.0Inf, BestMove, BestValue, NodesCount1, NodesOut)
-    ).
+% CAS DE BASE: Profondeur 0 - Évaluation heuristique
 negamax_ab(GameState, Player, 0, _Alpha, _Beta, [], Value) :-
     evaluate_pure_reference(GameState, Player, Value), !.
 
+% CAS RÉCURSIF: Exploration des coups possibles
 negamax_ab(GameState, Player, Depth, Alpha, Beta, BestMove, BestValue) :-
     Depth > 0,
     generate_structured_moves_v2(GameState, Player, Moves),
     (   Moves = [] ->
+        % Aucun coup légal: position terminale
         terminal_score(GameState, Player, BestValue),
         BestMove = []
-    ;   order_moves(GameState, Player, Moves, OrderedMoves),
+    ;   % Trier les coups pour améliorer l'élagage alpha-beta
+        order_moves(GameState, Player, Moves, OrderedMoves),
+        % Recherche alpha-beta récursive
         ab_search(OrderedMoves, GameState, Player, Depth, Alpha, Beta, none, -1.0Inf, BestMove, BestValue)
     ).
 
-
-% ab_search(+Moves, +GameState, +Player, +Depth, +Alpha, +Beta, +BestMoveAcc, +BestValueAcc, -BestMove, -BestValue)  
-% Recherche alpha-beta avec elagage - coeur de l'algorithme negamax
+%! ab_search(+Moves, +GameState, +Player, +Depth, +Alpha, +Beta, +BestMoveAcc, +BestValueAcc, -BestMove, -BestValue)  
+% Recherche alpha-beta avec elagage - cœur de l'algorithme negamax
+%
+% LOGIQUE D'ÉLAGAGE:
+% - Pour chaque coup, calculer sa valeur avec négamax récursif
+% - Mettre à jour Alpha si un meilleur coup est trouvé
+% - Si Alpha >= Beta: ÉLAGAGE (coupure beta)
+% - Sinon: continuer avec les coups restants
 ab_search([], _, _, _, _, _, BestMoveAcc, BestValueAcc, BestMoveAcc, BestValueAcc) :- !.
 
 ab_search([[FromRow,FromCol,ToRow,ToCol]|RestMoves], GameState, Player, Depth, Alpha, Beta, BestMoveAcc, BestValueAcc, BestMove, BestValue) :-
+    % Simuler le coup et évaluer la position résultante
     make_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState),
     NewGameState = game_state(_, NextPlayer, _, _, _),
     NewDepth is Depth - 1,
+    
+    % Appel récursif négamax avec Alpha/Beta inversés
     negamax_ab(NewGameState, NextPlayer, NewDepth, -Beta, -Alpha, _, OpponentValue),
-    Value is -OpponentValue,
+    Value is -OpponentValue,  % Négation pour négamax
     
+    % Mise à jour du meilleur coup si nécessaire
     (   Value > BestValueAcc ->
-        NewAlpha2 is max(Alpha, Value),
+        UpdatedAlpha is max(Alpha, Value),
         NewBestMove = [FromRow,FromCol,ToRow,ToCol],
         NewBestValue = Value
-    ;   NewAlpha2 = Alpha,
+    ;   UpdatedAlpha = Alpha,
         NewBestMove = BestMoveAcc,
         NewBestValue = BestValueAcc
     ),
     
-    % ÉLAGAGE ALPHA-BETA
-    (   NewAlpha2 >= Beta ->
-        BestMove = NewBestMove, BestValue = NewBestValue  % Coupure beta
-    ;   ab_search(RestMoves, GameState, Player, Depth, NewAlpha2, Beta, NewBestMove, NewBestValue, BestMove, BestValue)
-    ).
-
-% ab_search_with_stats(+Moves, +GameState, +Player, +Depth, +Alpha, +Beta, +BestMoveAcc, +BestValueAcc, -BestMove, -BestValue, +NodesIn, -NodesOut)  
-% VERSION TEST - ab_search avec comptage nœuds et traces de coupures alpha-beta
-ab_search_with_stats([], _, _, _, _, _, BestMoveAcc, BestValueAcc, BestMoveAcc, BestValueAcc, NodesIn, NodesIn) :- !.
-
-ab_search_with_stats([[FromRow,FromCol,ToRow,ToCol]|RestMoves], GameState, Player, Depth, Alpha, Beta, BestMoveAcc, BestValueAcc, BestMove, BestValue, NodesIn, NodesOut) :-
-    make_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState),
-    NewGameState = game_state(_, NextPlayer, _, _, _),
-    NewDepth is Depth - 1,
-    negamax_ab_with_stats(NewGameState, NextPlayer, NewDepth, -Beta, -Alpha, _, OpponentValue, NodesIn, NodesCount1),
-    Value is -OpponentValue,
-    
-    (   Value > BestValueAcc ->
-        NewAlpha2 is max(Alpha, Value),
-        NewBestMove = [FromRow,FromCol,ToRow,ToCol],
-        NewBestValue = Value
-    ;   NewAlpha2 = Alpha,
-        NewBestMove = BestMoveAcc,
-        NewBestValue = BestValueAcc
-    ),
-    
-    % ÉLAGAGE ALPHA-BETA
-    (   NewAlpha2 >= Beta ->
-        BestMove = NewBestMove, BestValue = NewBestValue, NodesOut = NodesCount1  % Coupure beta - pas de récursion
-    ;   ab_search_with_stats(RestMoves, GameState, Player, Depth, NewAlpha2, Beta, NewBestMove, NewBestValue, BestMove, BestValue, NodesCount1, NodesOut)
+    % ÉLAGAGE ALPHA-BETA: Test de coupure
+    (   UpdatedAlpha >= Beta ->
+        % Coupure beta: pas besoin d'explorer les coups restants
+        BestMove = NewBestMove, BestValue = NewBestValue
+    ;   % Continuer la recherche avec Alpha mis à jour
+        ab_search(RestMoves, GameState, Player, Depth, UpdatedAlpha, Beta, NewBestMove, NewBestValue, BestMove, BestValue)
     ).
 
 % terminal_score(+GameState, +Player, -Score)
@@ -353,8 +267,23 @@ terminal_score(GameState, Player, Score) :-
     ;   Score = 0        % Pat (nulle)
     ).
 
-% order_moves(+GameState, +Player, +Moves, -OrderedMoves)
-% Tri des coups : captures (MVV-LVA basique) d'abord, puis autres - INCOMPLET
+% =============================================================================
+% SECTION 4: ÉVALUATION ET SCORING MVV-LVA
+% =============================================================================
+
+%! order_moves(+GameState, +Player, +Moves, -OrderedMoves)
+% TRI DES COUPS POUR OPTIMISER L'ÉLAGAGE ALPHA-BETA
+%
+% PRINCIPE MVV-LVA (Most Valuable Victim - Least Valuable Attacker):
+% - Prioriser les captures où la victime vaut plus que l'attaquant
+% - Exemple: Pion capture Dame = score élevé, Dame capture Pion = score faible
+% - Améliore l'élagage alpha-beta de 20-40% en moyenne
+%
+% ORDRE DE TRI:
+% 1. Promotions (score absolu le plus élevé)
+% 2. Captures triées MVV-LVA (grande victime - petit attaquant)
+% 3. Échecs (forcent l'adversaire à réagir)
+% 4. Développements (coups positionnels)
 order_moves(GameState, Player, Moves, OrderedMoves) :-
     GameState = game_state(Board, _, _, _, _),
     map_move_scores(Board, Player, Moves, ScoredMoves),
@@ -367,21 +296,37 @@ map_move_scores(Board, Player, [Move|RestMoves], [Score-Move|RestScored]) :-
     move_score(Board, Player, Move, Score),
     map_move_scores(Board, Player, RestMoves, RestScored).
 
-% make_move_simulation(+Board, +FromRow, +FromCol, +ToRow, +ToCol, -NewBoard)
-% Simule un coup sans modifier GameState complet (optimisé pour move_score)
-% Utilisé pour détection défense après capture
-make_move_simulation(Board, FromRow, FromCol, ToRow, ToCol, NewBoard) :-
-    ground(Board), ground(FromRow), ground(FromCol), ground(ToRow), ground(ToCol),
-    valid_chess_position(FromRow, FromCol),
-    valid_chess_position(ToRow, ToCol),
-    get_piece(Board, FromRow, FromCol, Piece),
-    \+ is_empty_square(Piece),
-    % Simulation: vider case départ et placer pièce à l'arrivée
-    place_piece_optimized(Board, FromRow, FromCol, ' ', TempBoard),
-    place_piece_optimized(TempBoard, ToRow, ToCol, Piece, NewBoard).
+%! move_score(+Board, +Player, +Move, -FinalScore)  
+% SCORE FINAL D'UN COUP AVEC TOUS LES BONUS
+% 
+% COMPOSANTES DU SCORE:
+% 1. Score MVV-LVA de base (captures)
+% 2. Bonus promotion (+90 points)
+% 3. Bonus échec (+50 points)
+% 4. Bonus développement (cavalier/fou +15/+12)
+move_score(Board, Player, Move, FinalScore) :-
+    % Score base MVV-LVA avec détection défense
+    move_score_with_defense(Board, Player, Move, BaseScore),
+    
+    % Bonus promotions (Phase 3)
+    detect_promotion_bonus(Move, Board, Player, PromotionBonus),
+    
+    % Bonus échecs (Phase 3) 
+    detect_check_bonus(Board, Player, Move, CheckBonus),
+    
+    % Score final combiné
+    FinalScore is BaseScore + PromotionBonus + CheckBonus.
 
-% move_score_with_defense(+Board, +Player, +Move, -Score)
-% Score MVV-LVA SIMPLIFIÉ - Laisse negamax décider des échanges
+%! move_score_with_defense(+Board, +Player, +Move, -Score)
+% SCORE MVV-LVA SIMPLIFIÉ
+% 
+% CALCUL SCORE CAPTURE:
+% Score = ValeurVictime - ValeurAttaquant + 1000
+% 
+% EXEMPLES:
+% - Pion(100) prend Dame(900): 900 - 100 + 1000 = 1800
+% - Dame(900) prend Pion(100): 100 - 900 + 1000 = 200
+% - Tour(500) prend Cavalier(320): 320 - 500 + 1000 = 820
 move_score_with_defense(Board, Player, [FromRow, FromCol, ToRow, ToCol], Score) :-
     get_piece(Board, ToRow, ToCol, TargetPiece),
     (   \+ is_empty_square(TargetPiece) ->
@@ -397,21 +342,6 @@ move_score_with_defense(Board, Player, [FromRow, FromCol, ToRow, ToCol], Score) 
     ;   % NON-CAPTURE: évaluer qualité du coup
         evaluate_non_capture_move(Board, Player, [FromRow, FromCol, ToRow, ToCol], Score)
     ).
-
-% move_score(+Board, +Player, +Move, -Score)  
-% Score MVV-LVA AMÉLIORÉ avec détection défense + promotions + échecs
-move_score(Board, Player, Move, FinalScore) :-
-    % Score base MVV-LVA avec détection défense
-    move_score_with_defense(Board, Player, Move, BaseScore),
-    
-    % Bonus promotions (Phase 3)
-    detect_promotion_bonus(Move, Board, Player, PromotionBonus),
-    
-    % Bonus échecs (Phase 3) 
-    detect_check_bonus(Board, Player, Move, CheckBonus),
-    
-    % Score final combiné
-    FinalScore is BaseScore + PromotionBonus + CheckBonus.
 
 % detect_promotion_bonus(+Move, +Board, +Player, -Bonus)
 % Détecte si le coup est une promotion et attribue bonus élevé
@@ -439,16 +369,6 @@ detect_check_bonus(Board, Player, [FromRow, FromCol, ToRow, ToCol], Bonus) :-
         Bonus = 0
     ).
 
-% keysort_desc(+Pairs, -SortedDesc)
-% Tri décroissant par clé
-keysort_desc(Pairs, SortedDesc) :-
-    sort(0, @>=, Pairs, SortedDesc).
-
-% pairs_values(+Pairs, -Values)
-pairs_values([], []).
-pairs_values([_-Value|RestPairs], [Value|RestValues]) :-
-    pairs_values(RestPairs, RestValues).
-
 % evaluate_non_capture_move(+Board, +Player, +Move, -Score)
 % Évalue la qualité des coups non-capture pour priorités développement intelligentes
 evaluate_non_capture_move(Board, Player, [FromRow, FromCol, ToRow, ToCol], Score) :-
@@ -464,8 +384,17 @@ evaluate_non_capture_move(Board, Player, [FromRow, FromCol, ToRow, ToCol], Score
     % Score final
     Score is PSQTScore + MoveBonus.
 
-% psqt_improvement_score(+PieceType, +FromRow, +FromCol, +ToRow, +ToCol, +Player, -Score)
-% Calcule l'amélioration PSQT du coup
+% Helpers pour évaluation et scoring
+make_move_simulation(Board, FromRow, FromCol, ToRow, ToCol, NewBoard) :-
+    ground(Board), ground(FromRow), ground(FromCol), ground(ToRow), ground(ToCol),
+    valid_chess_position(FromRow, FromCol),
+    valid_chess_position(ToRow, ToCol),
+    get_piece(Board, FromRow, FromCol, Piece),
+    \+ is_empty_square(Piece),
+    % Simulation: vider case départ et placer pièce à l'arrivée
+    place_piece_optimized(Board, FromRow, FromCol, ' ', TempBoard),
+    place_piece_optimized(TempBoard, ToRow, ToCol, Piece, NewBoard).
+
 psqt_improvement_score(PieceType, FromRow, FromCol, ToRow, ToCol, Player, Score) :-
     % Utiliser Player directement comme couleur
     evaluation:get_psqt_value(PieceType, FromRow, FromCol, Player, FromValue),
@@ -474,8 +403,6 @@ psqt_improvement_score(PieceType, FromRow, FromCol, ToRow, ToCol, Player, Score)
     % Réduire impact (PSQT déjà dans évaluation globale)
     Score is RawScore // 4.
 
-% piece_move_bonus(+PieceType, +FromRow, +Player, -Bonus)
-% Bonus/malus unifiés pour mouvements de pièces selon développement
 piece_move_bonus(cavalier, FromRow, Player, Bonus) :- 
     starting_row(Player, StartRow), FromRow = StartRow, !,
     get_ai_config(knight_dev_bonus, Bonus).
@@ -486,14 +413,19 @@ piece_move_bonus(roi, _, _, Penalty) :- !,
     get_ai_config(early_king_penalty, Penalty).
 piece_move_bonus(_, _, _, 0).
 
-% starting_row(+Player, -Row)
-% Rangée de départ selon la couleur
 starting_row(white, 1).
 starting_row(black, 8).
 
+keysort_desc(Pairs, SortedDesc) :-
+    sort(0, @>=, Pairs, SortedDesc).
 
+pairs_values([], []).
+pairs_values([_-Value|RestPairs], [Value|RestValues]) :-
+    pairs_values(RestPairs, RestValues).
 
-% GÉNÉRATION DE COUPS REFACTORISÉE
+% =============================================================================
+% SECTION 5: GÉNÉRATION DE COUPS STRUCTURÉE
+% =============================================================================
 
 %! generate_structured_moves_v2(+GameState, +Player, -Moves) is det
 % GÉNÉRATEUR DE COUPS PRINCIPAL - Architecture en 3 phases
@@ -527,8 +459,14 @@ generate_structured_moves_v2(GameState, Player, Moves) :-
     % Phase 3: Limitation selon phase de jeu (ouverture/milieu/finale)
     apply_adaptive_limit(MoveCount, OrderedMoves, Moves).
 
-%! generate_all_move_types(+Board, +Player, +MoveCount, -AllMoves) is det
-% Génère tous les types de coups en ordre logique
+% =============================================================================
+% SECTION 6: HELPERS PRIVÉS SPÉCIALISÉS
+% =============================================================================
+
+% Ces fonctions sont spécifiques à l'IA et ne devraient pas être utilisées
+% ailleurs. Elles restent dans ce module pour maintenir l'encapsulation.
+
+% generate_all_move_types(+Board, +Player, +MoveCount, -AllMoves)
 generate_all_move_types(Board, Player, MoveCount, AllMoves) :-
     generate_captures(Board, Player, Captures),
     generate_developments(Board, Player, MoveCount, Developments),
@@ -536,8 +474,27 @@ generate_all_move_types(Board, Player, MoveCount, AllMoves) :-
     generate_piece_moves(Board, Player, MoveCount, OtherMoves),
     utils:combine_lists([Captures, Developments, PawnMoves, OtherMoves], AllMoves).
 
-%! generate_captures(+Board, +Player, -Captures) is det
-% Génère tous les coups de capture (remplace lignes 393-405)
+% order_moves_by_priority(+GameState, +Player, +Moves, -OrderedMoves)
+order_moves_by_priority(GameState, Player, Moves, OrderedMoves) :-
+    GameState = game_state(_, _, MoveCount, _, _),
+    % Séparer les captures des autres coups pour tri différentiel
+    separate_captures_and_quiet(GameState, Moves, Captures, QuietMoves),
+    % Trier les captures par MVV-LVA
+    order_moves(GameState, Player, Captures, OrderedCaptures),
+    % Limiter les captures selon la phase de jeu
+    apply_capture_limit(MoveCount, OrderedCaptures, LimitedCaptures),
+    % Limiter les coups calmes
+    apply_development_limits(QuietMoves, LimitedQuiet),
+    % Combiner dans l'ordre optimal
+    append(LimitedCaptures, LimitedQuiet, OrderedMoves).
+
+% apply_adaptive_limit(+MoveCount, +Moves, -LimitedMoves)
+apply_adaptive_limit(_MoveCount, Moves, LimitedMoves) :-
+    ai_opening_moves(Limit),
+    utils:take_first_n(Moves, Limit, LimitedMoves).
+
+% generate_captures(+Board, +Player, -Captures)
+% Génère tous les coups de capture
 generate_captures(Board, Player, Captures) :-
     findall([FromRow, FromCol, ToRow, ToCol], (
         between(1, 8, FromRow),
@@ -553,8 +510,8 @@ generate_captures(Board, Player, Captures) :-
         \+ is_empty_square(TargetPiece)
     ), Captures).
 
-%! generate_developments(+Board, +Player, +MoveCount, -Developments) is det
-% Génère les coups de développement en ouverture (remplace lignes 408-426)
+% generate_developments(+Board, +Player, +MoveCount, -Developments)
+% Génère les coups de développement en ouverture
 generate_developments(Board, Player, MoveCount, Developments) :-
     get_phase_config(development_phase, DevPhase),
     (   MoveCount =< DevPhase ->  % Phase d'ouverture seulement
@@ -578,15 +535,15 @@ generate_developments(Board, Player, MoveCount, Developments) :-
     ;   Developments = []  % Pas de développement après ouverture
     ).
 
-%! generate_pawn_advances(+Board, +Player, -PawnMoves) is det
-% Génère les coups de pions (centraux + support) (remplace lignes 432-467)
+% generate_pawn_advances(+Board, +Player, -PawnMoves)
+% Génère les coups de pions (centraux + support)
 generate_pawn_advances(Board, Player, PawnMoves) :-
     generate_central_pawn_moves(Board, Player, CentralMoves),
     generate_support_pawn_moves(Board, Player, SupportMoves),
     append(CentralMoves, SupportMoves, PawnMoves).
 
-%! generate_piece_moves(+Board, +Player, +MoveCount, -OtherMoves) is det
-% Génère les autres coups de pièces (remplace lignes 470-487)
+% generate_piece_moves(+Board, +Player, +MoveCount, -OtherMoves)
+% Génère les autres coups de pièces
 generate_piece_moves(Board, Player, MoveCount, OtherMoves) :-
     findall([FromRow, FromCol, ToRow, ToCol], (
         between(1, 8, FromRow),
@@ -607,17 +564,13 @@ generate_piece_moves(Board, Player, MoveCount, OtherMoves) :-
         is_empty_square(TargetPiece)
     ), OtherMoves).
 
-% =============================================================================
-% HELPERS POUR GÉNÉRATION DE COUPS
-% =============================================================================
-
-%! is_good_development_square(+Row, +Col) is semidet
+% is_good_development_square(+Row, +Col)
 % Détermine si une case est bonne pour le développement
 is_good_development_square(Row, Col) :-
     Row >= 3, Row =< 6,  % Cases centrales
     Col >= 3, Col =< 6.
 
-%! generate_central_pawn_moves(+Board, +Player, -CentralMoves) is det
+% generate_central_pawn_moves(+Board, +Player, -CentralMoves)
 % Génère les coups de pions centraux (d4, e4, d5, e5)
 generate_central_pawn_moves(Board, Player, CentralMoves) :-
     findall([FromRow, FromCol, ToRow, ToCol], (
@@ -637,7 +590,7 @@ generate_central_pawn_moves(Board, Player, CentralMoves) :-
         member(ToRow, [4,5])   % Rangs 4 et 5
     ), CentralMoves).
 
-%! generate_support_pawn_moves(+Board, +Player, -SupportMoves) is det
+% generate_support_pawn_moves(+Board, +Player, -SupportMoves)
 % Génère les coups de pions de support (c6, d6, e6, f6)
 generate_support_pawn_moves(Board, Player, SupportMoves) :-
     findall([FromRow, FromCol, ToRow, ToCol], (
@@ -659,44 +612,19 @@ generate_support_pawn_moves(Board, Player, SupportMoves) :-
         abs(ToRow - FromRow) =< 2  % 1 ou 2 cases maximum
     ), SupportMoves).
 
-%! order_moves_by_priority(+GameState, +Player, +Moves, -OrderedMoves) is det
-% Applique le tri MVV-LVA et autres priorités (remplace lignes 489-503)
-order_moves_by_priority(GameState, Player, Moves, OrderedMoves) :-
-    GameState = game_state(_, _, MoveCount, _, _),
-    % Séparer les captures des autres coups pour tri différentiel
-    separate_captures_and_quiet(GameState, Moves, Captures, QuietMoves),
-    % Trier les captures par MVV-LVA
-    order_moves(GameState, Player, Captures, OrderedCaptures),
-    % Limiter les captures selon la phase de jeu
-    apply_capture_limit(MoveCount, OrderedCaptures, LimitedCaptures),
-    % Limiter les coups calmes
-    apply_development_limits(QuietMoves, LimitedQuiet),
-    % Combiner dans l'ordre optimal
-    append(LimitedCaptures, LimitedQuiet, OrderedMoves).
-
-%! apply_adaptive_limit(+MoveCount, +Moves, -LimitedMoves) is det
-% Applique les limites adaptatives selon la phase de jeu (remplace ligne 511)
-apply_adaptive_limit(_MoveCount, Moves, LimitedMoves) :-
-    ai_opening_moves(Limit),
-    utils:take_first_n(Moves, Limit, LimitedMoves).
-
-% =============================================================================
-% HELPERS POUR TRI ET LIMITATION
-% =============================================================================
-
-%! separate_captures_and_quiet(+GameState, +Moves, -Captures, -QuietMoves) is det
+% separate_captures_and_quiet(+GameState, +Moves, -Captures, -QuietMoves)
 % Sépare les captures des coups calmes pour traitement différentiel
 separate_captures_and_quiet(GameState, Moves, Captures, QuietMoves) :-
     GameState = game_state(Board, _, _, _, _),
     partition(is_capture_move(Board), Moves, Captures, QuietMoves).
 
-%! is_capture_move(+Board, +Move) is semidet
+% is_capture_move(+Board, +Move)
 % Détermine si un coup est une capture
 is_capture_move(Board, [_, _, ToRow, ToCol]) :-
     get_piece(Board, ToRow, ToCol, TargetPiece),
     \+ is_empty_square(TargetPiece).
 
-%! apply_capture_limit(+MoveCount, +Captures, -LimitedCaptures) is det
+% apply_capture_limit(+MoveCount, +Captures, -LimitedCaptures)
 % Limite le nombre de captures selon la phase de jeu
 apply_capture_limit(MoveCount, Captures, LimitedCaptures) :-
     get_phase_config(opening_threshold, OpenThreshold),
@@ -710,91 +638,129 @@ apply_capture_limit(MoveCount, Captures, LimitedCaptures) :-
     ),
     utils:take_first_n(Captures, CaptureLimit, LimitedCaptures).
 
-%! apply_development_limits(+QuietMoves, -LimitedQuiet) is det
+% apply_development_limits(+QuietMoves, -LimitedQuiet)
 % Applique les limitations aux coups de développement
 apply_development_limits(QuietMoves, LimitedQuiet) :-
     ai_development_limit(DevLimit),
     utils:take_first_n(QuietMoves, DevLimit, LimitedQuiet).
 
 % =============================================================================
-% ARCHITECTURE UNIFIÉE - GÉNÉRATION DE COUPS
+% SECTION 7: FONCTIONS D'AFFICHAGE ET DEBUG
 % =============================================================================
 
-% generate_unified_moves(+GameState, +Player, -Moves)
-% Architecture unifiée qui résout les recaptures manquées en:
-% 1. Générant TOUS les coups légaux d'un coup
-% 2. Classifiant tactiquement avec priorités cohérentes  
-% 3. Appliquant MVV-LVA immédiatement
-% 4. Éliminant les restrictions hardcodées défaillantes
-generate_unified_moves(GameState, Player, Moves) :-
-    % Utilise la génération refactorisée pour performance optimale
-    generate_structured_moves_v2(GameState, Player, AllMoves),
-    % Limitation pour maintenir performance < 1 sec
-    take_first_n_simple(AllMoves, 5, Moves).
-
-% classify_moves_tactically(+GameState, +Player, +Moves, -ClassifiedMoves)  
-% Classification unifiée par priorité tactique - résout les recaptures manquées
-classify_moves_tactically(_, _, [], []).
-classify_moves_tactically(GameState, Player, [Move|RestMoves], [Priority-Move|RestClassified]) :-
-    classify_single_move(GameState, Player, Move, Priority),
-    classify_moves_tactically(GameState, Player, RestMoves, RestClassified).
-
-% classify_single_move(+GameState, +Player, +Move, -Priority)
-% Classification par priorité: plus haut = plus prioritaire
-classify_single_move(GameState, Player, [FromRow, FromCol, ToRow, ToCol], Priority) :-
-    GameState = game_state(Board, _, _, _, _),
-    get_piece(Board, ToRow, ToCol, TargetPiece),
-    get_piece(Board, FromRow, FromCol, AttackingPiece),
+% calculate_evaluation_components(+GameState, -Components)
+% Calcul pur des composantes d'évaluation sans affichage
+% Sépare la logique de calcul de l'affichage pour améliorer la testabilité
+calculate_evaluation_components(GameState, Components) :-
+    % Calculs matériels
+    count_material_pure_ref(GameState, white, WhiteMaterial),
+    count_material_pure_ref(GameState, black, BlackMaterial),
     
-    (   % 1. PROMOTION (priorité absolue)
-        is_promotion_move(Player, FromRow, ToRow) -> 
-        get_ai_config(promotion_priority, Priority)
-    ;   % 2. CAPTURES avec vrai MVV-LVA score
-        \+ is_empty_square(TargetPiece) ->
-        piece_value(TargetPiece, TargetVal),
-        piece_value(AttackingPiece, AttackerVal),
-        AbsTargetVal is abs(TargetVal),
-        AbsAttackerVal is abs(AttackerVal),
-        % Utiliser score MVV-LVA: grande victime - petit attaquant = meilleur
-        get_ai_config(capture_base, CaptureBase),
-        Priority is CaptureBase + AbsTargetVal - AbsAttackerVal
-    ;   % 3. DÉVELOPPEMENT INTELLIGENT
-        member(AttackingPiece, ['N','n','B','b']) -> 
-        get_ai_config(dev_priority_minor, Priority)
-    ;   member(AttackingPiece, ['P','p']) -> 
-        get_ai_config(dev_priority_pawn, Priority)
-    ;   % 4. DAME/TOUR/ROI
-        get_ai_config(dev_priority_major, Priority)
+    % Calculs PSQT
+    evaluate_psqt_total(GameState, white, WhitePSQT),
+    evaluate_psqt_total(GameState, black, BlackPSQT),
+    
+    % Calculs sécurité
+    evaluate_piece_safety(GameState, white, WhiteSafety),
+    evaluate_piece_safety(GameState, black, BlackSafety),
+    
+    % Différentiels
+    MaterialDiff is WhiteMaterial - BlackMaterial,
+    PSQTDiff is WhitePSQT - BlackPSQT,
+    SafetyDiff is WhiteSafety - BlackSafety,
+    TotalDiff is MaterialDiff + PSQTDiff + SafetyDiff,
+    
+    % Structure de retour avec toutes les valeurs
+    Components = eval_components(WhiteMaterial, BlackMaterial, MaterialDiff,
+                                WhitePSQT, BlackPSQT, PSQTDiff,
+                                WhiteSafety, BlackSafety, SafetyDiff,
+                                TotalDiff).
+
+% format_evaluation_display(+Components, +Player)
+% Affichage formaté des composantes d'évaluation
+% Version modulaire de l'affichage pour améliorer la maintenabilité
+format_evaluation_display(eval_components(WhiteMat, BlackMat, MatDiff,
+                                         WhitePSQT, BlackPSQT, PSQTDiff,
+                                         WhiteSafety, BlackSafety, SafetyDiff,
+                                         Total), Player) :-
+    % Calcul du score final selon le joueur
+    (   Player = white ->
+        FinalScore = Total
+    ;   FinalScore is -Total
+    ),
+    
+    % Affichage détaillé identique à l'original
+    write('=== ÉVALUATION POSITION ==='), nl,
+    format('Matériel    : Blancs ~w vs Noirs ~w (diff: ~w)~n', 
+           [WhiteMat, BlackMat, MatDiff]),
+    format('PSQT        : Blancs ~w vs Noirs ~w (diff: ~w)~n', 
+           [WhitePSQT, BlackPSQT, PSQTDiff]),
+    format('Sécurité    : Blancs ~w vs Noirs ~w (diff: ~w)~n', 
+           [WhiteSafety, BlackSafety, SafetyDiff]),
+    write('------------------------'), nl,
+    format('SCORE TOTAL (~w): ~w~n', [Player, FinalScore]),
+    display_position_assessment(Player, FinalScore),
+    write('========================'), nl.
+
+% display_position_assessment(+Player, +Score)
+% Affiche l'évaluation qualitative de la position
+% Helper modulaire pour message qualitatif selon le score
+display_position_assessment(Player, FinalScore) :-
+    (   FinalScore > 0 ->
+        format('Position favorable à ~w (~w)~n', [Player, FinalScore])
+    ;   FinalScore < 0 ->
+        format('Position défavorable à ~w (~w)~n', [Player, FinalScore])
+    ;   write('Position équilibrée (0)'), nl
     ).
 
-% adaptive_move_limit(+MoveCount, -Limit)
-% Limitations adaptatives intelligentes (remplace les restrictions hardcodées)
-adaptive_move_limit(MoveCount, Limit) :-
-    get_phase_config(opening_threshold, OpenThreshold),
-    get_phase_config(midgame_threshold, MidThreshold),
-    get_phase_config(opening_move_limit, OpenLimit),
-    get_phase_config(midgame_move_limit, MidLimit),
-    get_phase_config(endgame_move_limit, EndLimit),
-    (   MoveCount =< OpenThreshold -> Limit = OpenLimit      % Ouverture: plus de choix tactiques
-    ;   MoveCount =< MidThreshold -> Limit = MidLimit      % Milieu: équilibré
-    ;   Limit = EndLimit                         % Fin: plus focalisé
+% =============================================================================
+% SECTION 8: VERSION AVEC STATISTIQUES (DEBUG/TESTS)
+% =============================================================================
+
+% negamax_ab_with_stats(+GameState, +Player, +Depth, +Alpha, +Beta, -BestMove, -BestValue, +NodesIn, -NodesOut)
+% VERSION TEST - Même algorithme mais avec comptage des nœuds explorés pour validation élagage
+negamax_ab_with_stats(GameState, Player, 0, _Alpha, _Beta, [], Value, NodesIn, NodesOut) :-
+    NodesOut is NodesIn + 1,
+    evaluate_pure_reference(GameState, Player, Value), !.
+
+negamax_ab_with_stats(GameState, Player, Depth, Alpha, Beta, BestMove, BestValue, NodesIn, NodesOut) :-
+    Depth > 0,
+    NodesCount1 is NodesIn + 1,  % Compter ce nœud
+    generate_structured_moves_v2(GameState, Player, Moves),
+    (   Moves = [] ->
+        terminal_score(GameState, Player, BestValue),
+        BestMove = [],
+        NodesOut = NodesCount1
+    ;   order_moves(GameState, Player, Moves, OrderedMoves),
+        ab_search_with_stats(OrderedMoves, GameState, Player, Depth, Alpha, Beta, none, -1.0Inf, BestMove, BestValue, NodesCount1, NodesOut)
     ).
 
-% NOTE: keysort_desc/2 et pairs_values/2 déjà définies plus haut dans le fichier
+% ab_search_with_stats(+Moves, +GameState, +Player, +Depth, +Alpha, +Beta, +BestMoveAcc, +BestValueAcc, -BestMove, -BestValue, +NodesIn, -NodesOut)  
+% VERSION TEST - ab_search avec comptage nœuds et traces de coupures alpha-beta
+ab_search_with_stats([], _, _, _, _, _, BestMoveAcc, BestValueAcc, BestMoveAcc, BestValueAcc, NodesIn, NodesIn) :- !.
 
-
-take_first_n_simple(List, N, FirstN) :-
-    length(List, Len),
-    (   Len =< N -> FirstN = List
-    ;   length(FirstN, N), append(FirstN, _, List)
+ab_search_with_stats([[FromRow,FromCol,ToRow,ToCol]|RestMoves], GameState, Player, Depth, Alpha, Beta, BestMoveAcc, BestValueAcc, BestMove, BestValue, NodesIn, NodesOut) :-
+    make_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState),
+    NewGameState = game_state(_, NextPlayer, _, _, _),
+    NewDepth is Depth - 1,
+    negamax_ab_with_stats(NewGameState, NextPlayer, NewDepth, -Beta, -Alpha, _, OpponentValue, NodesIn, NodesCount1),
+    Value is -OpponentValue,
+    
+    (   Value > BestValueAcc ->
+        NewAlpha2 is max(Alpha, Value),
+        NewBestMove = [FromRow,FromCol,ToRow,ToCol],
+        NewBestValue = Value
+    ;   NewAlpha2 = Alpha,
+        NewBestMove = BestMoveAcc,
+        NewBestValue = BestValueAcc
+    ),
+    
+    % ÉLAGAGE ALPHA-BETA
+    (   NewAlpha2 >= Beta ->
+        BestMove = NewBestMove, BestValue = NewBestValue, NodesOut = NodesCount1  % Coupure beta - pas de récursion
+    ;   ab_search_with_stats(RestMoves, GameState, Player, Depth, NewAlpha2, Beta, NewBestMove, NewBestValue, BestMove, BestValue, NodesCount1, NodesOut)
     ).
 
-% remove_duplicates_simple(+List, -UniqueList)
-% Supprime les doublons d'une liste
-remove_duplicates_simple([], []).
-remove_duplicates_simple([H|T], [H|UniqueT]) :-
-    \+ member(H, T),
-    remove_duplicates_simple(T, UniqueT).
-remove_duplicates_simple([H|T], UniqueT) :-
-    member(H, T),
-    remove_duplicates_simple(T, UniqueT).
+% =============================================================================
+% FIN DU MODULE AI.PL RESTRUCTURÉ
+% =============================================================================
