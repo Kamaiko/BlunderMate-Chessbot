@@ -59,6 +59,8 @@ swipl go.pl
 
 *Performance validée : 1.718 secondes pour analyse complète (profondeur 2)*
 
+**Suite de tests complète :** 42 tests automatisés répartis sur 7 sections (fondations, règles, IA, évaluation, tactique, robustesse, intégration)
+
 | Composante | Description | Performance |
 |------------|-------------|-------------|
 | **Algorithme** | Négamax¹ + élagage Alpha-Beta² | Profondeur 2 |
