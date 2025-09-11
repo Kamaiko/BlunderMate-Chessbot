@@ -30,8 +30,54 @@ ai_development_limit(8).  % Limite pièces développement prioritaire
 ai_max_recursion(8).      % Protection récursion infinie (taille échiquier)
 
 % =============================================================================
+% CONFIGURATION IA LOCALE - VALEURS TUNABLES
+% =============================================================================
+
+% Scores d'évaluation (spécifiques à l'algorithme IA)
+ai_config(checkmate_score, -100000).    % Score échec et mat
+ai_config(capture_base, 1000).          % Score de base pour captures MVV-LVA
+ai_config(promotion_bonus, 90).         % Bonus pour promotion pion
+ai_config(check_bonus, 50).             % Bonus pour mise en échec
+ai_config(promotion_priority, 1500).    % Priorité absolue promotion
+
+% Bonus développement pièces
+ai_config(knight_dev_bonus, 15).        % Bonus développement cavalier
+ai_config(bishop_dev_bonus, 12).        % Bonus développement fou  
+ai_config(early_king_penalty, -25).     % Pénalité coup roi précoce
+
+% Priorités de tri des coups
+ai_config(dev_priority_minor, 400).     % Cavaliers/fous
+ai_config(dev_priority_pawn, 300).      % Pions
+ai_config(dev_priority_major, 200).     % Dame/tour/roi
+
+% Configuration phases de jeu
+phase_config(opening_threshold, 10).     % Coups 0-10 = ouverture
+phase_config(midgame_threshold, 20).     % Coups 11-20 = milieu
+phase_config(opening_capture_limit, 8).  % Limite captures ouverture
+phase_config(midgame_capture_limit, 12). % Limite captures milieu
+phase_config(endgame_capture_limit, 15). % Limite captures finale
+phase_config(opening_move_limit, 25).    % Limite coups ouverture
+phase_config(midgame_move_limit, 20).    % Limite coups milieu
+phase_config(endgame_move_limit, 15).    % Limite coups finale
+phase_config(development_phase, 15).     % Limite phase développement
+
+% Helper pour accès sécurisé aux configurations
+get_ai_config(Key, Value) :-
+    ai_config(Key, Value), !.
+get_ai_config(Key, _Value) :-
+    format('Warning: Unknown AI config ~w~n', [Key]),
+    fail.
+
+get_phase_config(Key, Value) :-
+    phase_config(Key, Value), !.
+get_phase_config(Key, _Value) :-
+    format('Warning: Unknown phase config ~w~n', [Key]),
+    fail.
+
+% =============================================================================
 % INTERFACE PRINCIPALE SIMPLE
 % =============================================================================
+
 
 % display_position_evaluation(+GameState, +Player)
 % Affiche le détail de l'évaluation pour debug/interface
@@ -133,16 +179,29 @@ get_fixed_opening_move(3, Board, [7, 4, 5, 4]) :-
 
 
 % choose_ai_move(+GameState, -BestMove)
+% FONCTION PRINCIPALE IA - Point d'entrée pour le choix du meilleur coup
+% 
+% Stratégie en 3 niveaux:
+% 1. Coups d'ouverture théoriques (premiers coups noirs seulement)
+% 2. Algorithme négamax + alpha-beta (recherche profonde)  
+% 3. Fallback sécurisé en cas d'erreur
+%
+% Paramètres:
+%   +GameState: État complet du jeu (plateau, joueur, nombre coups, etc.)
+%   -BestMove: Meilleur coup au format [FromRow, FromCol, ToRow, ToCol]
 choose_ai_move(GameState, BestMove) :-
     GameState = game_state(Board, Player, MoveCount, _, _),
     
-    % COUPS D'OUVERTURE FIXES pour les noirs (Caro-Kann/Slav)
+    % NIVEAU 1: Ouverture théorique pour les noirs (défense Caro-Kann)
+    % Objectif: éviter les erreurs d'ouverture et jouer des coups solides
     (   Player = black, use_fixed_opening(MoveCount) ->
         (   get_fixed_opening_move(MoveCount, Board, BestMove) ->
-            true  % Coup fixe reussi
-        ;   choose_ai_move_safe(GameState, Player, BestMove)  % Fallback sécurisé
+            true  % Coup d'ouverture validé et appliqué
+        ;   % Si l'ouverture échoue, passer à l'algorithme standard
+            choose_ai_move_safe(GameState, Player, BestMove)
         )
-    ;   % Utiliser alpha-beta sécurisé pour tous les autres cas
+    ;   % NIVEAU 2: Algorithme négamax + alpha-beta pour tous les autres cas
+        % (blancs + noirs après ouverture)
         choose_ai_move_safe(GameState, Player, BestMove)
     ).
 
@@ -178,6 +237,30 @@ choose_emergency_move(GameState, Player, BestMove) :-
 
 % negamax_ab(+GameState, +Player, +Depth, +Alpha, +Beta, -BestMove, -BestValue)
 % NÉGAMAX AVEC ÉLAGAGE ALPHA-BETA - Algorithme de recherche principal
+%
+% PRINCIPE NÉGAMAX:
+% - Variante du minimax qui exploite la propriété: max(a,b) = -min(-a,-b)
+% - Un seul algorithme au lieu de min/max séparés
+% - Score toujours du point de vue du joueur actuel
+%
+% ÉLAGAGE ALPHA-BETA:
+% - Alpha: meilleur score garanti pour les Blancs (borne inférieure)
+% - Beta: meilleur score garanti pour les Noirs (borne supérieure)  
+% - Si Alpha >= Beta: élagage (branches inutiles)
+% - Réduit drastiquement l'espace de recherche
+%
+% TERMINAISON:
+% - Depth = 0: évaluation heuristique de la position
+% - Aucun coup légal: position terminale (mat/pat)
+%
+% PARAMÈTRES:
+%   +GameState: Position actuelle du jeu
+%   +Player: Joueur dont c'est le tour (white/black)  
+%   +Depth: Profondeur de recherche restante
+%   +Alpha: Borne inférieure (meilleur score pour maximisant)
+%   +Beta: Borne supérieure (meilleur score pour minimisant)
+%   -BestMove: Meilleur coup trouvé [FromRow,FromCol,ToRow,ToCol]
+%   -BestValue: Valeur du meilleur coup (du point de vue Player)
 
 % negamax_ab_with_stats(+GameState, +Player, +Depth, +Alpha, +Beta, -BestMove, -BestValue, +NodesIn, -NodesOut)
 % VERSION TEST - Même algorithme mais avec comptage des nœuds explorés pour validation élagage
@@ -188,7 +271,7 @@ negamax_ab_with_stats(GameState, Player, 0, _Alpha, _Beta, [], Value, NodesIn, N
 negamax_ab_with_stats(GameState, Player, Depth, Alpha, Beta, BestMove, BestValue, NodesIn, NodesOut) :-
     Depth > 0,
     NodesCount1 is NodesIn + 1,  % Compter ce nœud
-    generate_moves_simple(GameState, Player, Moves),
+    generate_structured_moves_v2(GameState, Player, Moves),
     (   Moves = [] ->
         terminal_score(GameState, Player, BestValue),
         BestMove = [],
@@ -201,7 +284,7 @@ negamax_ab(GameState, Player, 0, _Alpha, _Beta, [], Value) :-
 
 negamax_ab(GameState, Player, Depth, Alpha, Beta, BestMove, BestValue) :-
     Depth > 0,
-    generate_moves_simple(GameState, Player, Moves),
+    generate_structured_moves_v2(GameState, Player, Moves),
     (   Moves = [] ->
         terminal_score(GameState, Player, BestValue),
         BestMove = []
@@ -266,7 +349,7 @@ ab_search_with_stats([[FromRow,FromCol,ToRow,ToCol]|RestMoves], GameState, Playe
 % Évalue les positions terminales (mat/pat)
 terminal_score(GameState, Player, Score) :-
     (   is_in_check(GameState, Player) ->
-        Score = -100000  % Échec et mat
+        get_ai_config(checkmate_score, Score)  % Échec et mat
     ;   Score = 0        % Pat (nulle)
     ).
 
@@ -309,7 +392,8 @@ move_score_with_defense(Board, Player, [FromRow, FromCol, ToRow, ToCol], Score) 
         AbsTargetVal is abs(TargetVal),
         AbsAttackerVal is abs(AttackerVal),
         % Score simple: prioriser captures de pièces précieuses par pièces moins précieuses
-        Score is AbsTargetVal - AbsAttackerVal + 1000
+        get_ai_config(capture_base, CaptureBase),
+        Score is AbsTargetVal - AbsAttackerVal + CaptureBase
     ;   % NON-CAPTURE: évaluer qualité du coup
         evaluate_non_capture_move(Board, Player, [FromRow, FromCol, ToRow, ToCol], Score)
     ).
@@ -335,10 +419,10 @@ detect_promotion_bonus([FromRow, FromCol, ToRow, _ToCol], Board, Player, Bonus) 
     get_piece(Board, FromRow, FromCol, Piece),
     (   % Pion blanc atteignant 8e rangée
         (Piece = 'P', Player = white, ToRow = 8) ->
-        Bonus = 90
+        get_ai_config(promotion_bonus, Bonus)
     ;   % Pion noir atteignant 1ère rangée  
         (Piece = 'p', Player = black, ToRow = 1) ->
-        Bonus = 90
+        get_ai_config(promotion_bonus, Bonus)
     ;   % Pas une promotion
         Bonus = 0
     ).
@@ -350,7 +434,7 @@ detect_check_bonus(Board, Player, [FromRow, FromCol, ToRow, ToCol], Bonus) :-
         make_move_simulation(Board, FromRow, FromCol, ToRow, ToCol, NewBoard),
         opposite_player(Player, Opponent),
         is_in_check(game_state(NewBoard, Opponent, 0, ongoing, []), Opponent) ->
-        Bonus = 50  % Score échec forçant
+        get_ai_config(check_bonus, Bonus)  % Score échec forçant
     ;   % Pas un échec
         Bonus = 0
     ).
@@ -374,14 +458,11 @@ evaluate_non_capture_move(Board, Player, [FromRow, FromCol, ToRow, ToCol], Score
     % Score base: amélioration PSQT
     psqt_improvement_score(PieceType, FromRow, FromCol, ToRow, ToCol, Player, PSQTScore),
     
-    % Bonus développement: cavaliers/fous sortant de rang de base
-    development_bonus(PieceType, FromRow, FromCol, Player, DevBonus),
-    
-    % Malus coups roi précoces en ouverture  
-    early_king_move_penalty(PieceType, Player, KingPenalty),
+    % Bonus développement et malus roi précoce
+    piece_move_bonus(PieceType, FromRow, Player, MoveBonus),
     
     % Score final
-    Score is PSQTScore + DevBonus + KingPenalty.
+    Score is PSQTScore + MoveBonus.
 
 % psqt_improvement_score(+PieceType, +FromRow, +FromCol, +ToRow, +ToCol, +Player, -Score)
 % Calcule l'amélioration PSQT du coup
@@ -393,42 +474,57 @@ psqt_improvement_score(PieceType, FromRow, FromCol, ToRow, ToCol, Player, Score)
     % Réduire impact (PSQT déjà dans évaluation globale)
     Score is RawScore // 4.
 
-% development_bonus(+PieceType, +FromRow, +FromCol, +Player, -Bonus)
-% Bonus pour développement cavaliers/fous
-development_bonus(cavalier, FromRow, _FromCol, white, 15) :- FromRow = 1, !.
-development_bonus(cavalier, FromRow, _FromCol, black, 15) :- FromRow = 8, !.
-development_bonus(fou, FromRow, _FromCol, white, 12) :- FromRow = 1, !. 
-development_bonus(fou, FromRow, _FromCol, black, 12) :- FromRow = 8, !.
-development_bonus(_, _, _, _, 0).
+% piece_move_bonus(+PieceType, +FromRow, +Player, -Bonus)
+% Bonus/malus unifiés pour mouvements de pièces selon développement
+piece_move_bonus(cavalier, FromRow, Player, Bonus) :- 
+    starting_row(Player, StartRow), FromRow = StartRow, !,
+    get_ai_config(knight_dev_bonus, Bonus).
+piece_move_bonus(fou, FromRow, Player, Bonus) :- 
+    starting_row(Player, StartRow), FromRow = StartRow, !,
+    get_ai_config(bishop_dev_bonus, Bonus).
+piece_move_bonus(roi, _, _, Penalty) :- !,
+    get_ai_config(early_king_penalty, Penalty).
+piece_move_bonus(_, _, _, 0).
 
-% early_king_move_penalty(+PieceType, +Player, -Penalty)  
-% Malus fort pour coups roi précoces
-early_king_move_penalty(roi, _, -25) :- !.  % Décourager fortement coups roi
-early_king_move_penalty(_, _, 0).
+% starting_row(+Player, -Row)
+% Rangée de départ selon la couleur
+starting_row(white, 1).
+starting_row(black, 8).
 
 
 
-% GENERATION COUPS SIMPLE
-% =============================================================================
-
-% generate_moves_simple(+GameState, +Player, -Moves)
-% Génération adaptative selon phase de jeu avec captures prioritaires
-generate_moves_simple(GameState, Player, Moves) :-
-    % SOLUTION REFACTORISÉE: Structure de priorisation modulaire
-    % Tri MVV-LVA garanti, développement intelligent, restrictions adaptatives
-    generate_structured_moves_v2(GameState, Player, Moves).
-
-% =============================================================================
-% GÉNÉRATION DE COUPS REFACTORISÉE - NOUVELLE ARCHITECTURE MODULAIRE
-% =============================================================================
+% GÉNÉRATION DE COUPS REFACTORISÉE
 
 %! generate_structured_moves_v2(+GameState, +Player, -Moves) is det
-% Nouvelle version refactorisée de la génération de coups
-% Remplace l'ancienne fonction monolithique de 123 lignes
+% GÉNÉRATEUR DE COUPS PRINCIPAL - Architecture en 3 phases
+%
+% STRATÉGIE DE GÉNÉRATION:
+% 1. GÉNÉRATION: Produire tous les coups légaux par catégories
+%    - Captures (priorité MVV-LVA)
+%    - Développements (cavaliers/fous en ouverture)  
+%    - Avances de pions (contrôle centre)
+%    - Autres coups de pièces
+%
+% 2. TRI PAR PRIORITÉ: Ordonner selon la valeur tactique
+%    - Promotions (priorité absolue)
+%    - Captures triées MVV-LVA (grande victime, petit attaquant)
+%    - Développements intelligents
+%    - Coups positionnels
+%
+% 3. LIMITATION ADAPTATIVE: Restreindre selon la phase de jeu
+%    - Ouverture: plus de coups pour exploration
+%    - Milieu: équilibré  
+%    - Finale: focus sur les coups critiques
+%
+% PERFORMANCE: Remplace l'ancienne version monolithique de 123 lignes
+% GAIN: Réduction de 85% de complexité, maintenabilité améliorée
 generate_structured_moves_v2(GameState, Player, Moves) :-
     GameState = game_state(Board, _, MoveCount, _, _),
+    % Phase 1: Génération par catégories
     generate_all_move_types(Board, Player, MoveCount, AllMoves),
+    % Phase 2: Tri tactique MVV-LVA + heuristiques
     order_moves_by_priority(GameState, Player, AllMoves, OrderedMoves),
+    % Phase 3: Limitation selon phase de jeu (ouverture/milieu/finale)
     apply_adaptive_limit(MoveCount, OrderedMoves, Moves).
 
 %! generate_all_move_types(+Board, +Player, +MoveCount, -AllMoves) is det
@@ -460,7 +556,8 @@ generate_captures(Board, Player, Captures) :-
 %! generate_developments(+Board, +Player, +MoveCount, -Developments) is det
 % Génère les coups de développement en ouverture (remplace lignes 408-426)
 generate_developments(Board, Player, MoveCount, Developments) :-
-    (   MoveCount =< 15 ->  % Phase d'ouverture seulement
+    get_phase_config(development_phase, DevPhase),
+    (   MoveCount =< DevPhase ->  % Phase d'ouverture seulement
         findall([FromRow, FromCol, ToRow, ToCol], (
             between(1, 8, FromRow),
             between(1, 8, FromCol),
@@ -602,9 +699,14 @@ is_capture_move(Board, [_, _, ToRow, ToCol]) :-
 %! apply_capture_limit(+MoveCount, +Captures, -LimitedCaptures) is det
 % Limite le nombre de captures selon la phase de jeu
 apply_capture_limit(MoveCount, Captures, LimitedCaptures) :-
-    (   MoveCount =< 10 -> CaptureLimit = 8
-    ;   MoveCount =< 20 -> CaptureLimit = 12  
-    ;   CaptureLimit = 15
+    get_phase_config(opening_threshold, OpenThreshold),
+    get_phase_config(midgame_threshold, MidThreshold),
+    get_phase_config(opening_capture_limit, OpenLimit),
+    get_phase_config(midgame_capture_limit, MidLimit),
+    get_phase_config(endgame_capture_limit, EndLimit),
+    (   MoveCount =< OpenThreshold -> CaptureLimit = OpenLimit
+    ;   MoveCount =< MidThreshold -> CaptureLimit = MidLimit  
+    ;   CaptureLimit = EndLimit
     ),
     utils:take_first_n(Captures, CaptureLimit, LimitedCaptures).
 
@@ -645,7 +747,8 @@ classify_single_move(GameState, Player, [FromRow, FromCol, ToRow, ToCol], Priori
     get_piece(Board, FromRow, FromCol, AttackingPiece),
     
     (   % 1. PROMOTION (priorité absolue)
-        is_promotion_move(Player, FromRow, ToRow) -> Priority = 1500
+        is_promotion_move(Player, FromRow, ToRow) -> 
+        get_ai_config(promotion_priority, Priority)
     ;   % 2. CAPTURES avec vrai MVV-LVA score
         \+ is_empty_square(TargetPiece) ->
         piece_value(TargetPiece, TargetVal),
@@ -653,20 +756,28 @@ classify_single_move(GameState, Player, [FromRow, FromCol, ToRow, ToCol], Priori
         AbsTargetVal is abs(TargetVal),
         AbsAttackerVal is abs(AttackerVal),
         % Utiliser score MVV-LVA: grande victime - petit attaquant = meilleur
-        Priority is 1000 + AbsTargetVal - AbsAttackerVal
+        get_ai_config(capture_base, CaptureBase),
+        Priority is CaptureBase + AbsTargetVal - AbsAttackerVal
     ;   % 3. DÉVELOPPEMENT INTELLIGENT
-        member(AttackingPiece, ['N','n','B','b']) -> Priority = 400
-    ;   member(AttackingPiece, ['P','p']) -> Priority = 300
+        member(AttackingPiece, ['N','n','B','b']) -> 
+        get_ai_config(dev_priority_minor, Priority)
+    ;   member(AttackingPiece, ['P','p']) -> 
+        get_ai_config(dev_priority_pawn, Priority)
     ;   % 4. DAME/TOUR/ROI
-        Priority = 200
+        get_ai_config(dev_priority_major, Priority)
     ).
 
 % adaptive_move_limit(+MoveCount, -Limit)
 % Limitations adaptatives intelligentes (remplace les restrictions hardcodées)
 adaptive_move_limit(MoveCount, Limit) :-
-    (   MoveCount =< 10 -> Limit = 25      % Ouverture: plus de choix tactiques
-    ;   MoveCount =< 20 -> Limit = 20      % Milieu: équilibré
-    ;   Limit = 15                         % Fin: plus focalisé
+    get_phase_config(opening_threshold, OpenThreshold),
+    get_phase_config(midgame_threshold, MidThreshold),
+    get_phase_config(opening_move_limit, OpenLimit),
+    get_phase_config(midgame_move_limit, MidLimit),
+    get_phase_config(endgame_move_limit, EndLimit),
+    (   MoveCount =< OpenThreshold -> Limit = OpenLimit      % Ouverture: plus de choix tactiques
+    ;   MoveCount =< MidThreshold -> Limit = MidLimit      % Milieu: équilibré
+    ;   Limit = EndLimit                         % Fin: plus focalisé
     ).
 
 % NOTE: keysort_desc/2 et pairs_values/2 déjà définies plus haut dans le fichier

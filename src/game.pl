@@ -384,14 +384,8 @@ valid_game_state(game_state(Board, Player, MoveCount, Status, CapturedPieces)) :
 % SECTION 8 : CONSTANTES DE JEU
 % =============================================================================
 
-% chess_constant(+Name, -Value)
-% Definit les constantes importantes du jeu.
-chess_constant(board_size, 8).
-chess_constant(max_moves, 200).  % Limite de securite
-chess_constant(min_row, 1).
-chess_constant(max_row, 8).
-chess_constant(min_col, 1).
-chess_constant(max_col, 8).
+% Constantes moved to utils.pl to avoid conflicts
+% Les constantes sont maintenant centralisées dans utils.pl
 
 % game_mode(+Mode, +Description)
 % Definit les modes de jeu disponibles.

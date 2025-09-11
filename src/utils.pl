@@ -55,6 +55,11 @@ chess_constant(min_position, 1).      % Position minimale sur l'échiquier
 chess_constant(max_position, 8).      % Position maximale sur l'échiquier
 chess_constant(max_recursion, 8).     % Limite sécurité récursion (taille max échiquier)
 chess_constant(default_depth, 2).     % Profondeur par défaut négamax
+chess_constant(max_moves, 200).       % Limite de sécurité nombre de coups
+chess_constant(min_row, 1).           % Rangée minimale échiquier
+chess_constant(max_row, 8).           % Rangée maximale échiquier  
+chess_constant(min_col, 1).           % Colonne minimale échiquier
+chess_constant(max_col, 8).           % Colonne maximale échiquier
 
 % =============================================================================
 % VALIDATION HELPERS

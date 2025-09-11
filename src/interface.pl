@@ -267,49 +267,88 @@ process_choice(_) :-
 % SECTION 6 : MOTEUR DE JEU UNIFIE
 % =============================================================================
 
-% unified_game_loop(+UnifiedGameState)
-% Boucle de jeu principale gerant tous les types de joueurs.
-unified_game_loop(UnifiedGameState) :-
+% display_game_state_if_needed(+UnifiedGameState)
+% Gere l'affichage conditionnel du plateau selon le mode de jeu
+display_game_state_if_needed(UnifiedGameState) :-
     extract_game_state(UnifiedGameState, GameState),
-    GameState = game_state(_, Player, _, Status, _),
-    
-    % Afficher l'etat du jeu en début de tour
+    GameState = game_state(_, Player, MoveCount, _, _),
+    (   should_display_board(UnifiedGameState, Player, MoveCount) ->
+        display_game_state(GameState)
+    ;   true  % Pas d'affichage nécessaire
+    ).
+
+% should_display_board(+UnifiedGameState, +Player, +MoveCount)
+% Logique de décision d'affichage du plateau
+should_display_board(UnifiedGameState, Player, MoveCount) :-
     get_player_type(UnifiedGameState, Player, PlayerType),
     opposite_player(Player, OtherPlayer),
     get_player_type(UnifiedGameState, OtherPlayer, OtherPlayerType),
-    
-    % Mode Humain vs Humain : toujours afficher
-    % Mode IA vs Humain : afficher seulement au tout premier coup (MoveCount = 0)
-    GameState = game_state(_, _, MoveCount, _, _),
     (   (PlayerType = human, OtherPlayerType = human) ->
-        display_game_state(GameState)  % Humain vs Humain
-    ;   (PlayerType = human, MoveCount = 0) ->  
-        display_game_state(GameState)  % Premier coup de la partie seulement
-    ;   true  % Autres cas : pas d'affichage (sera fait après coup IA)
-    ),
-    
-    (   Status = active ->
-        % Verifier si le joueur est en echec
-        (is_in_check(GameState, Player) ->
-            display_message_ln(in_check)
-        ;   true),
-        
-        % Traitement selon le type de joueur
-        get_player_type(UnifiedGameState, Player, PlayerType),
-        handle_player_turn(UnifiedGameState, Player, PlayerType, NewUnifiedGameState),
-        unified_game_loop(NewUnifiedGameState)
-        
-    ;   Status = checkmate ->
-        % Annoncer le gagnant (celui qui a donne mat)
-        opposite_player(Player, Winner),
-        announce_checkmate_winner(Winner)
-    ;   Status = stalemate ->
-        display_message_ln(stalemate_draw),
-        pause_and_return_menu
-    ;   % Autre statut
-        display_message_ln(game_finished),
-        pause_and_return_menu
+        true  % Humain vs Humain : toujours afficher
+    ;   (PlayerType = human, MoveCount = 0) ->
+        true  % Premier coup en mode IA vs Humain
+    ;   fail  % Autres cas
     ).
+
+% check_and_display_warnings(+UnifiedGameState)
+% Vérifie et affiche les avertissements (échec, etc.)
+check_and_display_warnings(UnifiedGameState) :-
+    extract_game_state(UnifiedGameState, GameState),
+    GameState = game_state(_, Player, _, _, _),
+    (   is_in_check(GameState, Player) ->
+        display_message_ln(in_check)
+    ;   true
+    ).
+
+% process_game_turn(+UnifiedGameState)
+% Traitement du tour selon le statut du jeu
+process_game_turn(UnifiedGameState) :-
+    extract_game_state(UnifiedGameState, GameState),
+    GameState = game_state(_, Player, _, Status, _),
+    (   Status = active ->
+        handle_active_game(UnifiedGameState, Player)
+    ;   Status = checkmate ->
+        handle_checkmate(Player)
+    ;   Status = stalemate ->
+        handle_stalemate()
+    ;   handle_other_game_end(Status)
+    ).
+
+% handle_active_game(+UnifiedGameState, +Player)
+% Gère un tour de jeu actif
+handle_active_game(UnifiedGameState, Player) :-
+    get_player_type(UnifiedGameState, Player, PlayerType),
+    handle_player_turn(UnifiedGameState, Player, PlayerType, NewUnifiedGameState),
+    unified_game_loop(NewUnifiedGameState).
+
+% handle_checkmate(+Player)
+% Gère la fin de partie par échec et mat
+handle_checkmate(Player) :-
+    opposite_player(Player, Winner),
+    announce_checkmate_winner(Winner).
+
+% handle_stalemate
+% Gère la fin de partie par pat
+handle_stalemate :-
+    handle_game_end_with_message(stalemate_draw).
+
+% handle_other_game_end(+Status)
+% Gère les autres fins de partie
+handle_other_game_end(_Status) :-
+    handle_game_end_with_message(game_finished).
+
+% handle_game_end_with_message(+Message)
+% Helper pour fins de partie avec message et retour menu
+handle_game_end_with_message(Message) :-
+    display_message_ln(Message),
+    pause_and_return_menu.
+
+% unified_game_loop(+UnifiedGameState)
+% Boucle de jeu principale gerant tous les types de joueurs (version refactorisée)
+unified_game_loop(UnifiedGameState) :-
+    display_game_state_if_needed(UnifiedGameState),
+    check_and_display_warnings(UnifiedGameState),
+    process_game_turn(UnifiedGameState).
 
 % handle_player_turn(+UnifiedGameState, +Player, +PlayerType, -NewUnifiedGameState)
 % Gere le tour d'un joueur selon son type (humain ou IA)
