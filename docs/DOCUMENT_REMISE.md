@@ -219,11 +219,11 @@ Ordre d'évaluation pour maximiser l'efficacité de l'élagage:
 | Profondeur | Nœuds théorie | Nœuds réels | Réduction |
 |------------|---------------|-------------|-----------|
 | Depth 1    | 25            | 25          | 0%        |
-| Depth 2    | 625           | 65          | 90%       |
-| **Depth 2 (défaut)** | **15625** | **195** | **98%** |
-| | | | |
-| **Temps/coup** | **150s** | **1.7s** | **88x plus rapide** |
-| | **(sans opt.)** | **(optimisé)** | |
+| **Depth 2** | **625** | **65** | **90%** |
+
+**Performance temps de réponse :**
+- Sans optimisation : ~150s/coup  
+- Avec alpha-beta + MVV-LVA : **1.7s/coup** (88x plus rapide)
 
 **Caractéristiques algorithmiques :**
 - Limite : 25 coups évalués par position
