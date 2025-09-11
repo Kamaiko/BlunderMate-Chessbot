@@ -99,12 +99,12 @@ Le projet actuel implémente toutes les fonctionnalités requises avec une archi
 | **📚 Opening Book Étendu** | Base de données réponses théoriques classiques | Évite les erreurs d'ouverture, jeu plus naturel |
 | **💾 Tables de Transposition** | Cache des positions évaluées avec hash | Performance 5-10x supérieure sur positions répétées |
 | **🎯 Quiescence Search** | Extension recherche tactique aux feuilles | Meilleure évaluation des captures et menaces |
-| **📋 FEN Parser** | Import/export positions FEN standard | Tests tactiques robustes, positions spécifiques |
 
 ### **🎮 Expérience Utilisateur**
 - **Interface graphique** avec plateau visuel
 - **Analyse de position** avec évaluation détaillée  
 - **Format PGN** pour sauvegarde/chargement de parties
+- **FEN Parser** pour import/export positions spécifiques
 - **Profondeur variable** selon la complexité de position
 
 ### **♟️ Règles Complètes**
