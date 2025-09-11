@@ -48,10 +48,10 @@ Ce travail pratique IFT-2003 implémente un moteur d'échecs intelligent en Prol
 ### 1.2 Objectifs du travail pratique
 
 - Implémentation complète d'un moteur d'échecs avec IA fonctionnelle
-- Architecture modulaire en 7 couches (pieces, board, game, ai, evaluation, interface, utils)
+- Architecture modulaire en 7 couches
 - Algorithme négamax + alpha-beta avec profondeur 2 (<3s/coup)
 - Fonctions d'évaluation combinant matériel, PSQT et sécurité des pièces
-- Suite de tests automatisés (7 sections, 42 tests) validant l'implémentation
+- Suite de tests automatisés validant l'implémentation
 
 ### 1.3 Plan du rapport
 
@@ -63,15 +63,7 @@ Le rapport détaille l'architecture modulaire en 7 composants, l'implémentation
 
 ### 2.1 Architecture technique
 
-Le système utilise SWI-Prolog 9.x avec une architecture modulaire en 7 couches :
-
-- **pieces.pl** (364 lignes) : Règles de mouvement, validation trajectoires
-- **board.pl** (397 lignes) : Représentation 8×8, conversions coordonnées  
-- **game.pl** (666 lignes) : Logique métier, détection échec/mat/pat
-- **utils.pl** (227 lignes) : Constantes globales, helpers partagés
-- **ai.pl** (519 lignes) : Négamax + alpha-beta, génération coups MVV-LVA
-- **evaluation.pl** (410 lignes) : PSQT ChessProgramming.org, sécurité pièces
-- **interface.pl** (550 lignes) : Interface française, gestion modes de jeu
+Le système utilise SWI-Prolog 9.x avec une architecture modulaire en 7 couches spécialisées (~2500 lignes total), chaque module ayant une responsabilité spécifique : règles de mouvement, représentation plateau, logique métier, IA négamax, évaluation PSQT, interface utilisateur et utilitaires partagés.
 
 ### 2.2 Algorithmes implémentés
 
@@ -252,14 +244,7 @@ Ordre d'évaluation pour maximiser l'efficacité de l'élagage:
 
 ### 2.4 Validation et tests
 
-Suite de tests automatisés (7 sections) :
-- Tests fondamentaux : plateau, parsing, état
-- Tests pièces : mouvements, règles spécifiques  
-- Tests échec/mat : détection optimisée
-- Tests robustesse : validation renforcée
-- Tests intégration : séquences de jeu
-- Tests PSQT : tables positionnelles
-- Tests alpha-beta : élagage avec défense
+Suite de tests automatisés complète (42 tests répartis en 7 sections) validant l'ensemble des fonctionnalités : règles d'échecs, algorithmes IA, évaluation positionnelle, robustesse et intégration.
 
 ---
 
@@ -278,14 +263,10 @@ Système complet opérationnel :
 
 ### 3.2 Validation technique
 
-Suite de tests automatisés (42 tests, 7 sections) :
-- ✅ Tests fondamentaux : plateau, parsing, état (100% passent)
-- ✅ Tests pièces : mouvements, règles spécifiques (100% passent)  
-- ✅ Tests échec/mat : détection optimisée (100% passent)
-- ✅ Tests robustesse : validation renforcée (100% passent)
-- ✅ Tests intégration : séquences de jeu (100% passent)
-- ✅ Tests PSQT : tables positionnelles (100% passent)
-- ✅ Tests alpha-beta : élagage avec sécurité pièces (100% passent)
+✅ **Suite de tests automatisés** : 42 tests répartis en 7 sections (100% de réussite)
+- Validation complète des règles d'échecs et algorithmes IA
+- Tests de robustesse et d'intégration
+- Couverture exhaustive des fonctionnalités
 
 *[Capture d'écran : Résultats des tests automatisés]*
 
@@ -306,17 +287,7 @@ Métriques de performance validées :
 
 ### 4.1 Architecture et qualité du code
 
-L'architecture modulaire en 7 couches offre une séparation claire des responsabilités :
-
-- **Couche présentation** : interface.pl (550 lignes) - Menu français et gestion utilisateur
-- **Couche intelligence** : ai.pl (519 lignes) - Algorithmes négamax et alpha-beta
-- **Couche évaluation** : evaluation.pl (410 lignes) - PSQT et heuristiques
-- **Couche logique** : game.pl (666 lignes) - Règles d'échecs et validation
-- **Couche représentation** : board.pl (397 lignes) - Plateau et coordonnées
-- **Couche pièces** : pieces.pl (364 lignes) - Mouvements spécifiques
-- **Couche utilitaires** : utils.pl (227 lignes) - Constantes et helpers
-
-**Avantages** : Maintenabilité, extensibilité, tests isolés, débogage facilité.
+L'architecture modulaire offre une séparation claire des responsabilités avec 7 couches spécialisées (~2500 lignes total). Cette approche favorise la maintenabilité, l'extensibilité, les tests isolés et facilite le débogage.
 
 ### 4.2 Performance et limites
 
@@ -354,7 +325,7 @@ Implémentation réussie d'un moteur d'échecs complet en Prolog avec IA fonctio
 - ✅ Négamax + alpha-beta opérationnel (profondeur 2, ~1.7s/coup)
 - ✅ Évaluation multi-composantes (matériel + PSQT + sécurité)
 - ✅ Interface française complète (2 modes de jeu)
-- ✅ Tests automatisés (42 tests, 7 sections, 100% passent)
+- ✅ Tests automatisés exhaustifs (100% de réussite)
 - ✅ Architecture maintenable et extensible
 
 ### 5.3 Contribution technique
@@ -413,10 +384,10 @@ L'utilisation d'outils d'IA générative a été intégrée dans le développeme
 - **Validation** : Tests performance, optimisation code, métriques quantifiées
 
 **Réalisations techniques :**
-- Architecture modulaire complète (~2500 lignes), algorithme négamax robuste
-- Système évaluation PSQT optimisé, interface française 2 modes
-- Suite tests exhaustive (42 tests, 7 sections), validation complète
-- Performance : 90% réduction élagage, 1.7s/coup, détection échec/mat/pat
+- Architecture modulaire complète, algorithme négamax robuste
+- Système évaluation PSQT optimisé, interface française
+- Suite tests exhaustive, validation complète
+- Performance : 90% réduction élagage, 1.7s/coup
 
 ### 6.4 Vérification de la véracité
 
@@ -428,11 +399,11 @@ L'utilisation d'outils d'IA générative a été intégrée dans le développeme
 5. **Recherche en ligne** : Context7 (MCP server) pour vérification documentation officielle
 
 **Sources consultées :**
-- Code source Prolog (7 modules, ~2500 lignes)
-- Suite tests automatisés (42 tests, 7 sections)
+- Code source Prolog complet
+- Suite tests automatisés exhaustive
 - Documentation ChessProgramming.org (PSQT, Alpha-Beta, Negamax)
 - SWI-Prolog Documentation officielle
-- **Context7 (MCP server)** : Recherche et validation en ligne des concepts techniques
+- **Context7 (MCP server)** : Recherche et validation en ligne
 
 ---
 
