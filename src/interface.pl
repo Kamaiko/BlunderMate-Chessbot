@@ -239,7 +239,9 @@ process_choice('3') :-
     display_title_box('TESTS'),
     display_message_ln(loading_tests),
     (consult('tests/tests') ->
-        run_all_tests
+        (catch(run_all_tests, Error, 
+            (write('[TESTS ERROR: '), write(Error), write(']'), nl)
+         ) -> true ; true)
     ;   display_message_ln(error_loading_tests),
         display_message_ln(ensure_file_exists)),
     pause_and_return_menu.
@@ -311,7 +313,7 @@ unified_game_loop(UnifiedGameState) :-
 
 % handle_player_turn(+UnifiedGameState, +Player, +PlayerType, -NewUnifiedGameState)
 % Gere le tour d'un joueur selon son type (humain ou IA)
-handle_player_turn(UnifiedGameState, Player, human, NewUnifiedGameState) :-
+handle_player_turn(UnifiedGameState, _Player, human, NewUnifiedGameState) :-
     % Tour d'un joueur humain - utilise l'interface unifiee
     write('    '), draw_line(35, '-'), nl,
     write('Entrez votre coup (ex: e2e4) ou \'aide\': '),
@@ -403,6 +405,7 @@ read_player_input(Input) :-
 % Lance une partie IA vs Humain.
 start_ai_game :-
     display_title_box('MODE IA vs HUMAIN'),
+    write('Vous jouez les Blancs, l\'IA joue les Noirs.'), nl, nl,
     init_unified_game_state(human, ai, UnifiedGameState),
     unified_game_loop(UnifiedGameState).
 

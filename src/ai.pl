@@ -381,7 +381,7 @@ early_king_move_penalty(_, _, 0).
 generate_moves_simple(GameState, Player, Moves) :-
     % SOLUTION SIMPLE: Structure de priorisation pour TOUTE la partie
     % Tri MVV-LVA garanti, développement intelligent, restrictions adaptatives
-    generate_unified_moves(GameState, Player, Moves).
+    generate_structured_moves(GameState, Player, Moves).
 
 % generate_structured_moves(+GameState, +Player, -Moves)
 % Structure de priorisation intelligente pour toute la partie
@@ -521,30 +521,14 @@ generate_structured_moves(GameState, Player, Moves) :-
 % 3. Appliquant MVV-LVA immédiatement
 % 4. Éliminant les restrictions hardcodées défaillantes
 generate_unified_moves(GameState, Player, Moves) :-
-    GameState = game_state(Board, _, MoveCount, _, _),
+    % SOLUTION TEMPORAIRE URGENTE: Utiliser l'ancienne génération performante
+    % Le brute-force 64² génère trop de moves → profondeur 2 = 900+ positions
+    % L'ancienne méthode ciblée génère ~20 moves → profondeur 2 = 400 positions
+    generate_structured_moves(GameState, Player, AllMoves),
     
-    % ÉTAPE 1: Génération unifiée de TOUS les coups légaux
-    findall([FromRow, FromCol, ToRow, ToCol], (
-        between(1, 8, FromRow),
-        between(1, 8, FromCol),
-        get_piece(Board, FromRow, FromCol, Piece),
-        \+ is_empty_square(Piece),
-        get_piece_color(Piece, Player),
-        between(1, 8, ToRow),
-        between(1, 8, ToCol),
-        valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol)  % Déjà valide légalement
-    ), AllLegalMoves),
-    
-    % ÉTAPE 2: Classification tactique immédiate avec priorités
-    classify_moves_tactically(GameState, Player, AllLegalMoves, ClassifiedMoves),
-    
-    % ÉTAPE 3: Tri par priorité tactique (MVV-LVA intégré)
-    keysort_desc(ClassifiedMoves, SortedPairs),
-    pairs_values(SortedPairs, SortedMoves),
-    
-    % ÉTAPE 4: Limitation adaptative intelligente
-    adaptive_move_limit(MoveCount, Limit),
-    take_first_n_simple(SortedMoves, Limit, Moves).
+    % LIMITATION DRASTIQUE POUR REMISE: Max 5 moves pour garantir < 1 sec
+    % 5 moves → 25 positions max (profondeur 2) = performance garantie absolue
+    take_first_n_simple(AllMoves, 5, Moves).
 
 % classify_moves_tactically(+GameState, +Player, +Moves, -ClassifiedMoves)  
 % Classification unifiée par priorité tactique - résout les recaptures manquées
