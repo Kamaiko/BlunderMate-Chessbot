@@ -14,6 +14,7 @@
 :- [board].
 :- [game].
 :- [evaluation].
+:- use_module(utils).
 
 % =============================================================================
 % CONSTANTES IA
@@ -34,44 +35,79 @@ ai_max_recursion(8).      % Protection récursion infinie (taille échiquier)
 
 % display_position_evaluation(+GameState, +Player)
 % Affiche le détail de l'évaluation pour debug/interface
+% Version refactorisée séparant calcul et affichage
 display_position_evaluation(GameState, Player) :-
-    % Calculs détaillés
+    calculate_evaluation_components(GameState, Components),
+    format_evaluation_display(Components, Player).
+
+% =============================================================================
+% EVALUATION COMPONENTS - REFACTORED DISPLAY FUNCTIONS
+% =============================================================================
+
+%! calculate_evaluation_components(+GameState, -Components) is det
+% Calcul pur des composantes d'évaluation sans affichage
+% Sépare la logique de calcul de l'affichage pour améliorer la testabilité
+calculate_evaluation_components(GameState, Components) :-
+    % Calculs matériels
     count_material_pure_ref(GameState, white, WhiteMaterial),
     count_material_pure_ref(GameState, black, BlackMaterial),
+    
+    % Calculs PSQT
     evaluate_psqt_total(GameState, white, WhitePSQT),
     evaluate_psqt_total(GameState, black, BlackPSQT),
+    
+    % Calculs sécurité
     evaluate_piece_safety(GameState, white, WhiteSafety),
     evaluate_piece_safety(GameState, black, BlackSafety),
     
-    % Différentiels 
+    % Différentiels
     MaterialDiff is WhiteMaterial - BlackMaterial,
     PSQTDiff is WhitePSQT - BlackPSQT,
     SafetyDiff is WhiteSafety - BlackSafety,
     TotalDiff is MaterialDiff + PSQTDiff + SafetyDiff,
     
-    % Évaluation du point de vue du joueur
+    % Structure de retour avec toutes les valeurs
+    Components = eval_components(WhiteMaterial, BlackMaterial, MaterialDiff,
+                                WhitePSQT, BlackPSQT, PSQTDiff,
+                                WhiteSafety, BlackSafety, SafetyDiff,
+                                TotalDiff).
+
+%! format_evaluation_display(+Components, +Player) is det
+% Affichage formaté des composantes d'évaluation
+% Version modulaire de l'affichage pour améliorer la maintenabilité
+format_evaluation_display(eval_components(WhiteMat, BlackMat, MatDiff,
+                                         WhitePSQT, BlackPSQT, PSQTDiff,
+                                         WhiteSafety, BlackSafety, SafetyDiff,
+                                         Total), Player) :-
+    % Calcul du score final selon le joueur
     (   Player = white ->
-        FinalScore = TotalDiff
-    ;   FinalScore is -TotalDiff
+        FinalScore = Total
+    ;   FinalScore is -Total
     ),
     
-    % Affichage détaillé
+    % Affichage détaillé identique à l'original
     write('=== ÉVALUATION POSITION ==='), nl,
     format('Matériel    : Blancs ~w vs Noirs ~w (diff: ~w)~n', 
-           [WhiteMaterial, BlackMaterial, MaterialDiff]),
+           [WhiteMat, BlackMat, MatDiff]),
     format('PSQT        : Blancs ~w vs Noirs ~w (diff: ~w)~n', 
            [WhitePSQT, BlackPSQT, PSQTDiff]),
     format('Sécurité    : Blancs ~w vs Noirs ~w (diff: ~w)~n', 
            [WhiteSafety, BlackSafety, SafetyDiff]),
     write('------------------------'), nl,
     format('SCORE TOTAL (~w): ~w~n', [Player, FinalScore]),
+    display_position_assessment(Player, FinalScore),
+    write('========================'), nl.
+
+%! display_position_assessment(+Player, +Score) is det
+% Affiche l'évaluation qualitative de la position
+% Helper modulaire pour message qualitatif selon le score
+display_position_assessment(Player, FinalScore) :-
     (   FinalScore > 0 ->
         format('Position favorable à ~w (~w)~n', [Player, FinalScore])
     ;   FinalScore < 0 ->
         format('Position défavorable à ~w (~w)~n', [Player, FinalScore])
     ;   write('Position équilibrée (0)'), nl
-    ),
-    write('========================'), nl.
+    ).
 
 % =============================================================================
 % COUPS D'OUVERTURE FIXES - CARO-KANN/SLAV DEFENSE
@@ -173,7 +209,6 @@ negamax_ab(GameState, Player, Depth, Alpha, Beta, BestMove, BestValue) :-
         ab_search(OrderedMoves, GameState, Player, Depth, Alpha, Beta, none, -1.0Inf, BestMove, BestValue)
     ).
 
-% SUPPRIMÉ: minimax_simple_ref - wrapper de compatibilité jamais utilisé
 
 % ab_search(+Moves, +GameState, +Player, +Depth, +Alpha, +Beta, +BestMoveAcc, +BestValueAcc, -BestMove, -BestValue)  
 % Recherche alpha-beta avec elagage - coeur de l'algorithme negamax
@@ -379,17 +414,35 @@ early_king_move_penalty(_, _, 0).
 % generate_moves_simple(+GameState, +Player, -Moves)
 % Génération adaptative selon phase de jeu avec captures prioritaires
 generate_moves_simple(GameState, Player, Moves) :-
-    % SOLUTION SIMPLE: Structure de priorisation pour TOUTE la partie
+    % SOLUTION REFACTORISÉE: Structure de priorisation modulaire
     % Tri MVV-LVA garanti, développement intelligent, restrictions adaptatives
-    generate_structured_moves(GameState, Player, Moves).
+    generate_structured_moves_v2(GameState, Player, Moves).
 
-% generate_structured_moves(+GameState, +Player, -Moves)
-% Structure de priorisation intelligente pour toute la partie
-% Tri MVV-LVA garanti + recaptures Dame prioritaires
-generate_structured_moves(GameState, Player, Moves) :-
+% =============================================================================
+% GÉNÉRATION DE COUPS REFACTORISÉE - NOUVELLE ARCHITECTURE MODULAIRE
+% =============================================================================
+
+%! generate_structured_moves_v2(+GameState, +Player, -Moves) is det
+% Nouvelle version refactorisée de la génération de coups
+% Remplace l'ancienne fonction monolithique de 123 lignes
+generate_structured_moves_v2(GameState, Player, Moves) :-
     GameState = game_state(Board, _, MoveCount, _, _),
-    
-    % 0. CAPTURES PRIORITAIRES - TOUTES PIECES (y compris Dame)
+    generate_all_move_types(Board, Player, MoveCount, AllMoves),
+    order_moves_by_priority(GameState, Player, AllMoves, OrderedMoves),
+    apply_adaptive_limit(MoveCount, OrderedMoves, Moves).
+
+%! generate_all_move_types(+Board, +Player, +MoveCount, -AllMoves) is det
+% Génère tous les types de coups en ordre logique
+generate_all_move_types(Board, Player, MoveCount, AllMoves) :-
+    generate_captures(Board, Player, Captures),
+    generate_developments(Board, Player, MoveCount, Developments),
+    generate_pawn_advances(Board, Player, PawnMoves),
+    generate_piece_moves(Board, Player, MoveCount, OtherMoves),
+    utils:combine_lists([Captures, Developments, PawnMoves, OtherMoves], AllMoves).
+
+%! generate_captures(+Board, +Player, -Captures) is det
+% Génère tous les coups de capture (remplace lignes 393-405)
+generate_captures(Board, Player, Captures) :-
     findall([FromRow, FromCol, ToRow, ToCol], (
         between(1, 8, FromRow),
         between(1, 8, FromCol),
@@ -402,71 +455,42 @@ generate_structured_moves(GameState, Player, Moves) :-
         % CAPTURE: case destination non vide
         get_piece(Board, ToRow, ToCol, TargetPiece),
         \+ is_empty_square(TargetPiece)
-    ), AllCaptureMoves),
-    
-    % 1. DÉVELOPPEMENT PRIORITAIRE (cavaliers et fous AVANT tout, NON-captures seulement)  
-    findall([FromRow, FromCol, ToRow, ToCol], (
-        between(1, 8, FromRow),
-        between(1, 8, FromCol),
-        get_piece(Board, FromRow, FromCol, Piece),
-        \+ is_empty_square(Piece),
-        get_piece_color(Piece, Player),
-        member(Piece, ['N','n','B','b']),
-        between(1, 8, ToRow),
-        between(1, 8, ToCol),
-        valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
-        % ÉVITER DOUBLONS: seulement non-captures
-        get_piece(Board, ToRow, ToCol, TargetPiece),
-        is_empty_square(TargetPiece),
-        % DÉVELOPPEMENTS NATURELS: restrictions adaptatives selon phase
-        (   MoveCount =< 15 ->
-            (ToRow >= 3, ToRow =< 6, ToCol >= 3, ToCol =< 6)  % Ouverture: centraux seulement
-        ;   true  % Milieu/fin: aucune restriction géographique
-        )
-    ), DevelopmentMoves),
-    
-    % Éliminer les doublons de développement
-    remove_duplicates_simple(DevelopmentMoves, UniqueDevelopment),
-    
-    % 2. PIONS CENTRAUX (d4, e4, d5, e5, NON-captures seulement)
-    findall([FromRow, FromCol, ToRow, ToCol], (
-        between(1, 8, FromRow),
-        between(1, 8, FromCol),
-        get_piece(Board, FromRow, FromCol, Piece),
-        \+ is_empty_square(Piece),
-        get_piece_color(Piece, Player),
-        member(Piece, ['P','p']),
-        between(1, 8, ToRow),
-        between(1, 8, ToCol),
-        valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
-        % ÉVITER DOUBLONS: seulement non-captures
-        get_piece(Board, ToRow, ToCol, TargetPiece),
-        is_empty_square(TargetPiece),
-        member(ToCol, [4,5]),  % Colonnes d et e
-        member(ToRow, [4,5])   % Rangs 4 et 5
-    ), CentralPawnMoves),
-    
-    % 3. PIONS SUPPORT ÉLARGIS (c6, d6, e6, f6, NON-captures seulement)
-    findall([FromRow, FromCol, ToRow, ToCol], (
-        between(1, 8, FromRow),
-        between(1, 8, FromCol),
-        get_piece(Board, FromRow, FromCol, Piece),
-        \+ is_empty_square(Piece),
-        get_piece_color(Piece, Player),
-        member(Piece, ['P','p']),
-        between(1, 8, ToRow),
-        between(1, 8, ToCol),
-        valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
-        % ÉVITER DOUBLONS: seulement non-captures
-        get_piece(Board, ToRow, ToCol, TargetPiece),
-        is_empty_square(TargetPiece),
-        % ÉLARGI: Colonnes centrales c,d,e,f (pas seulement c,f)
-        member(ToCol, [3,4,5,6]),  % c, d, e, f
-        member(ToRow, [6,5]),      % 6e rang (noirs) ou 5e rang si nécessaire  
-        abs(ToRow - FromRow) =< 2  % 1 ou 2 cases maximum
-    ), SupportPawnMoves),
-    
-    % 4. AUTRES COUPS NON-CAPTURE - SIMPLIFIÉ: toutes pièces non-développement
+    ), Captures).
+
+%! generate_developments(+Board, +Player, +MoveCount, -Developments) is det
+% Génère les coups de développement en ouverture (remplace lignes 408-426)
+generate_developments(Board, Player, MoveCount, Developments) :-
+    (   MoveCount =< 15 ->  % Phase d'ouverture seulement
+        findall([FromRow, FromCol, ToRow, ToCol], (
+            between(1, 8, FromRow),
+            between(1, 8, FromCol),
+            get_piece(Board, FromRow, FromCol, Piece),
+            \+ is_empty_square(Piece),
+            get_piece_color(Piece, Player),
+            member(Piece, ['N','n','B','b']),
+            between(1, 8, ToRow),
+            between(1, 8, ToCol),
+            valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
+            % ÉVITER DOUBLONS: seulement non-captures
+            get_piece(Board, ToRow, ToCol, TargetPiece),
+            is_empty_square(TargetPiece),
+            % DÉVELOPPEMENTS NATURELS: restrictions adaptatives
+            is_good_development_square(ToRow, ToCol)
+        ), UnsafeDevelopments),
+        utils:remove_duplicates(UnsafeDevelopments, Developments)
+    ;   Developments = []  % Pas de développement après ouverture
+    ).
+
+%! generate_pawn_advances(+Board, +Player, -PawnMoves) is det
+% Génère les coups de pions (centraux + support) (remplace lignes 432-467)
+generate_pawn_advances(Board, Player, PawnMoves) :-
+    generate_central_pawn_moves(Board, Player, CentralMoves),
+    generate_support_pawn_moves(Board, Player, SupportMoves),
+    append(CentralMoves, SupportMoves, PawnMoves).
+
+%! generate_piece_moves(+Board, +Player, +MoveCount, -OtherMoves) is det
+% Génère les autres coups de pièces (remplace lignes 470-487)
+generate_piece_moves(Board, Player, MoveCount, OtherMoves) :-
     findall([FromRow, FromCol, ToRow, ToCol], (
         between(1, 8, FromRow),
         between(1, 8, FromCol),
@@ -484,34 +508,114 @@ generate_structured_moves(GameState, Player, Moves) :-
         % EXCLURE LES CAPTURES (déjà traitées)
         get_piece(Board, ToRow, ToCol, TargetPiece),
         is_empty_square(TargetPiece)
-    ), OtherMoves),
-    
-    % PRIORITÉ CAPTURES: Tri MVV-LVA immédiat sur TOUTES les captures
-    order_moves(GameState, Player, AllCaptureMoves, OrderedCaptures),
-    
-    % Limite adaptative des captures (recommandation 3.5)
+    ), OtherMoves).
+
+% =============================================================================
+% HELPERS POUR GÉNÉRATION DE COUPS
+% =============================================================================
+
+%! is_good_development_square(+Row, +Col) is semidet
+% Détermine si une case est bonne pour le développement
+is_good_development_square(Row, Col) :-
+    Row >= 3, Row =< 6,  % Cases centrales
+    Col >= 3, Col =< 6.
+
+%! generate_central_pawn_moves(+Board, +Player, -CentralMoves) is det
+% Génère les coups de pions centraux (d4, e4, d5, e5)
+generate_central_pawn_moves(Board, Player, CentralMoves) :-
+    findall([FromRow, FromCol, ToRow, ToCol], (
+        between(1, 8, FromRow),
+        between(1, 8, FromCol),
+        get_piece(Board, FromRow, FromCol, Piece),
+        \+ is_empty_square(Piece),
+        get_piece_color(Piece, Player),
+        member(Piece, ['P','p']),
+        between(1, 8, ToRow),
+        between(1, 8, ToCol),
+        valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
+        % ÉVITER DOUBLONS: seulement non-captures
+        get_piece(Board, ToRow, ToCol, TargetPiece),
+        is_empty_square(TargetPiece),
+        member(ToCol, [4,5]),  % Colonnes d et e
+        member(ToRow, [4,5])   % Rangs 4 et 5
+    ), CentralMoves).
+
+%! generate_support_pawn_moves(+Board, +Player, -SupportMoves) is det
+% Génère les coups de pions de support (c6, d6, e6, f6)
+generate_support_pawn_moves(Board, Player, SupportMoves) :-
+    findall([FromRow, FromCol, ToRow, ToCol], (
+        between(1, 8, FromRow),
+        between(1, 8, FromCol),
+        get_piece(Board, FromRow, FromCol, Piece),
+        \+ is_empty_square(Piece),
+        get_piece_color(Piece, Player),
+        member(Piece, ['P','p']),
+        between(1, 8, ToRow),
+        between(1, 8, ToCol),
+        valid_move(Board, Player, FromRow, FromCol, ToRow, ToCol),
+        % ÉVITER DOUBLONS: seulement non-captures
+        get_piece(Board, ToRow, ToCol, TargetPiece),
+        is_empty_square(TargetPiece),
+        % ÉLARGI: Colonnes centrales c,d,e,f
+        member(ToCol, [3,4,5,6]),  % c, d, e, f
+        member(ToRow, [6,5]),      % 6e rang (noirs) ou 5e rang
+        abs(ToRow - FromRow) =< 2  % 1 ou 2 cases maximum
+    ), SupportMoves).
+
+%! order_moves_by_priority(+GameState, +Player, +Moves, -OrderedMoves) is det
+% Applique le tri MVV-LVA et autres priorités (remplace lignes 489-503)
+order_moves_by_priority(GameState, Player, Moves, OrderedMoves) :-
+    GameState = game_state(_, _, MoveCount, _, _),
+    % Séparer les captures des autres coups pour tri différentiel
+    separate_captures_and_quiet(GameState, Moves, Captures, QuietMoves),
+    % Trier les captures par MVV-LVA
+    order_moves(GameState, Player, Captures, OrderedCaptures),
+    % Limiter les captures selon la phase de jeu
+    apply_capture_limit(MoveCount, OrderedCaptures, LimitedCaptures),
+    % Limiter les coups calmes
+    apply_development_limits(QuietMoves, LimitedQuiet),
+    % Combiner dans l'ordre optimal
+    append(LimitedCaptures, LimitedQuiet, OrderedMoves).
+
+%! apply_adaptive_limit(+MoveCount, +Moves, -LimitedMoves) is det
+% Applique les limites adaptatives selon la phase de jeu (remplace ligne 511)
+apply_adaptive_limit(_MoveCount, Moves, LimitedMoves) :-
+    ai_opening_moves(Limit),
+    utils:take_first_n(Moves, Limit, LimitedMoves).
+
+% =============================================================================
+% HELPERS POUR TRI ET LIMITATION
+% =============================================================================
+
+%! separate_captures_and_quiet(+GameState, +Moves, -Captures, -QuietMoves) is det
+% Sépare les captures des coups calmes pour traitement différentiel
+separate_captures_and_quiet(GameState, Moves, Captures, QuietMoves) :-
+    GameState = game_state(Board, _, _, _, _),
+    partition(is_capture_move(Board), Moves, Captures, QuietMoves).
+
+%! is_capture_move(+Board, +Move) is semidet
+% Détermine si un coup est une capture
+is_capture_move(Board, [_, _, ToRow, ToCol]) :-
+    get_piece(Board, ToRow, ToCol, TargetPiece),
+    \+ is_empty_square(TargetPiece).
+
+%! apply_capture_limit(+MoveCount, +Captures, -LimitedCaptures) is det
+% Limite le nombre de captures selon la phase de jeu
+apply_capture_limit(MoveCount, Captures, LimitedCaptures) :-
     (   MoveCount =< 10 -> CaptureLimit = 8
     ;   MoveCount =< 20 -> CaptureLimit = 12  
     ;   CaptureLimit = 15
     ),
-    take_first_n_simple(OrderedCaptures, CaptureLimit, LimitedCaptures),
-    
-    % Limitation développement et pions
-    ai_development_limit(DevLimit), take_first_n_simple(UniqueDevelopment, DevLimit, PriorityDevelopment),
-    take_first_n_simple(CentralPawnMoves, 3, LimitedCentral),
-    take_first_n_simple(SupportPawnMoves, 4, LimitedSupport),
-    
-    % ORDRE OPTIMAL: Captures triées → Développement → Pions → Autres non-capture
-    append(LimitedCaptures, PriorityDevelopment, Priority1),
-    append(Priority1, LimitedCentral, Priority2),
-    append(Priority2, LimitedSupport, Priority3),
-    append(Priority3, OtherMoves, AllMoves),
-    
-    % Pas de tri supplémentaire nécessaire - déjà optimisé
-    ai_opening_moves(Limit), take_first_n_simple(AllMoves, Limit, Moves).
+    utils:take_first_n(Captures, CaptureLimit, LimitedCaptures).
+
+%! apply_development_limits(+QuietMoves, -LimitedQuiet) is det
+% Applique les limitations aux coups de développement
+apply_development_limits(QuietMoves, LimitedQuiet) :-
+    ai_development_limit(DevLimit),
+    utils:take_first_n(QuietMoves, DevLimit, LimitedQuiet).
 
 % =============================================================================
-% ARCHITECTURE UNIFIÉE - GÉNÉRATION DE COUPS (Phase 1 Refactoring)
+% ARCHITECTURE UNIFIÉE - GÉNÉRATION DE COUPS
 % =============================================================================
 
 % generate_unified_moves(+GameState, +Player, -Moves)
@@ -521,13 +625,9 @@ generate_structured_moves(GameState, Player, Moves) :-
 % 3. Appliquant MVV-LVA immédiatement
 % 4. Éliminant les restrictions hardcodées défaillantes
 generate_unified_moves(GameState, Player, Moves) :-
-    % SOLUTION TEMPORAIRE URGENTE: Utiliser l'ancienne génération performante
-    % Le brute-force 64² génère trop de moves → profondeur 2 = 900+ positions
-    % L'ancienne méthode ciblée génère ~20 moves → profondeur 2 = 400 positions
-    generate_structured_moves(GameState, Player, AllMoves),
-    
-    % LIMITATION DRASTIQUE POUR REMISE: Max 5 moves pour garantir < 1 sec
-    % 5 moves → 25 positions max (profondeur 2) = performance garantie absolue
+    % Utilise la génération refactorisée pour performance optimale
+    generate_structured_moves_v2(GameState, Player, AllMoves),
+    % Limitation pour maintenir performance < 1 sec
     take_first_n_simple(AllMoves, 5, Moves).
 
 % classify_moves_tactically(+GameState, +Player, +Moves, -ClassifiedMoves)  
@@ -554,10 +654,10 @@ classify_single_move(GameState, Player, [FromRow, FromCol, ToRow, ToCol], Priori
         AbsAttackerVal is abs(AttackerVal),
         % Utiliser score MVV-LVA: grande victime - petit attaquant = meilleur
         Priority is 1000 + AbsTargetVal - AbsAttackerVal
-    ;   % 3. DÉVELOPPEMENT INTELLIGENT (plus de restrictions géographiques!)
+    ;   % 3. DÉVELOPPEMENT INTELLIGENT
         member(AttackingPiece, ['N','n','B','b']) -> Priority = 400
     ;   member(AttackingPiece, ['P','p']) -> Priority = 300
-    ;   % 4. DAME/TOUR/ROI (plus de blocage rigide!)
+    ;   % 4. DAME/TOUR/ROI
         Priority = 200
     ).
 
@@ -571,11 +671,6 @@ adaptive_move_limit(MoveCount, Limit) :-
 
 % NOTE: keysort_desc/2 et pairs_values/2 déjà définies plus haut dans le fichier
 
-% SUPPRIMÉ: generate_regular_moves - remplacée par generate_unified_moves 
-% SUPPRIMÉ: restrictions géographiques hardcodées qui bloquaient d6
-% SUPPRIMÉ: blocage rigide de la Dame pendant 6 coups
-
-% SUPPRIMÉ: take_first_N_simple wrappers - consolidés vers take_first_n_simple/3
 
 take_first_n_simple(List, N, FirstN) :-
     length(List, Len),

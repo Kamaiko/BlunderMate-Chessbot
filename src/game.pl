@@ -210,7 +210,6 @@ count_material_simple(Board, Player, MaterialValue) :-
     ), Values),
     sum_list(Values, MaterialValue).
 
-% SUPPRIMÉ: simple_piece_value - consolidé avec piece_value de pieces.pl
 
 % =============================================================================
 % VALIDATION SÉCURITÉ ROI (FIX BUG ÉCHEC IGNORÉ)
