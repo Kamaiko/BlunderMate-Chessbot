@@ -430,7 +430,7 @@ dispatch_game_command(Input, _, _) :-
     handle_exit_command(Input).
 dispatch_game_command(Input, GameState, GameState) :-
     is_help_command(Input),
-    show_game_help, !.
+    show_game_help(GameState), !.
 dispatch_game_command(Input, GameState, NewGameState) :-
     process_move_command(Input, GameState, NewGameState).
 
@@ -526,20 +526,27 @@ show_help :-
     write('    quitter     : Quitter le programme'), nl,
     nl.
 
-% show_game_help
-% Affiche l'aide pendant le jeu avec design moderne.
-show_game_help :-
+% show_game_help(+GameState)
+% Affiche l'aide pendant le jeu avec design moderne et pause interactive, puis le board.
+show_game_help(GameState) :-
     nl,
     write('    '), draw_line(40, '='), nl,
     write('    AIDE RAPIDE'), nl,
     write('    '), draw_line(40, '='), nl,
-    
     write('    COUPS: e2e4 (de e2 vers e4)'), nl,
     write('    COMMANDES: menu, quitter'), nl,
     write('    PIECES: P/p=Pion R/r=Tour N/n=Cavalier'), nl,
     write('            B/b=Fou Q/q=Dame K/k=Roi'), nl,
+    write('    '), draw_line(40, '='), nl,
+    nl,
     
-    write('    '), draw_line(40, '='), nl, nl.
+    % Pause interactive
+    write('    Appuyez sur une touche pour continuer...'),
+    catch(get_single_char(_), _, true),
+    nl,
+    
+    % Afficher le board state apres l'aide
+    display_game_state(GameState).
 
 % show_about
 % Affiche les informations "A Propos" du projet.
