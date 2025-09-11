@@ -210,8 +210,13 @@ evaluate_position(GameState, Player, Value) :-
     evaluate_piece_safety(GameState, black, BlackSafety),
     SafetyDiff is WhiteSafety - BlackSafety,
     
-    % Combiner: Matériel + PSQT + Sécurité
-    TotalDiff is MaterialDiff + PSQTDiff + SafetyDiff,
+    % 4. Bonus échanges favorables (SEE approximé)
+    evaluate_exchange_bonus(GameState, white, WhiteExchange),
+    evaluate_exchange_bonus(GameState, black, BlackExchange),
+    ExchangeDiff is WhiteExchange - BlackExchange,
+    
+    % Combiner: Matériel + PSQT + Sécurité + Échanges
+    TotalDiff is MaterialDiff + PSQTDiff + SafetyDiff + ExchangeDiff,
     
     % Retourner du point de vue du joueur demandé
     (   Player = white ->
@@ -396,6 +401,49 @@ evaluate_move_count(GameState, Player, MoveCountValue) :-
     generate_moves_simple(GameState, Player, Moves),
     length(Moves, MoveCount),
     MoveCountValue is MoveCount.  % Plus de coups = meilleure mobilité
+
+% =============================================================================
+% =============================================================================
+% ÉVALUATION ÉCHANGES FAVORABLES (SEE approximé)
+% =============================================================================
+
+% evaluate_exchange_bonus(+GameState, +Player, -Bonus)
+% Détecte si le joueur peut initier des échanges favorables
+evaluate_exchange_bonus(GameState, Player, Bonus) :-
+    GameState = game_state(Board, _, _, _, _),
+    
+    % Chercher toutes les captures possibles pour ce joueur
+    findall(ExchangeGain, (
+        between(1, 8, FromR), between(1, 8, FromC),
+        between(1, 8, ToR), between(1, 8, ToC),
+        get_piece(Board, FromR, FromC, Attacker),
+        \+ is_empty_square(Attacker),
+        get_piece_color(Attacker, Player),
+        get_piece(Board, ToR, ToC, Target),
+        \+ is_empty_square(Target),
+        get_piece_color(Target, TargetColor),
+        TargetColor \= Player,  % Pièce adverse
+        
+        % Vérifier que le coup est valide
+        valid_move(Board, Player, FromR, FromC, ToR, ToC),
+        
+        % Calculer gain net approximé (cible - attaquant)
+        piece_value(Target, TargetVal),
+        piece_value(Attacker, AttackerVal),
+        AbsTargetVal is abs(TargetVal),
+        AbsAttackerVal is abs(AttackerVal),
+        
+        % Si échange favorable (gain > 100 points), bonus AGRESSIF
+        (   AbsTargetVal > AbsAttackerVal + 100 ->
+            NetGain is AbsTargetVal - AbsAttackerVal,
+            ExchangeGain is NetGain * 2  % Bonus x2 pour favoriser échanges nets +
+        ;   ExchangeGain = 0
+        )
+    ), Gains),
+    
+    % Somme des gains d'échanges favorables (plafond élevé pour Bishop×Rook)
+    sum_list(Gains, TotalGains),
+    Bonus is min(400, TotalGains).  % Plafond plus élevé pour échanges +170×2=340
 
 % =============================================================================
 % COMPATIBILITY LAYER - RÉFÉRENCES ANCIENNES

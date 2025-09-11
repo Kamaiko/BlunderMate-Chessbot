@@ -263,34 +263,18 @@ make_move_simulation(Board, FromRow, FromCol, ToRow, ToCol, NewBoard) :-
     place_piece_optimized(TempBoard, ToRow, ToCol, Piece, NewBoard).
 
 % move_score_with_defense(+Board, +Player, +Move, -Score)
-% Score MVV-LVA avec détection défense - NOUVEAU SYSTÈME COMPLET
+% Score MVV-LVA SIMPLIFIÉ - Laisse negamax décider des échanges
 move_score_with_defense(Board, Player, [FromRow, FromCol, ToRow, ToCol], Score) :-
     get_piece(Board, ToRow, ToCol, TargetPiece),
     (   \+ is_empty_square(TargetPiece) ->
-        % CAPTURE: Calculer score base MVV-LVA
+        % CAPTURE: Score MVV-LVA pur (Most Valuable Victim - Least Valuable Attacker)
         get_piece(Board, FromRow, FromCol, AttackingPiece),
         piece_value(TargetPiece, TargetVal),
         piece_value(AttackingPiece, AttackerVal),
         AbsTargetVal is abs(TargetVal),
         AbsAttackerVal is abs(AttackerVal),
-        BaseScore is AbsTargetVal - AbsAttackerVal + 1000,
-        
-        % DÉTECTION DÉFENSE après simulation coup
-        (   make_move_simulation(Board, FromRow, FromCol, ToRow, ToCol, NewBoard),
-            opposite_player(Player, Opponent),
-            is_square_attacked(NewBoard, ToRow, ToCol, Opponent) ->
-            % Attaquée par adversaire: pénalité sévère pour pièces de haute valeur
-            (   AbsAttackerVal >= 900 ->  % Dame
-                PenaltyScore is BaseScore - (AbsAttackerVal * 1.5)  % Pénalité 1.5x
-            ;   AbsAttackerVal >= 500 ->  % Tour
-                PenaltyScore is BaseScore - (AbsAttackerVal * 1.2)  % Pénalité 1.2x  
-            ;   % Pièces mineures: pénalité standard
-                PenaltyScore is BaseScore - AbsAttackerVal
-            ),
-            Score = PenaltyScore
-        ;   % Sûre: score base inchangé
-            Score = BaseScore
-        )
+        % Score simple: prioriser captures de pièces précieuses par pièces moins précieuses
+        Score is AbsTargetVal - AbsAttackerVal + 1000
     ;   % NON-CAPTURE: évaluer qualité du coup
         evaluate_non_capture_move(Board, Player, [FromRow, FromCol, ToRow, ToCol], Score)
     ).
@@ -578,17 +562,14 @@ classify_single_move(GameState, Player, [FromRow, FromCol, ToRow, ToCol], Priori
     
     (   % 1. PROMOTION (priorité absolue)
         is_promotion_move(Player, FromRow, ToRow) -> Priority = 1500
-    ;   % 2. CAPTURES MVV-LVA (INCLUT Qd8xd6 - résout le problème principal!)
+    ;   % 2. CAPTURES avec vrai MVV-LVA score
         \+ is_empty_square(TargetPiece) ->
         piece_value(TargetPiece, TargetVal),
         piece_value(AttackingPiece, AttackerVal),
         AbsTargetVal is abs(TargetVal),
         AbsAttackerVal is abs(AttackerVal),
-        (   AbsTargetVal >= 900 -> Priority = 1400  % Dame capturée
-        ;   AbsTargetVal >= 500 -> Priority = 1200  % Tour capturée
-        ;   AbsTargetVal >= 300 -> Priority = 1000  % Fou/Cavalier capturés ⭐ Qd8xd6 ici!
-        ;   Priority = 800   % Pion capturé
-        )
+        % Utiliser score MVV-LVA: grande victime - petit attaquant = meilleur
+        Priority is 1000 + AbsTargetVal - AbsAttackerVal
     ;   % 3. DÉVELOPPEMENT INTELLIGENT (plus de restrictions géographiques!)
         member(AttackingPiece, ['N','n','B','b']) -> Priority = 400
     ;   member(AttackingPiece, ['P','p']) -> Priority = 300
