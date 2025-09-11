@@ -12,8 +12,6 @@
 
 <img src="docs/images/menu-principal.png" alt="Menu principal français" width="350">
 
-*Interface française professionnelle avec modes de jeu et outils intégrés*
-
 </div>
 
 ---
@@ -26,7 +24,7 @@ swipl go.pl
 ```
 
 <div align="center">
-  <img src="docs/images/partie-ia.png" alt="IA en action" width="400">
+  <img src="docs/images/partie-ia.png" alt="IA en action" width="250">
   <p><em>IA Négamax Alpha-Beta en action : évaluation temps réel (+50 points blanc) avec plateau ASCII</em></p>
 </div>
 
@@ -51,10 +49,9 @@ swipl go.pl
 
 ### 🤖 Intelligence Artificielle
 
-<div align="center">
-  <img src="docs/images/test-performance.png" alt="Test de performance IA" width="600">
-  <p><em>Performance validée : 1.718 secondes pour analyse complète (profondeur 2)</em></p>
-</div>
+<img src="docs/images/test-performance.png" alt="Test de performance IA" width="600">
+
+*Performance validée : 1.718 secondes pour analyse complète (profondeur 2)*
 
 | Composante | Description | Performance |
 |------------|-------------|-------------|
