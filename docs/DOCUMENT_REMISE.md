@@ -1,8 +1,8 @@
 # Rapport de Travail Pratique - Intelligence Artificielle
 ## IFT-2003 - Joueur Intelligent d'Échecs en Prolog
 
-**Étudiant** : [Nom de l'étudiant]  
-**Date** : Octobre 2025  
+**Étudiant** : [Patrick Patenaude]  
+**Date** : 20 Octobre 2025  
 **Université** : Université Laval
 
 ---
