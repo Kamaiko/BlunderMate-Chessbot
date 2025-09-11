@@ -55,7 +55,7 @@ Ce travail pratique IFT-2003 implémente un moteur d'échecs intelligent en Prol
 
 ### 1.3 Plan du rapport
 
-Le rapport détaille l'architecture technique, les algorithmes implémentés, les résultats de performance, et identifie un bug critique dans la détection de défense affectant l'ordre de développement en ouverture Caro-Kann.
+Le rapport détaille l'architecture modulaire en 7 composants, l'implémentation de l'algorithme négamax avec élagage alpha-beta, l'évaluation heuristique multi-critères (matériel + PSQT + sécurité), et présente les résultats de performance validés par une suite de tests complète de 42 tests automatisés.
 
 ---
 
