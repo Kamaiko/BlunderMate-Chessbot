@@ -114,7 +114,6 @@ swipl -t run_tests -s tests/tests.pl
 | Document | Description |
 |----------|-------------|
 | 📐 [**Architecture Guide**](docs/ARCHITECTURE_GUIDE_DEVELOPERS.md) | Architecture système complète |
-| 📋 [**Tasks & Status**](docs/TASKS.md) | État d'avancement du projet |
 | 📄 [**Product Requirements**](docs/PRD.md) | Spécifications détaillées |
 
 ---
