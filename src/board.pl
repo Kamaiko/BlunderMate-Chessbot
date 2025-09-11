@@ -1,14 +1,12 @@
 % =============================================================================
-% CHESS BOARD - ECHIQUIER
+% BOARD - Module de l'echiquier
 % =============================================================================
-% 
-% Module pour l'echiquier et coordonnees :
-% - Representation 8x8 avec operations optimisees
-% - Notation algebrique avec validation
-% - Initialisation par listes
+%
+% Representation et operations sur l'echiquier :
+% - Gestion echiquier 8x8
+% - Notation algebrique et validation
 % - Affichage ASCII avec pieces colorees
 %
-% Auteur : Patrick Patenaude  
 % =============================================================================
 
 :- [pieces].

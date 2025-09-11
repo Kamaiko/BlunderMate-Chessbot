@@ -1,13 +1,12 @@
 % =============================================================================
-% CHESS PIECES - LOGIQUE DES PIECES D'ECHECS
+% PIECES - Module des pieces d'echecs
 % =============================================================================
-% 
-% Module pour la logique des pieces d'echecs :
-% - Identification et validation des pieces
-% - Regles de mouvement avec dispatch unifie
-% - Utilitaires pour couleurs et joueurs
 %
-% Auteur : Patrick Patenaude
+% Regles de mouvement et validation des pieces :
+% - Identification et appartenance des pieces
+% - Regles de mouvement par type de piece
+% - Utilitaires couleurs et joueurs
+%
 % =============================================================================
 
 % =============================================================================

@@ -1,20 +1,19 @@
 % =============================================================================
-% MODULE IA ECHECS - Negamax avec Elagage Alpha-Beta
+% AI - Module intelligence artificielle
 % =============================================================================
 %
-% Implementation IA principale utilisant :
-% - Algorithme negamax avec elagage alpha-beta (profondeur 2)
-% - Tri MVV-LVA (Most Valuable Victim - Least Valuable Attacker)
-% - Evaluation PSQT (Piece-Square Tables)
-% - Evaluation materielle + positionnelle
+% Implementation IA negamax avec elagage alpha-beta :
+% - Algorithme negamax (profondeur 2)
+% - Tri MVV-LVA des coups
+% - Evaluation et selection de coups
 %
-% ARCHITECTURE OPTIMISÉE:
+% Architecture optimisee :
 % 1. Configuration et constantes
 % 2. Interface publique principale
-% 3. Algorithme négamax (cœur de l'IA)
-% 4. Évaluation et scoring MVV-LVA
-% 5. Génération de coups structurée
-% 6. Helpers privés spécialisés
+% 3. Algorithme negamax
+% 4. Evaluation et scoring
+% 5. Generation de coups
+% 6. Helpers prives
 %
 % =============================================================================
 

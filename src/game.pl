@@ -1,14 +1,12 @@
 % =============================================================================
-% CHESS GAME - LOGIQUE DE JEU
+% GAME - Module de logique de jeu
 % =============================================================================
-% 
-% Module central pour la logique de jeu :
-% - Gestion d'etat avec validation modulaire
-% - Detection echec/mat complete
-% - Validation mouvements
-% - Gestion erreurs centralisee
 %
-% Auteur : Patrick Patenaude
+% Gestion centrale du jeu d'echecs :
+% - Validation et execution des coups
+% - Detection echec/mat/pat
+% - Gestion d'etat et erreurs
+%
 % =============================================================================
 
 :- [pieces].

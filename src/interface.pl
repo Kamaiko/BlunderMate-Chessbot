@@ -1,14 +1,12 @@
 % =============================================================================
-% CHESS INTERFACE - INTERFACE UTILISATEUR
+% INTERFACE - Module interface utilisateur
 % =============================================================================
-% 
-% Module interface utilisateur :
-% - Menu principal avec design uniforme
-% - Traitement commandes unifie et extensible
-% - Messages francais centralises
-% - Utilitaires d'affichage optimises
 %
-% Auteur : Patrick Patenaude
+% Interface francaise et boucle de jeu :
+% - Menu principal et commandes
+% - Boucle de jeu unifiee
+% - Gestion tours humain/IA
+%
 % =============================================================================
 
 :- [pieces].

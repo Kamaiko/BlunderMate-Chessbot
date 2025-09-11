@@ -1,15 +1,13 @@
 % =============================================================================
-% MODULE ÉVALUATION - Centralisé et Optimisé  
+% EVALUATION - Module d'evaluation positionnelle
 % =============================================================================
 %
-% RESPONSABILITÉ : Toutes les fonctions d'évaluation de positions
-% - PSQT (Piece-Square Tables) ChessProgramming.org
-% - Évaluation matérielle standard
-% - Sécurité des pièces (anti-blunders)
-% - Mobilité et contrôle du centre
-% - Évaluation tactique complète
+% Evaluation heuristique des positions :
+% - Tables PSQT (Piece-Square Tables)
+% - Evaluation materielle
+% - Analyse securite des pieces
+% - Mobilite et controle du centre
 %
-% USAGE : Importé par ai.pl, interface.pl et tests
 % =============================================================================
 
 % Dependencies nécessaires
