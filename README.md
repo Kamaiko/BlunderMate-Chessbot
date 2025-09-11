@@ -10,7 +10,18 @@
 [![Platforms](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey?style=flat-square)]()
 [![AI Algorithm](https://img.shields.io/badge/AI-Negamax%20%7C%20Alpha--Beta-green?style=flat-square)]()
 
-<img src="docs/images/menu-principal.png" alt="Menu principal français" width="350">
+<table>
+<tr>
+<td width="50%" align="center">
+  <img src="docs/images/menu-principal.png" alt="Menu principal français" width="350">
+  <br><em>Menu principal avec modes de jeu</em>
+</td>
+<td width="50%" align="center">
+  <img src="docs/images/partie-ia.png" alt="IA en action" width="400">
+  <br><em>IA en action avec évaluation temps réel</em>
+</td>
+</tr>
+</table>
 
 </div>
 
@@ -22,11 +33,6 @@
 # Démarrer le jeu d'échecs
 swipl go.pl
 ```
-
-<div align="center">
-  <img src="docs/images/partie-ia.png" alt="IA en action" width="250">
-  <p><em>IA Négamax Alpha-Beta en action : évaluation temps réel (+50 points blanc) avec plateau ASCII</em></p>
-</div>
 
 ## 🏗️ Architecture
 
