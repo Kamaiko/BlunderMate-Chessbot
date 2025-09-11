@@ -21,8 +21,6 @@
 swipl go.pl
 ```
 
-> **Note** : Interface complète avec détection automatique échec/mat/pat
-
 ## 🏗️ Architecture
 
 <table>
@@ -88,9 +86,7 @@ swipl -t run_tests -s tests/tests.pl
 | **OS** | Windows/Linux/macOS | Multiplateforme |
 | **Mémoire** | 512 MB+ | Algorithme négamax |
 
-## 🔧 Améliorations Futures (Optionnelles)
-
-Le projet actuel implémente toutes les fonctionnalités requises avec une architecture solide. Les améliorations suivantes permettraient d'atteindre un niveau encore plus professionnel :
+## 🔧 Améliorations Futures
 
 ### **🚀 Optimisations IA Avancées**
 
@@ -112,7 +108,6 @@ Le projet actuel implémente toutes les fonctionnalités requises avec une archi
 - **En passant** (capture pion en passant)
 - **Promotion au choix** (sélection pièce promotion)
 
-> **Note** : Ces améliorations ne sont pas nécessaires pour l'excellence académique du projet actuel, qui répond déjà à tous les critères universitaires avec distinction.
 
 ## 📚 Documentation Technique
 
