@@ -55,12 +55,6 @@ swipl go.pl
 
 ### 🤖 Intelligence Artificielle
 
-<img src="docs/images/test-performance.png" alt="Test de performance IA" width="600">
-
-*Performance validée : 1.718 secondes pour analyse complète (profondeur 2)*
-
-**Suite de tests complète :** 42 tests automatisés répartis sur 7 sections (fondations, règles, IA, évaluation, tactique, robustesse, intégration)
-
 | Composante | Description | Performance |
 |------------|-------------|-------------|
 | **Algorithme** | Négamax¹ + élagage Alpha-Beta² | Profondeur 2 |
@@ -90,8 +84,14 @@ Commandes    : aide, menu, quitter
 
 ## 🧪 Tests
 
+<img src="docs/images/test-performance.png" alt="Test de performance IA" width="600">
+
+*Performance validée : 1.718 secondes pour analyse complète (profondeur 2)*
+
+**Suite de tests complète :** 42 tests automatisés répartis sur 7 sections (fondations, règles, IA, évaluation, tactique, robustesse, intégration)
+
 ```bash
-# Suite complète (8 catégories)
+# Suite complète (7 catégories)
 swipl -t run_tests -s tests/tests.pl
 
 # Tests spécifiques par catégories disponibles
