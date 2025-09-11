@@ -52,7 +52,7 @@ swipl go.pl
 ### 🤖 Intelligence Artificielle
 
 <div align="center">
-  <img src="docs/images/test-performance.png" alt="Test de performance IA" width="300">
+  <img src="docs/images/test-performance.png" alt="Test de performance IA" width="600">
   <p><em>Performance validée : 1.718 secondes pour analyse complète (profondeur 2)</em></p>
 </div>
 
