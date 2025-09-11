@@ -255,7 +255,22 @@ Système complet opérationnel :
 - Affichage évaluation positionnelle temps réel
 - Gestion d'erreurs robuste avec messages contextuels
 
-*[Capture d'écran : Menu principal du jeu]*
+<table>
+<tr>
+<td width="33%" align="center">
+  <img src="images/menu-principal.png" alt="Menu principal" width="300">
+  <br><em>Menu principal français</em>
+</td>
+<td width="33%" align="center">
+  <img src="images/TestsSection3.png" alt="Tests automatises" width="300">
+  <br><em>Tests automatises</em>
+</td>
+<td width="33%" align="center">
+  <img src="images/partie-ia.png" alt="IA en action" width="300">
+  <br><em>IA en action</em>
+</td>
+</tr>
+</table>
 
 ### 3.2 Validation technique
 
@@ -264,7 +279,6 @@ Système complet opérationnel :
 - Tests de robustesse et d'intégration
 - Couverture exhaustive des fonctionnalités
 
-*[Capture d'écran : Résultats des tests automatisés]*
 
 ### 3.3 Performance et métriques
 
@@ -275,7 +289,6 @@ Métriques de performance validées :
 - Stabilité : 0 crash sur 100+ coups testés
 - Architecture : 7 modules, ~2500 lignes Prolog
 
-*[Capture d'écran : Partie en cours avec évaluation positionnelle]*
 
 ---
 
