@@ -70,7 +70,7 @@
 
 - **🖥️ Plateforme** : SWI-Prolog uniquement, interface console ASCII
 - **⚡ Performance** : Équilibre profondeur recherche vs temps réponse raisonnable  
-- **🏗️ Architecture** : 6 modules (pieces, board, game, interface, ai, evaluation), tests automatisés
+- **🏗️ Architecture** : 7 modules (pieces, board, game, interface, ai, evaluation, utils), tests automatisés
 
 ## 📈 Phases Développement
 

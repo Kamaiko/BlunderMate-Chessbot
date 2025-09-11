@@ -33,6 +33,7 @@ swipl go.pl
 <tr><td><code>interface.pl</code></td><td>🖥️ Interface utilisateur</td></tr>
 <tr><td><code>ai.pl</code></td><td>🧠 Algorithme négamax avec élagage alpha-beta</td></tr>
 <tr><td><code>evaluation.pl</code></td><td>🎯 Heuristiques de recherche (matériel + PSQT + sécurité)</td></tr>
+<tr><td><code>utils.pl</code></td><td>🔧 Constantes globales et helpers partagés</td></tr>
 </table>
 
 ## ✨ Fonctionnalités
@@ -48,7 +49,7 @@ swipl go.pl
 | **Algorithme** | Négamax¹ + élagage Alpha-Beta² | Profondeur 2 |
 | **Heuristiques** | Matériel + PSQT³ + sécurité pièces | 6 fonctions d'évaluation |
 | **Tri des coups** | MVV-LVA⁴ (Most Valuable Victim) | Élagage ~90% |
-| **Temps de réponse** | Temps réel | < 1 seconde/coup |
+| **Temps de réponse** | Temps réel | < 3 secondes/coup |
 
 **Références techniques :**
 - ¹ Négamax : [Chess Programming Wiki](https://www.chessprogramming.org/Negamax) • [Lichess GitHub](https://github.com/lichess-org/lila)

@@ -48,8 +48,8 @@ Ce travail pratique IFT-2003 implémente un moteur d'échecs intelligent en Prol
 ### 1.2 Objectifs du travail pratique
 
 - Implémentation complète d'un moteur d'échecs avec IA fonctionnelle
-- Architecture modulaire en 6 couches (pieces, board, game, ai, evaluation, interface)
-- Algorithme négamax + alpha-beta avec profondeur 2 (~3-4s/coup)
+- Architecture modulaire en 7 couches (pieces, board, game, ai, evaluation, interface, utils)
+- Algorithme négamax + alpha-beta avec profondeur 2 (<3s/coup)
 - Fonctions d'évaluation combinant matériel, PSQT et sécurité des pièces
 - Suite de tests automatisés (8 sections, 42 tests) validant l'implémentation
 
@@ -63,11 +63,12 @@ Le rapport détaille l'architecture technique, les algorithmes implémentés, le
 
 ### 2.1 Architecture technique
 
-Le système utilise SWI-Prolog 9.x avec une architecture modulaire en 6 couches :
+Le système utilise SWI-Prolog 9.x avec une architecture modulaire en 7 couches :
 
-- **pieces.pl** (365 lignes) : Règles de mouvement, validation trajectoires
-- **board.pl** (398 lignes) : Représentation 8×8, conversions coordonnées  
-- **game.pl** (674 lignes) : Logique métier, détection échec/mat/pat
+- **pieces.pl** (364 lignes) : Règles de mouvement, validation trajectoires
+- **board.pl** (397 lignes) : Représentation 8×8, conversions coordonnées  
+- **game.pl** (666 lignes) : Logique métier, détection échec/mat/pat
+- **utils.pl** (227 lignes) : Constantes globales, helpers partagés
 - **ai.pl** (519 lignes) : Négamax + alpha-beta, génération coups MVV-LVA
 - **evaluation.pl** (410 lignes) : PSQT ChessProgramming.org, sécurité pièces
 - **interface.pl** (550 lignes) : Interface française, gestion modes de jeu
@@ -297,7 +298,7 @@ Métriques de performance validées :
 - Élagage alpha-beta : ~98% réduction nœuds explorés
 - Limite coups : 25/position (optimisé recaptures)
 - Stabilité : 0 crash sur 100+ coups testés
-- Architecture : 6 modules, ~2000 lignes Prolog
+- Architecture : 7 modules, ~3000 lignes Prolog
 
 *[Capture d'écran : Partie en cours avec évaluation positionnelle]*
 
@@ -322,7 +323,7 @@ is_square_attacked(NewBoard, ToRow, ToCol, Player) ->
 ### 4.2 Performance et limites
 
 **Forces du système :**
-- Architecture modulaire maintenable (6 couches séparées)
+- Architecture modulaire maintenable (7 couches séparées)
 - Élagage alpha-beta efficace (~98% réduction)
 - Tests complets validant la cohérence
 - Interface utilisateur robuste
@@ -347,7 +348,7 @@ Corrections prioritaires :
 
 ### 5.1 Bilan technique
 
-Implémentation réussie d'un moteur d'échecs complet en Prolog avec IA fonctionnelle. L'architecture modulaire (6 couches, ~2000 lignes) démontre l'efficacité de Prolog pour les problèmes de logique et de recherche heuristique.
+Implémentation réussie d'un moteur d'échecs complet en Prolog avec IA fonctionnelle. L'architecture modulaire (7 couches, ~3000 lignes) démontre l'efficacité de Prolog pour les problèmes de logique et de recherche heuristique.
 
 ### 5.2 Objectifs atteints
 
@@ -407,7 +408,7 @@ L'utilisation d'outils d'IA générative a été intégrée dans le développeme
 - **Efficacité globale** : Accélération développement (60% gain temps total)
 
 **Travail personnel réalisé :**
-- **Conception** : Architecture modulaire 6 couches, algorithmes négamax/alpha-beta
+- **Conception** : Architecture modulaire 7 couches, algorithmes négamax/alpha-beta
 - **Développement** : Programmation modules pieces.pl, board.pl, game.pl, ai.pl, evaluation.pl
 - **Intégration** : Coordination modules, résolution problèmes d'intégration
 - **Validation** : Tests performance, optimisation code, métriques quantifiées
@@ -428,7 +429,7 @@ L'utilisation d'outils d'IA générative a été intégrée dans le développeme
 5. **Recherche en ligne** : Context7 (MCP server) pour vérification documentation officielle
 
 **Sources consultées :**
-- Code source Prolog (6 modules, ~2000 lignes)
+- Code source Prolog (7 modules, ~3000 lignes)
 - Suite tests automatisés (42 tests, 8 sections)
 - Documentation ChessProgramming.org (PSQT, Alpha-Beta, Negamax)
 - SWI-Prolog Documentation officielle

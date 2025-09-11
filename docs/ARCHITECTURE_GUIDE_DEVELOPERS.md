@@ -2,7 +2,7 @@
 
 ## 📋 **VUE D'ENSEMBLE SYSTÈME**
 
-Ce jeu d'échecs Prolog implémente une architecture modulaire en 6 couches avec une IA négamax. Le système est conçu pour être éducatif, maintenable et extensible.
+Ce jeu d'échecs Prolog implémente une architecture modulaire en 7 couches avec une IA négamax. Le système est conçu pour être éducatif, maintenable et extensible.
 
 ### **🎯 Objectif Pédagogique**
 - Démonstration d'IA d'échecs en Prolog
@@ -12,15 +12,15 @@ Ce jeu d'échecs Prolog implémente une architecture modulaire en 6 couches avec
 
 ## 🏛️ **ARCHITECTURE MODULAIRE**
 
-### **Structure en 6 Couches**
+### **Structure en 7 Couches**
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    INTERFACE UTILISATEUR                    │
 │                     (interface.pl)                          │
+│  • unified_game_loop() - Boucle de jeu modulaire            │
 │  • display_title_box() - Menu principal français            │
-│  • init_unified_game_state() - Modes de jeu                 │
-│  • display_message() - Affichage plateau et messages        │
+│  • handle_player_turn() - Gestion tours joueurs             │
 └─────────────────────────────────────────────────────────────┘
                                 │
 ┌─────────────────────────────────────────────────────────────┐
@@ -35,7 +35,7 @@ Ce jeu d'échecs Prolog implémente une architecture modulaire en 6 couches avec
 │                    INTELLIGENCE ARTIFICIELLE                │
 │                        (ai.pl)                              │
 │  • negamax_ab() - Algorithme négamax + alpha-beta           │
-│  • generate_structured_moves() - Génération coups MVV-LVA   │
+│  • generate_structured_moves_v2() - Génération coups MVV-LVA │
 │  • choose_ai_move() - Prise de décision tactique            │
 └─────────────────────────────────────────────────────────────┘
                                 │
@@ -62,13 +62,21 @@ Ce jeu d'échecs Prolog implémente une architecture modulaire en 6 couches avec
 │  • parse_algebraic_move() - Conversions coordonnées         │
 │  • position_to_algebraic() - Manipulation des positions     │
 └─────────────────────────────────────────────────────────────┘
+                                │
+┌─────────────────────────────────────────────────────────────┐
+│                    UTILITAIRES PARTAGÉS                     │
+│                       (utils.pl)                            │
+│  • chess_constant() - Constantes globales système           │
+│  • valid_position_safe() - Validation robuste               │
+│  • get_piece_safe() - Helpers sécurisés                     │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ### **Métriques du Système**
-- **Total** : ~2000 lignes de code Prolog
-- **Modules** : 6 fichiers principaux
+- **Total** : ~3000 lignes de code Prolog
+- **Modules** : 7 fichiers principaux
 - **Tests** : 42 tests automatisés (8 sections)
-- **Performance** : 0.5-1.1s/coup (négamax + alpha-beta optimisé)
+- **Performance** : <0.6s/coup (négamax + alpha-beta, profondeur 2)
 
 ## 🧠 **ALGORITHMES D'INTELLIGENCE ARTIFICIELLE**
 

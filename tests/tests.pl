@@ -56,8 +56,9 @@ test_ai_with_timeout(TestName, Goal, TimeoutSec) :-
 % Test avec validation rigoureuse
 test_rigorous(TestName, Goal, ValidationGoal) :-
     write('[RUN] '), write(TestName),
+    get_time(Start),
     (   (call(Goal), call(ValidationGoal)) ->
-        (write(' [PASS]'), nl)
+        (get_time(End), Duration is End - Start, format(' [PASS] (~3f sec)', [Duration]), nl)
     ;   (write(' [FAIL]'), nl, fail)
     ).
 
@@ -816,7 +817,7 @@ test_ai_performance_4th_move :-
     write('[TEST] PERFORMANCE 4E COUP IA'), nl,
     write('------------------------------'), nl,
     
-    write('[RUN] Test 1/1: Performance 4e coup IA (5-8 sec attendu).....'), 
+    write('[RUN] Test 1/1: Performance 4e coup IA.....'),  
     catch(
         (% Position fixe apres quelques coups (joueur actuel: noir)
          TestBoard = [
@@ -838,9 +839,9 @@ test_ai_performance_4th_move :-
          Duration is End - Start,
          
          % Verification du timing
-         (Duration < 3.0 -> write(' [PASS]') ;
-          (Duration =< 9.0 -> (write(' [WARN: '), format('~2f', [Duration]), write(' sec]')) ;
-           (write(' [FAIL: '), format('~2f', [Duration]), write(' sec]'), fail))),
+         (Duration < 3.0 -> format(' [PASS] (~3f sec)', [Duration]) ;
+          (Duration =< 9.0 -> (format(' [WARN] (~2f sec)', [Duration])) ;
+           (format(' [FAIL] (~2f sec)', [Duration]), fail))),
          nl),
         Error,
         (write(' [ERROR: '), write(Error), write(']'), nl, fail)
@@ -890,8 +891,7 @@ run_all_tests :-
     
     write('##########################################################'), nl,
     write('#             TESTS TERMINES - SUITE COMPLETE           #'), nl,
-    write('#   7 sections | Focus IA | Validation rigoureuse       #'), nl,
-    write('#   Timeouts stricts | Profondeur production (2)        #'), nl,
+    write('#   7 sections | Timeouts stricts | Profondeur 2         #'), nl,
     write('##########################################################'), nl.
 
 % Runners partiels pour debugging specifique
