@@ -24,6 +24,55 @@
 % - GameStatus: 'active', 'checkmate', 'stalemate', 'draw'
 % - CapturedPieces: Liste des pieces capturees [WhiteCaptured, BlackCaptured]
 
+% =============================================================================
+% GESTION DU GAME STATE - GUIDE DEVELOPPEUR
+% =============================================================================
+%
+% Le Game State est le coeur du systeme d'echecs. Il encapsule tout l'etat
+% du jeu a un moment donne et permet la gestion des transitions d'etat.
+%
+% STRUCTURE IMMUTABLE :
+% game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces)
+% 
+% 1. Board [List of Lists 8x8] - Echiquier avec pieces actuelles
+% 2. CurrentPlayer [white|black] - Joueur dont c'est le tour
+% 3. MoveCount [Integer] - Compteur de coups (commence a 0)
+% 4. GameStatus [active|checkmate|stalemate|draw] - Etat de la partie
+% 5. CapturedPieces [[WhiteList], [BlackList]] - Pieces capturees par couleur
+%
+% FLUX DE TRANSITION D'ETAT :
+% GameState_N --[make_move]--> GameState_N+1
+%
+% 1. VALIDATION du coup (valid_move/6)
+%    - Coordonnees valides
+%    - Piece appartient au joueur
+%    - Case destination legale
+%    - Regles specifiques a la piece
+%    - Roi pas en echec apres le coup
+%
+% 2. EXECUTION du mouvement (execute_move/6)
+%    - Capture piece ennemie si presente
+%    - Deplace piece (avec promotion automatique pion)
+%    - Met a jour liste pieces capturees
+%
+% 3. AVANCEMENT d'etat (advance_game_state/5)
+%    - Change joueur actuel (switch_player/2)
+%    - Incremente compteur coups
+%    - Determine nouveau statut (active/mat/pat)
+%
+% INVARIANTS CRITIQUES :
+% - GameState est IMMUTABLE (nouveau state a chaque coup)
+% - Validation COMPLETE avant execution
+% - Detection echec/mat automatique apres chaque coup
+% - Pieces capturees preservees pour interface/debug
+%
+% USAGE TYPIQUE :
+% ?- init_game_state(GameState0),
+%    make_move_algebraic(GameState0, "e2e4", GameState1),
+%    make_move_algebraic(GameState1, "e7e5", GameState2).
+%
+% =============================================================================
+
 % init_game_state(-GameState)
 % Initialise un nouvel etat de jeu avec l'echiquier standard.
 init_game_state(GameState) :-
