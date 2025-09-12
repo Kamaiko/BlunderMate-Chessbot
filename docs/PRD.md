@@ -30,7 +30,7 @@
 ## ⚙️ Exigences Fonctionnelles
 
 ### 🎯 Obligatoires (P0) - TP1
-- **EF-002** : Algorithme minimax avec profondeur fixe niveau 2
+- **EF-002** : Algorithme négamax avec profondeur fixe niveau 2
 - **EF-003** : Élagage alpha-beta pour optimisation performance
 - **EF-004** : Évaluation heuristique position (matériel, mobilité, sécurité roi)
 - **EF-006** : Mode Humain vs IA avec temps de réponse raisonnable
@@ -39,11 +39,6 @@
 - **EF-007** : Promotion pions automatique vers dame
 - **EF-009** : Affichage raisonnement IA et scores évaluation
 
-### 🔄 Optionnelles (P2) - Extensions Futures
-- **En Passant** : Capture spéciale pion adjacente
-- **Roque** : Validation roi/tour non bougés
-- **GUI** : Interface graphique
-- **Niveaux difficulté** : Profondeur recherche configurable
 
 ## 🎮 Expérience Utilisateur
 

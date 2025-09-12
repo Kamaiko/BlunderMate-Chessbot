@@ -9,7 +9,7 @@
 % - Fonctions mathématiques communes
 %
 % Approche Hybride :
-% - Constantes VRAIMENT globales ici (board_size, etc.)
+% - Constantes globales ici (board_size, etc.)
 % - Constantes métier restent dans leurs modules (scores IA, tables PSQT, etc.)
 % - Helpers partagés pour éviter duplication
 %
