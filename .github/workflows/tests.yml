@@ -7,7 +7,7 @@ on:
     branches: [ master, main ]
 
 jobs:
-  test:
+  test-suite:
     runs-on: ubuntu-latest
     container: swipl:latest  # Image Docker officielle SWI-Prolog (~30s vs 2-3min)
 
