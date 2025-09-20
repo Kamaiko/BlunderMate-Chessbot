@@ -17,10 +17,16 @@ jobs:
     - name: Verify SWI-Prolog installation
       run: swipl --version
 
-    - name: Run Chess Tests
+    - name: Debug - Show directory structure
       run: |
-        cd ${{ github.workspace }}
-        swipl -s tests/tests.pl -g "run_tests, halt."
+        echo "Current directory: $(pwd)"
+        echo "Files in current directory:"
+        ls -la
+        echo "Test directory contents:"
+        ls -la tests/
+
+    - name: Run Chess Tests
+      run: swipl -s tests/tests.pl -g "run_tests, halt."
 
     - name: Run Foundation Tests
       run: swipl -s tests/tests.pl -g "run_foundation_tests, halt."
