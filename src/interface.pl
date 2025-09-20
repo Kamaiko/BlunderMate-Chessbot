@@ -201,8 +201,8 @@ display_welcome_screen :-
 wait_for_keypress :-
     flush_output,
     write('               Appuyez sur une touche pour continuer...'),
-    % Accepter n'importe quelle touche (caractère unique ou ligne complète)
-    catch(get_single_char(_), _, read_line_to_codes(user_input, _)).
+    % Pause pour permettre la lecture, mais ne consomme pas l'input
+    nl.
 
 
 % =============================================================================
@@ -262,12 +262,18 @@ display_modern_menu :-
 % read_menu_choice(-Choice)
 % Lit le choix du menu de maniere robuste.
 read_menu_choice(Choice) :-
-    catch(get_single_char(CharCode), _, CharCode = -1),
-    (CharCode >= 0 ->
-        char_code(Choice, CharCode)
-    ;   Choice = '6'  % Défaut: quitter si EOF ou erreur
+    flush_output,
+    catch(
+        (read_line_to_codes(user_input, Codes),
+         (Codes = [CharCode|_] ->
+             char_code(Choice, CharCode)
+         ;   Choice = '6'  % Défaut: quitter si ligne vide
+         )
+        ),
+        _,
+        Choice = '6'  % Défaut: quitter si erreur
     ),
-    nl, nl.
+    nl.
 
 % pause_and_return_menu
 % Pause elegant et retour au menu principal.
@@ -279,37 +285,44 @@ pause_and_return_menu :-
 
 % process_choice(+Choice)
 % Traitement des choix du menu principal.
-process_choice('1') :-
-    start_human_game.
+% Accepte à la fois atoms et strings pour robustesse
+process_choice('1') :- start_human_game.
+process_choice(1) :- start_human_game.
 
-process_choice('2') :-
-    start_ai_game.
+process_choice('2') :- start_ai_game.
+process_choice(2) :- start_ai_game.
 
 process_choice('3') :-
     display_title_box('TESTS'),
     display_message_ln(loading_tests),
     (consult('tests/tests') ->
-        (catch(run_all_tests, Error, 
+        (catch(run_all_tests, Error,
+            (write('[TESTS ERROR: '), write(Error), write(']'), nl)
+         ) -> true ; true)
+    ;   display_message_ln(error_loading_tests),
+        display_message_ln(ensure_file_exists)),
+    pause_and_return_menu.
+process_choice(3) :-
+    display_title_box('TESTS'),
+    display_message_ln(loading_tests),
+    (consult('tests/tests') ->
+        (catch(run_all_tests, Error,
             (write('[TESTS ERROR: '), write(Error), write(']'), nl)
          ) -> true ; true)
     ;   display_message_ln(error_loading_tests),
         display_message_ln(ensure_file_exists)),
     pause_and_return_menu.
 
-process_choice('4') :-
-    show_help,
-    pause_and_return_menu.
+process_choice('4') :- show_help, pause_and_return_menu.
+process_choice(4) :- show_help, pause_and_return_menu.
 
-process_choice('5') :-
-    show_about,
-    pause_and_return_menu.
+process_choice('5') :- show_about, pause_and_return_menu.
+process_choice(5) :- show_about, pause_and_return_menu.
 
-process_choice('6') :-
-    display_message_ln(goodbye),
-    nl,
-    halt.
+process_choice('6') :- display_message_ln(goodbye), nl, halt.
+process_choice(6) :- display_message_ln(goodbye), nl, halt.
 
-process_choice(_) :-
+process_choice(InvalidChoice) :-
     nl,
     write('CHOIX INVALIDE'), nl,
     pause_and_return_menu.

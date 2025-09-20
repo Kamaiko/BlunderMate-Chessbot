@@ -390,7 +390,7 @@ handle_input_error(_) :-
 % Nettoie et normalise une chaine d'entree.
 normalize_input_string(String, Input) :-
     (String = end_of_file ->
-        Input = quit
+        Input = menu  % EOF retourne au menu au lieu de quit invalide
     ;   normalize_space(string(CleanString), String),
         remove_trailing_dot(CleanString, FinalString),
         atom_string(Input, FinalString)).
