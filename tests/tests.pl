@@ -62,16 +62,17 @@ test_rigorous(TestName, Goal, ValidationGoal) :-
     ;   (write(' [FAIL]'), nl, fail)
     ).
 
-% Headers sections uniformes
+% Headers sections uniformes avec lignes adaptatives
 display_section_header(Section, Description) :-
-    write('==============================================='), nl,
-    write('==== SECTION '), write(Section), write(' ===='), nl,
-    write('Description: '), write(Description), nl,
-    write('==============================================='), nl.
+    write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl,
+    write(' SECTION '), write(Section), nl,
+    write(' Description: '), write(Description), nl,
+    write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl.
 
 display_section_footer(Message) :-
-    write('==============================================='), nl,
-    write('*** '), write(Message), write(' ***'), nl, nl.
+    write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl,
+    write(' ★★★ '), write(Message), write(' ★★★'), nl,
+    write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl, nl.
 
 % =============================================================================
 % ==== SECTION 1: FONDATIONS ====
@@ -87,7 +88,7 @@ run_foundation_tests :-
 % Tests initialisation avec validation rigoureuse
 test_game_initialization :-
     write('[TEST] INITIALISATION JEU'), nl,
-    write('------------------------------------'), nl,
+    write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl,
     
     test_rigorous(
         'Test 1/3: Plateau 8x8 structure correcte...........',
@@ -113,7 +114,7 @@ test_game_initialization :-
 % Tests structures donnees avec validation poussee
 test_data_structures_rigorous :-
     write('[TEST] STRUCTURES DONNEES'), nl,
-    write('-------------------------------------'), nl,
+    write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl,
     
     test_rigorous(
         'Test 1/1: GameState structure basique...............',
@@ -126,7 +127,7 @@ test_data_structures_rigorous :-
 % Tests notation algebrique complete
 test_algebraic_notation_complete :-
     write('[TEST] NOTATION ALGEBRIQUE COMPLETE'), nl,
-    write('-----------------------------------'), nl,
+    write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl,
     
     test_rigorous(
         'Test 1/3: Parse coups standards e2e4, d7d5..........',
@@ -166,7 +167,7 @@ run_game_rules_tests :-
 % Tests regles pions rigoureuses
 test_pawn_rules_rigorous :-
     write('[TEST] REGLES PIONS'), nl,
-    write('-------------------------------'), nl,
+    write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl,
     
     init_game_state(game_state(Board, _, _, _, _)),
     
@@ -207,7 +208,7 @@ test_pawn_rules_rigorous :-
 % Tests pieces majeures essentiels
 test_major_pieces_essential :-
     write('[TEST] PIECES MAJEURES ESSENTIELLES'), nl,
-    write('-----------------------------------'), nl,
+    write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl,
     
     create_empty_board(EmptyBoard),
     place_single_piece(EmptyBoard, 4, 4, 'Q', Board1),
@@ -241,7 +242,7 @@ test_major_pieces_essential :-
 % Tests mouvements speciaux critiques
 test_special_moves_critical :-
     write('[TEST] MOUVEMENTS SPECIAUX CRITIQUES'), nl,
-    write('------------------------------------'), nl,
+    write('─────────────────────────────────────'), nl,
     
     test_rigorous(
         'Test 1/2: Detection promotion automatique............',
@@ -282,7 +283,7 @@ run_ai_algorithm_tests :-
 % Tests negamax coeur avec timeouts stricts
 test_negamax_core_rigorous :-
     write('[TEST] NEGAMAX COEUR'), nl,
-    write('-------------------------------'), nl,
+    write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl,
     
     init_game_state(GameState),
     
@@ -305,7 +306,7 @@ test_negamax_core_rigorous :-
 % Tests alpha-beta avec verification elagage
 test_alpha_beta_pruning_verified :-
     write('[TEST] ALPHA-BETA PRUNING VERIFIE'), nl,
-    write('---------------------------------'), nl,
+    write('─────────────────────────────────────'), nl,
     
     init_game_state(GameState),
     
@@ -329,7 +330,7 @@ test_alpha_beta_pruning_verified :-
 % Tests generation coups complete
 test_move_generation_complete :-
     write('[TEST] GENERATION COUPS COMPLETE'), nl,
-    write('--------------------------------'), nl,
+    write('─────────────────────────────────────'), nl,
     
     init_game_state(GameState),
     
@@ -375,7 +376,7 @@ test_move_generation_complete :-
 % Tests tri coups optimise MVV-LVA  
 test_move_ordering_optimized :-
     write('[TEST] TRI COUPS OPTIMISE MVV-LVA'), nl,
-    write('---------------------------------'), nl,
+    write('─────────────────────────────────────'), nl,
     
     % Position avec captures prioritaires
     create_empty_board(EmptyBoard),
@@ -424,7 +425,7 @@ run_ai_evaluation_tests :-
 % Tests evaluation materielle precise
 test_material_evaluation_precise :-
     write('[TEST] EVALUATION MATERIELLE PRECISE'), nl,
-    write('------------------------------------'), nl,
+    write('─────────────────────────────────────'), nl,
     
     test_rigorous(
         'Test 1/4: Valeurs pieces standard correctes........',
@@ -453,7 +454,7 @@ test_material_evaluation_precise :-
 % Tests PSQT verification rigoureuse
 test_psqt_evaluation_verified :-
     write('[TEST] PSQT EVALUATION VERIFIEE'), nl,
-    write('-------------------------------'), nl,
+    write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl,
     
     test_rigorous(
         'Test 1/4: Cavalier centre superieur au bord........',
@@ -484,7 +485,7 @@ test_psqt_evaluation_verified :-
 % Tests securite pieces critiques  
 test_piece_safety_critical :-
     write('[TEST] ARCHITECTURE SECURITE PIECES'), nl,
-    write('----------------------------------'), nl,
+    write('─────────────────────────────────────'), nl,
     
     write('[RUN] Test 1/3: Detection piece defendue fonctionnelle... [PASS]'), nl,
     write('[RUN] Test 2/3: Detection piece isolee fonctionnelle..... [PASS]'), nl,
@@ -501,7 +502,7 @@ test_piece_safety_critical :-
 % Tests evaluation position complete
 test_position_evaluation_complete :-
     write('[TEST] EVALUATION POSITION COMPLETE'), nl,
-    write('-----------------------------------'), nl,
+    write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl,
     
     init_game_state(GameState),
     
@@ -531,7 +532,7 @@ run_tactical_tests :-
 % Tests detection echec complete
 test_check_detection_complete :-
     write('[TEST] DETECTION ECHEC COMPLETE'), nl,
-    write('-------------------------------'), nl,
+    write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl,
     
     init_game_state(GS1),
     test_rigorous(
@@ -582,7 +583,7 @@ test_check_detection_complete :-
 % Tests detection mat rigoureuse
 test_mate_detection_rigorous :-
     write('[TEST] DETECTION MAT'), nl,
-    write('-------------------------------'), nl,
+    write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl,
     
     % Mat du couloir (back rank mate)
     create_empty_board(EmptyBoard),
@@ -625,7 +626,7 @@ test_mate_detection_rigorous :-
 % Tests detection pat precise
 test_stalemate_detection_precise :-
     write('[TEST] DETECTION PAT PRECISE'), nl,
-    write('----------------------------'), nl,
+    write('─────────────────────────────────────'), nl,
     
     % Pat classique roi sans echec mais aucun coup legal
     create_empty_board(EmptyBoard),
@@ -667,7 +668,7 @@ run_robustness_tests :-
 % Tests validation entrees complete
 test_input_validation_complete :-
     write('[TEST] VALIDATION ENTREES COMPLETE'), nl,
-    write('----------------------------------'), nl,
+    write('─────────────────────────────────────'), nl,
     
     init_game_state(game_state(Board, _, _, _, _)),
     
@@ -710,7 +711,7 @@ test_input_validation_complete :-
 % Tests conditions limites approfondies
 test_boundary_conditions_thorough :-
     write('[TEST] CONDITIONS LIMITES APPROFONDIES'), nl,
-    write('---------------------------------------'), nl,
+    write('─────────────────────────────────────'), nl,
     
     test_rigorous(
         'Test 1/4: Coins echiquier valides a1, h1, a8, h8...',
@@ -745,7 +746,7 @@ test_boundary_conditions_thorough :-
 % Tests recuperation erreurs securisee
 test_error_recovery_safe :-
     write('[TEST] RECUPERATION ERREURS SECURISEE'), nl,
-    write('--------------------------------------'), nl,
+    write('─────────────────────────────────────'), nl,
     
     write('[RUN] Test 1/3: Variables non liees gerees proprement.... [PASS]'), nl,
     
@@ -778,7 +779,7 @@ run_integration_tests :-
 % Tests sequence jeu complete
 test_complete_game_sequence :-
     write('[TEST] ARCHITECTURE JEU COMPLETE'), nl,
-    write('--------------------------------'), nl,
+    write('─────────────────────────────────────'), nl,
     
     init_game_state(GS0),
     
@@ -796,7 +797,7 @@ test_complete_game_sequence :-
 % Tests simulation IA vs Humain
 test_ai_vs_human_simulation :-
     write('[TEST] ARCHITECTURE IA VS HUMAIN'), nl,
-    write('---------------------------------'), nl,
+    write('─────────────────────────────────────'), nl,
     
     init_game_state(GameState),
     
@@ -805,7 +806,7 @@ test_ai_vs_human_simulation :-
 % Tests scenarios finale critiques
 test_endgame_scenarios_critical :-
     write('[TEST] ARCHITECTURE FINALE'), nl,
-    write('---------------------------'), nl,
+    write('─────────────────────────────────────'), nl,
     
     write('[RUN] Test 1/2: IA trouve coup progressif finale Dame+Roi [PASS]'), nl,
     
@@ -815,7 +816,7 @@ test_endgame_scenarios_critical :-
 % Tests performance 4e coup IA
 test_ai_performance_4th_move :-
     write('[TEST] PERFORMANCE 4E COUP IA'), nl,
-    write('------------------------------'), nl,
+    write('─────────────────────────────────────'), nl,
     
     write('[RUN] Test 1/1: Performance 4e coup IA..................'),  
     catch(
@@ -867,11 +868,9 @@ simulate_ai_game_moves(GameState, MovesLeft, FinalGameState) :-
 
 % Runner principal - execution complete avec focus IA
 run_all_tests :-
-    write('##########################################################'), nl,
-    write('#       SUITE TESTS PROLOG CHESS AI v6.0 FINALE         #'), nl,
-    write('#       Focus: Algorithmes IA + Evaluation Heuristique  #'), nl,
-    write('#       Timeouts: 10s IA | Profondeur: 2 | Tests: 7 sec #'), nl,  
-    write('##########################################################'), nl, nl,
+    write('╔══════════════════════════════════════════════════════════╗'), nl,
+    write('║         SUITE TESTS PROLOG CHESS AI v6.0 FINALE         ║'), nl,
+    write('╚══════════════════════════════════════════════════════════╝'), nl, nl,
     
     % Execution sections avec gestion erreurs robuste
     catch(run_foundation_tests, Error1, 
@@ -889,10 +888,9 @@ run_all_tests :-
     catch(run_integration_tests, Error7, 
           format('[SECTION 7 ERROR: ~w]~n', [Error7])), nl,
     
-    write('##########################################################'), nl,
-    write('#             TESTS TERMINES - SUITE COMPLETE           #'), nl,
-    write('#   7 sections | Timeouts stricts | Profondeur 2         #'), nl,
-    write('##########################################################'), nl.
+    write('╔══════════════════════════════════════════════════════════╗'), nl,
+    write('║             TESTS TERMINES - SUITE COMPLETE             ║'), nl,
+    write('╚══════════════════════════════════════════════════════════╝'), nl.
 
 % Runners partiels pour debugging specifique
 run_core_ai_tests :-

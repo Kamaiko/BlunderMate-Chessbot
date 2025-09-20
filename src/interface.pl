@@ -123,16 +123,18 @@ draw_spaces(Count) :-
     forall(between(1, Count, _), write(' ')).
 
 % display_title_box(+Title)
-% Affiche un titre dans une boite ASCII de 50 caracteres de large.
+% Affiche un titre dans une boite Unicode professionnelle.
 display_title_box(Title) :-
     nl, nl,
-    write('    '), draw_line(50, '='), nl,
-    write('    |'), draw_spaces(48), write('|'), nl,
-    write('    |'),
-    center_text(Title, 48),
-    write('|'), nl,
-    write('    |'), draw_spaces(48), write('|'), nl,
-    write('    '), draw_line(50, '='), nl, nl.
+    write('    ╔════════════════════════════════════════════════════════════════╗'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ║'),
+    center_text(Title, 64),
+    write('║'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ║    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━    ║'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ╚════════════════════════════════════════════════════════════════╝'), nl, nl.
 
 % =============================================================================
 % SECTION 4 : UTILITAIRES D'AFFICHAGE DES MESSAGES
@@ -158,12 +160,62 @@ get_message(Key, Text) :-
     message(Key, Text).
 
 % =============================================================================
-% SECTION 5 : MENU PRINCIPAL ET NAVIGATION
+% SECTION 5 : PAGE D'ACCUEIL BLUNDERBOT
+% =============================================================================
+
+%! display_welcome_screen is det.
+%  Affiche la page d'accueil avec ASCII art Blunderbot
+%  Design élégant avec pièces d'échecs Unicode si supporté
+display_welcome_screen :-
+    % Ne pas effacer l'écran pour éviter les problèmes shell
+    nl, nl,
+    write('    ╔════════════════════════════════════════════════════════════════╗'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ║  ██████╗ ██╗     ██╗   ██╗███╗   ██╗██████╗ ███████╗██████╗    ║'), nl,
+    write('    ║  ██╔══██╗██║     ██║   ██║████╗  ██║██╔══██╗██╔════╝██╔══██╗   ║'), nl,
+    write('    ║  ██████╔╝██║     ██║   ██║██╔██╗ ██║██║  ██║█████╗  ██████╔╝   ║'), nl,
+    write('    ║  ██╔══██╗██║     ██║   ██║██║╚██╗██║██║  ██║██╔══╝  ██╔══██╗   ║'), nl,
+    write('    ║  ██████╔╝███████╗╚██████╔╝██║ ╚████║██████╔╝███████╗██║  ██║   ║'), nl,
+    write('    ║  ╚═════╝ ╚══════╝ ╚═════╝ ╚═╝  ╚═══╝╚═════╝ ╚══════╝╚═╝  ╚═╝   ║'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ║             ███╗   ███╗ █████╗ ████████╗███████╗               ║'), nl,
+    write('    ║             ████╗ ████║██╔══██╗╚══██╔══╝██╔════╝               ║'), nl,
+    write('    ║             ██╔████╔██║███████║   ██║   █████╗                 ║'), nl,
+    write('    ║             ██║╚██╔╝██║██╔══██║   ██║   ██╔══╝                 ║'), nl,
+    write('    ║             ██║ ╚═╝ ██║██║  ██║   ██║   ███████╗               ║'), nl,
+    write('    ║             ╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝   ╚══════╝               ║'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ║                           Chessbot.IA                          ║'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ║                           Version 6.0                          ║'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ║                 Developpe par Patrick Patenaude                ║'), nl,
+    write('    ║                    19 septembre 2025 - v6.0                    ║'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ╚════════════════════════════════════════════════════════════════╝'), nl,
+    nl.
+
+%! wait_for_keypress is det.
+%  Attend qu'une touche soit pressée pour continuer
+%  Version robuste qui accepte n'importe quelle touche
+wait_for_keypress :-
+    flush_output,
+    write('               Appuyez sur une touche pour continuer...'),
+    % Accepter n'importe quelle touche (caractère unique ou ligne complète)
+    catch(get_single_char(_), _, read_line_to_codes(user_input, _)).
+
+
+% =============================================================================
+% SECTION 6 : MENU PRINCIPAL ET NAVIGATION
 % =============================================================================
 
 % start
 % Point d'entree principal du programme.
-start :- main_menu.
+% Affiche d'abord la page d'accueil, puis le menu principal
+start :-
+    display_welcome_screen,
+    wait_for_keypress,
+    main_menu.
 
 % main_menu
 % Affiche et gere le menu principal moderne.
@@ -173,40 +225,39 @@ main_menu :-
     process_choice(Choice).
 
 % display_modern_menu
-% Affiche le menu principal avec design ASCII moderne.
+% Affiche le menu principal avec design professionnel matching l'ecran d'accueil.
 display_modern_menu :-
     nl, nl,
-    % Bordure superieure
-    write('    '), draw_line(50, '='), nl,
-    write('    |'), draw_spaces(48), write('|'), nl,
-    
-    % Titre centre
-    write('    |'),
-    center_text('JEU D\'ECHECS PROLOG', 48),
-    write('|'), nl,
-    
-    write('    |'), draw_spaces(48), write('|'), nl,
-    write('    '), draw_line(50, '='), nl,
+    % Boite principale avec hauteur identique a l'ecran d'accueil (24 lignes)
+    write('    ╔════════════════════════════════════════════════════════════════╗'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ║                          MENU PRINCIPAL                        ║'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ║        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━       ║'), nl,
+    write('    ║                       ┌──────────────────┐                     ║'), nl,
+    write('    ║                    8  │ ♖ ♘ ♗ ♕ ♔ ♗ ♘ ♖  │                     ║'), nl,
+    write('    ║                    7  │ ♙ ♙ ♙ ♙ ♙ ♙ ♙ ♙  │                     ║'), nl,
+    write('    ║                    6  │ · · · · · · · ·  │                     ║'), nl,
+    write('    ║                    5  │ · · · · · · · ·  │                     ║'), nl,
+    write('    ║                    4  │ · · · · · · · ·  │                     ║'), nl,
+    write('    ║                    3  │ · · · · · · · ·  │                     ║'), nl,
+    write('    ║                    2  │ ♟ ♟ ♟ ♟ ♟ ♟ ♟ ♟  │                     ║'), nl,
+    write('    ║                    1  │ ♜ ♞ ♝ ♛ ♚ ♝ ♞ ♜  │                     ║'), nl,
+    write('    ║                       └──────────────────┘                     ║'), nl,
+    write('    ║                         a b c d e f g h                        ║'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ║     ┌─────────────────────────────────────────────────────┐    ║'), nl,
+    write('    ║     │  [1] Humain vs Humain     [4] Aide                  │    ║'), nl,
+    write('    ║     │  [2] IA vs Humain         [5] A Propos              │    ║'), nl,
+    write('    ║     │  [3] Suite de Tests       [6] Quitter               │    ║'), nl,
+    write('    ║     └─────────────────────────────────────────────────────┘    ║'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ║                  Chessbot.IA - Menu Interactif                 ║'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ╚════════════════════════════════════════════════════════════════╝'), nl,
     nl,
-    
-    % Sections organisees du menu
-    write('--- MODES DE JEU ---'), nl,
-    write('1. Humain vs Humain'), nl,
-    write('2. Mode IA vs Humain'), nl,
-    nl,
-    write('--- OUTILS ---'), nl,
-    write('3. Tests'), nl,
-    nl,
-    write('--- INFORMATIONS ---'), nl,
-    write('4. Aide'), nl,
-    write('5. A Propos'), nl,
-    nl,
-    write('6. Quitter'), nl,
-    nl,
-    
-    % Ligne de separation
-    write('    '), draw_line(35, '-'), nl,
-    write('Entrez votre choix (1-6): ').
+    % Prompt d'entree centre en dehors de la boite
+    write('Entrez votre choix [1-6] : ').
 
 % read_menu_choice(-Choice)
 % Lit le choix du menu de maniere robuste.
@@ -222,7 +273,6 @@ read_menu_choice(Choice) :-
 % Pause elegant et retour au menu principal.
 pause_and_return_menu :-
     nl,
-    write('    '), draw_line(35, '-'), nl,
     write('    Appuyez sur une touche pour continuer...'),
     catch(get_single_char(_), _, true),
     main_menu.
@@ -274,7 +324,10 @@ display_game_state_if_needed(UnifiedGameState) :-
     extract_game_state(UnifiedGameState, GameState),
     GameState = game_state(_, Player, MoveCount, _, _),
     (   should_display_board(UnifiedGameState, Player, MoveCount) ->
-        display_game_state(GameState)
+        % Utiliser la nouvelle interface seamless
+        determine_game_mode(UnifiedGameState, GameMode),
+        determine_last_move(GameState, LastMove),
+        display_game_interface(GameState, GameMode, LastMove)
     ;   true  % Pas d'affichage nécessaire
     ).
 
@@ -356,7 +409,7 @@ unified_game_loop(UnifiedGameState) :-
 handle_player_turn(UnifiedGameState, _Player, human, NewUnifiedGameState) :-
     % Tour d'un joueur humain - utilise l'interface unifiee
     write('    '), draw_line(35, '-'), nl,
-    write('Entrez votre coup (ex: e2e4) ou \'aide\': '),
+    write('Entrez votre coup ou \'aide\' : '),
     read_player_input(Input),
     extract_game_state(UnifiedGameState, GameState),
     process_game_input(Input, GameState, NewGameState),
@@ -539,82 +592,269 @@ attempt_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState) :-
 % =============================================================================
 
 % show_help
-% Affiche l'aide generale avec design moderne.
+% Affiche l'aide generale depuis le menu principal (sans pause).
 show_help :-
-    nl, nl,
-    % En-tete aide
-    write('    '), draw_line(50, '='), nl,
-    write('    |'), draw_spaces(48), write('|'), nl,
-    write('    |'),
-    center_text('AIDE - JEU D\'ECHECS PROLOG', 48),
-    write('|'), nl,
-    write('    |'), draw_spaces(48), write('|'), nl,
-    write('    '), draw_line(50, '='), nl,
-    nl,
-    
-    % Sections d'aide
-    write('    FORMAT DES COUPS'), nl,
-    write('    '), draw_line(35, '-'), nl,
-    write('    Notation algebrique: e2e4 (de e2 vers e4)'), nl,
-    write('    Colonnes: a-h  |  Rangees: 1-8'), nl,
-    nl,
-    
-    write('    COMMANDES PENDANT LE JEU'), nl,
-    write('    '), draw_line(35, '-'), nl,
-    write('    aide        : Afficher cette aide'), nl,
-    write('    menu        : Retour au menu principal'), nl,
-    write('    quitter     : Quitter le programme'), nl,
-    nl.
+    show_unified_help_no_pause.
 
 % show_game_help(+GameState)
-% Affiche l'aide pendant le jeu avec design moderne et pause interactive, puis le board.
+% Affiche l'aide pendant le jeu puis retourne au plateau.
 show_game_help(GameState) :-
-    nl,
-    write('    '), draw_line(40, '='), nl,
-    write('    AIDE RAPIDE'), nl,
-    write('    '), draw_line(40, '='), nl,
-    write('    COUPS: e2e4 (de e2 vers e4)'), nl,
-    write('    COMMANDES: menu, quitter'), nl,
-    write('    PIECES: P/p=Pion R/r=Tour N/n=Cavalier'), nl,
-    write('            B/b=Fou Q/q=Dame K/k=Roi'), nl,
-    write('    '), draw_line(40, '='), nl,
-    nl,
-    
+    show_unified_help(GameState).
+
+% show_unified_help_no_pause
+% Affiche l'aide sans pause (pour menu principal).
+show_unified_help_no_pause :-
+    display_help_content.
+
+% show_unified_help(+GameStateOrNone)
+% Fonction d'aide unifiee pour jeu avec pause et affichage plateau.
+show_unified_help(GameStateOrNone) :-
+    display_help_content,
+
     % Pause interactive
     write('    Appuyez sur une touche pour continuer...'),
     catch(get_single_char(_), _, true),
     nl,
-    
-    % Afficher le board state apres l'aide
-    display_game_state(GameState).
+
+    % Afficher le board state si on est en jeu
+    (   GameStateOrNone \= none ->
+        display_game_state(GameStateOrNone)
+    ;   true
+    ).
+
+% display_help_content
+% Affiche le contenu de l'aide (partie commune).
+display_help_content :-
+    nl, nl,
+    % Fenetre Aide unifiee avec dimensions identiques aux autres fenetres
+    write('    ╔════════════════════════════════════════════════════════════════╗'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ║                              AIDE                              ║'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ║    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━    ║'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ║              ╭──────  Guide d\'utilisation  ──────╮             ║'), nl,
+    write('    ║    ╔══════════════════════════════════════════════════════╗    ║'), nl,
+    write('    ║    ║                                                      ║    ║'), nl,
+    write('    ║    ║  ▸ FORMAT DES COUPS                                  ║    ║'), nl,
+    write('    ║    ║    Notation algebrique: e2e4 (de e2 vers e4)         ║    ║'), nl,
+    write('    ║    ║    Colonnes: a-h  |  Rangees: 1-8                    ║    ║'), nl,
+    write('    ║    ║                                                      ║    ║'), nl,
+    write('    ║    ║  ▸ COMMANDES PENDANT LE JEU                          ║    ║'), nl,
+    write('    ║    ║    aide    : Afficher cette aide                     ║    ║'), nl,
+    write('    ║    ║    menu    : Retour au menu principal                ║    ║'), nl,
+    write('    ║    ║    quitter : Quitter le programme                    ║    ║'), nl,
+    write('    ║    ║                                                      ║    ║'), nl,
+    write('    ║    ║  ▸ PIECES: P/p=Pion  R/r=Tour  N/n=Cavalier          ║    ║'), nl,
+    write('    ║    ║            B/b=Fou   Q/q=Dame  K/k=Roi               ║    ║'), nl,
+    write('    ║    ║                                                      ║    ║'), nl,
+    write('    ║    ║  ▸ PIECES & SYMBOLES                                 ║    ║'), nl,
+    write('    ║    ║    Blancs: ♜ ♞ ♝ ♛ ♚ ♟   (minuscules p/r/n/b/q/k)  ║    ║'), nl,
+    write('    ║    ║    Noirs:  ♖ ♘ ♗ ♕ ♔ ♙   (MAJUSCULES P/R/N/B/Q/K)  ║    ║'), nl,
+    write('    ║    ║                                                      ║    ║'), nl,
+    write('    ║    ║  ▸ RACCOURCIS: [Tab] historique  [↑↓] navigation    ║    ║'), nl,
+    write('    ║    ║                                                      ║    ║'), nl,
+    write('    ║    ╚══════════════════════════════════════════════════════╝    ║'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ╚════════════════════════════════════════════════════════════════╝'), nl,
+    nl.
 
 % show_about
-% Affiche les informations "A Propos" du projet.
+% Affiche les informations "A Propos" du projet avec design professionnel.
 show_about :-
     nl, nl,
-    % En-tete A Propos
-    draw_line(50, '='), nl,
-    write('|'), draw_spaces(48), write('|'), nl,
-    write('|'),
-    center_text('A PROPOS', 48),
-    write('|'), nl,
-    write('|'), draw_spaces(48), write('|'), nl,
-    draw_line(50, '='), nl,
-    nl,
-    
-    % Informations du projet
-    write('JEU D\'ECHECS PROLOG'), nl,
-    write('Projet universitaire IFT-2003'), nl,
-    write('Universite Laval'), nl,
-    nl,
-    write('Auteur: Patrick Patenaude'), nl,
-    write('Date: Octobre 2025'), nl,
-    nl,
-    write('CARACTERISTIQUES TECHNIQUES:'), nl,
-    write('- Moteur d\'echecs complet en Prolog'), nl,
-    write('- IA Negamax + Alpha-Beta (profondeur 2)'), nl,
-    write('- Architecture modulaire 6 couches'), nl,
-    write('- Interface francaise professionnelle'), nl,
-    write('- Suite de tests automatises'), nl,
+    % Fenetre A Propos avec dimensions identiques aux autres fenetres
+    write('    ╔════════════════════════════════════════════════════════════════╗'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ║                            A PROPOS                            ║'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ║    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━    ║'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ║             ╭─────  Chessbot ecrit en Prolog  ────╮            ║'), nl,
+    write('    ║               IA utilisant Negamax avec Alpha-Beta             ║'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ║    ╔══════════════════════════════════════════════════════╗    ║'), nl,
+    write('    ║    ║                                                      ║    ║'), nl,
+    write('    ║    ║  ▸ Developpe par Patrick Patenaude                   ║    ║'), nl,
+    write('    ║    ║  ▸ VERSION: 6.0 Unicode - Septembre 2025             ║    ║'), nl,
+    write('    ║    ║  ▸ COURS: IFT-2003 Intelligence Artificielle         ║    ║'), nl,
+    write('    ║    ║  ▸ INSTITUTION: Universite Laval                     ║    ║'), nl,
+    write('    ║    ║                                                      ║    ║'), nl,
+    write('    ║    ║  ──────────────────────────────────────────────────  ║    ║'), nl,
+    write('    ║    ║                                                      ║    ║'), nl,
+    write('    ║    ║  Performance IA:                                     ║    ║'), nl,
+    write('    ║    ║   • Profondeur 2 avec elagage alpha-beta            ║    ║'), nl,
+    write('    ║    ║   • Temps de reponse < 0.1s par coup                ║    ║'), nl,
+    write('    ║    ║   • Evaluation PSQT + materiel + defense             ║    ║'), nl,
+    write('    ║    ║                                                      ║    ║'), nl,
+    write('    ║    ╚══════════════════════════════════════════════════════╝    ║'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ╚════════════════════════════════════════════════════════════════╝'), nl,
     nl.
+
+%! display_game_interface(+GameState, +GameMode, +LastMove) is det.
+%  Affiche l'interface de jeu avec design seamless du menu principal
+%  Boite identique au menu principal avec informations de jeu
+display_game_interface(GameState, GameMode, LastMove) :-
+    GameState = game_state(Board, Player, MoveCount, _, CapturedPieces),
+    nl, nl,
+    % Boite principale avec dimensions identiques au menu principal (24 lignes)
+    write('    ╔════════════════════════════════════════════════════════════════╗'), nl,
+    write('    ║                                                                ║'), nl,
+    % Centrer le titre dynamiquement
+    atom_length(GameMode, TitleLen),
+    PaddingTotal is 64 - TitleLen,  % 64 = largeur interne
+    PaddingLeft is PaddingTotal // 2,
+    PaddingRight is PaddingTotal - PaddingLeft,
+    format('    ║~*c~w~*c║~n', [PaddingLeft, 32, GameMode, PaddingRight, 32]),
+    write('    ║        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━        ║'), nl,
+    write('    ║                                                                ║'), nl,
+
+    % Board actuel (meme position que menu principal)
+    display_board_in_box(Board),
+
+    write('    ║                         a b c d e f g h                        ║'), nl,
+    write('    ║                                                                ║'), nl,
+
+    % Boite d'informations (remplace le menu 1-6)
+    write('    ║     ┌─────────────────────────────────────────────────────┐    ║'), nl,
+    format_game_info_box(Player, MoveCount, LastMove, GameState, CapturedPieces),
+    write('    ║     └─────────────────────────────────────────────────────┘    ║'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ╚════════════════════════════════════════════════════════════════╝'), nl,
+    nl.
+
+%! display_board_in_box(+Board) is det.
+%  Affiche le board aux memes coordonnees que le menu principal
+display_board_in_box(Board) :-
+    write('    ║                       ┌──────────────────┐                     ║'), nl,
+    display_board_rows_in_box(Board, 8),
+    write('    ║                       └──────────────────┘                     ║'), nl.
+
+%! display_board_rows_in_box(+Board, +RowNum) is det.
+%  Affiche les rangees du board dans la boite (accès direct liste)
+display_board_rows_in_box([], _) :- !.
+display_board_rows_in_box([CurrentRow|RestRows], RowNum) :-
+    write('    ║                    '), write(RowNum), write('  │ '),
+    display_row_pieces_in_box(CurrentRow),
+    write(' │                     ║'), nl,
+    NextRowNum is RowNum - 1,
+    display_board_rows_in_box(RestRows, NextRowNum).
+
+%! display_row_pieces_in_box(+RowPieces) is det.
+%  Affiche les pieces d'une rangee avec espacement
+display_row_pieces_in_box([]).
+display_row_pieces_in_box([Piece|RestPieces]) :-
+    (   Piece = ' ' ->
+        write('· ')
+    ;   display_piece_unicode(Piece), write(' ')
+    ),
+    display_row_pieces_in_box(RestPieces).
+
+%! format_game_info_box(+Player, +MoveCount, +LastMove, +GameState, +CapturedPieces) is det.
+%  Formate la boite d'informations complete (3 lignes)
+format_game_info_box(Player, MoveCount, LastMove, GameState, CapturedPieces) :-
+    % Ligne 1: Joueur et Tour
+    translate_player(Player, PlayerFR),
+    format('    ║     │  Joueur actuel: ~w         Tour: ~w             │    ║~n',
+           [PlayerFR, MoveCount]),
+
+    % Ligne 2: Dernier coup et Score
+    get_position_score(GameState, Score),
+    format('    ║     │  Dernier coup: ~w             Score: ~w         │    ║~n',
+           [LastMove, Score]),
+
+    % Ligne 3: Captures (centrees)
+    format_captures_line(CapturedPieces).
+
+%! get_position_score(+GameState, -Score) is det.
+%  Obtient le score de position (unifie la logique)
+get_position_score(GameState, Score) :-
+    (   catch(evaluate_pure_reference(GameState, white, Score), _, fail) ->
+        true
+    ;   Score = 0
+    ).
+
+%! format_captures_line(+CapturedPieces) is det.
+%  Formate et centre la ligne de captures
+format_captures_line(CapturedPieces) :-
+    get_captures_string(CapturedPieces, CapturedStr),
+    center_in_box(CapturedStr).
+
+%! center_in_box(+Text) is det.
+%  Centre un texte dans la boite (58 chars internes)
+center_in_box(Text) :-
+    atom_length(Text, Len),
+    PaddingTotal is 58 - Len,
+    PaddingLeft is PaddingTotal // 2,
+    PaddingRight is PaddingTotal - PaddingLeft,
+    format('    ║     │~*c~w~*c│    ║~n',
+           [PaddingLeft, 32, Text, PaddingRight, 32]).
+
+%! get_captures_string(+CapturedPieces, -CapturedStr) is det.
+%  Genere la chaine de captures complete
+get_captures_string(CapturedPieces, CapturedStr) :-
+    partition(white_piece, CapturedPieces, WhiteCaptured, BlackCaptured),
+    pieces_to_unicode_string(WhiteCaptured, WhiteStr),
+    pieces_to_unicode_string(BlackCaptured, BlackStr),
+    format(atom(CapturedStr), 'Captures: [B] ~w  ────────  [N] ~w',
+           [WhiteStr, BlackStr]).
+
+%! pieces_to_unicode_string(+PieceList, -UnicodeStr) is det.
+%  Convertit liste de pieces en chaine unicode
+pieces_to_unicode_string([], '') :- !.
+pieces_to_unicode_string(Pieces, UnicodeStr) :-
+    maplist(get_piece_unicode, Pieces, UnicodeChars),
+    atomic_list_concat(UnicodeChars, '', UnicodeStr).
+
+%! get_piece_unicode(+Piece, -Unicode) is det.
+%  Mapping unifie piece->unicode (SEULE SOURCE DE VERITE)
+get_piece_unicode('P', '♟'). get_piece_unicode('p', '♙').
+get_piece_unicode('R', '♜'). get_piece_unicode('r', '♖').
+get_piece_unicode('N', '♞'). get_piece_unicode('n', '♘').
+get_piece_unicode('B', '♝'). get_piece_unicode('b', '♗').
+get_piece_unicode('Q', '♛'). get_piece_unicode('q', '♕').
+get_piece_unicode('K', '♚'). get_piece_unicode('k', '♔').
+
+%! white_piece(+Piece) is semidet.
+%  Verifie si une piece est blanche (majuscule) - SIMPLIFIE
+white_piece(Piece) :- get_piece_unicode(Piece, _), upcase_atom(Piece, Piece).
+
+%! black_piece(+Piece) is semidet.
+%  Verifie si une piece est noire (minuscule) - SIMPLIFIE
+black_piece(Piece) :- get_piece_unicode(Piece, _), downcase_atom(Piece, Piece).
+
+%! display_piece_unicode(+Piece) is det.
+%  Affiche une piece en unicode (utilise le mapping unifie)
+display_piece_unicode(Piece) :-
+    (   get_piece_unicode(Piece, Unicode) ->
+        write(Unicode)
+    ;   write('?')  % Piece inconnue
+    ).
+
+%! determine_game_mode(+UnifiedGameState, -GameMode) is det.
+%  Determine le mode de jeu pour affichage
+determine_game_mode(UnifiedGameState, GameMode) :-
+    get_player_type(UnifiedGameState, white, WhiteType),
+    get_player_type(UnifiedGameState, black, BlackType),
+    (   WhiteType = human, BlackType = human ->
+        GameMode = 'HUMAIN VS HUMAIN'
+    ;   WhiteType = human, BlackType = ai ->
+        GameMode = 'IA VS HUMAIN'
+    ;   WhiteType = ai, BlackType = human ->
+        GameMode = 'IA VS HUMAIN'
+    ;   GameMode = 'MODE INCONNU'
+    ).
+
+%! determine_last_move(+GameState, -LastMove) is det.
+%  Determine le dernier coup joue pour affichage
+determine_last_move(GameState, LastMove) :-
+    GameState = game_state(_, _, MoveCount, _, _),
+    (   MoveCount =< 1 ->
+        LastMove = 'Premier coup'
+    ;   % Pour l'instant, afficher un placeholder
+        % TODO: Implementer tracking du dernier coup
+        LastMove = '-'
+    ).
 

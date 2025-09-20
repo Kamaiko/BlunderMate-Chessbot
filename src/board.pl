@@ -284,32 +284,37 @@ display_row([Piece|Pieces]) :-
 
 % display_piece(+Piece)
 % Affiche une piece avec sa couleur appropriee.
+% Version Unicode officielle (plus de fallback ASCII)
 display_piece(Piece) :-
     (is_white_piece(Piece) ->
-        display_white_piece(Piece)
+        display_white_piece_unicode(Piece)
     ; is_black_piece(Piece) ->
-        display_black_piece(Piece)
-    ;   
+        display_black_piece_unicode(Piece)
+    ;
         write(Piece)
     ).
 
-% display_white_piece(+Piece)
-% Affiche les pieces blanches en blanc gras.
-display_white_piece('P') :- write('\e[1;37mP\e[0m').  % Pion blanc
-display_white_piece('R') :- write('\e[1;37mR\e[0m').  % Tour blanche
-display_white_piece('N') :- write('\e[1;37mN\e[0m').  % Cavalier blanc
-display_white_piece('B') :- write('\e[1;37mB\e[0m').  % Fou blanc
-display_white_piece('Q') :- write('\e[1;37mQ\e[0m').  % Dame blanche
-display_white_piece('K') :- write('\e[1;37mK\e[0m').  % Roi blanc
+% =============================================================================
+% SECTION 6.5 : AFFICHAGE UNICODE POUR PIECES D'ECHECS
+% =============================================================================
 
-% display_black_piece(+Piece)
-% Affiche les pieces noires en rouge gras.
-display_black_piece('p') :- write('\e[1;31mp\e[0m').  % Pion noir
-display_black_piece('r') :- write('\e[1;31mr\e[0m').  % Tour noire
-display_black_piece('n') :- write('\e[1;31mn\e[0m').  % Cavalier noir
-display_black_piece('b') :- write('\e[1;31mb\e[0m').  % Fou noir
-display_black_piece('q') :- write('\e[1;31mq\e[0m').  % Dame noire
-display_black_piece('k') :- write('\e[1;31mk\e[0m').  % Roi noir
+%! display_white_piece_unicode(+Piece) is det.
+%  Affiche les pièces blanches avec symboles Unicode blancs
+display_white_piece_unicode('P') :- write('♟').  % Pion blanc
+display_white_piece_unicode('R') :- write('♜').  % Tour blanche
+display_white_piece_unicode('N') :- write('♞').  % Cavalier blanc
+display_white_piece_unicode('B') :- write('♝').  % Fou blanc
+display_white_piece_unicode('Q') :- write('♛').  % Dame blanche
+display_white_piece_unicode('K') :- write('♚').  % Roi blanc
+
+%! display_black_piece_unicode(+Piece) is det.
+%  Affiche les pièces noires avec symboles Unicode noirs
+display_black_piece_unicode('p') :- write('♙').  % Pion noir
+display_black_piece_unicode('r') :- write('♖').  % Tour noire
+display_black_piece_unicode('n') :- write('♘').  % Cavalier noir
+display_black_piece_unicode('b') :- write('♗').  % Fou noir
+display_black_piece_unicode('q') :- write('♕').  % Dame noire
+display_black_piece_unicode('k') :- write('♔').  % Roi noir
 
 % =============================================================================
 % SECTION 7 : UTILITAIRES GEOMETRIQUES
