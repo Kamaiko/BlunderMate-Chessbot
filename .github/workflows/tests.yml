@@ -25,23 +25,23 @@ jobs:
     - name: Run Foundation Tests
       run: swipl -s tests/tests.pl -g "run_foundation_tests, halt."
 
-    - name: Run Pieces Tests
-      run: swipl -s tests/tests.pl -g "run_pieces_tests, halt."
+    - name: Run Game Rules Tests
+      run: swipl -s tests/tests.pl -g "run_game_rules_tests, halt."
 
-    - name: Run Checkmate Tests
-      run: swipl -s tests/tests.pl -g "run_checkmate_tests, halt."
+    - name: Run AI Algorithm Tests
+      run: swipl -s tests/tests.pl -g "run_ai_algorithm_tests, halt."
+
+    - name: Run AI Evaluation Tests
+      run: swipl -s tests/tests.pl -g "run_ai_evaluation_tests, halt."
+
+    - name: Run Tactical Tests
+      run: swipl -s tests/tests.pl -g "run_tactical_tests, halt."
 
     - name: Run Robustness Tests
       run: swipl -s tests/tests.pl -g "run_robustness_tests, halt."
 
     - name: Run Integration Tests
       run: swipl -s tests/tests.pl -g "run_integration_tests, halt."
-
-    - name: Run PSQT Tests
-      run: swipl -s tests/tests.pl -g "run_psqt_tests, halt."
-
-    - name: Run Alpha-Beta Tests
-      run: swipl -s tests/tests.pl -g "run_alpha_beta_tests, halt."
 
     - name: Test Game Launch
       run: |
