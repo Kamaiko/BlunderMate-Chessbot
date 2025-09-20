@@ -322,7 +322,7 @@ process_choice(5) :- show_about, pause_and_return_menu.
 process_choice('6') :- display_message_ln(goodbye), nl, halt.
 process_choice(6) :- display_message_ln(goodbye), nl, halt.
 
-process_choice(InvalidChoice) :-
+process_choice(_) :-
     nl,
     write('CHOIX INVALIDE'), nl,
     pause_and_return_menu.
@@ -345,16 +345,16 @@ display_game_state_if_needed(UnifiedGameState) :-
     ).
 
 % should_display_board(+UnifiedGameState, +Player, +MoveCount)
-% Logique de décision d'affichage du plateau
+% Logique de décision d'affichage du plateau - SEMPRE AFFICHER LA NOUVELLE INTERFACE
 should_display_board(UnifiedGameState, Player, MoveCount) :-
     get_player_type(UnifiedGameState, Player, PlayerType),
     opposite_player(Player, OtherPlayer),
     get_player_type(UnifiedGameState, OtherPlayer, OtherPlayerType),
     (   (PlayerType = human, OtherPlayerType = human) ->
         true  % Humain vs Humain : toujours afficher
-    ;   (PlayerType = human, MoveCount = 0) ->
-        true  % Premier coup en mode IA vs Humain
-    ;   fail  % Autres cas
+    ;   (PlayerType = human ; OtherPlayerType = human) ->
+        true  % IA vs Humain : toujours afficher quand un humain joue
+    ;   fail  % Autres cas (IA vs IA)
     ).
 
 % check_and_display_warnings(+UnifiedGameState)
@@ -421,7 +421,6 @@ unified_game_loop(UnifiedGameState) :-
 % Gere le tour d'un joueur selon son type (humain ou IA)
 handle_player_turn(UnifiedGameState, _Player, human, NewUnifiedGameState) :-
     % Tour d'un joueur humain - utilise l'interface unifiee
-    write('    '), draw_line(35, '-'), nl,
     write('Entrez votre coup ou \'aide\' : '),
     read_player_input(Input),
     extract_game_state(UnifiedGameState, GameState),
@@ -449,8 +448,8 @@ handle_player_turn(UnifiedGameState, Player, ai, NewUnifiedGameState) :-
         opposite_player(Player, OpponentPlayer),
         get_player_type(UnifiedGameState, OpponentPlayer, OpponentType),
         (   OpponentType = human ->
-            format('IA joue : ~w (~2f sec)~n', [MoveStr, Duration]),
-            nl, display_game_state(NewGameState)
+            format('IA joue : ~w (~2f sec)~n', [MoveStr, Duration])
+            % L'affichage sera géré par display_game_state_if_needed dans unified_game_loop
         ;   true
         )
     ).
@@ -469,7 +468,6 @@ game_loop(GameState) :-
 % start_human_game/0
 % Demarre une partie humain vs humain.
 start_human_game :-
-    display_title_box('NOUVELLE PARTIE'),
     init_unified_game_state(human, human, UnifiedGameState),
     unified_game_loop(UnifiedGameState).
 
@@ -510,8 +508,6 @@ read_player_input(Input) :-
 % start_ai_game/0
 % Lance une partie IA vs Humain.
 start_ai_game :-
-    display_title_box('MODE IA vs HUMAIN'),
-    write('Vous jouez les Blancs, l\'IA joue les Noirs.'), nl, nl,
     init_unified_game_state(human, ai, UnifiedGameState),
     unified_game_loop(UnifiedGameState).
 
@@ -629,11 +625,8 @@ show_unified_help(GameStateOrNone) :-
     catch(get_single_char(_), _, true),
     nl,
 
-    % Afficher le board state si on est en jeu
-    (   GameStateOrNone \= none ->
-        display_game_state(GameStateOrNone)
-    ;   true
-    ).
+    % L'affichage du board sera géré par la nouvelle interface
+    true.
 
 % display_help_content
 % Affiche le contenu de l'aide (partie commune).
@@ -720,7 +713,7 @@ display_game_interface(GameState, GameMode, LastMove) :-
     PaddingLeft is PaddingTotal // 2,
     PaddingRight is PaddingTotal - PaddingLeft,
     format('    ║~*c~w~*c║~n', [PaddingLeft, 32, GameMode, PaddingRight, 32]),
-    write('    ║        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━        ║'), nl,
+    write('    ║        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━       ║'), nl,
     write('    ║                                                                ║'), nl,
 
     % Board actuel (meme position que menu principal)
@@ -737,6 +730,44 @@ display_game_interface(GameState, GameMode, LastMove) :-
     write('    ║                                                                ║'), nl,
     write('    ╚════════════════════════════════════════════════════════════════╝'), nl,
     nl.
+
+%! draw_game_box_header(+GameMode) is det.
+%  Dessine l'en-tete de la boite de jeu avec titre centre
+draw_game_box_header(GameMode) :-
+    write('    ╔════════════════════════════════════════════════════════════════╗'), nl,
+    write('    ║                                                                ║'), nl,
+    draw_centered_title(GameMode),
+    write('    ║        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━        ║'), nl,
+    write('    ║                                                                ║'), nl.
+
+%! draw_centered_title(+Title) is det.
+%  Centre un titre dans une ligne de 64 caracteres
+draw_centered_title(Title) :-
+    atom_length(Title, TitleLen),
+    PaddingTotal is 64 - TitleLen,
+    PaddingLeft is PaddingTotal // 2,
+    PaddingRight is PaddingTotal - PaddingLeft,
+    format('    ║~*c~w~*c║~n', [PaddingLeft, 32, Title, PaddingRight, 32]).
+
+%! draw_board_coordinates is det.
+%  Affiche les coordonnees sous le plateau
+draw_board_coordinates :-
+    write('    ║                         a b c d e f g h                        ║'), nl,
+    write('    ║                                                                ║'), nl.
+
+%! draw_info_section(+Player, +MoveCount, +LastMove, +GameState, +CapturedPieces) is det.
+%  Dessine la section d'informations de jeu
+draw_info_section(Player, MoveCount, LastMove, GameState, CapturedPieces) :-
+    write('    ║     ┌─────────────────────────────────────────────────────┐    ║'), nl,
+    format_game_info_box(Player, MoveCount, LastMove, GameState, CapturedPieces),
+    write('    ║     └─────────────────────────────────────────────────────┘    ║'), nl.
+
+%! draw_game_box_footer is det.
+%  Dessine le pied de la boite de jeu
+draw_game_box_footer :-
+    write('    ║                                                                ║'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ╚════════════════════════════════════════════════════════════════╝'), nl.
 
 %! display_board_in_box(+Board) is det.
 %  Affiche le board aux memes coordonnees que le menu principal
@@ -766,20 +797,105 @@ display_row_pieces_in_box([Piece|RestPieces]) :-
     display_row_pieces_in_box(RestPieces).
 
 %! format_game_info_box(+Player, +MoveCount, +LastMove, +GameState, +CapturedPieces) is det.
-%  Formate la boite d'informations complete (3 lignes)
+%  Formate la boite d'informations avec alignement parfait (58 chars internes)
 format_game_info_box(Player, MoveCount, LastMove, GameState, CapturedPieces) :-
-    % Ligne 1: Joueur et Tour
+    % Ligne 1: Joueur actuel | Tour
     translate_player(Player, PlayerFR),
-    format('    ║     │  Joueur actuel: ~w         Tour: ~w             │    ║~n',
-           [PlayerFR, MoveCount]),
+    format_info_line(['Joueur actuel: ', PlayerFR], ['Tour: ', MoveCount]),
 
-    % Ligne 2: Dernier coup et Score
+    % Ligne 2: Score | Dernier coup
     get_position_score(GameState, Score),
-    format('    ║     │  Dernier coup: ~w             Score: ~w         │    ║~n',
-           [LastMove, Score]),
+    format_info_line(['Score: ', Score], ['Dernier coup: ', LastMove]),
 
-    % Ligne 3: Captures (centrees)
-    format_captures_line(CapturedPieces).
+    % Ligne 3: Pieces capturees (ligne complete)
+    format_captures_line_clean(CapturedPieces).
+
+%! format_info_line(+LeftParts, +RightParts) is det.
+%  Formate une ligne d'info avec 2 colonnes alignees (29 chars chacune)
+format_info_line(LeftParts, RightParts) :-
+    % Construire le texte de gauche et droite
+    build_text_from_parts(LeftParts, LeftText),
+    build_text_from_parts(RightParts, RightText),
+
+    % Aligner chaque colonne sur 29 caracteres
+    format_column(LeftText, 29, LeftFormatted),
+    format_column(RightText, 29, RightFormatted),
+
+    % Afficher la ligne complete
+    format('    ║     │  ~w│~w│    ║~n', [LeftFormatted, RightFormatted]).
+
+%! format_captures_line_clean(+CapturedPieces) is det.
+%  Affiche les pieces capturees sur une ligne complete centree
+format_captures_line_clean(CapturedPieces) :-
+    (   CapturedPieces = [] ->
+        CapturesText = 'Pieces capturees: Aucune'
+    ;   separate_captures(CapturedPieces, WhiteCaptures, BlackCaptures),
+        build_captures_text(WhiteCaptures, BlackCaptures, CapturesText)
+    ),
+    format_column(CapturesText, 58, CapturesFormatted),
+    format('    ║     │  ~w│    ║~n', [CapturesFormatted]).
+
+%! build_text_from_parts(+Parts, -Text) is det.
+%  Construit un texte a partir d'une liste de parties
+build_text_from_parts(Parts, Text) :-
+    maplist(to_atom, Parts, Atoms),
+    atomic_list_concat(Atoms, '', Text).
+
+%! to_atom(+Term, -Atom) is det.
+%  Convertit n'importe quel terme en atom
+to_atom(Term, Atom) :-
+    (   atom(Term) -> Atom = Term
+    ;   number(Term) -> atom_number(Atom, Term)
+    ;   term_to_atom(Term, Atom)
+    ).
+
+%! format_column(+Text, +Width, -FormattedText) is det.
+%  Formate un texte pour occuper exactement Width caracteres (avec padding droite)
+format_column(Text, Width, FormattedText) :-
+    atom_length(Text, Len),
+    (   Len >= Width ->
+        sub_atom(Text, 0, Width, _, FormattedText)  % Tronquer si trop long
+    ;   Padding is Width - Len,
+        format(atom(FormattedText), '~w~*c', [Text, Padding, 32])  % Pad avec espaces
+    ).
+
+%! build_captures_text(+WhiteCaptures, +BlackCaptures, -Text) is det.
+%  Construit le texte des captures
+build_captures_text(WhiteCaptures, BlackCaptures, Text) :-
+    convert_pieces_to_text(WhiteCaptures, WhiteText),
+    convert_pieces_to_text(BlackCaptures, BlackText),
+    format(atom(Text), 'Captures: Blancs ~w | Noirs ~w', [WhiteText, BlackText]).
+
+%! separate_captures(+AllCaptures, -WhiteCaptures, -BlackCaptures) is det.
+%  Separe les pieces capturees par couleur (simple et robuste)
+separate_captures([], [], []).
+separate_captures([Piece|Rest], [Piece|WhiteRest], BlackRest) :-
+    % Piece blanche (majuscule) - verification securisee
+    atom(Piece),
+    atom_codes(Piece, [Code]),
+    Code >= 65, Code =< 90, !,
+    separate_captures(Rest, WhiteRest, BlackRest).
+separate_captures([Piece|Rest], WhiteRest, [Piece|BlackRest]) :-
+    % Piece noire (minuscule) ou autre
+    separate_captures(Rest, WhiteRest, BlackRest).
+
+%! format_captures_display(+WhiteCaptures, +BlackCaptures) is det.
+%  Affiche les captures dans la boite
+format_captures_display(WhiteCaptures, BlackCaptures) :-
+    convert_pieces_to_text(WhiteCaptures, WhiteText),
+    convert_pieces_to_text(BlackCaptures, BlackText),
+    format('    ║     │  Captures: Blancs ~w | Noirs ~w               │    ║~n',
+           [WhiteText, BlackText]).
+
+%! convert_pieces_to_text(+Pieces, -Text) is det.
+%  Convertit une liste de pieces en texte simple (robuste)
+convert_pieces_to_text([], '').
+convert_pieces_to_text(Pieces, Text) :-
+    % Version plus robuste qui gere les listes vides et les atoms
+    (   Pieces = [] ->
+        Text = ''
+    ;   catch(atomic_list_concat(Pieces, '', Text), _, Text = '')
+    ).
 
 %! get_position_score(+GameState, -Score) is det.
 %  Obtient le score de position (unifie la logique)
@@ -789,54 +905,14 @@ get_position_score(GameState, Score) :-
     ;   Score = 0
     ).
 
-%! format_captures_line(+CapturedPieces) is det.
-%  Formate et centre la ligne de captures
-format_captures_line(CapturedPieces) :-
-    get_captures_string(CapturedPieces, CapturedStr),
-    center_in_box(CapturedStr).
-
-%! center_in_box(+Text) is det.
-%  Centre un texte dans la boite (58 chars internes)
-center_in_box(Text) :-
-    atom_length(Text, Len),
-    PaddingTotal is 58 - Len,
-    PaddingLeft is PaddingTotal // 2,
-    PaddingRight is PaddingTotal - PaddingLeft,
-    format('    ║     │~*c~w~*c│    ║~n',
-           [PaddingLeft, 32, Text, PaddingRight, 32]).
-
-%! get_captures_string(+CapturedPieces, -CapturedStr) is det.
-%  Genere la chaine de captures complete
-get_captures_string(CapturedPieces, CapturedStr) :-
-    partition(white_piece, CapturedPieces, WhiteCaptured, BlackCaptured),
-    pieces_to_unicode_string(WhiteCaptured, WhiteStr),
-    pieces_to_unicode_string(BlackCaptured, BlackStr),
-    format(atom(CapturedStr), 'Captures: [B] ~w  ────────  [N] ~w',
-           [WhiteStr, BlackStr]).
-
-%! pieces_to_unicode_string(+PieceList, -UnicodeStr) is det.
-%  Convertit liste de pieces en chaine unicode
-pieces_to_unicode_string([], '') :- !.
-pieces_to_unicode_string(Pieces, UnicodeStr) :-
-    maplist(get_piece_unicode, Pieces, UnicodeChars),
-    atomic_list_concat(UnicodeChars, '', UnicodeStr).
-
 %! get_piece_unicode(+Piece, -Unicode) is det.
-%  Mapping unifie piece->unicode (SEULE SOURCE DE VERITE)
+%  Mapping piece -> Unicode (necessaire pour l'affichage)
 get_piece_unicode('P', '♟'). get_piece_unicode('p', '♙').
 get_piece_unicode('R', '♜'). get_piece_unicode('r', '♖').
 get_piece_unicode('N', '♞'). get_piece_unicode('n', '♘').
 get_piece_unicode('B', '♝'). get_piece_unicode('b', '♗').
 get_piece_unicode('Q', '♛'). get_piece_unicode('q', '♕').
 get_piece_unicode('K', '♚'). get_piece_unicode('k', '♔').
-
-%! white_piece(+Piece) is semidet.
-%  Verifie si une piece est blanche (majuscule) - SIMPLIFIE
-white_piece(Piece) :- get_piece_unicode(Piece, _), upcase_atom(Piece, Piece).
-
-%! black_piece(+Piece) is semidet.
-%  Verifie si une piece est noire (minuscule) - SIMPLIFIE
-black_piece(Piece) :- get_piece_unicode(Piece, _), downcase_atom(Piece, Piece).
 
 %! display_piece_unicode(+Piece) is det.
 %  Affiche une piece en unicode (utilise le mapping unifie)
@@ -864,9 +940,9 @@ determine_game_mode(UnifiedGameState, GameMode) :-
 %  Determine le dernier coup joue pour affichage
 determine_last_move(GameState, LastMove) :-
     GameState = game_state(_, _, MoveCount, _, _),
-    (   MoveCount =< 1 ->
-        LastMove = 'Premier coup'
-    ;   % Pour l'instant, afficher un placeholder
+    (   MoveCount =< 0 ->
+        LastMove = ''  % Rien au premier coup
+    ;   % Pour l'instant, afficher un placeholder pour les coups suivants
         % TODO: Implementer tracking du dernier coup
         LastMove = '-'
     ).
