@@ -1,6 +1,6 @@
 # RESOLU - ANALYSE PROBLEME D'INTERFACE
-Date: 20 septembre 2025
-**Status**: ✅ **RESOLU COMPLETEMENT**
+Date: 20 septembre 2025 (MISE À JOUR: Affichage Unicode ajouté)
+**Status**: ✅ **RESOLU COMPLETEMENT + AMÉLIORÉ**
 
 ## RESUME EXECUTIF
 Problème d'affichage "CHOIX INVALIDE" et interface incohérente dans les modes de jeu **RESOLU** par refactorisation complète de l'interface et élimination du code résiduel.
@@ -127,3 +127,16 @@ Transformation complète d'un code spaghetti avec affichage incohérent en inter
 
 **Durée totale de résolution**: ~2 heures de refactorisation méthodique
 **Impact**: Interface utilisateur transformée, code maintenable, performance optimale
+
+## 🎨 **AMÉLIORATION RÉCENTE: AFFICHAGE UNICODE** (Septembre 2025)
+
+### ✨ **Nouvelle Fonctionnalité**
+- **Affichage visuel élégant** : Pièces capturées en Unicode (♟ ♞ ♝ ♜ ♛ ♚)
+- **Séparateur dynamique** : Ligne ━ ajustée selon nombre de pièces
+- **Format harmonieux** : `Captures : Blancs ♟ ♞ ━━━━━━━━━━━━━━━━━━━━♙ ♖ Noirs`
+
+### 🔧 **Implémentation Technique**
+- Gestion directe structure `[WhiteList, BlackList]` de game.pl
+- Fonctions modulaires : `convert_pieces_to_unicode/2`, `calculate_separator_length/3`
+- Architecture propre avec rétrocompatibilité liste plate
+- Code nettoyé : suppression fonctions obsolètes, variables singleton corrigées
