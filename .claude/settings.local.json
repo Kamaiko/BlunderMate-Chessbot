@@ -15,7 +15,8 @@
       "Read(C:\\Users\\Patrick Patenaude\\.config\\claude-code/**)",
       "Read(C:\\Users\\Patrick Patenaude\\.claude/**)",
       "Read(C:\\DevTools\\Projects\\PrologChessGame_Clean/**)",
-      "mcp__filesystem__list_directory"
+      "mcp__filesystem__list_directory",
+      "Bash(printf \"\\n6\\n\")"
     ],
     "deny": [],
     "ask": []
