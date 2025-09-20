@@ -219,11 +219,11 @@ update_captured_pieces(Piece, [WhiteCaptured, BlackCaptured], [NewWhiteCaptured,
 % display_game_state(+GameState)
 % Affiche l'etat complet du jeu avec évaluation.
 display_game_state(GameState) :-
-    GameState = game_state(Board, Player, MoveCount, _, CapturedPieces),
+    GameState = game_state(Board, Player, MoveCount, _, _CapturedPieces),
     display_board(Board),
-    display_captured_pieces(CapturedPieces),
-    write('Joueur actuel: '), 
-    translate_player(Player, PlayerFR), 
+    % Note: L'affichage des captures est maintenant géré par interface.pl
+    write('Joueur actuel: '),
+    translate_player(Player, PlayerFR),
     write(PlayerFR), nl,
     write('Nombre de coups: '), write(MoveCount), nl,
     
@@ -304,19 +304,6 @@ validate_destination_square_attack(Board, ToRow, ToCol, Player) :-
     ;   \+ piece_belongs_to_player(TargetPiece, Player)  % Pièce adverse OK
     ).
 
-% display_captured_pieces(+CapturedPieces)
-% Affiche les pieces capturees de maniere lisible.
-display_captured_pieces([WhiteCaptured, BlackCaptured]) :-
-    (WhiteCaptured \= [] ; BlackCaptured \= []) ->
-        (write('Pieces capturees: '),
-         (WhiteCaptured \= [] -> 
-            (write('Blanches: '), write(WhiteCaptured), write(' '))
-         ; true),
-         (BlackCaptured \= [] -> 
-            (write('Noires: '), write(BlackCaptured))
-         ; true),
-         nl)
-    ; true.
 
 % =============================================================================
 % SECTION 5 : GESTION D'ERREUR ET VALIDATION

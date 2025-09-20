@@ -29,23 +29,30 @@ init_unified_game_state(WhiteType, BlackType, UnifiedGameState) :-
     init_game_state(GameState),
     GameState = game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces),
     PlayerTypes = player_types(WhiteType, BlackType),
-    UnifiedGameState = unified_game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces, PlayerTypes).
+    UnifiedGameState = unified_game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces, PlayerTypes, '').
 
 % extract_game_state(+UnifiedGameState, -GameState)
 % Extrait l'etat de jeu standard depuis l'etat unifie
-extract_game_state(unified_game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces, _), 
+extract_game_state(unified_game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces, _, _),
                    game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces)).
 
 % update_unified_game_state(+UnifiedGameState, +NewGameState, -NewUnifiedGameState)
 % Met a jour l'etat unifie avec un nouvel etat de jeu standard
-update_unified_game_state(unified_game_state(_, _, _, _, _, PlayerTypes), 
+update_unified_game_state(unified_game_state(_, _, _, _, _, PlayerTypes, _),
                           game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces),
-                          unified_game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces, PlayerTypes)).
+                          unified_game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces, PlayerTypes, '')).
+
+% update_unified_game_state_with_move(+UnifiedGameState, +NewGameState, +LastMove, -NewUnifiedGameState)
+% Met a jour l'etat unifie avec un nouvel etat de jeu et le dernier coup
+update_unified_game_state_with_move(unified_game_state(_, _, _, _, _, PlayerTypes, _),
+                                     game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces),
+                                     LastMove,
+                                     unified_game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces, PlayerTypes, LastMove)).
 
 % get_player_type(+UnifiedGameState, +Player, -PlayerType)
 % Determine le type d'un joueur (human ou ai)
-get_player_type(unified_game_state(_, _, _, _, _, player_types(WhiteType, _)), white, WhiteType).
-get_player_type(unified_game_state(_, _, _, _, _, player_types(_, BlackType)), black, BlackType).
+get_player_type(unified_game_state(_, _, _, _, _, player_types(WhiteType, _), _), white, WhiteType).
+get_player_type(unified_game_state(_, _, _, _, _, player_types(_, BlackType), _), black, BlackType).
 
 % =============================================================================
 % SECTION 2 : MESSAGES FRANCAIS CENTRALISES
@@ -233,7 +240,7 @@ display_modern_menu :-
     write('    ║                                                                ║'), nl,
     write('    ║                          MENU PRINCIPAL                        ║'), nl,
     write('    ║                                                                ║'), nl,
-    write('    ║        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━       ║'), nl,
+    write('    ║━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━║'), nl,
     write('    ║                       ┌──────────────────┐                     ║'), nl,
     write('    ║                    8  │ ♖ ♘ ♗ ♕ ♔ ♗ ♘ ♖  │                     ║'), nl,
     write('    ║                    7  │ ♙ ♙ ♙ ♙ ♙ ♙ ♙ ♙  │                     ║'), nl,
@@ -339,14 +346,13 @@ display_game_state_if_needed(UnifiedGameState) :-
     (   should_display_board(UnifiedGameState, Player, MoveCount) ->
         % Utiliser la nouvelle interface seamless
         determine_game_mode(UnifiedGameState, GameMode),
-        determine_last_move(GameState, LastMove),
-        display_game_interface(GameState, GameMode, LastMove)
+        display_game_interface(UnifiedGameState, GameMode)
     ;   true  % Pas d'affichage nécessaire
     ).
 
 % should_display_board(+UnifiedGameState, +Player, +MoveCount)
 % Logique de décision d'affichage du plateau - SEMPRE AFFICHER LA NOUVELLE INTERFACE
-should_display_board(UnifiedGameState, Player, MoveCount) :-
+should_display_board(UnifiedGameState, Player, _MoveCount) :-
     get_player_type(UnifiedGameState, Player, PlayerType),
     opposite_player(Player, OtherPlayer),
     get_player_type(UnifiedGameState, OtherPlayer, OtherPlayerType),
@@ -430,12 +436,11 @@ handle_player_turn(UnifiedGameState, _Player, human, NewUnifiedGameState) :-
 handle_player_turn(UnifiedGameState, Player, ai, NewUnifiedGameState) :-
     % Tour de l'IA - genere un coup automatiquement
     nl, nl,
-    write('IA reflechit ('), translate_player(Player, PlayerFR), write(PlayerFR), write(', negamax alpha-beta)...'), nl,
     extract_game_state(UnifiedGameState, GameState),
     get_time(StartTime),
     choose_ai_move(GameState, AIMove),
     get_time(EndTime),
-    Duration is EndTime - StartTime,
+    _Duration is EndTime - StartTime,
     
     (   AIMove = [] ->
         write('IA ne peut pas jouer - Fin de partie'), nl,
@@ -443,13 +448,12 @@ handle_player_turn(UnifiedGameState, Player, ai, NewUnifiedGameState) :-
     ;   AIMove = [FromRow, FromCol, ToRow, ToCol],
         coordinates_to_algebraic(FromRow, FromCol, ToRow, ToCol, MoveStr),
         make_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState),
-        update_unified_game_state(UnifiedGameState, NewGameState, NewUnifiedGameState),
+        update_unified_game_state_with_move(UnifiedGameState, NewGameState, MoveStr, NewUnifiedGameState),
         % Afficher le board après le coup de l'IA en mode IA vs Humain
         opposite_player(Player, OpponentPlayer),
         get_player_type(UnifiedGameState, OpponentPlayer, OpponentType),
         (   OpponentType = human ->
-            format('IA joue : ~w (~2f sec)~n', [MoveStr, Duration])
-            % L'affichage sera géré par display_game_state_if_needed dans unified_game_loop
+            true  % L'affichage sera géré par display_game_state_if_needed dans unified_game_loop
         ;   true
         )
     ).
@@ -617,7 +621,7 @@ show_unified_help_no_pause :-
 
 % show_unified_help(+GameStateOrNone)
 % Fonction d'aide unifiee pour jeu avec pause et affichage plateau.
-show_unified_help(GameStateOrNone) :-
+show_unified_help(_GameStateOrNone) :-
     display_help_content,
 
     % Pause interactive
@@ -637,7 +641,7 @@ display_help_content :-
     write('    ║                                                                ║'), nl,
     write('    ║                              AIDE                              ║'), nl,
     write('    ║                                                                ║'), nl,
-    write('    ║    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━    ║'), nl,
+    write('    ║━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━║'), nl,
     write('    ║                                                                ║'), nl,
     write('    ║              ╭──────  Guide d\'utilisation  ──────╮             ║'), nl,
     write('    ║    ╔══════════════════════════════════════════════════════╗    ║'), nl,
@@ -655,10 +659,10 @@ display_help_content :-
     write('    ║    ║            B/b=Fou   Q/q=Dame  K/k=Roi               ║    ║'), nl,
     write('    ║    ║                                                      ║    ║'), nl,
     write('    ║    ║  ▸ PIECES & SYMBOLES                                 ║    ║'), nl,
-    write('    ║    ║    Blancs: ♜ ♞ ♝ ♛ ♚ ♟   (minuscules p/r/n/b/q/k)  ║    ║'), nl,
-    write('    ║    ║    Noirs:  ♖ ♘ ♗ ♕ ♔ ♙   (MAJUSCULES P/R/N/B/Q/K)  ║    ║'), nl,
+    write('    ║    ║    Blancs: ♜ ♞ ♝ ♛ ♚ ♟   (minuscules p/r/n/b/q/k)    ║    ║'), nl,
+    write('    ║    ║    Noirs:  ♖ ♘ ♗ ♕ ♔ ♙   (MAJUSCULES P/R/N/B/Q/K)    ║    ║'), nl,
     write('    ║    ║                                                      ║    ║'), nl,
-    write('    ║    ║  ▸ RACCOURCIS: [Tab] historique  [↑↓] navigation    ║    ║'), nl,
+    write('    ║    ║  ▸ RACCOURCIS: [Tab] historique  [↑↓] navigation     ║    ║'), nl,
     write('    ║    ║                                                      ║    ║'), nl,
     write('    ║    ╚══════════════════════════════════════════════════════╝    ║'), nl,
     write('    ║                                                                ║'), nl,
@@ -674,7 +678,7 @@ show_about :-
     write('    ║                                                                ║'), nl,
     write('    ║                            A PROPOS                            ║'), nl,
     write('    ║                                                                ║'), nl,
-    write('    ║    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━    ║'), nl,
+    write('    ║━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━║'), nl,
     write('    ║                                                                ║'), nl,
     write('    ║             ╭─────  Chessbot ecrit en Prolog  ────╮            ║'), nl,
     write('    ║               IA utilisant Negamax avec Alpha-Beta             ║'), nl,
@@ -689,8 +693,8 @@ show_about :-
     write('    ║    ║  ──────────────────────────────────────────────────  ║    ║'), nl,
     write('    ║    ║                                                      ║    ║'), nl,
     write('    ║    ║  Performance IA:                                     ║    ║'), nl,
-    write('    ║    ║   • Profondeur 2 avec elagage alpha-beta            ║    ║'), nl,
-    write('    ║    ║   • Temps de reponse < 0.1s par coup                ║    ║'), nl,
+    write('    ║    ║   • Profondeur 2 avec elagage alpha-beta             ║    ║'), nl,
+    write('    ║    ║   • Temps de reponse < 0.1s par coup                 ║    ║'), nl,
     write('    ║    ║   • Evaluation PSQT + materiel + defense             ║    ║'), nl,
     write('    ║    ║                                                      ║    ║'), nl,
     write('    ║    ╚══════════════════════════════════════════════════════╝    ║'), nl,
@@ -698,11 +702,12 @@ show_about :-
     write('    ╚════════════════════════════════════════════════════════════════╝'), nl,
     nl.
 
-%! display_game_interface(+GameState, +GameMode, +LastMove) is det.
+%! display_game_interface(+UnifiedGameState, +GameMode) is det.
 %  Affiche l'interface de jeu avec design seamless du menu principal
 %  Boite identique au menu principal avec informations de jeu
-display_game_interface(GameState, GameMode, LastMove) :-
-    GameState = game_state(Board, Player, MoveCount, _, CapturedPieces),
+display_game_interface(UnifiedGameState, GameMode) :-
+    UnifiedGameState = unified_game_state(Board, Player, MoveCount, _, CapturedPieces, _, _),
+    determine_last_move(UnifiedGameState, LastMove),
     nl, nl,
     % Boite principale avec dimensions identiques au menu principal (24 lignes)
     write('    ╔════════════════════════════════════════════════════════════════╗'), nl,
@@ -713,7 +718,7 @@ display_game_interface(GameState, GameMode, LastMove) :-
     PaddingLeft is PaddingTotal // 2,
     PaddingRight is PaddingTotal - PaddingLeft,
     format('    ║~*c~w~*c║~n', [PaddingLeft, 32, GameMode, PaddingRight, 32]),
-    write('    ║        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━       ║'), nl,
+    write('    ║━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━║'), nl,
     write('    ║                                                                ║'), nl,
 
     % Board actuel (meme position que menu principal)
@@ -724,7 +729,7 @@ display_game_interface(GameState, GameMode, LastMove) :-
 
     % Boite d'informations (remplace le menu 1-6)
     write('    ║     ┌─────────────────────────────────────────────────────┐    ║'), nl,
-    format_game_info_box(Player, MoveCount, LastMove, GameState, CapturedPieces),
+    format_game_info_box(Player, MoveCount, LastMove, UnifiedGameState, CapturedPieces),
     write('    ║     └─────────────────────────────────────────────────────┘    ║'), nl,
     write('    ║                                                                ║'), nl,
     write('    ║                                                                ║'), nl,
@@ -737,7 +742,7 @@ draw_game_box_header(GameMode) :-
     write('    ╔════════════════════════════════════════════════════════════════╗'), nl,
     write('    ║                                                                ║'), nl,
     draw_centered_title(GameMode),
-    write('    ║        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━        ║'), nl,
+    write('    ║━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━║'), nl,
     write('    ║                                                                ║'), nl.
 
 %! draw_centered_title(+Title) is det.
@@ -755,11 +760,11 @@ draw_board_coordinates :-
     write('    ║                         a b c d e f g h                        ║'), nl,
     write('    ║                                                                ║'), nl.
 
-%! draw_info_section(+Player, +MoveCount, +LastMove, +GameState, +CapturedPieces) is det.
+%! draw_info_section(+Player, +MoveCount, +LastMove, +UnifiedGameState, +CapturedPieces) is det.
 %  Dessine la section d'informations de jeu
-draw_info_section(Player, MoveCount, LastMove, GameState, CapturedPieces) :-
+draw_info_section(Player, MoveCount, LastMove, UnifiedGameState, CapturedPieces) :-
     write('    ║     ┌─────────────────────────────────────────────────────┐    ║'), nl,
-    format_game_info_box(Player, MoveCount, LastMove, GameState, CapturedPieces),
+    format_game_info_box(Player, MoveCount, LastMove, UnifiedGameState, CapturedPieces),
     write('    ║     └─────────────────────────────────────────────────────┘    ║'), nl.
 
 %! draw_game_box_footer is det.
@@ -796,19 +801,19 @@ display_row_pieces_in_box([Piece|RestPieces]) :-
     ),
     display_row_pieces_in_box(RestPieces).
 
-%! format_game_info_box(+Player, +MoveCount, +LastMove, +GameState, +CapturedPieces) is det.
+%! format_game_info_box(+Player, +MoveCount, +LastMove, +UnifiedGameState, +CapturedPieces) is det.
 %  Formate la boite d'informations avec alignement parfait (58 chars internes)
-format_game_info_box(Player, MoveCount, LastMove, GameState, CapturedPieces) :-
+format_game_info_box(Player, MoveCount, LastMove, UnifiedGameState, CapturedPieces) :-
     % Ligne 1: Joueur actuel | Tour
     translate_player(Player, PlayerFR),
     format_info_line(['Joueur actuel: ', PlayerFR], ['Tour: ', MoveCount]),
 
     % Ligne 2: Score | Dernier coup
-    get_position_score(GameState, Score),
+    get_position_score(UnifiedGameState, Score),
     format_info_line(['Score: ', Score], ['Dernier coup: ', LastMove]),
 
-    % Ligne 3: Pieces capturees (ligne complete)
-    format_captures_line_clean(CapturedPieces).
+    % Ligne 3: Pieces capturees (affichage visuel Unicode)
+    format_captures_line_visual(CapturedPieces).
 
 %! format_info_line(+LeftParts, +RightParts) is det.
 %  Formate une ligne d'info avec 2 colonnes alignees (29 chars chacune)
@@ -817,23 +822,13 @@ format_info_line(LeftParts, RightParts) :-
     build_text_from_parts(LeftParts, LeftText),
     build_text_from_parts(RightParts, RightText),
 
-    % Aligner chaque colonne sur 29 caracteres
-    format_column(LeftText, 29, LeftFormatted),
-    format_column(RightText, 29, RightFormatted),
+    % Aligner chaque colonne (28 + 28 = 56 chars + 2 separateurs = 58 total)
+    format_column(LeftText, 28, LeftFormatted),
+    format_column(RightText, 24, RightFormatted),
 
     % Afficher la ligne complete
-    format('    ║     │  ~w│~w│    ║~n', [LeftFormatted, RightFormatted]).
+    format('    ║     │~w│~w│    ║~n', [LeftFormatted, RightFormatted]).
 
-%! format_captures_line_clean(+CapturedPieces) is det.
-%  Affiche les pieces capturees sur une ligne complete centree
-format_captures_line_clean(CapturedPieces) :-
-    (   CapturedPieces = [] ->
-        CapturesText = 'Pieces capturees: Aucune'
-    ;   separate_captures(CapturedPieces, WhiteCaptures, BlackCaptures),
-        build_captures_text(WhiteCaptures, BlackCaptures, CapturesText)
-    ),
-    format_column(CapturesText, 58, CapturesFormatted),
-    format('    ║     │  ~w│    ║~n', [CapturesFormatted]).
 
 %! build_text_from_parts(+Parts, -Text) is det.
 %  Construit un texte a partir d'une liste de parties
@@ -846,6 +841,8 @@ build_text_from_parts(Parts, Text) :-
 to_atom(Term, Atom) :-
     (   atom(Term) -> Atom = Term
     ;   number(Term) -> atom_number(Atom, Term)
+    ;   string(Term) -> atom_string(Atom, Term)
+    ;   is_list(Term) -> atom_codes(Atom, Term)  % Pour les listes de codes
     ;   term_to_atom(Term, Atom)
     ).
 
@@ -864,7 +861,7 @@ format_column(Text, Width, FormattedText) :-
 build_captures_text(WhiteCaptures, BlackCaptures, Text) :-
     convert_pieces_to_text(WhiteCaptures, WhiteText),
     convert_pieces_to_text(BlackCaptures, BlackText),
-    format(atom(Text), 'Captures: Blancs ~w | Noirs ~w', [WhiteText, BlackText]).
+    format(atom(Text), 'Captures: Blancs ~w | Noirs ~w ', [WhiteText, BlackText]).
 
 %! separate_captures(+AllCaptures, -WhiteCaptures, -BlackCaptures) is det.
 %  Separe les pieces capturees par couleur (simple et robuste)
@@ -879,13 +876,6 @@ separate_captures([Piece|Rest], WhiteRest, [Piece|BlackRest]) :-
     % Piece noire (minuscule) ou autre
     separate_captures(Rest, WhiteRest, BlackRest).
 
-%! format_captures_display(+WhiteCaptures, +BlackCaptures) is det.
-%  Affiche les captures dans la boite
-format_captures_display(WhiteCaptures, BlackCaptures) :-
-    convert_pieces_to_text(WhiteCaptures, WhiteText),
-    convert_pieces_to_text(BlackCaptures, BlackText),
-    format('    ║     │  Captures: Blancs ~w | Noirs ~w               │    ║~n',
-           [WhiteText, BlackText]).
 
 %! convert_pieces_to_text(+Pieces, -Text) is det.
 %  Convertit une liste de pieces en texte simple (robuste)
@@ -897,9 +887,66 @@ convert_pieces_to_text(Pieces, Text) :-
     ;   catch(atomic_list_concat(Pieces, '', Text), _, Text = '')
     ).
 
-%! get_position_score(+GameState, -Score) is det.
+%! is_list_of_lists(+List) is det.
+%  Vérifie si c'est une liste de listes (pour détecter structure [WhiteList, BlackList])
+is_list_of_lists([H|_]) :- is_list(H), !.
+is_list_of_lists([]).
+
+%! convert_pieces_to_unicode(+Pieces, -UnicodeStr) is det.
+%  Convertit une liste de pieces en chaine Unicode avec espaces
+convert_pieces_to_unicode([], '').
+convert_pieces_to_unicode([Piece|Rest], UnicodeStr) :-
+    get_piece_unicode(Piece, Unicode),
+    convert_pieces_to_unicode(Rest, RestStr),
+    atom_concat(Unicode, ' ', SpacedUnicode),
+    atom_concat(SpacedUnicode, RestStr, UnicodeStr).
+
+%! calculate_separator_length(+WhiteUnicode, +BlackUnicode, -SepLength) is det.
+%  Calcule longueur separateur pour maintenir 52 chars total
+calculate_separator_length(WhiteUnicode, BlackUnicode, SepLength) :-
+    atom_length(WhiteUnicode, WhiteLen),
+    atom_length(BlackUnicode, BlackLen),
+    % "Captures : Blancs " (17) + " Noirs" (6) = 23 chars
+    UsedSpace is WhiteLen + BlackLen + 23,
+    SepLength is max(3, 51 - UsedSpace).
+
+%! create_separator(+Length, -Separator) is det.
+%  Cree une chaine de caracteres ━ de longueur donnee
+create_separator(Length, Separator) :-
+    length(Chars, Length),
+    maplist(=('━'), Chars),
+    atomic_list_concat(Chars, '', Separator).
+
+%! format_captures_line_visual(+CapturedPieces) is det.
+%  Affiche les pieces capturees avec affichage visuel Unicode elegant
+%  CapturedPieces structure: [WhiteList, BlackList] from game.pl
+format_captures_line_visual([WhiteCaptures, BlackCaptures]) :-
+    % Structure imbriquée directe de game.pl: [['P','N'], ['p','r']]
+    convert_pieces_to_unicode(WhiteCaptures, WhiteUnicode),
+    convert_pieces_to_unicode(BlackCaptures, BlackUnicode),
+    calculate_separator_length(WhiteUnicode, BlackUnicode, SepLength),
+    create_separator(SepLength, Separator),
+    format_visual_captures_line(WhiteUnicode, BlackUnicode, Separator).
+
+%! format_captures_line_visual(+CapturedPieces) is det.
+%  Version de rétrocompatibilité pour listes plates
+format_captures_line_visual(CapturedPieces) :-
+    \+ is_list_of_lists(CapturedPieces),  % Si liste plate
+    separate_captures(CapturedPieces, WhiteCaptures, BlackCaptures),
+    format_captures_line_visual([WhiteCaptures, BlackCaptures]).
+
+%! format_visual_captures_line(+WhiteUnicode, +BlackUnicode, +Separator) is det.
+%  Affiche la ligne finale des captures avec formatage visuel
+format_visual_captures_line(WhiteUnicode, BlackUnicode, Separator) :-
+    format(atom(CapturesText), 'Captures : Blancs ~w~w~w Noirs',
+           [WhiteUnicode, Separator, BlackUnicode]),
+    format_column(CapturesText, 52, CapturesFormatted),
+    format('    ║     │~w│    ║~n', [CapturesFormatted]).
+
+%! get_position_score(+UnifiedGameState, -Score) is det.
 %  Obtient le score de position (unifie la logique)
-get_position_score(GameState, Score) :-
+get_position_score(UnifiedGameState, Score) :-
+    extract_game_state(UnifiedGameState, GameState),
     (   catch(evaluate_pure_reference(GameState, white, Score), _, fail) ->
         true
     ;   Score = 0
@@ -936,14 +983,13 @@ determine_game_mode(UnifiedGameState, GameMode) :-
     ;   GameMode = 'MODE INCONNU'
     ).
 
-%! determine_last_move(+GameState, -LastMove) is det.
+%! determine_last_move(+UnifiedGameState, -LastMove) is det.
 %  Determine le dernier coup joue pour affichage
-determine_last_move(GameState, LastMove) :-
-    GameState = game_state(_, _, MoveCount, _, _),
+determine_last_move(unified_game_state(_, _, MoveCount, _, _, _, StoredLastMove), LastMove) :-
     (   MoveCount =< 0 ->
         LastMove = ''  % Rien au premier coup
-    ;   % Pour l'instant, afficher un placeholder pour les coups suivants
-        % TODO: Implementer tracking du dernier coup
-        LastMove = '-'
+    ;   StoredLastMove \= '' ->
+        LastMove = StoredLastMove  % Utiliser le coup stocké
+    ;   LastMove = '-'  % Fallback
     ).
 
