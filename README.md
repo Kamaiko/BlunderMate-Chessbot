@@ -109,23 +109,28 @@ swipl -t run_tests -s tests/tests.pl
 
 ### **🚀 Optimisations IA Avancées**
 
-| Amélioration | Description | Bénéfice Attendu |
-|-------------|-------------|------------------|
-| **📚 Opening Book Étendu** | Base de données réponses théoriques classiques | Évite les erreurs d'ouverture, jeu plus naturel |
-| **💾 Tables de Transposition** | Cache des positions évaluées avec hash | Performance 5-10x supérieure sur positions répétées |
-| **🎯 Quiescence Search** | Extension recherche tactique aux feuilles | Meilleure évaluation des captures et menaces |
+| Amélioration | Description | Priorité | Bénéfice Attendu |
+|-------------|-------------|----------|------------------|
+| **📚 Opening Book Étendu** | Base de données réponses théoriques classiques | 🟢 Haute | Évite les erreurs d'ouverture, jeu plus naturel |
+| **💾 Tables de Transposition** | Cache des positions évaluées avec hash | 🟢 Haute | Performance 5-10x supérieure sur positions répétées |
+| **🎯 Quiescence Search** | Extension recherche tactique aux feuilles | 🟡 Moyenne | Meilleure évaluation des captures et menaces |
+| **🧠 Profondeur Adaptative** | Ajustement profondeur selon complexité position | 🟡 Moyenne | Optimisation temps/qualité selon contexte |
 
 ### **🎮 Expérience Utilisateur**
-- **Interface graphique** avec plateau visuel
-- **Analyse de position** avec évaluation détaillée  
-- **Format PGN** pour sauvegarde/chargement de parties
-- **FEN Parser** pour import/export positions spécifiques
-- **Profondeur variable** selon la complexité de position
+
+| Amélioration | Description | Priorité | Bénéfice Attendu |
+|-------------|-------------|----------|------------------|
+| **🖼️ Interface graphique** | Plateau visuel avec drag & drop | 🟡 Moyenne | Expérience utilisateur moderne |
+| **📊 Analyse de position** | Évaluation détaillée avec suggestions | 🟡 Moyenne | Aide pédagogique avancée |
+| **📝 Format PGN** | Sauvegarde/chargement parties standard | 🔵 Basse | Compatibilité écosystème échecs |
+| **⚙️ FEN Parser** | Import/export positions spécifiques | 🟡 Moyenne | Tests et analyse positions complexes |
 
 ### **♟️ Règles Complètes**
-- **Roque** (petit et grand roque)
-- **En passant** (capture pion en passant)
-- **Promotion au choix** (sélection pièce promotion)
+
+| Règle | Description | Priorité | Impact Gameplay |
+|-------|-------------|----------|-----------------|
+| **🏰 Roque** | Petit et grand roque selon règles FIDE | 🟢 Haute | Stratégie roi, développement naturel |
+| **⚡ En passant** | Capture pion en passant | 🟡 Moyenne | Tactiques avancées, positions spéciales |
 
 
 ## 📚 Documentation Technique
