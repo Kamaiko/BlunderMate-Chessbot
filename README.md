@@ -13,7 +13,7 @@
 <table>
 <tr>
 <td width="50%" align="center">
-  <img src="docs/images/BLUNDERMATE_TITLE.png" alt="Écran titre BlunderMate" width="320" height="400">
+  <img src="docs/images/BLUNDERMATE_TITLE.png" alt="Écran titre BlunderMate" width="380" height="400">
   <br><em>Écran d'accueil BlunderMate v6.0</em>
 </td>
 <td width="50%" align="center">
@@ -36,15 +36,9 @@
 
 | OS | Installation |
 |-----|--------------|
-| **Windows** | [Télécharger SWI-Prolog](https://www.swi-prolog.org/download/stable) puis installer le .exe |
+| **Windows** | [Télécharger SWI-Prolog](https://www.swi-prolog.org/download/stable) puis installer le .exe<br>`winget install SWI-Prolog.SWI-Prolog` (avec winget) |
 | **macOS** | `brew install swi-prolog` |
 | **Linux** | `sudo apt install swi-prolog` (Ubuntu/Debian)<br>`sudo dnf install pl` (Fedora) |
-
-### Vérification
-```bash
-swipl --version
-# Doit afficher: SWI-Prolog version X.X.X
-```
 
 ### Lancement
 ```bash
