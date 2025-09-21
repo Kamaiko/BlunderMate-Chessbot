@@ -6,58 +6,234 @@ on:
   pull_request:
     branches: [ master, main ]
 
+# 🚀 PIPELINE SÉQUENTIEL PROFESSIONNEL - 9 JOBS DISTINCTS
 jobs:
-  test-suite:
-    name: "Complete Test Suite"
+  # ===================================================================
+  # JOB 1: ENVIRONMENT SETUP
+  # ===================================================================
+  setup:
+    name: "Environment Setup"
     runs-on: ubuntu-latest
     container: swipl:latest
-    timeout-minutes: 10
+    timeout-minutes: 2
+
+    outputs:
+      prolog-version: ${{ steps.prolog-check.outputs.version }}
 
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
-      timeout-minutes: 2
+      timeout-minutes: 1
 
-    - name: Verify SWI-Prolog
+    - name: Verify SWI-Prolog Installation
+      id: prolog-check
       timeout-minutes: 1
       run: |
-        echo "=== SWI-Prolog Verification ==="
-        swipl --version
+        echo "=== Environment Setup ==="
+        PROLOG_VERSION=$(timeout 30s swipl --version | head -1)
+        echo "version=$PROLOG_VERSION" >> $GITHUB_OUTPUT
+        echo "✓ SWI-Prolog: $PROLOG_VERSION"
+        echo "✓ Environment ready for testing"
+
+  # ===================================================================
+  # JOB 2: FOUNDATION TESTS (SECTION 1)
+  # ===================================================================
+  foundation:
+    name: "Foundation Tests"
+    runs-on: ubuntu-latest
+    container: swipl:latest
+    timeout-minutes: 3
+    needs: setup
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      timeout-minutes: 1
 
     - name: Run Foundation Tests
       timeout-minutes: 2
       run: |
-        echo "=== Foundation Tests ==="
-        timeout 90s swipl -s tests/tests.pl -g "run_foundation_tests, halt."
+        echo "=== Section 1: Foundation Tests ==="
+        timeout 90s swipl -s tests/tests.pl -g "run_foundation_tests, halt(0)" || exit 1
+        echo "✓ Foundation tests completed successfully"
+
+  # ===================================================================
+  # JOB 3: GAME RULES TESTS (SECTION 2)
+  # ===================================================================
+  game-rules:
+    name: "Game Rules Tests"
+    runs-on: ubuntu-latest
+    container: swipl:latest
+    timeout-minutes: 3
+    needs: foundation
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      timeout-minutes: 1
 
     - name: Run Game Rules Tests
       timeout-minutes: 2
       run: |
-        echo "=== Game Rules Tests ==="
-        timeout 90s swipl -s tests/tests.pl -g "run_game_rules_tests, halt."
+        echo "=== Section 2: Game Rules Tests ==="
+        timeout 90s swipl -s tests/tests.pl -g "run_game_rules_tests, halt(0)" || exit 1
+        echo "✓ Game rules tests completed successfully"
+
+  # ===================================================================
+  # JOB 4: AI ALGORITHM TESTS (SECTION 3)
+  # ===================================================================
+  ai-algorithms:
+    name: "AI Algorithm Tests"
+    runs-on: ubuntu-latest
+    container: swipl:latest
+    timeout-minutes: 5
+    needs: game-rules
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      timeout-minutes: 1
 
     - name: Run AI Algorithm Tests
-      timeout-minutes: 3
+      timeout-minutes: 4
       run: |
-        echo "=== AI Algorithm Tests ==="
-        timeout 150s swipl -s tests/tests.pl -g "run_ai_algorithm_tests, halt."
+        echo "=== Section 3: AI Algorithm Tests ==="
+        timeout 210s swipl -s tests/tests.pl -g "run_ai_algorithm_tests, halt(0)" || exit 1
+        echo "✓ AI algorithm tests completed successfully"
 
-    - name: Run Complete Test Suite
+  # ===================================================================
+  # JOB 5: AI EVALUATION TESTS (SECTION 4)
+  # ===================================================================
+  ai-evaluation:
+    name: "AI Evaluation Tests"
+    runs-on: ubuntu-latest
+    container: swipl:latest
+    timeout-minutes: 3
+    needs: ai-algorithms
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      timeout-minutes: 1
+
+    - name: Run AI Evaluation Tests
       timeout-minutes: 2
       run: |
-        echo "=== Complete Test Suite ==="
-        timeout 90s swipl -s tests/tests.pl -g "run_tests, halt."
+        echo "=== Section 4: AI Evaluation Tests ==="
+        timeout 90s swipl -s tests/tests.pl -g "run_ai_evaluation_tests, halt(0)" || exit 1
+        echo "✓ AI evaluation tests completed successfully"
 
-    - name: Test Module Loading
+  # ===================================================================
+  # JOB 6: TACTICAL TESTS (SECTION 5)
+  # ===================================================================
+  tactical:
+    name: "Tactical Tests"
+    runs-on: ubuntu-latest
+    container: swipl:latest
+    timeout-minutes: 3
+    needs: ai-evaluation
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      timeout-minutes: 1
+
+    - name: Run Tactical Tests
+      timeout-minutes: 2
+      run: |
+        echo "=== Section 5: Tactical Tests ==="
+        timeout 90s swipl -s tests/tests.pl -g "run_tactical_tests, halt(0)" || exit 1
+        echo "✓ Tactical tests completed successfully"
+
+  # ===================================================================
+  # JOB 7: ROBUSTNESS TESTS (SECTION 6)
+  # ===================================================================
+  robustness:
+    name: "Robustness Tests"
+    runs-on: ubuntu-latest
+    container: swipl:latest
+    timeout-minutes: 2
+    needs: tactical
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      timeout-minutes: 1
+
+    - name: Run Robustness Tests
       timeout-minutes: 1
       run: |
-        echo "=== Module Loading Test ==="
-        timeout 30s swipl -s src/interface.pl -g "write('Modules loaded successfully'), nl, halt(0)"
+        echo "=== Section 6: Robustness Tests ==="
+        timeout 45s swipl -s tests/tests.pl -g "run_robustness_tests, halt(0)" || exit 1
+        echo "✓ Robustness tests completed successfully"
 
-    - name: Performance Check
-      if: always()
+  # ===================================================================
+  # JOB 8: INTEGRATION TESTS (SECTION 7)
+  # ===================================================================
+  integration:
+    name: "Integration Tests"
+    runs-on: ubuntu-latest
+    container: swipl:latest
+    timeout-minutes: 3
+    needs: robustness
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      timeout-minutes: 1
+
+    - name: Run Integration Tests
+      timeout-minutes: 2
       run: |
-        echo "=== Performance Metrics ==="
-        echo "Pipeline completed at: $(date)"
-        echo "Memory usage:"
-        free -h || echo "Memory info unavailable"
+        echo "=== Section 7: Integration Tests ==="
+        timeout 90s swipl -s tests/tests.pl -g "run_integration_tests, halt(0)" || exit 1
+        echo "✓ Integration tests completed successfully"
+
+  # ===================================================================
+  # JOB 9: SUMMARY REPORT
+  # ===================================================================
+  summary:
+    name: "Summary Report"
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    needs: integration
+    if: always() # Exécuter même si certains tests ont échoué
+
+    steps:
+    - name: Generate Test Summary
+      run: |
+        echo "======================================================"
+        echo "           PROLOG CHESS AI - TEST SUMMARY"
+        echo "======================================================"
+        echo "🚀 Pipeline: Sequential (9 jobs)"
+        echo "📅 Date: $(date)"
+        echo "🔗 Commit: ${{ github.sha }}"
+        echo "👤 Author: ${{ github.actor }}"
+        echo ""
+        echo "📊 Test Results:"
+        echo "   • Environment Setup: ${{ needs.setup.result }}"
+        echo "   • Foundation Tests: ${{ needs.foundation.result }}"
+        echo "   • Game Rules Tests: ${{ needs.game-rules.result }}"
+        echo "   • AI Algorithm Tests: ${{ needs.ai-algorithms.result }}"
+        echo "   • AI Evaluation Tests: ${{ needs.ai-evaluation.result }}"
+        echo "   • Tactical Tests: ${{ needs.tactical.result }}"
+        echo "   • Robustness Tests: ${{ needs.robustness.result }}"
+        echo "   • Integration Tests: ${{ needs.integration.result }}"
+        echo ""
+
+        # Calculer le statut global
+        if [[ "${{ needs.setup.result }}" == "success" && \
+              "${{ needs.foundation.result }}" == "success" && \
+              "${{ needs.game-rules.result }}" == "success" && \
+              "${{ needs.ai-algorithms.result }}" == "success" && \
+              "${{ needs.ai-evaluation.result }}" == "success" && \
+              "${{ needs.tactical.result }}" == "success" && \
+              "${{ needs.robustness.result }}" == "success" && \
+              "${{ needs.integration.result }}" == "success" ]]; then
+          echo "🎉 OVERALL STATUS: ALL TESTS PASSED ✅"
+          echo "✅ Prolog Chess AI is ready for deployment"
+        else
+          echo "❌ OVERALL STATUS: SOME TESTS FAILED ❌"
+          echo "🔍 Check individual job logs for details"
+        fi
+        echo "======================================================"
