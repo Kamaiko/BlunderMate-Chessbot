@@ -51,4 +51,5 @@ jobs:
 
     - name: Test Game Launch
       run: |
-        timeout 10s swipl -s go.pl -g "write('Game launches successfully'), halt." || echo "Game launch test completed"
+        echo "Testing basic game file loading..."
+        swipl -s src/interface.pl -g "write('Interface module loaded successfully'), halt."
