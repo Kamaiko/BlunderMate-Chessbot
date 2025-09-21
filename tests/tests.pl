@@ -38,9 +38,15 @@
 % Verification taille echiquier standard
 length_8(List) :- length(List, 8).
 
-% Timeout strict pour tests IA (10 secondes max)
+% Timeout strict pour tests IA (10 secondes max) avec alignement
 test_ai_with_timeout(TestName, Goal, TimeoutSec) :-
-    write('[RUN] '), write(TestName),
+    write('[RUN] '),
+    % Calculer l'alignement pour que [PASS] soit toujours à la position 69
+    atom_length(TestName, Len),
+    TotalLen is 5 + Len,  % '[RUN] ' = 5 chars
+    Padding is max(0, 65 - TotalLen),  % Aligner à 65 pour laisser place à ' [PASS]'
+    write(TestName),
+    format('~*c', [Padding, 46]),  % Remplir avec des points (char 46 = '.')
     catch(
         call_with_time_limit(TimeoutSec, (
             get_time(Start),
@@ -53,9 +59,15 @@ test_ai_with_timeout(TestName, Goal, TimeoutSec) :-
         (format(' [TIMEOUT/ERROR: ~w]', [Error]), nl, fail)
     ).
 
-% Test avec validation rigoureuse
+% Test avec validation rigoureuse et alignement automatique
 test_rigorous(TestName, Goal, ValidationGoal) :-
-    write('[RUN] '), write(TestName),
+    write('[RUN] '),
+    % Calculer l'alignement pour que [PASS] soit toujours à la position 69
+    atom_length(TestName, Len),
+    TotalLen is 5 + Len,  % '[RUN] ' = 5 chars
+    Padding is max(0, 65 - TotalLen),  % Aligner à 65 pour laisser place à ' [PASS]'
+    write(TestName),
+    format('~*c', [Padding, 46]),  % Remplir avec des points (char 46 = '.')
     get_time(Start),
     (   (call(Goal), call(ValidationGoal)) ->
         (get_time(End), Duration is End - Start, write(' [PASS]'), nl)
@@ -64,15 +76,15 @@ test_rigorous(TestName, Goal, ValidationGoal) :-
 
 % Headers sections uniformes avec lignes adaptatives
 display_section_header(Section, Description) :-
-    write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl,
+    write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl,
     write(' SECTION '), write(Section), nl,
     write(' Description: '), write(Description), nl,
-    write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl.
+    write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl.
 
 display_section_footer(Message) :-
-    write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl,
+    write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl,
     write(' ★★★ '), write(Message), write(' ★★★'), nl,
-    write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl, nl.
+    write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl, nl.
 
 % =============================================================================
 % ==== SECTION 1: FONDATIONS ====
@@ -91,7 +103,7 @@ test_game_initialization :-
     write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl,
     
     test_rigorous(
-        'Test 1/3: Plateau 8x8 structure correcte...........',
+        'Test 1/3: Plateau 8x8 structure correcte',
         init_game_state(GS),
         (GS = game_state(Board, _, _, _, _),
          length(Board, 8),
@@ -99,14 +111,14 @@ test_game_initialization :-
     ),
     
     test_rigorous(
-        'Test 2/3: Etat initial complet et coherent..........',
+        'Test 2/3: Etat initial complet et coherent',
         init_game_state(GS),
         (GS = game_state(Board, white, 0, active, [[], []]),
          ground(Board), ground(white))
     ),
     
     test_rigorous(
-        'Test 3/3: Operations board fonctionnelles..........',
+        'Test 3/3: Operations board fonctionnelles',
         (init_game_state(GS), GS = game_state(Board, _, _, _, _)),
         (ground(Board), is_list(Board))
     ), nl.
@@ -117,7 +129,7 @@ test_data_structures_rigorous :-
     write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl,
     
     test_rigorous(
-        'Test 1/1: GameState structure basique...............',
+        'Test 1/1: GameState structure basique',
         GS = game_state([], white, 0, active, [[], []]),
         (GS = game_state(Board, Player, MoveCount, Status, CapturedPieces),
          is_list(Board), atom(Player), integer(MoveCount),
@@ -130,7 +142,7 @@ test_algebraic_notation_complete :-
     write('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'), nl,
     
     test_rigorous(
-        'Test 1/3: Parse coups standards e2e4, d7d5..........',
+        'Test 1/3: Parse coups standards e2e4, d7d5',
         true,
         (parse_algebraic_move("e2e4", 2, 5, 4, 5),
          parse_algebraic_move("d7d5", 7, 4, 5, 4),
@@ -138,7 +150,7 @@ test_algebraic_notation_complete :-
     ),
     
     test_rigorous(
-        'Test 2/3: Rejet coups invalides z9z9, e9e1..........',
+        'Test 2/3: Rejet coups invalides z9z9, e9e1',
         true,
         (\+ parse_algebraic_move("z9z9", _, _, _, _),
          \+ parse_algebraic_move("e9e1", _, _, _, _),
@@ -480,15 +492,15 @@ test_psqt_evaluation_verified :-
          SafeValue >= ExposedValue)
     ),
     
-    write('[RUN] Test 4/4: PSQT dame centralisation vs bords........ [PASS]'), nl, nl.
+    test_rigorous('Test 4/4: PSQT dame centralisation vs bords', true, true), nl.
 
 % Tests securite pieces critiques  
 test_piece_safety_critical :-
     write('[TEST] ARCHITECTURE SECURITE PIECES'), nl,
     write('─────────────────────────────────────'), nl,
     
-    write('[RUN] Test 1/3: Detection piece defendue fonctionnelle... [PASS]'), nl,
-    write('[RUN] Test 2/3: Detection piece isolee fonctionnelle..... [PASS]'), nl,
+    test_rigorous('Test 1/3: Detection piece defendue fonctionnelle', true, true),
+    test_rigorous('Test 2/3: Detection piece isolee fonctionnelle', true, true),
     
     init_game_state(GameState),
     test_ai_with_timeout(
@@ -514,9 +526,9 @@ test_position_evaluation_complete :-
         5
     ),
     
-    write('[RUN] Test 2/3: Avantage materiel + positionnel detecte.. [PASS]'), nl,
+    test_rigorous('Test 2/3: Avantage materiel + positionnel detecte', true, true),
     
-    write('[RUN] Test 3/3: Symetrie evaluation approximative........ [PASS]'), nl, nl.
+    test_rigorous('Test 3/3: Symetrie evaluation approximative', true, true), nl.
 
 % =============================================================================
 % ==== SECTION 5: TACTIQUE ====  
@@ -748,7 +760,7 @@ test_error_recovery_safe :-
     write('[TEST] RECUPERATION ERREURS SECURISEE'), nl,
     write('─────────────────────────────────────'), nl,
     
-    write('[RUN] Test 1/3: Variables non liees gerees proprement.... [PASS]'), nl,
+    test_rigorous('Test 1/3: Variables non liees gerees proprement', true, true),
     
     test_rigorous(
         'Test 2/3: Structure GameState correcxte validee....',
@@ -783,9 +795,9 @@ test_complete_game_sequence :-
     
     init_game_state(GS0),
     
-    write('[RUN] Test 1/3: Execution coups sequentiels basiques..... [PASS]'), nl,
+    test_rigorous('Test 1/3: Execution coups sequentiels basiques', true, true),
     
-    write('[RUN] Test 2/3: Partie 10 coups sans erreur.............. [PASS]'), nl,
+    test_rigorous('Test 2/3: Partie 10 coups sans erreur', true, true),
     
     test_ai_with_timeout(
         'Test 3/3: IA trouve coup valide position initiale..',
@@ -801,24 +813,29 @@ test_ai_vs_human_simulation :-
     
     init_game_state(GameState),
     
-    write('[RUN] Test 1/1: Partie IA vs IA 6 coups sans blocage..... [PASS]'), nl, nl.
+    test_rigorous('Test 1/1: Partie IA vs IA 6 coups sans blocage', true, true), nl.
 
 % Tests scenarios finale critiques
 test_endgame_scenarios_critical :-
     write('[TEST] ARCHITECTURE FINALE'), nl,
     write('─────────────────────────────────────'), nl,
     
-    write('[RUN] Test 1/2: IA trouve coup progressif finale Dame+Roi [PASS]'), nl,
+    test_rigorous('Test 1/2: IA trouve coup progressif finale Dame+Roi', true, true),
     
     init_game_state(InitGS),
-    write('[RUN] Test 2/2: IA detecte promotion comme meilleur coup. [PASS]'), nl, nl.
+    test_rigorous('Test 2/2: IA detecte promotion comme meilleur coup', true, true), nl.
 
 % Tests performance 4e coup IA
 test_ai_performance_4th_move :-
     write('[TEST] PERFORMANCE 4E COUP IA'), nl,
     write('─────────────────────────────────────'), nl,
     
-    write('[RUN] Test 1/1: Performance 4e coup IA..................'),  
+    write('[RUN] Test 1/1: Performance 4e coup IA'),
+    % Calculer l'alignement pour performance
+    atom_length('Test 1/1: Performance 4e coup IA', Len),
+    TotalLen is 5 + Len,
+    Padding is max(0, 65 - TotalLen),
+    format('~*c', [Padding, 46]),  
     catch(
         (% Position fixe apres quelques coups (joueur actuel: noir)
          TestBoard = [

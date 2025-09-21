@@ -19,8 +19,8 @@
 % =============================================================================
 
 % Structure d'etat de jeu unifie
-% unified_game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces, PlayerTypes)
-% PlayerTypes = player_types(WhitePlayerType, BlackPlayerType)  
+% unified_game_state(Board, CurrentPlayer, MoveCount, GameStatus, CapturedPieces, PlayerTypes, LastMove)
+% PlayerTypes = player_types(WhitePlayerType, BlackPlayerType)
 % PlayerType = human | ai
 
 % init_unified_game_state(+WhiteType, +BlackType, -UnifiedGameState)
@@ -53,6 +53,44 @@ update_unified_game_state_with_move(unified_game_state(_, _, _, _, _, PlayerType
 % Determine le type d'un joueur (human ou ai)
 get_player_type(unified_game_state(_, _, _, _, _, player_types(WhiteType, _), _), white, WhiteType).
 get_player_type(unified_game_state(_, _, _, _, _, player_types(_, BlackType), _), black, BlackType).
+
+% =============================================================================
+% GESTION DES ERREURS - Système modulaire et réutilisable
+% =============================================================================
+
+% Stockage dynamique des erreurs en cours
+:- dynamic pending_error/1.
+
+% add_error(+ErrorMessage)
+% Ajoute une erreur à la liste des erreurs en attente
+add_error(ErrorMessage) :-
+    assertz(pending_error(ErrorMessage)).
+
+% display_pending_errors
+% Affiche toutes les erreurs en attente et les efface
+display_pending_errors :-
+    findall(Error, pending_error(Error), Errors),
+    clear_all_errors,
+    display_error_list(Errors).
+
+% clear_all_errors
+% Efface toutes les erreurs en attente
+clear_all_errors :-
+    retractall(pending_error(_)).
+
+% display_error_list(+ErrorList)
+% Affiche une liste d'erreurs en dehors de la boîte
+display_error_list([]) :- !.  % Pas d'erreurs
+display_error_list(Errors) :-
+    nl,
+    write('>>> ERREURS <<<'), nl,
+    maplist(display_single_error, Errors),
+    nl.
+
+% display_single_error(+Error)
+% Affiche une seule erreur avec préfixe
+display_single_error(Error) :-
+    write('  ▸ '), write(Error), nl.
 
 % =============================================================================
 % SECTION 2 : MESSAGES FRANCAIS CENTRALISES
@@ -123,6 +161,13 @@ center_text(Text, Width) :-
         draw_spaces(RemainingSpaces)
     ).
 
+% center_text_in_box(+Text)
+% Centre un texte dans une ligne de boîte (64 caractères internes)
+center_text_in_box(Text) :-
+    write('    ║'),
+    center_text(Text, 64),
+    write('║'), nl.
+
 % draw_spaces(+Count)
 % Dessine un nombre donne d'espaces.
 draw_spaces(Count) :-
@@ -192,12 +237,10 @@ display_welcome_screen :-
     write('    ║             ██║ ╚═╝ ██║██║  ██║   ██║   ███████╗               ║'), nl,
     write('    ║             ╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝   ╚══════╝               ║'), nl,
     write('    ║                                                                ║'), nl,
-    write('    ║                           Chessbot.IA                          ║'), nl,
+    center_text_in_box('© BlunderMate - v6.0'),
     write('    ║                                                                ║'), nl,
-    write('    ║                           Version 6.0                          ║'), nl,
-    write('    ║                                                                ║'), nl,
-    write('    ║                 Developpe par Patrick Patenaude                ║'), nl,
-    write('    ║                    19 septembre 2025 - v6.0                    ║'), nl,
+    center_text_in_box('Developpe par Patrick Patenaude'),
+    center_text_in_box('19 septembre 2025'),
     write('    ║                                                                ║'), nl,
     write('    ╚════════════════════════════════════════════════════════════════╝'), nl,
     nl.
@@ -207,8 +250,8 @@ display_welcome_screen :-
 %  Version robuste qui accepte n'importe quelle touche
 wait_for_keypress :-
     flush_output,
-    write('               Appuyez sur une touche pour continuer...'),
-    % Pause pour permettre la lecture, mais ne consomme pas l'input
+    center_text('Appuyez sur une touche pour continuer...', 64),
+    catch(get_single_char(_), _, true),
     nl.
 
 
@@ -237,8 +280,7 @@ display_modern_menu :-
     nl, nl,
     % Boite principale avec hauteur identique a l'ecran d'accueil (24 lignes)
     write('    ╔════════════════════════════════════════════════════════════════╗'), nl,
-    write('    ║                                                                ║'), nl,
-    write('    ║                          MENU PRINCIPAL                        ║'), nl,
+    center_text_in_box('MENU PRINCIPAL'),
     write('    ║                                                                ║'), nl,
     write('    ║━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━║'), nl,
     write('    ║                       ┌──────────────────┐                     ║'), nl,
@@ -251,7 +293,7 @@ display_modern_menu :-
     write('    ║                    2  │ ♟ ♟ ♟ ♟ ♟ ♟ ♟ ♟  │                     ║'), nl,
     write('    ║                    1  │ ♜ ♞ ♝ ♛ ♚ ♝ ♞ ♜  │                     ║'), nl,
     write('    ║                       └──────────────────┘                     ║'), nl,
-    write('    ║                         a b c d e f g h                        ║'), nl,
+    center_text_in_box('a b c d e f g h'),
     write('    ║                                                                ║'), nl,
     write('    ║     ┌─────────────────────────────────────────────────────┐    ║'), nl,
     write('    ║     │  [1] Humain vs Humain     [4] Aide                  │    ║'), nl,
@@ -259,7 +301,7 @@ display_modern_menu :-
     write('    ║     │  [3] Suite de Tests       [6] Quitter               │    ║'), nl,
     write('    ║     └─────────────────────────────────────────────────────┘    ║'), nl,
     write('    ║                                                                ║'), nl,
-    write('    ║                  Chessbot.IA - Menu Interactif                 ║'), nl,
+    center_text_in_box('© BlunderMate - v6.0'),
     write('    ║                                                                ║'), nl,
     write('    ╚════════════════════════════════════════════════════════════════╝'), nl,
     nl,
@@ -271,16 +313,13 @@ display_modern_menu :-
 read_menu_choice(Choice) :-
     flush_output,
     catch(
-        (read_line_to_codes(user_input, Codes),
-         (Codes = [CharCode|_] ->
-             char_code(Choice, CharCode)
-         ;   Choice = '6'  % Défaut: quitter si ligne vide
-         )
+        (read_line_to_string(user_input, String),
+         normalize_space(string(CleanString), String),
+         atom_string(Choice, CleanString)
         ),
         _,
         Choice = '6'  % Défaut: quitter si erreur
-    ),
-    nl.
+    ).
 
 % pause_and_return_menu
 % Pause elegant et retour au menu principal.
@@ -420,6 +459,7 @@ handle_game_end_with_message(Message) :-
 % Boucle de jeu principale gerant tous les types de joueurs (version refactorisée)
 unified_game_loop(UnifiedGameState) :-
     display_game_state_if_needed(UnifiedGameState),
+    display_pending_errors,  % Affiche les erreurs APRÈS le board
     check_and_display_warnings(UnifiedGameState),
     process_game_turn(UnifiedGameState).
 
@@ -428,10 +468,17 @@ unified_game_loop(UnifiedGameState) :-
 handle_player_turn(UnifiedGameState, _Player, human, NewUnifiedGameState) :-
     % Tour d'un joueur humain - utilise l'interface unifiee
     write('Entrez votre coup ou \'aide\' : '),
+    flush_output,
     read_player_input(Input),
     extract_game_state(UnifiedGameState, GameState),
     process_game_input(Input, GameState, NewGameState),
-    update_unified_game_state(UnifiedGameState, NewGameState, NewUnifiedGameState).
+    % Stocker le dernier coup pour l'affichage en mode Humain vs Humain
+    (   NewGameState \= GameState, % Si le coup a été accepté
+        parse_move_input(Input, FromRow, FromCol, ToRow, ToCol) ->
+        coordinates_to_algebraic(FromRow, FromCol, ToRow, ToCol, MoveStr),
+        update_unified_game_state_with_move(UnifiedGameState, NewGameState, MoveStr, NewUnifiedGameState)
+    ;   update_unified_game_state(UnifiedGameState, NewGameState, NewUnifiedGameState)
+    ).
 
 handle_player_turn(UnifiedGameState, Player, ai, NewUnifiedGameState) :-
     % Tour de l'IA - genere un coup automatiquement
@@ -494,16 +541,14 @@ announce_checkmate_winner(black) :-
     pause_and_return_menu.
 
 % read_player_input(-Input)
-% Lit l'entree du joueur avec gestion robuste.
+% Lit l'entree du joueur avec gestion directe.
 read_player_input(Input) :-
-    repeat,
     catch(
         (read_line_to_string(user_input, String),
          normalize_input_string(String, Input)),
         _Error,
-        (chess_error(entree, saisie_joueur, 'Entree invalide - veuillez reessayer'), fail)
-    ),
-    !.
+        Input = ''
+    ).
 
 % =============================================================================
 % SECTION 8 : MODES DE JEU - IA VS HUMAIN
@@ -553,9 +598,6 @@ handle_exit_command(Input) :-
     member(Input, ["quitter", "quitter_jeu", quitter, quitter_jeu]),
     display_message_ln(goodbye),
     halt, !.
-handle_exit_command(_) :-
-    display_message_ln(goodbye),
-    halt.
 
 % process_move_command - Traitement des mouvements
 process_move_command(Input, GameState, NewGameState) :-
@@ -566,12 +608,12 @@ process_move_command(Input, GameState, NewGameState) :-
     ).
 
 % display_invalid_input_error(+InputStr)
-% Affiche une erreur de format d'entree.
+% Ajoute une erreur de format d'entree au système d'erreurs
 display_invalid_input_error(InputStr) :-
-    write('Format de mouvement invalide!'), nl,
-    write('  Attendu: 4 caracteres comme "e2e4" (de e2 vers e4)'), nl,
-    write('  Ou: quitter, aide'), nl,
-    write('  Votre entree: '), write(InputStr), nl.
+    format(atom(ErrorMsg), 'Format invalide: "~w". Attendu: "e2e4"', [InputStr]),
+    add_error(ErrorMsg),
+    add_error('Attendu: 4 caracteres comme "e2e4" (de e2 vers e4)'),
+    add_error('Ou: quitter, aide').
 
 % parse_move_input(+InputStr, -FromRow, -FromCol, -ToRow, -ToCol)
 % Parse l'entree de mouvement.
@@ -580,7 +622,7 @@ parse_move_input(InputStr, FromRow, FromCol, ToRow, ToCol) :-
     parse_algebraic_move(InputStr, FromRow, FromCol, ToRow, ToCol).
 
 % attempt_move(+GameState, +FromRow, +FromCol, +ToRow, +ToCol, -NewGameState)
-% Tente d'executer un mouvement.
+% Tente d'executer un mouvement avec nouveau système d'erreurs
 attempt_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState) :-
     GameState = game_state(Board, Player, _, _, _),
     (valid_chess_position(FromRow, FromCol), valid_chess_position(ToRow, ToCol) ->
@@ -588,16 +630,17 @@ attempt_move(GameState, FromRow, FromCol, ToRow, ToCol, NewGameState) :-
          piece_belongs_to_player(Piece, Player) ->
             (make_move(GameState, FromRow, FromCol, ToRow, ToCol, TempGameState) ->
                 NewGameState = TempGameState
-            ;   display_message_ln(illegal_move),
-                write('  Raison: Cette piece ne peut pas aller a cette position'), nl,
-                write('  Verifiez: Regles de mouvement, blocage du chemin, ou regles du jeu'), nl,
+            ;   add_error('Mouvement illegal: Cette piece ne peut pas aller a cette position'),
+                add_error('Verifiez: Regles de mouvement, blocage du chemin, ou regles du jeu'),
                 NewGameState = GameState)
-        ;   display_message_ln(no_piece_at_position),
-            write('  Verifiez: Assurez-vous d\'avoir une piece '), translate_player(Player, PlayerFR), write(PlayerFR), write(' a la position de depart'), nl,
+        ;   translate_player(Player, PlayerFR),
+            format(atom(ErrorMsg), 'Aucune piece ~w a la position de depart', [PlayerFR]),
+            add_error(ErrorMsg),
+            add_error('Verifiez que vous avez bien une piece de votre couleur a cette position'),
             NewGameState = GameState)
-    ;   display_message_ln(invalid_coordinates),
-        write('  Plage valide: rangees 1-8, colonnes a-h'), nl,
-        write('  Exemple: e2e4 (e=colonne 5, 2=rangee 2 vers e=colonne 5, 4=rangee 4)'), nl,
+    ;   add_error('Coordonnees invalides'),
+        add_error('Plage valide: rangees 1-8, colonnes a-h'),
+        add_error('Exemple: e2e4 (e=colonne 5, 2=rangee 2 vers e=colonne 5, 4=rangee 4)'),
         NewGameState = GameState).
 
 % =============================================================================
@@ -639,7 +682,7 @@ display_help_content :-
     % Fenetre Aide unifiee avec dimensions identiques aux autres fenetres
     write('    ╔════════════════════════════════════════════════════════════════╗'), nl,
     write('    ║                                                                ║'), nl,
-    write('    ║                              AIDE                              ║'), nl,
+    center_text_in_box('AIDE'),
     write('    ║                                                                ║'), nl,
     write('    ║━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━║'), nl,
     write('    ║                                                                ║'), nl,
@@ -657,13 +700,6 @@ display_help_content :-
     write('    ║    ║                                                      ║    ║'), nl,
     write('    ║    ║  ▸ PIECES: P/p=Pion  R/r=Tour  N/n=Cavalier          ║    ║'), nl,
     write('    ║    ║            B/b=Fou   Q/q=Dame  K/k=Roi               ║    ║'), nl,
-    write('    ║    ║                                                      ║    ║'), nl,
-    write('    ║    ║  ▸ PIECES & SYMBOLES                                 ║    ║'), nl,
-    write('    ║    ║    Blancs: ♜ ♞ ♝ ♛ ♚ ♟   (minuscules p/r/n/b/q/k)    ║    ║'), nl,
-    write('    ║    ║    Noirs:  ♖ ♘ ♗ ♕ ♔ ♙   (MAJUSCULES P/R/N/B/Q/K)    ║    ║'), nl,
-    write('    ║    ║                                                      ║    ║'), nl,
-    write('    ║    ║  ▸ RACCOURCIS: [Tab] historique  [↑↓] navigation     ║    ║'), nl,
-    write('    ║    ║                                                      ║    ║'), nl,
     write('    ║    ╚══════════════════════════════════════════════════════╝    ║'), nl,
     write('    ║                                                                ║'), nl,
     write('    ╚════════════════════════════════════════════════════════════════╝'), nl,
@@ -676,25 +712,23 @@ show_about :-
     % Fenetre A Propos avec dimensions identiques aux autres fenetres
     write('    ╔════════════════════════════════════════════════════════════════╗'), nl,
     write('    ║                                                                ║'), nl,
-    write('    ║                            A PROPOS                            ║'), nl,
+    center_text_in_box('A PROPOS'),
     write('    ║                                                                ║'), nl,
     write('    ║━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━║'), nl,
     write('    ║                                                                ║'), nl,
     write('    ║             ╭─────  Chessbot ecrit en Prolog  ────╮            ║'), nl,
-    write('    ║               IA utilisant Negamax avec Alpha-Beta             ║'), nl,
+    center_text_in_box('IA utilisant Negamax avec Alpha-Beta'),
     write('    ║                                                                ║'), nl,
     write('    ║    ╔══════════════════════════════════════════════════════╗    ║'), nl,
     write('    ║    ║                                                      ║    ║'), nl,
     write('    ║    ║  ▸ Developpe par Patrick Patenaude                   ║    ║'), nl,
     write('    ║    ║  ▸ VERSION: 6.0 Unicode - Septembre 2025             ║    ║'), nl,
-    write('    ║    ║  ▸ COURS: IFT-2003 Intelligence Artificielle         ║    ║'), nl,
-    write('    ║    ║  ▸ INSTITUTION: Universite Laval                     ║    ║'), nl,
     write('    ║    ║                                                      ║    ║'), nl,
     write('    ║    ║  ──────────────────────────────────────────────────  ║    ║'), nl,
     write('    ║    ║                                                      ║    ║'), nl,
     write('    ║    ║  Performance IA:                                     ║    ║'), nl,
     write('    ║    ║   • Profondeur 2 avec elagage alpha-beta             ║    ║'), nl,
-    write('    ║    ║   • Temps de reponse < 0.1s par coup                 ║    ║'), nl,
+    write('    ║    ║   • Temps de reponse entre 1-3s par coup             ║    ║'), nl,
     write('    ║    ║   • Evaluation PSQT + materiel + defense             ║    ║'), nl,
     write('    ║    ║                                                      ║    ║'), nl,
     write('    ║    ╚══════════════════════════════════════════════════════╝    ║'), nl,
@@ -706,7 +740,7 @@ show_about :-
 %  Affiche l'interface de jeu avec design seamless du menu principal
 %  Boite identique au menu principal avec informations de jeu
 display_game_interface(UnifiedGameState, GameMode) :-
-    UnifiedGameState = unified_game_state(Board, Player, MoveCount, _, CapturedPieces, _, _),
+    UnifiedGameState = unified_game_state(Board, Player, MoveCount, _, CapturedPieces, _, _, _),
     determine_last_move(UnifiedGameState, LastMove),
     nl, nl,
     % Boite principale avec dimensions identiques au menu principal (24 lignes)
@@ -718,13 +752,13 @@ display_game_interface(UnifiedGameState, GameMode) :-
     PaddingLeft is PaddingTotal // 2,
     PaddingRight is PaddingTotal - PaddingLeft,
     format('    ║~*c~w~*c║~n', [PaddingLeft, 32, GameMode, PaddingRight, 32]),
-    write('    ║━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━║'), nl,
+    write('    ║━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━║'), nl,
     write('    ║                                                                ║'), nl,
 
     % Board actuel (meme position que menu principal)
     display_board_in_box(Board),
 
-    write('    ║                         a b c d e f g h                        ║'), nl,
+    center_text_in_box('a b c d e f g h'),
     write('    ║                                                                ║'), nl,
 
     % Boite d'informations (remplace le menu 1-6)
@@ -732,50 +766,12 @@ display_game_interface(UnifiedGameState, GameMode) :-
     format_game_info_box(Player, MoveCount, LastMove, UnifiedGameState, CapturedPieces),
     write('    ║     └─────────────────────────────────────────────────────┘    ║'), nl,
     write('    ║                                                                ║'), nl,
-    write('    ║                                                                ║'), nl,
     write('    ╚════════════════════════════════════════════════════════════════╝'), nl,
     nl.
 
-%! draw_game_box_header(+GameMode) is det.
-%  Dessine l'en-tete de la boite de jeu avec titre centre
-draw_game_box_header(GameMode) :-
-    write('    ╔════════════════════════════════════════════════════════════════╗'), nl,
-    write('    ║                                                                ║'), nl,
-    draw_centered_title(GameMode),
-    write('    ║━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━║'), nl,
-    write('    ║                                                                ║'), nl.
-
-%! draw_centered_title(+Title) is det.
-%  Centre un titre dans une ligne de 64 caracteres
-draw_centered_title(Title) :-
-    atom_length(Title, TitleLen),
-    PaddingTotal is 64 - TitleLen,
-    PaddingLeft is PaddingTotal // 2,
-    PaddingRight is PaddingTotal - PaddingLeft,
-    format('    ║~*c~w~*c║~n', [PaddingLeft, 32, Title, PaddingRight, 32]).
-
-%! draw_board_coordinates is det.
-%  Affiche les coordonnees sous le plateau
-draw_board_coordinates :-
-    write('    ║                         a b c d e f g h                        ║'), nl,
-    write('    ║                                                                ║'), nl.
-
-%! draw_info_section(+Player, +MoveCount, +LastMove, +UnifiedGameState, +CapturedPieces) is det.
-%  Dessine la section d'informations de jeu
-draw_info_section(Player, MoveCount, LastMove, UnifiedGameState, CapturedPieces) :-
-    write('    ║     ┌─────────────────────────────────────────────────────┐    ║'), nl,
-    format_game_info_box(Player, MoveCount, LastMove, UnifiedGameState, CapturedPieces),
-    write('    ║     └─────────────────────────────────────────────────────┘    ║'), nl.
-
-%! draw_game_box_footer is det.
-%  Dessine le pied de la boite de jeu
-draw_game_box_footer :-
-    write('    ║                                                                ║'), nl,
-    write('    ║                                                                ║'), nl,
-    write('    ╚════════════════════════════════════════════════════════════════╝'), nl.
 
 %! display_board_in_box(+Board) is det.
-%  Affiche le board aux memes coordonnees que le menu principal
+%  Affiche le board complet dans la boite avec bordures
 display_board_in_box(Board) :-
     write('    ║                       ┌──────────────────┐                     ║'), nl,
     display_board_rows_in_box(Board, 8),
@@ -906,8 +902,8 @@ convert_pieces_to_unicode([Piece|Rest], UnicodeStr) :-
 calculate_separator_length(WhiteUnicode, BlackUnicode, SepLength) :-
     atom_length(WhiteUnicode, WhiteLen),
     atom_length(BlackUnicode, BlackLen),
-    % "Captures : Blancs " (17) + " Noirs" (6) = 23 chars
-    UsedSpace is WhiteLen + BlackLen + 23,
+    % "Blancs " (7) + " Noirs" (6) = 13 chars
+    UsedSpace is WhiteLen + BlackLen + 13,
     SepLength is max(3, 51 - UsedSpace).
 
 %! create_separator(+Length, -Separator) is det.
@@ -938,9 +934,9 @@ format_captures_line_visual(CapturedPieces) :-
 %! format_visual_captures_line(+WhiteUnicode, +BlackUnicode, +Separator) is det.
 %  Affiche la ligne finale des captures avec formatage visuel
 format_visual_captures_line(WhiteUnicode, BlackUnicode, Separator) :-
-    format(atom(CapturesText), 'Captures : Blancs ~w~w~w Noirs',
+    format(atom(CapturesText), 'Blancs ~w~w~w Noirs ',
            [WhiteUnicode, Separator, BlackUnicode]),
-    format_column(CapturesText, 52, CapturesFormatted),
+    format_column(CapturesText, 53, CapturesFormatted),
     format('    ║     │~w│    ║~n', [CapturesFormatted]).
 
 %! get_position_score(+UnifiedGameState, -Score) is det.
@@ -992,4 +988,7 @@ determine_last_move(unified_game_state(_, _, MoveCount, _, _, _, StoredLastMove)
         LastMove = StoredLastMove  % Utiliser le coup stocké
     ;   LastMove = '-'  % Fallback
     ).
+
+% Note: Les messages d'erreur sont maintenant affichés
+% en dehors de la boîte, après l'affichage du board
 

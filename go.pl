@@ -109,7 +109,7 @@ main :-
     nl,
     write('>>> Configuration automatique UTF-8...'), nl,
     setup_utf8,
-    write('>>> Lancement Blunderbot Chess Engine...'), nl, nl,
+    write('>>> Lancement BlunderMate ChessBot...'), nl, nl,
 
     % Charger et lancer le programme principal
     catch(
