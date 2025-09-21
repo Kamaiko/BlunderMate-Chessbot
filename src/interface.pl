@@ -740,7 +740,7 @@ show_about :-
 %  Affiche l'interface de jeu avec design seamless du menu principal
 %  Boite identique au menu principal avec informations de jeu
 display_game_interface(UnifiedGameState, GameMode) :-
-    UnifiedGameState = unified_game_state(Board, Player, MoveCount, _, CapturedPieces, _, _, _),
+    UnifiedGameState = unified_game_state(Board, Player, MoveCount, _, CapturedPieces, _, _),
     determine_last_move(UnifiedGameState, LastMove),
     nl, nl,
     % Boite principale avec dimensions identiques au menu principal (24 lignes)
