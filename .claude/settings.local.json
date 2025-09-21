@@ -18,7 +18,9 @@
       "mcp__filesystem__list_directory",
       "Bash(printf \"\\n6\\n\")",
       "Bash(gh issue close:*)",
-      "mcp__filesystem__read_text_file"
+      "mcp__filesystem__read_text_file",
+      "Bash(gh run view:*)",
+      "Bash(gh run list:*)"
     ],
     "deny": [],
     "ask": []
