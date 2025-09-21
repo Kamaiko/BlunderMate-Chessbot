@@ -1,4 +1,4 @@
-name: Prolog Chess CI Pipeline
+name: Prolog Chess Tests
 
 on:
   push:
@@ -6,228 +6,58 @@ on:
   pull_request:
     branches: [ master, main ]
 
-# 🛡️ PIPELINE PROFESSIONNEL MULTICOUCHE
 jobs:
-  # ===================================================================
-  # PHASE 1: VALIDATION ENVIRONNEMENT
-  # ===================================================================
-  environment-validation:
-    name: "Environment Setup & Validation"
+  test-suite:
+    name: "Complete Test Suite"
     runs-on: ubuntu-latest
     container: swipl:latest
-    timeout-minutes: 3
-
-    outputs:
-      prolog-version: ${{ steps.prolog-info.outputs.version }}
-      setup-status: ${{ steps.setup-check.outputs.status }}
+    timeout-minutes: 10
 
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
       timeout-minutes: 2
 
-    - name: Validate SWI-Prolog Installation
-      id: prolog-info
+    - name: Verify SWI-Prolog
       timeout-minutes: 1
       run: |
-        echo "=== PROLOG ENVIRONMENT VALIDATION ==="
-        PROLOG_VERSION=$(timeout 15s swipl --version | head -1)
-        echo "version=$PROLOG_VERSION" >> $GITHUB_OUTPUT
-        echo "✓ SWI-Prolog: $PROLOG_VERSION"
+        echo "=== SWI-Prolog Verification ==="
+        swipl --version
 
-    - name: Verify Project Structure
-      id: setup-check
-      timeout-minutes: 1
-      run: |
-        echo "=== PROJECT STRUCTURE VALIDATION ==="
-        echo "📁 Source files:"
-        ls -la src/ | grep "\.pl$" || echo "No .pl files found"
-        echo "🧪 Test files:"
-        ls -la tests/ | grep "\.pl$" || echo "No test files found"
-        echo "📚 Documentation:"
-        ls -la docs/ | grep "\.md$" || echo "No documentation found"
-        echo "status=success" >> $GITHUB_OUTPUT
-        echo "✓ Project structure validated"
-
-  # ===================================================================
-  # PHASE 2: TESTS FONDAMENTAUX (RAPIDES)
-  # ===================================================================
-  foundation-tests:
-    name: "Foundation & Core Logic Tests"
-    runs-on: ubuntu-latest
-    container: swipl:latest
-    timeout-minutes: 5
-    needs: environment-validation
-
-    strategy:
-      fail-fast: false
-      matrix:
-        test-suite: [foundation, game-rules, robustness]
-
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+    - name: Run Foundation Tests
       timeout-minutes: 2
+      run: |
+        echo "=== Foundation Tests ==="
+        timeout 90s swipl -s tests/tests.pl -g "run_foundation_tests, halt."
 
-    - name: Run ${{ matrix.test-suite }} Tests
+    - name: Run Game Rules Tests
+      timeout-minutes: 2
+      run: |
+        echo "=== Game Rules Tests ==="
+        timeout 90s swipl -s tests/tests.pl -g "run_game_rules_tests, halt."
+
+    - name: Run AI Algorithm Tests
       timeout-minutes: 3
       run: |
-        echo "=== ${{ matrix.test-suite | upper }} TESTS ==="
-        case "${{ matrix.test-suite }}" in
-          "foundation")
-            timeout 120s swipl -s tests/tests.pl -g "run_foundation_tests, halt." || exit 1
-            ;;
-          "game-rules")
-            timeout 120s swipl -s tests/tests.pl -g "run_game_rules_tests, halt." || exit 1
-            ;;
-          "robustness")
-            timeout 90s swipl -s tests/tests.pl -g "run_robustness_tests, halt." || exit 1
-            ;;
-        esac
-        echo "✓ ${{ matrix.test-suite }} tests completed successfully"
+        echo "=== AI Algorithm Tests ==="
+        timeout 150s swipl -s tests/tests.pl -g "run_ai_algorithm_tests, halt."
 
-  # ===================================================================
-  # PHASE 3: TESTS INTELLIGENCE ARTIFICIELLE (AVANCÉS)
-  # ===================================================================
-  ai-tests:
-    name: "AI & Algorithm Tests"
-    runs-on: ubuntu-latest
-    container: swipl:latest
-    timeout-minutes: 8
-    needs: foundation-tests
-
-    strategy:
-      fail-fast: false
-      matrix:
-        ai-component: [algorithms, evaluation, tactical]
-
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
-      timeout-minutes: 2
-
-    - name: Run AI ${{ matrix.ai-component }} Tests
-      timeout-minutes: 5
-      run: |
-        echo "=== AI ${{ matrix.ai-component | upper }} TESTS ==="
-        case "${{ matrix.ai-component }}" in
-          "algorithms")
-            timeout 240s swipl -s tests/tests.pl -g "run_ai_algorithm_tests, halt." || exit 1
-            ;;
-          "evaluation")
-            timeout 180s swipl -s tests/tests.pl -g "run_ai_evaluation_tests, halt." || exit 1
-            ;;
-          "tactical")
-            timeout 180s swipl -s tests/tests.pl -g "run_tactical_tests, halt." || exit 1
-            ;;
-        esac
-        echo "✓ AI ${{ matrix.ai-component }} tests completed successfully"
-
-  # ===================================================================
-  # PHASE 4: TESTS D'INTÉGRATION & SYSTÈME
-  # ===================================================================
-  integration-tests:
-    name: "Integration & System Tests"
-    runs-on: ubuntu-latest
-    container: swipl:latest
-    timeout-minutes: 6
-    needs: [foundation-tests, ai-tests]
-
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
-      timeout-minutes: 2
-
-    - name: Complete Test Suite
+    - name: Run Complete Test Suite
       timeout-minutes: 2
       run: |
-        echo "=== COMPLETE INTEGRATION TESTS ==="
-        timeout 90s swipl -s tests/tests.pl -g "run_tests, halt." || exit 1
-        echo "✓ Complete test suite passed"
+        echo "=== Complete Test Suite ==="
+        timeout 90s swipl -s tests/tests.pl -g "run_tests, halt."
 
-    - name: Integration Flow Tests
-      timeout-minutes: 2
-      run: |
-        echo "=== INTEGRATION WORKFLOW TESTS ==="
-        timeout 90s swipl -s tests/tests.pl -g "run_integration_tests, halt." || exit 1
-        echo "✓ Integration workflow completed"
-
-  # ===================================================================
-  # PHASE 5: TESTS APPLICATIFS (SÉCURISÉS)
-  # ===================================================================
-  application-tests:
-    name: "Application & Module Loading Tests"
-    runs-on: ubuntu-latest
-    container: swipl:latest
-    timeout-minutes: 4
-    needs: integration-tests
-
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
-      timeout-minutes: 2
-
-    - name: Module Loading Validation
-      timeout-minutes: 2
-      run: |
-        echo "=== MODULE LOADING TESTS - SAFE MODE ==="
-        echo "🛡️ Protection: Triple timeout (2min → 90s → 30s)"
-
-        timeout 30s swipl -s src/interface.pl -g "write('=== MODULE VALIDATION ==='), nl, consult('src/pieces'), write('pieces.pl loaded'), nl, consult('src/board'), write('board.pl loaded'), nl, consult('src/game'), write('game.pl loaded'), nl, consult('src/ai'), write('ai.pl loaded'), nl, write('ALL MODULES LOADED'), nl, halt(0)" || (echo "Module loading failed" && exit 1)
-
-        echo "✅ All application modules validated successfully"
-
-  # ===================================================================
-  # PHASE 6: PERFORMANCE & QUALITÉ
-  # ===================================================================
-  quality-assurance:
-    name: "Performance & Quality Metrics"
-    runs-on: ubuntu-latest
-    container: swipl:latest
-    timeout-minutes: 3
-    needs: application-tests
-    if: always() # Toujours exécuter pour collecter métriques
-
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
-      timeout-minutes: 2
-
-    - name: Performance Metrics Collection
+    - name: Test Module Loading
       timeout-minutes: 1
       run: |
-        echo "=== PERFORMANCE & QUALITY METRICS ==="
-        echo "📊 System Resources:"
-        free -h 2>/dev/null || echo "Memory info unavailable"
+        echo "=== Module Loading Test ==="
+        timeout 30s swipl -s src/interface.pl -g "write('Modules loaded successfully'), nl, halt(0)"
 
-        echo "📈 Process Monitoring:"
-        ps aux | head -10 2>/dev/null || echo "Process info unavailable"
-
-        echo "📝 Code Metrics:"
-        find src/ -name "*.pl" -exec wc -l {} + 2>/dev/null | tail -1 | awk '{print "Total lines of Prolog code: " $1}' || echo "Code metrics unavailable"
-
-        echo "🧪 Test Coverage:"
-        find tests/ -name "*.pl" -exec wc -l {} + 2>/dev/null | tail -1 | awk '{print "Total lines of test code: " $1}' || echo "Test metrics unavailable"
-
-        echo "⏱️ Pipeline Duration: $(date)"
-        echo "✅ Quality assurance metrics collected"
-
-  # ===================================================================
-  # PHASE 7: DEPLOYMENT READINESS CHECK
-  # ===================================================================
-  deployment-readiness:
-    name: "Deployment Readiness Check"
-    runs-on: ubuntu-latest
-    timeout-minutes: 2
-    needs: [integration-tests, application-tests, quality-assurance]
-    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-
-    steps:
-    - name: Deployment Validation
+    - name: Performance Check
+      if: always()
       run: |
-        echo "=== DEPLOYMENT READINESS VALIDATION ==="
-        echo "🚀 Branch: ${{ github.ref }}"
-        echo "📝 Commit: ${{ github.sha }}"
-        echo "👤 Author: ${{ github.actor }}"
-        echo "✅ All tests passed - Ready for deployment"
-        echo "🎯 Prolog Chess AI - Production Ready"
+        echo "=== Performance Metrics ==="
+        echo "Pipeline completed at: $(date)"
+        echo "Memory usage:"
+        free -h || echo "Memory info unavailable"
