@@ -17,9 +17,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 # Prolog Chess Game - AI Focus Project
 
-## Quick Context
-- **Project**: Chess AI in Prolog - University AI course (IFT-2003)
-- **Date remise**: 20 octobre 2025 (9h00) - Rapport PDF + Code Prolog
+## Contexte Projet
+- **Project**: Chess AI in Prolog - Patrick Patenaude
+- **Date projet**: 20 septembre 2025 - Moteur d'echecs avec IA
 - **Current Phase**: Diagnostic critique post-fix - Détection attaque défaillante identifiée
 - **Status**: 🔴 **85% COMPLÉTÉ** - Fixes partiels appliqués, problèmes critiques section 10 identifiés
 - **Architecture**: 6-module design (pieces/board/game/interface/ai/evaluation)
@@ -251,7 +251,7 @@ swipl go.pl  # Test manual - Option 2: IA vs Humain
 - **TASKS.md**: ✅ Nettoyé et mis à jour - Priorités actuelles et diagnostics récents
 - **ARCHITECTURE_GUIDE_DEVELOPERS.md**: Guide complet nouveaux développeurs
 - **GENERATION_COUP.md**: Analyse détaillée problème recaptures (référence technique)
-- **DOCUMENT_REMISE.md**: Spécifications projet IFT-2003
+- **RAPPORT_TECHNIQUE.md**: Spécifications détaillées du projet
 
 ### ✅ **ÉTAT ACTUEL IA** (Janvier 2025 - POST-REFACTORISATION)
 - **✅ Architecture MVV-LVA**: REFACTORISÉE (captures unifiées, tri immédiat)

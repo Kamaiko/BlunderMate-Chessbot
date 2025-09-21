@@ -4,7 +4,7 @@
 
 **Joueur intelligent d'échecs avec techniques de recherche heuristique**
 
-*Projet IFT-2003 · Intelligence Artificielle · Université Laval*
+*Projet d'Intelligence Artificielle · Patrick Patenaude*
 
 [![SWI-Prolog](https://img.shields.io/badge/SWI--Prolog-9.x+-blue?style=flat-square)](https://www.swi-prolog.org/)
 [![Platforms](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey?style=flat-square)]()
@@ -27,14 +27,14 @@
 
 ---
 
-## 🚀 Installation & Lancement
+## Installation & Lancement
 
 ```bash
 # Démarrer le jeu d'échecs
 swipl go.pl
 ```
 
-## 🏗️ Architecture
+## Architecture
 
 <table>
 <tr><td><strong>Module</strong></td><td><strong>Responsabilité</strong></td></tr>
@@ -47,13 +47,13 @@ swipl go.pl
 <tr><td><code>utils.pl</code></td><td>🔧 Constantes globales et helpers partagés</td></tr>
 </table>
 
-## ✨ Fonctionnalités
+## Fonctionnalités
 
-### 🏆 Jeu d'Échecs Standard
+### Jeu d'Échecs Standard
 - ✅ **Toutes les pièces** et règles officielles FIDE
 - ✅ **Détection complète** échec, mat et pat
 
-### 🤖 Intelligence Artificielle
+### Intelligence Artificielle
 
 | Composante | Description | Performance |
 |------------|-------------|-------------|
@@ -62,14 +62,9 @@ swipl go.pl
 | **Tri des coups** | MVV-LVA⁴ (Most Valuable Victim) | Élagage ~90% |
 | **Temps de réponse** | Temps réel | < 3 secondes/coup |
 
-**Références techniques :**
-- ¹ Négamax : [Chess Programming Wiki](https://www.chessprogramming.org/Negamax) • [Lichess GitHub](https://github.com/lichess-org/lila)
-- ² Alpha-Beta : [Chess Programming Wiki](https://www.chessprogramming.org/Alpha-Beta)
-- ³ PSQT : [Chess Programming Wiki](https://www.chessprogramming.org/Piece-Square_Tables) 
-- ⁴ MVV-LVA : [Chess Programming Wiki](https://www.chessprogramming.org/MVV-LVA)
 - 🤖 **Développé avec** [Claude Code](https://claude.ai/code)
 
-## 🎮 Usage
+## Usage
 
 ### Format d'entrée
 ```
@@ -82,7 +77,7 @@ Commandes    : aide, menu, quitter
 - 👤 **Humain vs Humain** · Partie locale à deux joueurs
 - 🤖 **Humain vs IA** · Affrontez l'intelligence artificielle
 
-## 🧪 Tests
+## Tests
 
 <img src="docs/images/test-performance.png" alt="Test de performance IA" width="600">
 
@@ -97,7 +92,7 @@ swipl -t run_tests -s tests/tests.pl
 # Tests spécifiques par catégories disponibles
 ```
 
-## 📋 Prérequis Système
+## Prérequis Système
 
 | Composant | Version | Notes |
 |-----------|---------|-------|
@@ -105,28 +100,34 @@ swipl -t run_tests -s tests/tests.pl
 | **OS** | Windows/Linux/macOS | Multiplateforme |
 | **Mémoire** | 512 MB+ | Algorithme négamax |
 
-## 🔧 Améliorations Futures
+## Améliorations Futures
 
-**🚀 IA Avancée** : Opening Book • Tables de Transposition • Quiescence Search • Profondeur Adaptative
+**IA Avancée** : Opening Book • Tables de Transposition • Quiescence Search • Profondeur Adaptative
 
-**🎮 UX/UI** : Interface graphique • Analyse position • Format PGN • FEN Parser
+**UX/UI** : Interface graphique • Analyse position • Format PGN • FEN Parser
 
-**♟️ Règles** : Roque • En passant
+**Règles** : Roque • En passant
 
 
-## 📚 Documentation Technique
+## Documentation Technique
+
+**Références techniques :**
+- ¹ Négamax : [Chess Programming Wiki](https://www.chessprogramming.org/Negamax) • [Lichess GitHub](https://github.com/lichess-org/lila)
+- ² Alpha-Beta : [Chess Programming Wiki](https://www.chessprogramming.org/Alpha-Beta)
+- ³ PSQT : [Chess Programming Wiki](https://www.chessprogramming.org/Piece-Square_Tables)
+- ⁴ MVV-LVA : [Chess Programming Wiki](https://www.chessprogramming.org/MVV-LVA)
 
 | Document | Description |
 |----------|-------------|
-| 📐 [**Architecture Guide**](docs/ARCHITECTURE_GUIDE_DEVELOPERS.md) | Architecture système complète |
-| 📄 [**Product Requirements**](docs/PRD.md) | Spécifications détaillées |
-| 🎓 [**Document de Remise**](docs/DOCUMENT_REMISE.md) | Spécifications projet IFT-2003 |
+| [**Architecture Guide**](docs/ARCHITECTURE_GUIDE_DEVELOPERS.md) | Architecture système complète |
+| [**Product Requirements**](docs/PRD.md) | Exigences fonctionnelles et techniques |
+| [**Rapport Technique**](docs/RAPPORT_TECHNIQUE.md) | Analyse détaillée des algorithmes et performances |
 
 ---
 
 <div align="center">
 
-**🎓 Projet Universitaire** · **🏛️ Université Laval** · **🤖 Intelligence Artificielle**
+**🤖 Prolog Chess AI** · **Patrick Patenaude** · **Intelligence Artificielle**
 
 *Négamax • Alpha-Beta • PSQT • MVV-LVA*
 

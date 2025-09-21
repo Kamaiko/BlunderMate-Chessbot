@@ -2,9 +2,8 @@
 % GO.PL - Lanceur avec support UTF-8 automatique
 % =============================================================================
 %
-% ÉQUIPE       : Projet universitaire IFT-2003
-% COURS        : IFT-2003 - Intelligence Artificielle
-% INSTITUTION  : Université Laval
+% AUTEUR       : Patrick Patenaude
+% PROJET       : IA d'Échecs en Prolog
 % VERSION      : 6.0 Unicode
 %
 % DESCRIPTION  : Launcher universel qui configure automatiquement l'encodage

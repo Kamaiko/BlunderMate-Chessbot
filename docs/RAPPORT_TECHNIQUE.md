@@ -1,9 +1,8 @@
-# Rapport de Travail Pratique - Intelligence Artificielle
-## IFT-2003 - Joueur Intelligent d'Échecs en Prolog
+# Rapport Technique - Intelligence Artificielle
+## Joueur Intelligent d'Échecs en Prolog
 
-**Étudiant** : [Patrick Patenaude]  
-**Date** : 20 Octobre 2025  
-**Université** : Université Laval
+**Auteur** : Patrick Patenaude
+**Date** : 20 Septembre 2025
 
 ---
 
@@ -43,9 +42,9 @@
 
 ### 1.1 Contexte et justification
 
-Ce travail pratique IFT-2003 implémente un moteur d'échecs intelligent en Prolog utilisant l'algorithme négamax avec élagage alpha-beta. L'approche déclarative de Prolog s'avère particulièrement efficace pour modéliser les règles complexes du jeu d'échecs et implémenter les algorithmes de recherche heuristique.
+Ce projet implémente un moteur d'échecs intelligent en Prolog utilisant l'algorithme négamax avec élagage alpha-beta. L'approche déclarative de Prolog s'avère particulièrement efficace pour modéliser les règles complexes du jeu d'échecs et implémenter les algorithmes de recherche heuristique.
 
-### 1.2 Objectifs du travail pratique
+### 1.2 Objectifs du projet
 
 - Implémentation complète d'un moteur d'échecs avec IA fonctionnelle
 - Architecture modulaire en 7 couches
@@ -257,17 +256,13 @@ Système complet opérationnel :
 
 <table>
 <tr>
-<td width="33%" align="center">
-  <img src="images/menu-principal.png" alt="Menu principal" width="300">
-  <br><em>Menu principal français</em>
+<td width="50%" align="center">
+  <img src="images/BLUNDERMATE_TITLE.png" alt="Écran titre BlunderMate" width="320" height="400">
+  <br><em>Écran d'accueil BlunderMate v6.0</em>
 </td>
-<td width="33%" align="center">
-  <img src="images/TestsSection3.png" alt="Tests automatises" width="300">
-  <br><em>Tests automatises</em>
-</td>
-<td width="33%" align="center">
-  <img src="images/partie-ia.png" alt="IA en action" width="300">
-  <br><em>IA en action</em>
+<td width="50%" align="center">
+  <img src="images/PARTIE_IVH.png" alt="Interface de jeu" width="400">
+  <br><em>Interface de jeu IA vs Humain</em>
 </td>
 </tr>
 </table>
