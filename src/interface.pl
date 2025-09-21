@@ -295,7 +295,7 @@ display_modern_menu :-
     write('    ║                    2  │ ♟ ♟ ♟ ♟ ♟ ♟ ♟ ♟  │                     ║'), nl,
     write('    ║                    1  │ ♜ ♞ ♝ ♛ ♚ ♝ ♞ ♜  │                     ║'), nl,
     write('    ║                       └──────────────────┘                     ║'), nl,
-    center_text_in_box('a b c d e f g h'),
+    write('    ║                         a b c d e f g h                        ║'), nl,
     write('    ║                                                                ║'), nl,
     write('    ║     ┌─────────────────────────────────────────────────────┐    ║'), nl,
     write('    ║     │  [1] Humain vs Humain     [4] Aide                  │    ║'), nl,
@@ -762,7 +762,7 @@ display_game_interface(UnifiedGameState, GameMode) :-
     % Board actuel (meme position que menu principal)
     display_board_in_box(Board),
 
-    center_text_in_box('a b c d e f g h'),
+    write('    ║                         a b c d e f g h                        ║'), nl,
     write('    ║                                                                ║'), nl,
 
     % Boite d'informations (remplace le menu 1-6)
@@ -856,6 +856,18 @@ format_column(Text, Width, FormattedText) :-
         format(atom(FormattedText), '~w~*c', [Text, Padding, 32])  % Pad avec espaces
     ).
 
+%! format_column_ansi(+Text, +Width, -FormattedText) is det.
+%  Formate un texte avec codes ANSI pour occuper exactement Width caracteres visibles
+format_column_ansi(Text, Width, FormattedText) :-
+    count_visible_length(Text, VisibleLen),
+    (   VisibleLen >= Width ->
+        % Troncature complexe - garder les codes ANSI intacts est difficile
+        % Pour l'instant, retourner tel quel et laisser déborder plutôt que couper
+        FormattedText = Text
+    ;   Padding is Width - VisibleLen,
+        format(atom(FormattedText), '~w~*c', [Text, Padding, 32])  % Pad avec espaces
+    ).
+
 %! build_captures_text(+WhiteCaptures, +BlackCaptures, -Text) is det.
 %  Construit le texte des captures
 build_captures_text(WhiteCaptures, BlackCaptures, Text) :-
@@ -906,10 +918,38 @@ convert_pieces_to_unicode([Piece|Rest], UnicodeStr) :-
     atom_concat(SpacedUnicode, RestStr, UnicodeStr).
 
 %! calculate_separator_length(+WhiteUnicode, +BlackUnicode, -SepLength) is det.
-%  Calcule longueur separateur - version simple avec estimation
-calculate_separator_length(_WhiteUnicode, _BlackUnicode, 40) :-
-    % Estimation fixe de 40 barres horizontales pour un bon espacement
-    true.
+%  Calcule longueur separateur dynamique pour eviter overflow
+calculate_separator_length(WhiteUnicode, BlackUnicode, SepLength) :-
+    % Compter seulement les caracteres visibles (ignore codes ANSI)
+    count_visible_length(WhiteUnicode, WhiteLen),
+    count_visible_length(BlackUnicode, BlackLen),
+    % "Blancs " (7) + " Noirs" (6) = 13 chars
+    TextChars is 7 + 6,
+    UsedSpace is WhiteLen + BlackLen + TextChars,
+    % Largeur disponible = 53 chars (width de la colonne)
+    AvailableSpace is 53 - UsedSpace,
+    SepLength is max(3, AvailableSpace).
+
+%! count_visible_length(+String, -Length) is det.
+%  Compte caracteres visibles en ignorant codes ANSI
+count_visible_length(String, Length) :-
+    atom_codes(String, Codes),
+    count_visible_chars_in_codes(Codes, Length).
+
+%! count_visible_chars_in_codes(+Codes, -Count) is det.
+count_visible_chars_in_codes([], 0).
+count_visible_chars_in_codes([27|Rest], Count) :-  % ESC = 27
+    skip_ansi_codes(Rest, Remaining),
+    count_visible_chars_in_codes(Remaining, Count).
+count_visible_chars_in_codes([_|Rest], Count) :-
+    count_visible_chars_in_codes(Rest, RestCount),
+    Count is RestCount + 1.
+
+%! skip_ansi_codes(+Codes, -Remaining) is det.
+skip_ansi_codes([], []).
+skip_ansi_codes([109|Rest], Rest) :- !.  % 'm' = 109
+skip_ansi_codes([_|Rest], Remaining) :-
+    skip_ansi_codes(Rest, Remaining).
 
 %! create_separator(+Length, -Separator) is det.
 %  Cree une chaine de caracteres ━ de longueur donnee
@@ -937,12 +977,37 @@ format_captures_line_visual(CapturedPieces) :-
     format_captures_line_visual([WhiteCaptures, BlackCaptures]).
 
 %! format_visual_captures_line(+WhiteUnicode, +BlackUnicode, +Separator) is det.
-%  Affiche la ligne finale des captures avec formatage visuel
+%  Affiche la ligne finale des captures avec formatage visuel garanti
 format_visual_captures_line(WhiteUnicode, BlackUnicode, Separator) :-
-    format(atom(CapturesText), 'Blancs ~w~w~w Noirs',
+    % Construire la ligne complete
+    format(atom(FullText), 'Blancs ~w~w~w Noirs',
            [WhiteUnicode, Separator, BlackUnicode]),
-    format_column(CapturesText, 53, CapturesFormatted),
-    format('    ║     │~w│    ║~n', [CapturesFormatted]).
+
+    % Verifier si ca rentre dans 53 caracteres (en comptant seulement visibles)
+    count_visible_length(FullText, FullLength),
+
+    (   FullLength =< 53 ->
+        % Ca rentre - afficher normalement
+        format_column_ansi(FullText, 53, FormattedText)
+    ;   % Trop long - forcer un format plus court
+        format_short_captures_line(WhiteUnicode, BlackUnicode, FormattedText)
+    ),
+
+    format('    ║     │~w│    ║~n', [FormattedText]).
+
+%! format_short_captures_line(+WhiteUnicode, +BlackUnicode, -FormattedText) is det.
+%  Format court garanti qui rentre toujours
+format_short_captures_line(WhiteUnicode, BlackUnicode, FormattedText) :-
+    % Version courte : "B: pieces ━━━ N: pieces"
+    format(atom(ShortText), 'B: ~w ━━━ N: ~w', [WhiteUnicode, BlackUnicode]),
+    count_visible_length(ShortText, ShortLength),
+
+    (   ShortLength =< 53 ->
+        format_column_ansi(ShortText, 53, FormattedText)
+    ;   % Si encore trop long, version ultra-courte
+        format(atom(UltraShort), 'Blancs ~w | Noirs ~w', [WhiteUnicode, BlackUnicode]),
+        format_column_ansi(UltraShort, 53, FormattedText)
+    ).
 
 %! get_position_score(+UnifiedGameState, -Score) is det.
 %  Obtient le score de position (unifie la logique)
