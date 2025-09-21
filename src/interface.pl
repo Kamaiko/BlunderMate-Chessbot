@@ -237,10 +237,12 @@ display_welcome_screen :-
     write('    ║             ██║ ╚═╝ ██║██║  ██║   ██║   ███████╗               ║'), nl,
     write('    ║             ╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝   ╚══════╝               ║'), nl,
     write('    ║                                                                ║'), nl,
+    write('    ║                                                                ║'), nl,
     center_text_in_box('© BlunderMate - v6.0'),
     write('    ║                                                                ║'), nl,
     center_text_in_box('Developpe par Patrick Patenaude'),
     center_text_in_box('19 septembre 2025'),
+    write('    ║                                                                ║'), nl,
     write('    ║                                                                ║'), nl,
     write('    ╚════════════════════════════════════════════════════════════════╝'), nl,
     nl.

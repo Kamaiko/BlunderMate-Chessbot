@@ -13,12 +13,12 @@
 <table>
 <tr>
 <td width="50%" align="center">
-  <img src="docs/images/menu-principal.png" alt="Menu principal français" width="350">
-  <br><em>Menu principal avec modes de jeu</em>
+  <img src="docs/images/BLUNDERMATE_TITLE.png" alt="Écran titre BlunderMate" width="320" height="400">
+  <br><em>Écran d'accueil BlunderMate v6.0</em>
 </td>
 <td width="50%" align="center">
-  <img src="docs/images/partie-ia.png" alt="IA en action" width="400">
-  <br><em>IA en action avec évaluation temps réel</em>
+  <img src="docs/images/PARTIE_IVH.png" alt="Interface de jeu" width="400">
+  <br><em>Interface de jeu IA vs Humain</em>
 </td>
 </tr>
 </table>
@@ -107,30 +107,11 @@ swipl -t run_tests -s tests/tests.pl
 
 ## 🔧 Améliorations Futures
 
-### **🚀 Optimisations IA Avancées**
+**🚀 IA Avancée** : Opening Book • Tables de Transposition • Quiescence Search • Profondeur Adaptative
 
-| Amélioration | Description | Priorité | Bénéfice Attendu |
-|-------------|-------------|----------|------------------|
-| **📚 Opening Book Étendu** | Base de données réponses théoriques classiques | 🟢 Haute | Évite les erreurs d'ouverture, jeu plus naturel |
-| **💾 Tables de Transposition** | Cache des positions évaluées avec hash | 🟢 Haute | Performance 5-10x supérieure sur positions répétées |
-| **🎯 Quiescence Search** | Extension recherche tactique aux feuilles | 🟡 Moyenne | Meilleure évaluation des captures et menaces |
-| **🧠 Profondeur Adaptative** | Ajustement profondeur selon complexité position | 🟡 Moyenne | Optimisation temps/qualité selon contexte |
+**🎮 UX/UI** : Interface graphique • Analyse position • Format PGN • FEN Parser
 
-### **🎮 Expérience Utilisateur**
-
-| Amélioration | Description | Priorité | Bénéfice Attendu |
-|-------------|-------------|----------|------------------|
-| **🖼️ Interface graphique** | Plateau visuel avec drag & drop | 🟡 Moyenne | Expérience utilisateur moderne |
-| **📊 Analyse de position** | Évaluation détaillée avec suggestions | 🟡 Moyenne | Aide pédagogique avancée |
-| **📝 Format PGN** | Sauvegarde/chargement parties standard | 🔵 Basse | Compatibilité écosystème échecs |
-| **⚙️ FEN Parser** | Import/export positions spécifiques | 🟡 Moyenne | Tests et analyse positions complexes |
-
-### **♟️ Règles Complètes**
-
-| Règle | Description | Priorité | Impact Gameplay |
-|-------|-------------|----------|-----------------|
-| **🏰 Roque** | Petit et grand roque selon règles FIDE | 🟢 Haute | Stratégie roi, développement naturel |
-| **⚡ En passant** | Capture pion en passant | 🟡 Moyenne | Tactiques avancées, positions spéciales |
+**♟️ Règles** : Roque • En passant
 
 
 ## 📚 Documentation Technique
@@ -139,6 +120,7 @@ swipl -t run_tests -s tests/tests.pl
 |----------|-------------|
 | 📐 [**Architecture Guide**](docs/ARCHITECTURE_GUIDE_DEVELOPERS.md) | Architecture système complète |
 | 📄 [**Product Requirements**](docs/PRD.md) | Spécifications détaillées |
+| 🎓 [**Document de Remise**](docs/DOCUMENT_REMISE.md) | Spécifications projet IFT-2003 |
 
 ---
 
