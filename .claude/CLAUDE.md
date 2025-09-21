@@ -15,10 +15,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   ```
 - Skip analysis of `.git`, `archive`, or other non-essential directories
 
-# Prolog Chess Game - AI Focus Project
+# BlunderMate Chessbot - AI Focus Project
 
 ## Contexte Projet
-- **Project**: Chess AI in Prolog - Patrick Patenaude
+- **Project**: BlunderMate Chessbot - Patrick Patenaude
 - **Date projet**: 20 septembre 2025 - Moteur d'echecs avec IA
 - **Current Phase**: Diagnostic critique post-fix - Détection attaque défaillante identifiée
 - **Status**: 🔴 **85% COMPLÉTÉ** - Fixes partiels appliqués, problèmes critiques section 10 identifiés

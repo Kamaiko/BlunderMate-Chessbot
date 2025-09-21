@@ -15,7 +15,7 @@
 :- [board].
 
 % =============================================================================
-% PIECE-SQUARE TABLES - Adaptées système coordonnées Prolog Chess
+% PIECE-SQUARE TABLES - Adaptées système coordonnées BlunderMate
 % =============================================================================
 %
 % SYSTÈME COORDONNÉES:

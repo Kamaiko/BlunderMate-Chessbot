@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🤖 Prolog Chess AI
+# 🤖 BlunderMate Chessbot
 
 **Joueur intelligent d'échecs avec techniques de recherche heuristique**
 
@@ -127,7 +127,7 @@ swipl -t run_tests -s tests/tests.pl
 
 <div align="center">
 
-**🤖 Prolog Chess AI** · **Patrick Patenaude** · **Intelligence Artificielle**
+**🤖 BlunderMate Chessbot** · **Patrick Patenaude** · **Intelligence Artificielle**
 
 *Négamax • Alpha-Beta • PSQT • MVV-LVA*
 

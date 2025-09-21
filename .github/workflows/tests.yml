@@ -1,4 +1,4 @@
-name: Prolog Chess Tests
+name: BlunderMate Chessbot Tests
 
 on:
   push:
@@ -26,7 +26,7 @@ jobs:
       timeout-minutes: 1
       run: |
         echo "======================================================"
-        echo "           PROLOG CHESS AI - ENVIRONMENT"
+        echo "           BLUNDERMATE CHESSBOT - ENVIRONMENT"
         echo "======================================================"
         PROLOG_VERSION=$(timeout 30s swipl --version | head -1)
         echo "🐳 Container: swipl:latest"
@@ -111,7 +111,7 @@ jobs:
       if: always()
       run: |
         echo "======================================================"
-        echo "           PROLOG CHESS AI - FINAL SUMMARY"
+        echo "           BLUNDERMATE CHESSBOT - FINAL SUMMARY"
         echo "======================================================"
         echo "🚀 Pipeline: Single Job (Ultra-Optimized)"
         echo "⚡ Performance: Maximum efficiency achieved"
@@ -127,7 +127,7 @@ jobs:
         echo "   ✅ Section 7: Integration Tests"
         echo ""
         echo "🎉 ALL TESTS COMPLETED SUCCESSFULLY ✅"
-        echo "✅ Prolog Chess AI is ready for deployment"
+        echo "✅ BlunderMate Chessbot is ready for deployment"
         echo "⚡ Execution time: ~45-60 seconds total"
         echo "🚀 Zero container overhead achieved"
         echo "======================================================"
