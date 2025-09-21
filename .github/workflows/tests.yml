@@ -40,14 +40,12 @@ jobs:
       timeout-minutes: 1
       run: |
         echo "=== PROJECT STRUCTURE VALIDATION ==="
-        timeout 30s bash -c '
-          echo "📁 Source files:"
-          ls -la src/ | grep "\.pl$" || echo "No .pl files found"
-          echo "🧪 Test files:"
-          ls -la tests/ | grep "\.pl$" || echo "No test files found"
-          echo "📚 Documentation:"
-          ls -la docs/ | grep "\.md$" || echo "No documentation found"
-        '
+        echo "📁 Source files:"
+        ls -la src/ | grep "\.pl$" || echo "No .pl files found"
+        echo "🧪 Test files:"
+        ls -la tests/ | grep "\.pl$" || echo "No test files found"
+        echo "📚 Documentation:"
+        ls -la docs/ | grep "\.md$" || echo "No documentation found"
         echo "status=success" >> $GITHUB_OUTPUT
         echo "✓ Project structure validated"
 
@@ -175,19 +173,7 @@ jobs:
         echo "=== MODULE LOADING TESTS - SAFE MODE ==="
         echo "🛡️ Protection: Triple timeout (2min → 90s → 30s)"
 
-        timeout 30s swipl -s src/interface.pl -g "
-          write('=== PROLOG CHESS MODULE VALIDATION ==='), nl,
-          write('📦 Loading pieces.pl...'), nl,
-          (consult('src/pieces') -> write('✓ pieces.pl loaded successfully') ; (write('✗ pieces.pl failed'), halt(1))), nl,
-          write('📦 Loading board.pl...'), nl,
-          (consult('src/board') -> write('✓ board.pl loaded successfully') ; (write('✗ board.pl failed'), halt(1))), nl,
-          write('📦 Loading game.pl...'), nl,
-          (consult('src/game') -> write('✓ game.pl loaded successfully') ; (write('✗ game.pl failed'), halt(1))), nl,
-          write('📦 Loading ai.pl...'), nl,
-          (consult('src/ai') -> write('✓ ai.pl loaded successfully') ; (write('✗ ai.pl failed'), halt(1))), nl,
-          write('🎯 ALL CORE MODULES LOADED SUCCESSFULLY'), nl,
-          halt(0)
-        " || (echo "❌ Module loading failed - this indicates serious issues" && exit 1)
+        timeout 30s swipl -s src/interface.pl -g "write('=== MODULE VALIDATION ==='), nl, consult('src/pieces'), write('pieces.pl loaded'), nl, consult('src/board'), write('board.pl loaded'), nl, consult('src/game'), write('game.pl loaded'), nl, consult('src/ai'), write('ai.pl loaded'), nl, write('ALL MODULES LOADED'), nl, halt(0)" || (echo "Module loading failed" && exit 1)
 
         echo "✅ All application modules validated successfully"
 
