@@ -29,8 +29,26 @@
 
 ## Installation & Lancement
 
+### Prérequis
+**Installer SWI-Prolog** (obligatoire pour faire fonctionner BlunderMate)
+
+### Installation SWI-Prolog
+
+| OS | Installation |
+|-----|--------------|
+| **Windows** | [Télécharger SWI-Prolog](https://www.swi-prolog.org/download/stable) puis installer le .exe |
+| **macOS** | `brew install swi-prolog` |
+| **Linux** | `sudo apt install swi-prolog` (Ubuntu/Debian)<br>`sudo dnf install pl` (Fedora) |
+
+### Vérification
 ```bash
-# Démarrer le jeu d'échecs
+swipl --version
+# Doit afficher: SWI-Prolog version X.X.X
+```
+
+### Lancement
+```bash
+# Démarrer BlunderMate Chessbot
 swipl go.pl
 ```
 
