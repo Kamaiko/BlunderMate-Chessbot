@@ -17,7 +17,8 @@
       "Read(C:\\DevTools\\Projects\\PrologChessGame_Clean/**)",
       "mcp__filesystem__list_directory",
       "Bash(printf \"\\n6\\n\")",
-      "Bash(gh issue close:*)"
+      "Bash(gh issue close:*)",
+      "mcp__filesystem__read_text_file"
     ],
     "deny": [],
     "ask": []

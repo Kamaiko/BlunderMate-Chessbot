@@ -180,10 +180,10 @@ display_title_box(Title) :-
     nl, nl,
     write('    ╔════════════════════════════════════════════════════════════════╗'), nl,
     write('    ║                                                                ║'), nl,
+    write('    ║                                                                ║'), nl,
     write('    ║'),
     center_text(Title, 64),
     write('║'), nl,
-    write('    ║                                                                ║'), nl,
     write('    ║    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━    ║'), nl,
     write('    ║                                                                ║'), nl,
     write('    ╚════════════════════════════════════════════════════════════════╝'), nl, nl.
@@ -280,12 +280,14 @@ display_modern_menu :-
     nl, nl,
     % Boite principale avec hauteur identique a l'ecran d'accueil (24 lignes)
     write('    ╔════════════════════════════════════════════════════════════════╗'), nl,
-    center_text_in_box('MENU PRINCIPAL'),
     write('    ║                                                                ║'), nl,
+    center_text_in_box('MENU PRINCIPAL'),
     write('    ║━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━║'), nl,
+    write('    ║                                                                ║'), nl,
+    write('    ║                                                                ║'), nl,
     write('    ║                       ┌──────────────────┐                     ║'), nl,
-    write('    ║                    8  │ ♖ ♘ ♗ ♕ ♔ ♗ ♘ ♖  │                     ║'), nl,
-    write('    ║                    7  │ ♙ ♙ ♙ ♙ ♙ ♙ ♙ ♙  │                     ║'), nl,
+    write('    ║                    8  │ \033[2;36m♖ ♘ ♗ ♕ ♔ ♗ ♘ ♖\033[0m  │                     ║'), nl,
+    write('    ║                    7  │ \033[2;36m♙ ♙ ♙ ♙ ♙ ♙ ♙ ♙\033[0m  │                     ║'), nl,
     write('    ║                    6  │ · · · · · · · ·  │                     ║'), nl,
     write('    ║                    5  │ · · · · · · · ·  │                     ║'), nl,
     write('    ║                    4  │ · · · · · · · ·  │                     ║'), nl,
@@ -300,22 +302,23 @@ display_modern_menu :-
     write('    ║     │  [2] IA vs Humain         [5] A Propos              │    ║'), nl,
     write('    ║     │  [3] Suite de Tests       [6] Quitter               │    ║'), nl,
     write('    ║     └─────────────────────────────────────────────────────┘    ║'), nl,
-    write('    ║                                                                ║'), nl,
     center_text_in_box('© BlunderMate - v6.0'),
-    write('    ║                                                                ║'), nl,
     write('    ╚════════════════════════════════════════════════════════════════╝'), nl,
     nl,
     % Prompt d'entree centre en dehors de la boite
     write('Entrez votre choix [1-6] : ').
 
 % read_menu_choice(-Choice)
-% Lit le choix du menu de maniere robuste.
+% Lit le choix du menu de maniere robuste - choix instantané sans Enter.
 read_menu_choice(Choice) :-
     flush_output,
     catch(
-        (read_line_to_string(user_input, String),
-         normalize_space(string(CleanString), String),
-         atom_string(Choice, CleanString)
+        (get_single_char(Code),
+         (   between(49, 54, Code) ->  % '1' à '6'
+             char_code(ChoiceChar, Code),
+             atom_chars(Choice, [ChoiceChar])
+         ;   Choice = '6'  % Défaut: quitter si caractère invalide
+         )
         ),
         _,
         Choice = '6'  % Défaut: quitter si erreur
@@ -754,6 +757,7 @@ display_game_interface(UnifiedGameState, GameMode) :-
     format('    ║~*c~w~*c║~n', [PaddingLeft, 32, GameMode, PaddingRight, 32]),
     write('    ║━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━║'), nl,
     write('    ║                                                                ║'), nl,
+    write('    ║                                                                ║'), nl,
 
     % Board actuel (meme position que menu principal)
     display_board_in_box(Board),
@@ -889,22 +893,23 @@ is_list_of_lists([H|_]) :- is_list(H), !.
 is_list_of_lists([]).
 
 %! convert_pieces_to_unicode(+Pieces, -UnicodeStr) is det.
-%  Convertit une liste de pieces en chaine Unicode avec espaces
+%  Convertit une liste de pieces en chaine Unicode avec couleurs et espaces
 convert_pieces_to_unicode([], '').
 convert_pieces_to_unicode([Piece|Rest], UnicodeStr) :-
     get_piece_unicode(Piece, Unicode),
+    (   is_black_piece(Piece) ->
+        format(atom(ColoredUnicode), '\033[2;36m~w\033[0m', [Unicode])
+    ;   ColoredUnicode = Unicode
+    ),
     convert_pieces_to_unicode(Rest, RestStr),
-    atom_concat(Unicode, ' ', SpacedUnicode),
+    atom_concat(ColoredUnicode, ' ', SpacedUnicode),
     atom_concat(SpacedUnicode, RestStr, UnicodeStr).
 
 %! calculate_separator_length(+WhiteUnicode, +BlackUnicode, -SepLength) is det.
-%  Calcule longueur separateur pour maintenir 52 chars total
-calculate_separator_length(WhiteUnicode, BlackUnicode, SepLength) :-
-    atom_length(WhiteUnicode, WhiteLen),
-    atom_length(BlackUnicode, BlackLen),
-    % "Blancs " (7) + " Noirs" (6) = 13 chars
-    UsedSpace is WhiteLen + BlackLen + 13,
-    SepLength is max(3, 51 - UsedSpace).
+%  Calcule longueur separateur - version simple avec estimation
+calculate_separator_length(_WhiteUnicode, _BlackUnicode, 40) :-
+    % Estimation fixe de 40 barres horizontales pour un bon espacement
+    true.
 
 %! create_separator(+Length, -Separator) is det.
 %  Cree une chaine de caracteres ━ de longueur donnee
@@ -934,7 +939,7 @@ format_captures_line_visual(CapturedPieces) :-
 %! format_visual_captures_line(+WhiteUnicode, +BlackUnicode, +Separator) is det.
 %  Affiche la ligne finale des captures avec formatage visuel
 format_visual_captures_line(WhiteUnicode, BlackUnicode, Separator) :-
-    format(atom(CapturesText), 'Blancs ~w~w~w Noirs ',
+    format(atom(CapturesText), 'Blancs ~w~w~w Noirs',
            [WhiteUnicode, Separator, BlackUnicode]),
     format_column(CapturesText, 53, CapturesFormatted),
     format('    ║     │~w│    ║~n', [CapturesFormatted]).
@@ -958,10 +963,15 @@ get_piece_unicode('Q', '♛'). get_piece_unicode('q', '♕').
 get_piece_unicode('K', '♚'). get_piece_unicode('k', '♔').
 
 %! display_piece_unicode(+Piece) is det.
-%  Affiche une piece en unicode (utilise le mapping unifie)
+%  Affiche une piece en unicode - pieces noires en rouge
 display_piece_unicode(Piece) :-
     (   get_piece_unicode(Piece, Unicode) ->
-        write(Unicode)
+        (   is_black_piece(Piece) ->
+            % Pieces noires en cyan pale (couleur neutre et discrete)
+            write('\033[2;36m'), write(Unicode), write('\033[0m')
+        ;   % Pieces blanches normales
+            write(Unicode)
+        )
     ;   write('?')  % Piece inconnue
     ).
 
