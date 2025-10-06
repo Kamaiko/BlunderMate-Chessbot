@@ -14,7 +14,7 @@
 <tr>
 <td width="50%" align="center">
   <img src="docs/images/BLUNDERMATE_TITLE.png" alt="Écran titre BlunderMate" width="380" height="400">
-  <br><em>Écran d'accueil BlunderMate v6.0</em>
+  <br><em>Écran d'accueil</em>
 </td>
 <td width="50%" align="center">
   <img src="docs/images/PARTIE_IVH.png" alt="Interface de jeu" width="400">
@@ -30,7 +30,7 @@
 ## Installation & Lancement
 
 ### Prérequis
-**Installer SWI-Prolog** (obligatoire pour faire fonctionner BlunderMate)
+**Installer SWI-Prolog**
 
 ### Installation SWI-Prolog
 
