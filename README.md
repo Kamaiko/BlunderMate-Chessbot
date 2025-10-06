@@ -4,7 +4,7 @@
 
 **Joueur intelligent d'échecs avec techniques de recherche heuristique**
 
-*Projet d'Intelligence Artificielle · Patrick Patenaude*
+*Projet d'Intelligence Artificielle*
 
 [![SWI-Prolog](https://img.shields.io/badge/SWI--Prolog-9.x+-blue?style=flat-square)](https://www.swi-prolog.org/)
 [![Platforms](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey?style=flat-square)]()
