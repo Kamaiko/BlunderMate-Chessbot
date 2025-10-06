@@ -230,13 +230,13 @@ display_welcome_screen :-
     write('    ║  ██╔══██╗██║     ██║   ██║██║╚██╗██║██║  ██║██╔══╝  ██╔══██╗   ║'), nl,
     write('    ║  ██████╔╝███████╗╚██████╔╝██║ ╚████║██████╔╝███████╗██║  ██║   ║'), nl,
     write('    ║  ╚═════╝ ╚══════╝ ╚═════╝ ╚═╝  ╚═══╝╚═════╝ ╚══════╝╚═╝  ╚═╝   ║'), nl,
+    write('    ║                                                                ║'), nl,
     write('    ║          ███╗   ███╗ █████╗ ████████╗███████╗                  ║'), nl,
     write('    ║          ████╗ ████║██╔══██╗╚══██╔══╝██╔════╝                  ║'), nl,
     write('    ║          ██╔████╔██║███████║   ██║   █████╗                    ║'), nl,
     write('    ║          ██║╚██╔╝██║██╔══██║   ██║   ██╔══╝                    ║'), nl,
     write('    ║          ██║ ╚═╝ ██║██║  ██║   ██║   ███████╗                  ║'), nl,
     write('    ║          ╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝   ╚══════╝                  ║'), nl,
-    write('    ║                                                                ║'), nl,
     write('    ║                                                                ║'), nl,
     center_text_in_box('© Prolog Chessbot'),
     write('    ║                                                                ║'), nl,
@@ -304,7 +304,7 @@ display_modern_menu :-
     write('    ║     │  [2] IA vs Humain         [5] A Propos              │    ║'), nl,
     write('    ║     │  [3] Suite de Tests       [6] Quitter               │    ║'), nl,
     write('    ║     └─────────────────────────────────────────────────────┘    ║'), nl,
-    center_text_in_box('© BlunderMate - v6.0'),
+    center_text_in_box('© Prolog Chessbot'),
     write('    ╚════════════════════════════════════════════════════════════════╝'), nl,
     nl,
     % Prompt d'entree centre en dehors de la boite
@@ -371,7 +371,7 @@ process_choice('6') :- display_message_ln(goodbye), nl, halt.
 process_choice(6) :- display_message_ln(goodbye), nl, halt.
 
 process_choice(_) :-
-    nl,
+    nl, nl,
     display_message_ln(invalid_choice),
     pause_and_return_menu.
 
