@@ -238,6 +238,7 @@ display_welcome_screen :-
     write('    ║          ██║ ╚═╝ ██║██║  ██║   ██║   ███████╗                  ║'), nl,
     write('    ║          ╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝   ╚══════╝                  ║'), nl,
     write('    ║                                                                ║'), nl,
+    write('    ║                                                                ║'), nl,
     center_text_in_box('© Prolog Chessbot'),
     write('    ║                                                                ║'), nl,
     center_text_in_box('Developpe par Kamaiko'),
