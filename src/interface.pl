@@ -97,7 +97,7 @@ display_single_error(Error) :-
 % =============================================================================
 
 % Messages du menu
-message(invalid_choice, 'Choix invalide. Veuillez entrer 1, 2, 3, 4, 5, ou 6.').
+message(invalid_choice, 'Choix invalide. Veuillez saisir une valeur entre 1 et 6.').
 message(goodbye, 'Au revoir!').
 
 % Fin du fichier interface.pl
@@ -223,25 +223,25 @@ display_welcome_screen :-
     nl, nl,
     write('    ╔════════════════════════════════════════════════════════════════╗'), nl,
     write('    ║                                                                ║'), nl,
+    write('    ║                                                                ║'), nl,
     write('    ║  ██████╗ ██╗     ██╗   ██╗███╗   ██╗██████╗ ███████╗██████╗    ║'), nl,
     write('    ║  ██╔══██╗██║     ██║   ██║████╗  ██║██╔══██╗██╔════╝██╔══██╗   ║'), nl,
     write('    ║  ██████╔╝██║     ██║   ██║██╔██╗ ██║██║  ██║█████╗  ██████╔╝   ║'), nl,
     write('    ║  ██╔══██╗██║     ██║   ██║██║╚██╗██║██║  ██║██╔══╝  ██╔══██╗   ║'), nl,
     write('    ║  ██████╔╝███████╗╚██████╔╝██║ ╚████║██████╔╝███████╗██║  ██║   ║'), nl,
     write('    ║  ╚═════╝ ╚══════╝ ╚═════╝ ╚═╝  ╚═══╝╚═════╝ ╚══════╝╚═╝  ╚═╝   ║'), nl,
+    write('    ║          ███╗   ███╗ █████╗ ████████╗███████╗                  ║'), nl,
+    write('    ║          ████╗ ████║██╔══██╗╚══██╔══╝██╔════╝                  ║'), nl,
+    write('    ║          ██╔████╔██║███████║   ██║   █████╗                    ║'), nl,
+    write('    ║          ██║╚██╔╝██║██╔══██║   ██║   ██╔══╝                    ║'), nl,
+    write('    ║          ██║ ╚═╝ ██║██║  ██║   ██║   ███████╗                  ║'), nl,
+    write('    ║          ╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝   ╚══════╝                  ║'), nl,
     write('    ║                                                                ║'), nl,
-    write('    ║             ███╗   ███╗ █████╗ ████████╗███████╗               ║'), nl,
-    write('    ║             ████╗ ████║██╔══██╗╚══██╔══╝██╔════╝               ║'), nl,
-    write('    ║             ██╔████╔██║███████║   ██║   █████╗                 ║'), nl,
-    write('    ║             ██║╚██╔╝██║██╔══██║   ██║   ██╔══╝                 ║'), nl,
-    write('    ║             ██║ ╚═╝ ██║██║  ██║   ██║   ███████╗               ║'), nl,
-    write('    ║             ╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝   ╚══════╝               ║'), nl,
     write('    ║                                                                ║'), nl,
+    center_text_in_box('© Prolog Chessbot'),
     write('    ║                                                                ║'), nl,
-    center_text_in_box('© BlunderMate - v6.0'),
-    write('    ║                                                                ║'), nl,
-    center_text_in_box('Developpe par Patrick Patenaude'),
-    center_text_in_box('19 septembre 2025'),
+    center_text_in_box('Developpe par Kamaiko'),
+    center_text_in_box('Version 6.0'),
     write('    ║                                                                ║'), nl,
     write('    ║                                                                ║'), nl,
     write('    ╚════════════════════════════════════════════════════════════════╝'), nl,
@@ -316,14 +316,11 @@ read_menu_choice(Choice) :-
     flush_output,
     catch(
         (get_single_char(Code),
-         (   between(49, 54, Code) ->  % '1' à '6'
-             char_code(ChoiceChar, Code),
-             atom_chars(Choice, [ChoiceChar])
-         ;   Choice = '6'  % Défaut: quitter si caractère invalide
-         )
+         char_code(ChoiceChar, Code),
+         atom_chars(Choice, [ChoiceChar])
         ),
         _,
-        Choice = '6'  % Défaut: quitter si erreur
+        Choice = invalid
     ).
 
 % pause_and_return_menu
@@ -375,7 +372,7 @@ process_choice(6) :- display_message_ln(goodbye), nl, halt.
 
 process_choice(_) :-
     nl,
-    write('CHOIX INVALIDE'), nl,
+    display_message_ln(invalid_choice),
     pause_and_return_menu.
 
 % =============================================================================
