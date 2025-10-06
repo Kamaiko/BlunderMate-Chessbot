@@ -13,7 +13,7 @@
 <table>
 <tr>
 <td width="50%" align="center">
-  <img src="docs/images/BLUNDERMATE_TITLE.png?v=2" alt="Écran titre BlunderMate" width="380" height="400">
+  <img src="docs/images/blundermate_home.png" alt="Écran titre BlunderMate" width="380" height="400">
   <br><em>Écran d'accueil</em>
 </td>
 <td width="50%" align="center">
