@@ -1,146 +1,60 @@
 <div align="center">
 
-# 🤖 BlunderMate Chessbot
+# BlunderMate
 
-**Joueur intelligent d'échecs avec techniques de recherche heuristique**
+**Chess AI engine built in Prolog.**
 
-*Projet d'Intelligence Artificielle*
+Negamax · Alpha-Beta · PSQT · MVV-LVA
 
 [![SWI-Prolog](https://img.shields.io/badge/SWI--Prolog-9.x+-blue?style=flat-square)](https://www.swi-prolog.org/)
-[![Platforms](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey?style=flat-square)]()
-[![AI Algorithm](https://img.shields.io/badge/AI-Negamax%20%7C%20Alpha--Beta-green?style=flat-square)]()
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey?style=flat-square)]()
 
-<table>
-<tr>
-<td width="50%" align="center">
-  <img src="docs/images/blundermate_home.png" alt="Écran titre BlunderMate" width="380" height="400">
-  <br><em>Écran d'accueil</em>
-</td>
-<td width="50%" align="center">
-  <img src="docs/images/PARTIE_IVH.png" alt="Interface de jeu" width="400">
-  <br><em>Interface de jeu IA vs Humain</em>
-</td>
-</tr>
-</table>
+<br>
+
+<img src="docs/images/blundermate_home.png" alt="BlunderMate" width="380">
+&nbsp;&nbsp;&nbsp;
+<img src="docs/images/PARTIE_IVH.png" alt="BlunderMate gameplay" width="400">
 
 </div>
 
 ---
 
-## Installation & Lancement
+### Quick Start
 
-### Prérequis
-**Installer SWI-Prolog**
-
-### Installation SWI-Prolog
-
-| OS | Installation |
-|-----|--------------|
-| **Windows** | [Télécharger SWI-Prolog](https://www.swi-prolog.org/download/stable) puis installer le .exe<br>`winget install SWI-Prolog.SWI-Prolog` (avec winget) |
-| **macOS** | `brew install swi-prolog` |
-| **Linux** | `sudo apt install swi-prolog` (Ubuntu/Debian)<br>`sudo dnf install pl` (Fedora) |
-
-### Lancement
 ```bash
-# Démarrer BlunderMate Chessbot
+# Requires SWI-Prolog 9.x+
 swipl go.pl
 ```
 
-## Architecture
+### Features
 
-<table>
-<tr><td><strong>Module</strong></td><td><strong>Responsabilité</strong></td></tr>
-<tr><td><code>pieces.pl</code></td><td>♟️ Règles de mouvement des pièces</td></tr>
-<tr><td><code>board.pl</code></td><td>🏁 Représentation plateau 8×8, affichage ASCII</td></tr>
-<tr><td><code>game.pl</code></td><td>⚖️ Gestion états, validation coups, échec/mat/pat</td></tr>
-<tr><td><code>interface.pl</code></td><td>🖥️ Interface utilisateur</td></tr>
-<tr><td><code>ai.pl</code></td><td>🧠 Algorithme négamax avec élagage alpha-beta</td></tr>
-<tr><td><code>evaluation.pl</code></td><td>🎯 Heuristiques de recherche (matériel + PSQT + sécurité)</td></tr>
-<tr><td><code>utils.pl</code></td><td>🔧 Constantes globales et helpers partagés</td></tr>
-</table>
+- Human vs Human and Human vs AI modes
+- Negamax search with Alpha-Beta pruning (depth 2)
+- Piece-Square Table evaluation + MVV-LVA move ordering
+- Full FIDE rules with check, checkmate & stalemate detection
+- 42 automated tests across 7 categories
 
-## Fonctionnalités
+### Architecture
 
-### Jeu d'Échecs Standard
-- ✅ **Toutes les pièces** et règles officielles FIDE
-- ✅ **Détection complète** échec, mat et pat
-
-### Intelligence Artificielle
-
-| Composante | Description | Performance |
-|------------|-------------|-------------|
-| **Algorithme** | Négamax¹ + élagage Alpha-Beta² | Profondeur 2 |
-| **Heuristiques** | Matériel + PSQT³ + sécurité pièces | 6 fonctions d'évaluation |
-| **Tri des coups** | MVV-LVA⁴ (Most Valuable Victim) | Élagage ~90% |
-| **Temps de réponse** | Temps réel | < 3 secondes/coup |
-
-- 🤖 **Développé avec** [Claude Code](https://claude.ai/code)
-
-## Usage
-
-### Format d'entrée
 ```
-Format coups : e2e4 (notation algébrique)
-Coordonnées  : colonnes a-h, rangées 1-8  
-Commandes    : aide, menu, quitter
+src/pieces.pl       Piece movement rules
+src/board.pl        8×8 board representation
+src/game.pl         Game state & move validation
+src/interface.pl    User interface
+src/ai.pl           Negamax + Alpha-Beta search
+src/evaluation.pl   Heuristic evaluation (material + PSQT + piece safety)
 ```
 
-### Modes de jeu
-- 👤 **Humain vs Humain** · Partie locale à deux joueurs
-- 🤖 **Humain vs IA** · Affrontez l'intelligence artificielle
+### Documentation
 
-## Tests
-
-<img src="docs/images/test-performance.png" alt="Test de performance IA" width="600">
-
-*Performance validée : 1.718 secondes pour analyse complète (profondeur 2)*
-
-**Suite de tests complète :** 42 tests automatisés répartis sur 7 sections (fondations, règles, IA, évaluation, tactique, robustesse, intégration)
-
-```bash
-# Suite complète (7 catégories)
-swipl -t run_tests -s tests/tests.pl
-
-# Tests spécifiques par catégories disponibles
-```
-
-## Prérequis Système
-
-| Composant | Version | Notes |
-|-----------|---------|-------|
-| **SWI-Prolog** | 9.x+ | Moteur Prolog principal |
-| **OS** | Windows/Linux/macOS | Multiplateforme |
-| **Mémoire** | 512 MB+ | Algorithme négamax |
-
-## Améliorations Futures
-
-**IA Avancée** : Opening Book • Tables de Transposition • Quiescence Search • Profondeur Adaptative
-
-**UX/UI** : Interface graphique • Analyse position • Format PGN • FEN Parser
-
-**Règles** : Roque • En passant
-
-
-## Documentation Technique
-
-**Références techniques :**
-- ¹ Négamax : [Chess Programming Wiki](https://www.chessprogramming.org/Negamax) • [Lichess GitHub](https://github.com/lichess-org/lila)
-- ² Alpha-Beta : [Chess Programming Wiki](https://www.chessprogramming.org/Alpha-Beta)
-- ³ PSQT : [Chess Programming Wiki](https://www.chessprogramming.org/Piece-Square_Tables)
-- ⁴ MVV-LVA : [Chess Programming Wiki](https://www.chessprogramming.org/MVV-LVA)
-
-| Document | Description |
-|----------|-------------|
-| [**Architecture Guide**](docs/ARCHITECTURE_GUIDE_DEVELOPERS.md) | Architecture système complète |
-| [**Product Requirements**](docs/PRD.md) | Exigences fonctionnelles et techniques |
-| [**Rapport Technique**](docs/RAPPORT_TECHNIQUE.md) | Analyse détaillée des algorithmes et performances |
+- [Architecture Guide](docs/ARCHITECTURE_GUIDE_DEVELOPERS.md)
+- [Technical Report](docs/RAPPORT_TECHNIQUE.md)
+- [Product Requirements](docs/PRD.md)
 
 ---
 
 <div align="center">
 
-**🤖 BlunderMate Chessbot** · **Patrick Patenaude** · **Intelligence Artificielle**
-
-*Négamax • Alpha-Beta • PSQT • MVV-LVA*
+Built with [Claude Code](https://claude.ai/code)
 
 </div>
