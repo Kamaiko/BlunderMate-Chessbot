@@ -11,9 +11,12 @@ Negamax · Alpha-Beta · PSQT · MVV-LVA
 
 <br>
 
-<img src="docs/images/blundermate_home.png" alt="BlunderMate" width="380">
-&nbsp;&nbsp;&nbsp;
-<img src="docs/images/PARTIE_IVH.png" alt="BlunderMate gameplay" width="400">
+<table>
+<tr>
+<td align="center"><img src="docs/images/blundermate_home.png" alt="BlunderMate" width="400"></td>
+<td align="center"><img src="docs/images/PARTIE_IVH.png" alt="BlunderMate gameplay" width="400"></td>
+</tr>
+</table>
 
 </div>
 
@@ -26,35 +29,20 @@ Negamax · Alpha-Beta · PSQT · MVV-LVA
 swipl go.pl
 ```
 
-### Features
+### Game Modes
 
-- Human vs Human and Human vs AI modes
-- Negamax search with Alpha-Beta pruning (depth 2)
-- Piece-Square Table evaluation + MVV-LVA move ordering
-- Full FIDE rules with check, checkmate & stalemate detection
-- 42 automated tests across 7 categories
+- **Human vs Human** — Local two-player game
+- **Human vs AI** — Play against the engine
 
-### Architecture
+### How to Play
+
+Moves use standard algebraic notation — type the origin and destination squares together.
 
 ```
-src/pieces.pl       Piece movement rules
-src/board.pl        8×8 board representation
-src/game.pl         Game state & move validation
-src/interface.pl    User interface
-src/ai.pl           Negamax + Alpha-Beta search
-src/evaluation.pl   Heuristic evaluation (material + PSQT + piece safety)
+e2e4    Move pawn from e2 to e4
+g1f3    Move knight from g1 to f3
 ```
 
-### Documentation
+### How It Works
 
-- [Architecture Guide](docs/ARCHITECTURE_GUIDE_DEVELOPERS.md)
-- [Technical Report](docs/RAPPORT_TECHNIQUE.md)
-- [Product Requirements](docs/PRD.md)
-
----
-
-<div align="center">
-
-Built with [Claude Code](https://claude.ai/code)
-
-</div>
+The AI searches possible moves using a Negamax algorithm with Alpha-Beta pruning at depth 2. Each position is scored through material balance, piece-square tables, and piece safety heuristics — allowing the engine to evaluate thousands of positions per move in real time.
