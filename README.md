@@ -40,4 +40,4 @@ g1f3    Move knight from g1 to f3
 
 ### How It Works
 
-The AI searches possible moves using a Negamax algorithm with Alpha-Beta pruning at depth 2. Each position is scored through material balance, piece-square tables, and piece safety heuristics — allowing the engine to evaluate thousands of positions per move in real time.
+The AI searches possible moves using a Negamax algorithm with Alpha-Beta pruning at depth 2. Each position is scored through material balance, piece-square tables, and piece safety heuristics.
