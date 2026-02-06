@@ -11,12 +11,7 @@ Negamax · Alpha-Beta · PSQT · MVV-LVA
 
 <br>
 
-<table>
-<tr>
-<td align="center"><img src="docs/images/blundermate_home.png" alt="BlunderMate" width="400"></td>
-<td align="center"><img src="docs/images/PARTIE_IVH.png" alt="BlunderMate gameplay" width="400"></td>
-</tr>
-</table>
+<img src="docs/images/blundermate_home.png" alt="BlunderMate" width="400">
 
 </div>
 
