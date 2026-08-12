@@ -1,32 +1,17 @@
-# CLAUDE.md
+﻿# CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-## Important: Efficient File System Analysis
-
-**When using /init or analyzing codebase structure:**
-- ❌ AVOID `directory_tree` on project root (generates 10k+ tokens due to .git objects)
-- ✅ USE `list_directory` selectively on relevant folders:
-  ```
-  list_directory(".")           # Project overview
-  list_directory("src")         # Source code
-  list_directory("tests")       # Test files
-  list_directory("docs")        # Documentation
-  ```
-- Skip analysis of `.git`, `archive`, or other non-essential directories
-
-# BlunderMate Chessbot - AI Focus Project
 
 ## Contexte Projet
 - **Project**: BlunderMate Chessbot - Patrick Patenaude
 - **Date projet**: 20 septembre 2025 - Moteur d'echecs avec IA
 - **Current Phase**: Diagnostic critique post-fix - Détection attaque défaillante identifiée
-- **Status**: 🔴 **85% COMPLÉTÉ** - Fixes partiels appliqués, problèmes critiques section 10 identifiés
+- **Statut** : projet fige depuis septembre 2025. Voir docs/RAPPORT_TECHNIQUE.md pour l'etat reel.
 - **Architecture**: 6-module design (pieces/board/game/interface/ai/evaluation)
 - **Performance**: Quasi-instantanée (0.00s/coup), évaluation cohérente [EVAL] (+blanc/-noir)
-- **Fix minimal**: MINIMAL_FIX_PLAN_CORRECTED.md (modification atomique 2 lignes ai.pl)
-- **Timeline**: 15 minutes précises avec 5 rollback points sécurisés
-- **Documentation**: Plans obsolètes supprimés, MINIMAL_FIX_PLAN_CORRECTED.md final (2025-09-08)
+- **Fix minimal** : modification atomique de 2 lignes dans ai.pl
+- **Approche** : modification atomique avec points de retour sécurisés
+
 
 ## Development Commands
 
@@ -214,7 +199,7 @@ swipl -s tests/tests.pl -g "run_alpha_beta_tests, halt."        # IA négamax
 swipl go.pl  # Test manual - Option 2: IA vs Humain
 ```
 
-## AI Implementation Status (Phase 3) - ✅ **PLEINEMENT FONCTIONNELLE**
+## Implementation de l'IA (phase 3)
 
 ✅ **IA NÉGAMAX + ALPHA-BETA OPTIMISÉE**
 - **Algorithme**: Négamax avec élagage alpha-beta opérationnel, profondeur 2
@@ -230,12 +215,7 @@ swipl go.pl  # Test manual - Option 2: IA vs Humain
 - **✅ Tests validés** : Pièce défendue vs isolée correctement détectée
 - **✅ Gameplay validé** : Blunders tactiques drastiquement réduits
 
-### 🎯 **PROCHAINES OPTIMISATIONS**
-- **⚠️ Dame développement précoce** : Sort encore parfois tôt (impact mineur)
-- **🔧 Interface revamp** : Modernisation menu et interface jeu (frontend-designer)
-- **📋 Tests restructuration** : Groupement par catégories logiques
-
-### ✅ **TOUS BUGS CRITIQUES RÉSOLUS** (Septembre 2025)
+### Bugs critiques resolus
 
 #### **Interface Loop Bug** ✅ **RÉSOLU DÉFINITIVEMENT**
 - **Status**: Plus de freeze observés sur séquence `d2d4` → `c1g5` → `g5e7`
@@ -247,90 +227,49 @@ swipl go.pl  # Test manual - Option 2: IA vs Humain
 - **Validation complète**: Tests unitaires + gameplay réel confirment fonctionnement
 - **Impact**: Blunders tactiques éliminés, évaluation stable
 
-### 📚 **DOCUMENTATION ACTUELLE** (Janvier 2025)
-- **TASKS.md**: ✅ Nettoyé et mis à jour - Priorités actuelles et diagnostics récents
+### Documentation
+
 - **ARCHITECTURE_GUIDE_DEVELOPERS.md**: Guide complet nouveaux développeurs
-- **GENERATION_COUP.md**: Analyse détaillée problème recaptures (référence technique)
+
 - **RAPPORT_TECHNIQUE.md**: Spécifications détaillées du projet
 
-### ✅ **ÉTAT ACTUEL IA** (Janvier 2025 - POST-REFACTORISATION)
+### Etat de l'IA apres refactorisation
 - **✅ Architecture MVV-LVA**: REFACTORISÉE (captures unifiées, tri immédiat)
 - **✅ Détection défense**: CORRIGÉE (bug `opposite_player()` résolu)
 - **✅ Pénalités adaptatives**: Dame x1.5, Tour x1.2 pour éviter blunders
 - **⚠️ PROBLÈME RÉSIDUEL**: Recaptures Dame contexte GameState vs tests isolés
 
-### 🟡 **STATUT PROJET ACTUEL** (Janvier 2025)
+### Statut du projet
 - **✅ Exigences techniques**: IA fonctionnelle, profondeur 2, performance <0.1s/coup
-- **✅ Architecture robuste**: 6 modules, tests 94% pass, interface professionnelle
+- **✅ Architecture robuste**: 6 modules, suite de tests en place, interface professionnelle
 - **✅ Stabilité**: Aucun crash, freeze interface résolu définitivement
-- **⚠️ Investigation en cours**: Debug recaptures contexte GameState complet
+
 - **🎯 Amélioration mesurable**: Knight recapture tardive (6 coups), progrès tactique
 
-### 📚 RECOMMANDATIONS THÉORIQUES À IMPLÉMENTER
-
-#### **Réponses d'Ouverture Classiques** (Priorité 1)
-```prolog
-% Réponse au pion roi - OBLIGATOIRE avant développement
-opening_move([e2,e4], [e7,e5]).   % Ouverture ouverte (classique)
-opening_move([e2,e4], [c7,c5]).   % Sicilienne
-opening_move([e2,e4], [e7,e6]).   % Française
-opening_move([e2,e4], [c7,c6]).   % Caro-Kann
-opening_move([e2,e4], [d7,d6]).   % Pirc/Moderne
-opening_move([e2,e4], [g8,f6]).   % Défense hypermoderne
-
-% Réponse au pion dame - OBLIGATOIRE avant développement
-opening_move([d2,d4], [d7,d5]).   % Classique (PRIORITÉ #1)
-opening_move([d2,d4], [g8,f6]).   % Indienne
-opening_move([d2,d4], [e7,e6]).   % Française pour d4
-opening_move([d2,d4], [c7,c6]).   % Slav / Caro-Kann dame
-opening_move([d2,d4], [d7,d6]).   % Moderne pour d4
-```
-
-#### **Checklist Évaluation Heuristique** (Profondeur 2)
-```prolog
-% 1. Valeur des pièces (CORRIGÉ ✅)
-% Pion=100, Cavalier=320, Fou=330, Tour=500, Dame=900, Roi=10000
-
-% 2. Contrôle du centre (À IMPLÉMENTER ❌)
-% Bonus pour pions/pièces sur d4, e4, d5, e5
-
-% 3. Sécurité du roi / Roque (À IMPLÉMENTER ❌)
-% Malus pour roi exposé, bonus pour roque
-
-% 4. Structure des pions (À IMPLÉMENTER ❌)
-% Malus pions isolés/doublés, bonus chaînes de pions
-
-% 5. Développement des pièces (PARTIELLEMENT ✅)
-% Bonus cavaliers/fous actifs (fait), mais APRÈS coups centraux
-
-% 6. Coups d'ouverture théoriques (À IMPLÉMENTER ❌)
-% Énorme bonus pour réponses classiques (1.d4 d5, 1.e4 e5)
-```
-
-### 📋 État Actuel Diagnostic (Décembre 2025)
+### Diagnostic
 - **Algorithme IA**: ✅ OPTIMISÉ (négamax + alpha-beta profondeur 2, élagage fonctionnel)
 - **Évaluation base**: ✅ STABLE (matériel + PSQT + scores cohérents)  
 - **Limitations tactiques**: ⚠️ AGRESSIVE (sacrifices contre pions défendus)
 - **Performance**: ✅ OPTIMALE (0.00s/coup, élagage alpha-beta opérationnel)
 
-### 🔮 **Optimisations Futures Identifiées**
-- **FEN Parser** : Implémenter parseur FEN pour tests positions spécifiques sans écrire des centaines de lignes
-- **Tests Tactiques** : Système de validation positions d'échecs (mat en 1, parades forcées)
-- **Quiescence Search** : Extension recherche tactique aux nœuds feuilles
-- **Transposition Tables** : Cache positions évaluées pour optimisation performance
-- **Opening Book** : Base réponses théoriques pour éviter dame prématurée
-
 ## File Dependencies
 - interface.pl → game.pl → board.pl → pieces.pl
-- ai.pl → pieces.pl, board.pl, game.pl, piece_values_sophisticated.pl
+- ai.pl depend de pieces.pl, board.pl, game.pl
 - tests.pl depends on all src modules (Section 6 IA outdated)
 - go.pl is launcher (loads interface.pl directly)
 
 ## Critical Project Files  
-- **📋 Tasks**: [docs/TASKS.md](../docs/TASKS.md) - Prochaines étapes: interface revamp, optimisations mineures
-- **📊 Bug Report**: [docs/BUG_REPORT_ENTERPRISE.md](../docs/BUG_REPORT_ENTERPRISE.md) - Bugs résolus, status stable
+
+
 - **📚 Architecture**: [docs/ARCHITECTURE_GUIDE_DEVELOPERS.md](../docs/ARCHITECTURE_GUIDE_DEVELOPERS.md) - Guide développeurs complet
 - **🧪 Tests**: [tests/tests.pl](../tests/tests.pl) - Section 7 détection défense (tests propres)
 - **🤖 IA**: [src/ai.pl](../src/ai.pl) - Négamax + alpha-beta opérationnel
 - **⚖️ Évaluation**: [src/evaluation.pl](../src/evaluation.pl) - Piece safety corrigée (ligne 311)
+
+
+
+
+
+
+
 
